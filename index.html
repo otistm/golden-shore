@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Ink Crossing</title>
+<meta name="description" content="Chart the sea. Reach the far shore. A mobile autobattler drawn in ink.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ink Crossing">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ink Crossing">
+<meta property="og:description" content="Chart the sea. Reach the far shore.">
+<meta property="og:image" content="/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ink Crossing: an ink-drawn ship sailing a dotted route toward fog, beside the words Chart the sea. Reach the far shore.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,900&family=Figtree:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fff;--ink:#000;--soft:#5c5c5c;--display:"Fraunces",Georgia,serif;--ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;--spring:cubic-bezier(.34,1.56,.64,1);color-scheme:light}
+*,*::before,*::after{margin:0;box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font:600 16px/1.4 var(--ui);-webkit-tap-highlight-color:transparent}
+main{max-width:480px;margin:0 auto;padding:10px 16px 28px;min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.scene{border:2.5px solid var(--ink);border-radius:22px;overflow:hidden;background:var(--paper)}
+.scene svg{display:block;width:100%;height:auto}
+.card{border:2.5px solid var(--ink);border-radius:24px;box-shadow:7px 8px 0 var(--ink);padding:22px 20px;display:grid;gap:14px;animation:land .8s cubic-bezier(.3,.7,.3,1) both .15s}
+@keyframes land{0%{opacity:0;transform:translateY(40px) scale(.9,1.12)}55%{opacity:1;transform:translateY(-6px) scale(1.03,.97)}80%{transform:translateY(1px)}100%{transform:none}}
+h1{font:italic 900 clamp(52px,15vw,72px)/.9 var(--display);letter-spacing:-.01em}
+.tag{font-weight:800;font-size:18px}
+.play{display:block;text-align:center;text-decoration:none;background:var(--ink);color:var(--paper);border:2.5px solid var(--ink);border-radius:18px;padding:14px 18px;font:italic 900 26px/1.1 var(--display);transition:transform .22s var(--spring)}
+.play:active{transform:scale(1.05,.88)}
+.play:focus-visible,.ghost:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+ul{list-style:none;display:grid;gap:8px;border-top:2px solid var(--ink);padding-top:14px}
+li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;font-size:15px}
+li svg{width:22px;height:22px;margin-top:1px}
+.ghost{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font:800 15px var(--ui);color:var(--ink)}
+.note{font-size:13px;color:var(--soft)}
+.fogtxt{font:italic 400 11px var(--display);fill:var(--soft)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 360 230" id="sea">
+      <defs><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" opacity=".18"/></pattern></defs>
+      <rect id="fogrect" x="0" y="0" width="360" height="230" fill="url(#fog)"/>
+      <text class="fogtxt" x="350" y="20" text-anchor="end" id="hbm">here be monsters</text>
+      <path id="route" d="M24 196 C70 170 70 130 118 128 S176 168 214 132 S262 62 300 60 S336 40 342 30" fill="none" stroke="#000" stroke-width="1.6" stroke-dasharray="1 6" stroke-linecap="round" opacity=".45"/>
+      <path id="inked" d="M24 196 C70 170 70 130 118 128 S176 168 214 132 S262 62 300 60 S336 40 342 30" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <g id="isles" stroke="#000" stroke-width="2" fill="#fff" stroke-linejoin="round"></g>
+      <g id="boat" stroke="#000" stroke-width="2" stroke-linejoin="round" fill="#fff"><g id="boatbob"><path d="M0 -24v17" fill="none"/><path d="M1 -22c6 3 7 8 6 13H1z"/><path d="M-10 -7h21l-3 5H-7z"/></g></g>
+    </svg>
+  </div>
+  <section class="card">
+    <h1>Ink Crossing</h1>
+    <p class="tag">Chart the sea. Reach the far shore.</p>
+    <a class="play" href="/play/">Play</a>
+    <ul>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"><path d="M3 19c4-3 14-3 18 0"/><path d="M12 18c0-4 .5-8 2-10"/><path d="M14 8c-3-2-6-1-7 1M14 8c2-3 5-3 6-1"/></svg><span>Three uncharted seas. A new chart every voyage.</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"><path d="M11 3v15"/><path d="M12 5c6 3 7 8 6 12h-6z" fill="#fff"/><path d="M2 18h20l-3 4H5z" fill="#fff"/></svg><span>Four ships, each with its own cargo to draft.</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"><path d="M3 12c4-5 10-5 14 0-4 5-10 5-14 0z" fill="#fff"/><path d="M17 12l4-3v6z" fill="#fff"/><circle cx="7" cy="11.3" r="1" fill="#000"/></svg><span>Fish, trade and meet the people of the route.</span></li>
+    </ul>
+    <button class="ghost" id="install" hidden>Add Ink Crossing to your home screen</button>
+    <p class="note" id="ios" hidden>On iPhone: tap Share, then Add to Home Screen.</p>
+  </section>
+</main>
+<script>
+/* The front-page voyage: the route inks itself in as the ship sails, islands pop up, and the fog lifts. */
+(()=>{
+  const route=document.getElementById('route'),inked=document.getElementById('inked'),boat=document.getElementById('boat'),bob=document.getElementById('boatbob'),isles=document.getElementById('isles'),fog=document.getElementById('fogrect'),hbm=document.getElementById('hbm');
+  const L=route.getTotalLength(),stops=[.0,.25,.47,.72,1];
+  inked.style.strokeDasharray=L;inked.style.strokeDashoffset=L;
+  const blob=(x,y,r,seed)=>{let d='';for(let k=0;k<=12;k++){const a=k/12*Math.PI*2,rr=r*(1+.22*Math.sin(a*3+seed)+.1*Math.cos(a*5+seed*2));d+=(k?'L':'M')+(x+Math.cos(a)*rr*1.3).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1)}return d+'z'};
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const P=f=>route.getPointAtLength(L*f);
+  let shown=0;
+  function isle(i){const p=P(stops[i]),el=document.createElementNS('http://www.w3.org/2000/svg','path');el.setAttribute('d',i===stops.length-1?`M${p.x-4} ${p.y-14}c9 6 5 16 3 26s5 18 0 26`:blob(p.x,p.y+2,7,i*1.7));
+    if(i===stops.length-1)el.setAttribute('fill','none');
+    el.style.transformBox='fill-box';el.style.transformOrigin='50% 50%';
+    if(!reduce)el.animate([{transform:'scale(.2,1.6)',opacity:0},{transform:'scale(1.2,.8)',opacity:1,offset:.5},{transform:'none',opacity:1}],{duration:520,easing:'cubic-bezier(.34,1.56,.64,1)'});
+    isles.appendChild(el)}
+  const DUR=9000,HOLD=1800;let t0=performance.now();
+  function frame(now){let t=(now-t0)/DUR;
+    if(t>1+HOLD/DUR){t0=now;t=0;shown=0;isles.innerHTML='';fog.style.opacity=1;hbm.style.opacity=1}
+    const f=Math.min(1,t),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2,p=P(e),q=P(Math.min(1,e+.01));
+    inked.style.strokeDashoffset=L*(1-e);
+    while(shown<stops.length&&e>=stops[shown]-.001){isle(shown);shown++}
+    boat.setAttribute('transform',`translate(${p.x} ${p.y-6})`);
+    bob.setAttribute('transform',`rotate(${Math.sin(now/420)*4}) scale(${q.x<p.x?-1:1},1) translate(0 ${Math.sin(now/300)*1.2})`);
+    fog.style.opacity=String(Math.max(0,1-e*1.15));hbm.style.opacity=String(Math.max(0,1-e*2));
+    requestAnimationFrame(frame)}
+  if(reduce){inked.style.strokeDashoffset=0;stops.forEach((s,i)=>isle(i));const p=P(1);boat.setAttribute('transform',`translate(${p.x} ${p.y-6})`);fog.style.opacity=0;hbm.style.opacity=0}
+  else requestAnimationFrame(frame);
+})();
+/* Home-screen install */
+let deferred=null;const btn=document.getElementById('install');
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;btn.hidden=false});
+btn.addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;btn.hidden=true});
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!navigator.standalone)document.getElementById('ios').hidden=false;
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>

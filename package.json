@@ -1,0 +1,13 @@
+{
+  "name": "ink-crossing",
+  "private": true,
+  "description": "Test tooling for Ink Crossing. The game itself has no dependencies and no build step.",
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "voyage": "node tools/voyage.mjs",
+    "sim": "node tools/sim.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

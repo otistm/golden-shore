@@ -1,0 +1,343 @@
+/* Ink Crossing: All cargo: the shared set and each ship's themed set, tier scaling, stats in context (auras), and generated item text. */
+"use strict";
+/* ---------- cargo: a shared set plus a themed set for each ship ----------
+   Fields (Bronze values, scaled by tier): dmg multi crit pierce burnPerHit poisonPerHit dmgX
+   shield shieldX heal healX burn poison slow:[n,s] haste:[target,s] charge:[target,s]
+   cleanse douse selfDmg grow:{stat:n}. start:{...} fires when a fight begins. on:[{ev,...}] reacts to events.
+   Auras: adjDmg adjCd adjCrit adjPre adjShield adjHeal adjBurn adjPoison tagDmg tagCd tagCrit tagHeal
+   tagShield tagBurn tagPoison tagPre edgeCd emptyCd hpBonus regen gold.                                  */
+const CI=[]; // compact item table: [key, name, size, cooldown (0 = passive), tags, ship, glyph or crew look, fields]
+const I=(k,n,s,cd,tags,ship,g,f)=>CI.push([k,n,s,cd,tags,ship,g,f||{}]);
+/* shared */
+I('dagger','Boarding Knife',1,4,'W','any','dagger',{dmg:8});
+I('pins','Belaying Pins',1,3.5,'W','any','pins',{dmg:4,multi:2});
+I('cutlass','Cutlass',2,6,'W','any','cutlass',{dmg:22});
+I('harpoon','Harpoon',2,5,'W','any','harpoon',{dmg:15,crit:.3});
+I('fenders','Fenders',1,5,'A','any','fenders',{shield:14});
+I('pork','Salt Pork',1,6,'F','any','pork',{heal:15});
+I('tar','Tar Bucket',2,8,'T','any','tar',{heal:26,shield:12});
+I('hook','Grappling Hook',1,7,'T','any','hook',{slow:[1,2]});
+I('net','Fishing Net',2,6,'T','any','net',{slow:[2,1.5]});
+I('compass','Brass Compass',1,0,'T','any','compass',{adjCd:.1});
+I('chest','Treasure Chest',1,0,'','any','chest',{gold:2});
+I('spyglass','Spyglass',1,0,'T','any','spyglass',{adjPre:.3});
+/* THE WREN: speed, haste, charge, crits and light blades */
+I('sail','Spare Sail',1,6,'R','sloop','sail',{haste:['adj',2]});
+I('rum','Rum Barrel',2,0,'F','sloop','rum',{start:{haste:['all',2]}});
+I('crows',"Crow's Nest",2,0,'R','sloop','crows',{tagCrit:['W',.1]});
+I('eel','Electric Eel',1,5,'W','sloop','eel',{dmg:6,pierce:1});
+I('jib','Jib Sail',1,4,'R','sloop','sail',{haste:['right',1.5]});
+I('mainsail','Mainsail',3,8,'R','sloop','sail',{haste:['all',2]});
+I('topsail','Topsail',2,5,'R','sloop','sail',{charge:['adj',1]});
+I('flyingjib','Flying Jib',1,3.5,'R','sloop','sail',{charge:['right',.8]});
+I('spinnaker','Spinnaker',3,10,'R','sloop','kite',{haste:['all',3],shield:10});
+I('rapier','Rapier',1,3,'W','sloop','rapier',{dmg:6,crit:.25});
+I('stiletto','Stiletto',1,2.5,'W','sloop','dagger',{dmg:4,pierce:1});
+I('twinblades','Twin Blades',2,4,'W','sloop','cutlass',{dmg:6,multi:2,crit:.1});
+I('swordcane','Sword Cane',1,4,'W','sloop','rapier',{dmg:7,crit:.3});
+I('sabre','Sabre',2,5,'W','sloop','cutlass',{dmg:18,crit:.15,on:[{ev:'crit',haste:['self',1]}]});
+I('riposte','Riposte Blade',1,4,'W','sloop','rapier',{dmg:8,on:[{ev:'hurt',charge:['self',1],icd:1}]});
+I('cutlass2','Boarding Sabre',2,5,'W','sloop','cutlass',{dmg:14,grow:{dmg:3}});
+I('boathook','Boathook',1,4,'W','sloop','hook',{dmg:7,slow:[1,1]});
+I('monkeyfist','Monkey Fist',1,3,'W','sloop','knot',{dmg:5,slow:[1,.5]});
+I('marlinspike','Marlinspike',1,3,'W','sloop','spike',{dmg:5,pierce:1});
+I('quickdraw','Quickdraw Pistol',1,5,'W','sloop','pistol',{dmg:14,start:{charge:['self',4]}});
+I('flintlock','Flintlock',2,7,'W','sloop','pistol',{dmg:30,crit:.2});
+I('pistols','Brace of Pistols',2,6,'W','sloop','pistol',{dmg:12,multi:2,crit:.15});
+I('lastword','Last Word',1,9,'W','sloop','dagger',{dmg:30,pierce:1});
+I('jollyboat','Jolly Boat',3,7,'T','sloop','boat',{dmg:14,multi:3});
+I('windlass','Windlass',2,6,'T','sloop','winch',{charge:['tag:W',1]});
+I('tackle','Block and Tackle',2,6,'T','sloop','pulley',{charge:['adj',1.5]});
+I('bell','Ship\'s Bell',1,8,'T','sloop','bell',{charge:['all',.5]});
+I('sandglass','Sandglass',1,6,'T','sloop','hourglass',{charge:['all',.8]});
+I('gale','Gale Horn',2,9,'T','sloop','horn',{haste:['all',2],slow:[1,2]});
+I('kite','Signal Kite',2,8,'R','sloop','kite',{slow:[2,2],haste:['adj',2]});
+I('slipstream','Slipstream',1,4,'R','sloop','feather',{dmg:5,haste:['right',1]});
+I('grog','Grog Keg',2,9,'F','sloop','rum',{heal:18,haste:['adj',2]});
+I('oar','Sprint Oar',2,6,'T','sloop','oar',{haste:['left',3]});
+I('bosun','Bosun',1,5,'K','sloop',{hat:'cap'},{haste:['rand2',1.5]});
+I('parrot','Parrot',1,6,'K','sloop','parrot',{dmg:3,on:[{ev:'crit',charge:['rand1',.5]}]});
+I('deckhand','Deckhand',1,5,'K','sloop',{hat:'bandana'},{charge:['right',1.5]});
+I('rigger','Rigger',1,5,'K','sloop',{},{haste:['left',1.5]});
+I('sailmaker','Sailmaker',1,6,'K','sloop',{hat:'hood',hair:1},{shieldX:['tag:R',4]});
+I('fencer','Fencing Master',2,0,'K','sloop',{hat:'plume'},{tagDmg:['W',3]});
+I('duelglove',"Duelist's Glove",1,0,'','sloop','glove',{adjCrit:.2});
+I('logline','Log Line',1,0,'R','sloop','rope',{tagCd:['R',.1]});
+I('figure8','Figure-Eight Knot',1,0,'R','sloop','knot',{adjPre:.4});
+I('tailwind','Tailwind Charm',1,0,'','sloop','feather',{start:{haste:['all',1.5]}});
+I('windvane','Wind Vane',1,0,'R','sloop','vane',{edgeCd:.2});
+I('lightrig','Light Rigging',1,0,'R','sloop','rope',{emptyCd:.03});
+I('bowsprit','Bowsprit',2,0,'R','sloop','spar',{tagPre:['W',.25]});
+I('pennant','Racing Pennant',1,0,'','sloop','flag',{on:[{ev:'haste',shield:3,icd:.5}]});
+/* THE BULWARK: shield, armor, health, slows, shield turned into damage */
+I('plating','Iron Plating',2,7,'A','galleon','plating',{shield:36});
+I('ballast','Ballast',2,8,'A','galleon','ballast',{shieldX:['empty',5]});
+I('anchor','Anchor',3,9,'W','galleon','anchor',{dmg:50,slow:[1,1.5]});
+I('figure','Figurehead',1,0,'','galleon','figure',{on:[{ev:'lowhp',shield:30}]});
+I('chain','Chain Shot',2,6,'W,C','galleon','chain',{dmg:14,slow:[1,1.5]});
+I('bulkhead','Bulkhead',2,6,'A','galleon','plating',{shield:24});
+I('ironclad','Iron Cladding',1,5,'A','galleon','plating',{shield:9});
+I('breastplate','Breastplate',1,5,'A','galleon','armor',{shield:10,on:[{ev:'hurt',shield:3,icd:1}]});
+I('pavise','Pavise',2,8,'A','galleon','shieldkite',{shield:40,slow:[1,1]});
+I('chainmail','Chain Mail',1,6,'A','galleon','chainmail',{shield:12,grow:{shield:3}});
+I('bastion','Bastion',3,10,'A','galleon','wall',{shield:60,heal:15});
+I('tortoise','Tortoise Formation',2,9,'A','galleon','shieldkite',{shield:30,haste:['adj',2]});
+I('watertight','Watertight Doors',2,7,'A','galleon','door',{shield:16,douse:2});
+I('fortress','Floating Fortress',3,12,'A','galleon','wall',{shield:45,charge:['tag:A',1]});
+I('sandbags','Sandbags',1,5,'A','galleon','ballast',{shield:8,shieldX:['empty',2]});
+I('ram','Iron Ram',3,9,'W','galleon','ram',{dmg:14,dmgX:['shield',.8]});
+I('shieldbash','Shield Bash',2,6,'W,A','galleon','shieldkite',{dmg:12,dmgX:['shield',.45]});
+I('gauntlet','Plate Gauntlet',1,4,'W,A','galleon','glove',{dmg:6,dmgX:['shield',.25]});
+I('crusher','Hull Crusher',3,11,'W','galleon','ram',{dmg:20,dmgX:['shield',1.2]});
+I('carronade','Carronade',3,9,'W,C','galleon','cannon',{dmg:30,dmgX:['shield',.5]});
+I('broadaxe','Boarding Axe',2,7,'W','galleon','axe',{dmg:28,slow:[1,1]});
+I('halberd','Halberd',3,8,'W','galleon','spear',{dmg:42,pierce:1});
+I('maul','Maul',3,10,'W','galleon','maul',{dmg:60,slow:[1,2],grow:{dmg:5}});
+I('anchorchain','Anchor Chain',2,7,'W','galleon','chain',{dmg:15,slow:[2,1.5]});
+I('grapeshot','Grapeshot',2,6,'W,C','galleon','ball',{dmg:8,multi:3});
+I('heavyshot','Heavy Shot',1,6,'W','galleon','ball',{dmg:14,slow:[1,.8]});
+I('ballista','Ballista',3,9,'W','galleon','harpoon',{dmg:34,pierce:1,slow:[1,1]});
+I('capstan','Capstan',2,8,'T','galleon','winch',{shield:12,slow:[2,2]});
+I('mooring','Mooring Line',1,6,'T','galleon','rope',{slow:[1,2.5]});
+I('hullpatch','Hull Patch',1,7,'T','galleon','tar',{heal:12});
+I('drydock','Dry Dock',2,12,'T','galleon','crate',{heal:35,cleanse:1});
+I('resolve','Oaken Resolve',1,8,'T','galleon','crate',{heal:10,healX:['missing',.1]});
+I('beacon','Beacon',1,9,'T','galleon','lantern',{shieldX:['tag:A',6]});
+I('marines','Marines',2,6,'K,W','galleon',{hat:'tricorn'},{dmg:14,multi:2});
+I('steadfast','Steadfast Crew',1,6,'K','galleon',{hat:'cap',beard:1},{shield:8,heal:6});
+I('quartermaster','Quartermaster',1,0,'K','galleon',{hat:'tricorn',beard:1},{adjShield:8});
+I('stoic','Stoic Helmsman',1,0,'K','galleon',{hat:'cap'},{hpBonus:20,on:[{ev:'hurt',shield:2,icd:.5}]});
+I('oak','Oak Timbers',2,0,'','galleon','crate',{hpBonus:40});
+I('ironbound','Ironbound Hull',3,0,'A','galleon','keel',{hpBonus:80,start:{shield:20}});
+I('keel','Reinforced Keel',2,0,'','galleon','keel',{start:{shield:30},on:[{ev:'lowhp',shield:30}]});
+I('lastline','Last Line',2,0,'A','galleon','shieldkite',{on:[{ev:'lowhp',heal:30,shield:30}]});
+I('barnacles','Barnacled Hull',2,0,'','galleon','shell',{on:[{ev:'hurt',dmg:4,icd:.5}]});
+I('buttress','Buttress',1,0,'A','galleon','wall',{adjShield:6,adjHeal:4});
+I('counterweight','Counterweight',1,0,'','galleon','ballast',{adjDmg:6});
+I('standard','Ship\'s Standard',1,0,'','galleon','flag',{tagShield:['A',5]});
+I('bulwarkwall','Bulwark Wall',2,0,'A','galleon','wall',{on:[{ev:'shield',heal:2,icd:.4}]});
+I('dropanchor','Drop Anchor',2,0,'','galleon','anchor',{start:{slow:[3,3]}});
+/* THE EMBER: cannons, powder, burn, crits that set things alight */
+I('cannon','Deck Cannon',3,10,'W,C,X','privateer','cannon',{dmg:40,burn:4});
+I('mortar','Mortar',3,11,'W,C,X','privateer','mortar',{dmg:28,burn:8});
+I('swivel','Swivel Gun',1,3,'W,C','privateer','swivel',{dmg:5});
+I('keg','Powder Keg',1,0,'X','privateer','keg',{adjDmg:5});
+I('guncrew','Gun Crew',1,0,'K','privateer','guncrew',{tagCd:['C',.15]});
+I('flare','Signal Flare',1,6,'X','privateer','flare',{burn:3});
+I('firepot','Fire Pot',2,5,'X','privateer','firepot',{burn:4});
+I('blunderbuss','Blunderbuss',2,5,'W','privateer','blunder',{dmg:5,multi:3,burnPerHit:1});
+I('grenado','Grenado',1,6,'X','privateer','bomb',{dmg:10,burn:3});
+I('hotshot','Heated Shot',2,7,'W,C,X','privateer','ball',{dmg:18,burn:4});
+I('incendiary','Incendiary Round',1,4,'C,X','privateer','ball',{dmg:4,burn:2});
+I('broadside','Broadside Battery',3,10,'W,C','privateer','cannon',{dmg:16,multi:3});
+I('bombard','Bombard',3,12,'W,C','privateer','mortar',{dmg:60,burn:6});
+I('twinswivel','Twin Swivels',2,3.5,'W,C','privateer','swivel',{dmg:5,multi:2});
+I('barshot','Bar Shot',2,6,'W,C','privateer','chain',{dmg:12,slow:[2,1]});
+I('crossfire','Crossfire',2,7,'C','privateer','cannon',{dmg:14,charge:['adj',1]});
+I('rocket','Congreve Rocket',1,8,'C,X','privateer','rocket',{dmg:18,burn:3,crit:.2});
+I('burstkeg','Bursting Keg',2,9,'X,C','privateer','keg',{dmg:20,burn:5,selfDmg:4});
+I('petard','Petard',1,10,'X','privateer','bomb',{dmg:30,selfDmg:5});
+I('pepperbox','Pepperbox',1,4,'W','privateer','pistol',{dmg:3,multi:3});
+I('brand','Branding Iron',1,5,'W,X','privateer','iron',{dmg:6,burn:2});
+I('scorch','Scorched Planks',2,6,'W','privateer','iron',{dmg:5,dmgX:['enemyBurn',1.5]});
+I('firearrows','Fire Arrows',2,5,'W,X','privateer','harpoon',{dmg:7,multi:2,burnPerHit:1});
+I('fireworks','Fireworks',1,7,'X','privateer','flare',{dmg:3,multi:3,burnPerHit:1});
+I('fuse','Slow Fuse',1,8,'X','privateer','fuse',{burn:6,charge:['adj',1]});
+I('greekfire','Greek Fire',2,8,'X','privateer','jar',{burn:7,slow:[1,1]});
+I('fireship','Fire Ship',3,12,'X','privateer','shipfire',{burn:16});
+I('hellburner','Hellburner',3,14,'X','privateer','shipfire',{dmg:25,burn:12});
+I('coalpan','Coal Brazier',2,6,'X','privateer','firepot',{burn:4,grow:{burn:1}});
+I('sparks','Flint and Steel',1,3,'X','privateer','flint',{burn:1});
+I('smokepot','Smoke Pot',1,7,'T','privateer','firepot',{slow:[2,1.5],burn:1});
+I('linstock','Linstock',1,5,'T','privateer','linstock',{charge:['tag:C',1]});
+I('cartridges','Paper Cartridges',1,6,'T','privateer','scroll',{charge:['adj',1.5]});
+I('gunner','Master Gunner',1,0,'K','privateer',{hat:'tricorn',patch:1},{tagCrit:['C',.15]});
+I('monkey','Powder Monkey',1,4,'K','privateer',{hat:'cap',kid:1},{charge:['adj',1]});
+I('fireeater','Fire-eater',1,6,'K','privateer',{hat:'bandana',beard:1},{burn:3,heal:4});
+I('cannoneers','Cannon Crew',2,0,'K','privateer',{hat:'bandana'},{tagDmg:['C',6]});
+I('powderhorn','Powder Horn',1,0,'','privateer','horn',{adjDmg:6,adjBurn:1});
+I('ramrod','Ramrod',1,0,'T','privateer','spar',{tagCd:['C',.15]});
+I('tinderbox','Tinderbox',1,0,'X','privateer','box',{start:{burn:4}});
+I('furnace','Shot Furnace',2,0,'X','privateer','galley',{tagBurn:['X',1]});
+I('kindling','Kindling',1,0,'X','privateer','box',{tagCd:['X',.15]});
+I('gunwale','Gunwale Rack',2,0,'','privateer','rack',{adjPre:.5});
+I('magazine','Powder Magazine',2,0,'X','privateer','keg',{on:[{ev:'crit',burn:2,icd:.3}]});
+I('slowmatch','Slow Match',1,0,'X','privateer','fuse',{on:[{ev:'use',tag:'C',burn:1,icd:.2}]});
+I('wildfire','Wildfire',2,0,'X','privateer','flame',{on:[{ev:'burn',dmg:2,icd:.4}]});
+I('blackflag','Black Flag',1,0,'','privateer','flag',{start:{slow:[2,2],burn:3}});
+I('phoenix','Phoenix Figurehead',2,0,'X','privateer','figure',{on:[{ev:'lowhp',heal:30,burn:10}]});
+/* THE LOTUS: healing, poison, food and tea, slows and calm */
+I('lime','Lime Crate',1,7,'F','junk','lime',{heal:10,cleanse:1});
+I('pump','Bilge Pump',2,5,'T','junk','pump',{heal:8,douse:2});
+I('puffer','Pufferfish',1,6,'V','junk','puffer',{poison:2});
+I('galley','Galley Stove',2,0,'X','junk','galley',{tagHeal:['F',.5]});
+I('teapot','Teapot',1,6,'F','junk','teapot',{heal:9,cleanse:1});
+I('jasmine','Jasmine Tea',1,4,'F','junk','cup',{heal:5});
+I('ginseng','Ginseng Root',1,8,'F','junk','root',{heal:10,grow:{heal:3}});
+I('kelp','Kelp Wrap',1,5,'F','junk','kelp',{heal:6,shield:4});
+I('ricebowl','Rice Bowl',1,6,'F','junk','bowl',{heal:8,charge:['adj',1]});
+I('noodles','Noodle Pot',2,9,'F','junk','bowl',{heal:20});
+I('dumplings','Dumplings',1,5,'F','junk','bowl',{heal:7});
+I('serpentwine','Serpent Wine',1,6,'F,V','junk','bottle',{heal:5,poison:2});
+I('scorpion','Pickled Scorpion',1,6,'F,V','junk','jar',{heal:3,poison:3});
+I('fugu','Fugu Knife',1,5,'W,V','junk','dagger',{dmg:4,poison:2});
+I('darts','Venom Darts',1,4,'W,V','junk','dart',{dmg:2,multi:2,poisonPerHit:1});
+I('blowpipe','Blowpipe',2,6,'W,V','junk','pipe',{poison:4});
+I('moray','Moray Eel',1,6,'W,V','junk','eel',{dmg:6,poison:2,pierce:1});
+I('seasnake','Sea Snake',1,7,'V','junk','snake',{poison:3,slow:[1,1]});
+I('jellyfish','Jellyfish Jar',2,8,'V','junk','jar',{poison:5,slow:[2,1.5]});
+I('glowcap','Glowcap',1,7,'V','junk','mushroom',{poison:2,grow:{poison:1}});
+I('miasma','Miasma Censer',2,9,'V','junk','incense',{poison:6});
+I('toxinsac','Toxin Sac',1,6,'V','junk','jar',{dmg:2,dmgX:['enemyPoison',1]});
+I('whisper','Whispering Reed',1,6,'T','junk','reed',{slow:[2,1],poison:1});
+I('bamboo','Bamboo Staff',2,4,'W','junk','staff',{dmg:7,slow:[1,.8]});
+I('guandao','Guandao',3,8,'W','junk','spear',{dmg:30,slow:[1,1]});
+I('chakram','Chakram',1,4,'W','junk','ring',{dmg:5,multi:2});
+I('fan','Paper Fan',1,5,'T','junk','fan',{slow:[1,1.5],douse:1});
+I('dragonkite','Dragon Kite',2,8,'T','junk','kite',{slow:[3,1.5]});
+I('stillwater','Still Water',2,10,'T','junk','bowl',{slow:[4,2],heal:8});
+I('pearlpowder','Pearl Powder',1,7,'T','junk','pearl',{heal:6,cleanse:1,douse:2});
+I('antidote','Antidote',1,9,'T','junk','bottle',{heal:10,cleanse:1});
+I('acupuncture','Acupuncture',1,5,'T','junk','needle',{charge:['adj',1],heal:3});
+I('tidebell','Tidecaller Bell',1,8,'T','junk','bell',{healX:['tag:F',4]});
+I('lacquer','Lacquer Shield',2,6,'A','junk','shieldkite',{shield:12,on:[{ev:'heal',shield:2,icd:.3}]});
+I('clam','Giant Clam',2,8,'A','junk','shell',{shield:18,heal:6});
+I('tortoiseshell','Tortoiseshell',1,6,'A','junk','shell',{shield:8,heal:4});
+I('herbalist','Herbalist',1,7,'K','junk',{hat:'hood'},{heal:8,charge:['adj',1]});
+I('monk','Tide Monk',1,6,'K','junk',{hat:'hood',beard:1},{heal:5,shield:6});
+I('cormorant','Cormorant',1,5,'K','junk','bird',{dmg:5,heal:3});
+I('lotuslamp','Lotus Lantern',1,0,'','junk','lantern',{tagHeal:['F',.25]});
+I('abacus','Abacus',1,0,'','junk','abacus',{tagPoison:['V',1]});
+I('incense','Incense',1,0,'','junk','incense',{regen:1});
+I('koi','Koi Pond',2,0,'','junk','koi',{regen:2});
+I('lanternrow','Lantern String',2,0,'','junk','lantern',{adjHeal:4,adjCd:.1});
+I('jade','Jade Talisman',1,0,'','junk','jade',{hpBonus:25,regen:1});
+I('nettle','Nettle Poultice',1,0,'','junk','herb',{on:[{ev:'hurt',poison:1,icd:.5}]});
+I('lotusflower','Lotus Blossom',1,0,'','junk','lotus',{on:[{ev:'heal',charge:['rand1',.4],icd:.3}]});
+I('moongate','Moon Gate',2,0,'','junk','gate',{on:[{ev:'lowhp',heal:40,cleanse:1}]});
+
+const DEFS={};CI.forEach(([k,n,s,cd,tags,ship,g,f])=>{DEFS[k]=Object.assign({n,s,cd,tags:tags?tags.split(','):[],ship},f,typeof g==='string'?{i:g}:{look:g})});
+const KEYS=Object.keys(DEFS);
+const SHIPKEYS=['sloop','galleon','privateer','junk'];
+const TAGN={W:'Weapon',C:'Cannon',F:'Food',X:'Fire',T:'Tool',A:'Armor',R:'Rigging',V:'Venom',K:'Crew'};
+const TIER=['Bronze','Silver','Gold','Diamond'];
+const M=[1,2,3,4];
+const BELL=30;
+const price=(k,t)=>({1:3,2:6,3:9})[DEFS[k].s]*[1,2,4,8][t];
+const sellP=(k,t)=>hasC('cove')?price(k,t):Math.max(1,Math.floor(price(k,t)/2));
+const used=l=>l.reduce((a,b)=>a+DEFS[b.k].s,0);
+const isPassive=k=>!DEFS[k].cd;
+function rollTier(depth,r){r=r||Math.random;const x=r();if(depth>=16&&x<.15)return 3;if(depth>=11&&x<.38)return 2;if(depth>=5&&x<.68)return 1;return 0}
+function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship)}
+const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any');
+function drawKey(r,ship){ship=ship||(G&&G.ship)||pick(r,SHIPKEYS);return r()<.2?pick(r,NEUTRAL):pick(r,poolFor(ship))}
+
+/* ---------- scaling by tier ---------- */
+const AMT=['dmg','shield','heal','selfDmg','douse'],DOT=['burn','poison','burnPerHit','poisonPerHit'],DM=[1,1.6,2.2,2.8];
+function scaleFx(f,t){if(!f)return null;const m=M[t],q=1+.25*t,o={};
+  for(const key in f){const v=f[key];
+    if(AMT.includes(key))o[key]=Math.round(v*m);
+    else if(DOT.includes(key))o[key]=Math.round(v*DM[t]);
+    else if(key==='crit')o[key]=v*q;
+    else if(key==='slow')o[key]=[v[0],+(v[1]*q).toFixed(1)];
+    else if(key==='haste'||key==='charge')o[key]=[v[0],+(v[1]*q).toFixed(1)];
+    else if(key==='dmgX'||key==='shieldX'||key==='healX'){const c=v[0].startsWith('tag:')||v[0]==='empty';o[key]=[v[0],c?Math.round(v[1]*m):+(v[1]*q).toFixed(2)]}
+    else if(key==='grow'){o.grow={};for(const s in v)o.grow[s]=Math.round(v[s]*(s==='burn'||s==='poison'?DM[t]:m))}
+    else o[key]=v}
+  return o}
+const auraV=(v,t,ratio,dot)=>ratio?+(v*(1+.25*t)).toFixed(3):Math.round(v*(dot?DM[t]:M[t]));
+
+/* item stats in context: its own effect, scaled, plus every aura from the rest of the hold */
+function statsOf(list,i){
+  const it=list[i],d=DEFS[it.k],t=it.t,tags=d.tags;
+  const fx=scaleFx(pickFx(d),t)||{},s={cd:d.cd||0,fx,start:scaleFx(d.start,t),on:(d.on||[]).map(h=>Object.assign(scaleFx(h,t),{ev:h.ev,tag:h.tag,icd:h.icd})),pre:0,boost:[],W:tags.includes('W')};
+  const last=list.length-1,empty=10-used(list);
+  list.forEach((o,j)=>{if(j===i)return;const a=DEFS[o.k],tj=o.t,adj=Math.abs(j-i)===1,nm=a.n;
+    const add=(cond,apply)=>{if(cond){apply();if(!s.boost.includes(nm))s.boost.push(nm)}};
+    if(adj){
+      if(a.adjDmg)add(s.W&&fx.dmg!=null,()=>fx.dmg+=auraV(a.adjDmg,tj));
+      if(a.adjCd)add(s.cd>0,()=>s.cd*=1-auraV(a.adjCd,tj,1));
+      if(a.adjCrit)add(s.W,()=>fx.crit=(fx.crit||0)+auraV(a.adjCrit,tj,1));
+      if(a.adjPre)add(s.cd>0,()=>s.pre+=auraV(a.adjPre,tj,1));
+      if(a.adjShield)add(fx.shield!=null,()=>fx.shield+=auraV(a.adjShield,tj));
+      if(a.adjHeal)add(fx.heal!=null,()=>fx.heal+=auraV(a.adjHeal,tj));
+      if(a.adjBurn)add(fx.burn!=null||fx.burnPerHit!=null,()=>{if(fx.burn!=null)fx.burn+=auraV(a.adjBurn,tj,0,1);else fx.burnPerHit+=auraV(a.adjBurn,tj,0,1)});
+      if(a.adjPoison)add(fx.poison!=null,()=>fx.poison+=auraV(a.adjPoison,tj,0,1))}
+    const tg=(key,f)=>{const v=a[key];if(v&&tags.includes(v[0]))f(v[1])};
+    tg('tagDmg',v=>add(fx.dmg!=null,()=>fx.dmg+=auraV(v,tj)));
+    tg('tagCd',v=>add(s.cd>0,()=>s.cd*=1-auraV(v,tj,1)));
+    tg('tagCrit',v=>add(fx.dmg!=null,()=>fx.crit=(fx.crit||0)+auraV(v,tj,1)));
+    tg('tagHeal',v=>add(fx.heal!=null,()=>fx.heal=Math.round(fx.heal*(1+auraV(v,tj,1)))));
+    tg('tagShield',v=>add(fx.shield!=null,()=>fx.shield+=auraV(v,tj)));
+    tg('tagBurn',v=>add(fx.burn!=null,()=>fx.burn+=auraV(v,tj,0,1)));
+    tg('tagPoison',v=>add(fx.poison!=null,()=>fx.poison+=auraV(v,tj,0,1)));
+    tg('tagPre',v=>add(s.cd>0,()=>s.pre+=auraV(v,tj,1)));
+    if(a.edgeCd)add(s.cd>0&&(i===0||i===last),()=>s.cd*=1-auraV(a.edgeCd,tj,1));
+    if(a.emptyCd)add(s.cd>0&&empty>0,()=>s.cd*=1-Math.min(.5,auraV(a.emptyCd,tj,1)*empty));
+  });
+  if(fx.dmg==null&&fx.dmgX)fx.dmg=0;
+  s.cd=Math.round(s.cd*10)/10;if(fx.crit)fx.crit=Math.min(.9,fx.crit);s.pre=Math.min(.9,s.pre);
+  return s;
+}
+const FXKEYS=['dmg','multi','crit','pierce','burnPerHit','poisonPerHit','dmgX','shield','shieldX','heal','healX','burn','poison','slow','haste','charge','cleanse','douse','selfDmg','grow'];
+function pickFx(d){const o={};let any=false;FXKEYS.forEach(k=>{if(d[k]!=null){o[k]=d[k];any=true}});return any?o:null}
+function sideOf(list){const o={hp:0,regen:0,gold:0};list.forEach(it=>{const d=DEFS[it.k];if(d.hpBonus)o.hp+=auraV(d.hpBonus,it.t);if(d.regen)o.regen+=auraV(d.regen,it.t);if(d.gold)o.gold+=auraV(d.gold,it.t)});return o}
+
+/* ---------- words for effects ---------- */
+const pc=v=>Math.round(v*100)+'%';
+const TGT={adj:'adjacent items',left:'the item to its left',right:'the item to its right',all:'all your items',self:'this item',rand1:'a random item of yours',rand2:'2 random items of yours'};
+const tgtName=t=>t.startsWith('tag:')?`your ${TAGN[t.slice(4)]} items`:TGT[t];
+function xName(x){const[from,r]=x;
+  if(from==='shield')return`${pc(r)} of your shield`;if(from==='enemyBurn')return`${pc(r)} of the enemy's burn`;if(from==='enemyPoison')return`${pc(r)} of the enemy's poison`;
+  if(from==='missing')return`${pc(r)} of your missing health`;if(from==='empty')return`${r} for each empty hold slot`;return`${r} for each ${TAGN[from.slice(4)]} item you carry`}
+function fxWords(f){const L=[];if(!f)return L;
+  if(f.dmg!=null||f.dmgX){let t=f.dmgX?(f.dmg?`Deal ${f.dmg} damage plus ${xName(f.dmgX)}`:`Deal damage equal to ${xName(f.dmgX)}`):`Deal ${f.dmg} damage`;
+    if(f.multi>1)t+=`, ${f.multi} times`;t+='.';if(f.pierce)t+=' Ignores shield.';if(f.burnPerHit)t+=` Each hit burns for ${f.burnPerHit}.`;if(f.poisonPerHit)t+=` Each hit poisons for ${f.poisonPerHit}.`;L.push(t)}
+  if(f.crit)L.push(`${pc(f.crit)} crit chance.`);
+  if(f.shield!=null||f.shieldX)L.push(f.shieldX?(f.shield?`Gain ${f.shield} shield plus ${xName(f.shieldX)}.`:`Gain shield equal to ${xName(f.shieldX)}.`):`Gain ${f.shield} shield.`);
+  if(f.heal!=null||f.healX)L.push((f.healX?(f.heal?`Heal ${f.heal} plus ${xName(f.healX)}`:`Heal ${xName(f.healX)}`):`Heal ${f.heal}`)+'.');
+  if(f.burn)L.push(`Burn the enemy for ${f.burn}.`);
+  if(f.poison)L.push(`Poison the enemy for ${f.poison}.`);
+  if(f.slow)L.push(`Slow ${f.slow[0]===1?'an enemy item':f.slow[0]+' enemy items'} for ${f.slow[1]}s.`);
+  if(f.haste)L.push(`Haste ${tgtName(f.haste[0])} for ${f.haste[1]}s.`);
+  if(f.charge)L.push(`Charge ${tgtName(f.charge[0])} by ${f.charge[1]}s.`);
+  if(f.cleanse)L.push('Remove all your poison.');
+  if(f.douse)L.push(`Remove ${f.douse} of your burn.`);
+  if(f.selfDmg)L.push(`Costs you ${f.selfDmg} health.`);
+  if(f.grow)for(const k in f.grow)L.push(`Gains +${f.grow[k]} ${k==='dmg'?'damage':k} each use this fight.`);
+  return L}
+const EVN={crit:'When you crit',burn:'When you apply burn',poison:'When you apply poison',shield:'When you gain shield',heal:'When you heal',hurt:'When a weapon hits you',lowhp:'The first time you drop below half health',haste:'When you haste an item',adjUse:'When an adjacent item is used'};
+function describe(list,i){
+  const it=list[i],d=DEFS[it.k],t=it.t,s=statsOf(list,i),L=[],g=new Set();
+  const A=(key,f)=>{if(d[key]!=null)L.push(f(d[key]))};
+  A('adjDmg',v=>`Adjacent weapons deal +${auraV(v,t)} damage.`);
+  A('adjCd',v=>`Adjacent items charge ${pc(auraV(v,t,1))} faster.`);
+  A('adjCrit',v=>`Adjacent weapons get +${pc(auraV(v,t,1))} crit chance.`);
+  A('adjPre',v=>`Adjacent items start fights ${pc(auraV(v,t,1))} charged.`);
+  A('adjShield',v=>`Adjacent shield items give +${auraV(v,t)} shield.`);
+  A('adjHeal',v=>`Adjacent healing items heal +${auraV(v,t)}.`);
+  A('adjBurn',v=>`Adjacent burn items burn +${auraV(v,t,0,1)} more.`);
+  A('adjPoison',v=>`Adjacent poison items poison +${auraV(v,t,0,1)} more.`);
+  A('tagDmg',v=>`Your ${TAGN[v[0]]} items deal +${auraV(v[1],t)} damage.`);
+  A('tagCd',v=>`Your ${TAGN[v[0]]} items charge ${pc(auraV(v[1],t,1))} faster.`);
+  A('tagCrit',v=>`Your ${TAGN[v[0]]} items get +${pc(auraV(v[1],t,1))} crit chance.`);
+  A('tagHeal',v=>`Your ${TAGN[v[0]]} items heal ${pc(auraV(v[1],t,1))} more.`);
+  A('tagShield',v=>`Your ${TAGN[v[0]]} items give +${auraV(v[1],t)} shield.`);
+  A('tagBurn',v=>`Your ${TAGN[v[0]]} items burn +${auraV(v[1],t,0,1)} more.`);
+  A('tagPoison',v=>`Your ${TAGN[v[0]]} items poison +${auraV(v[1],t,0,1)} more.`);
+  A('tagPre',v=>`Your ${TAGN[v[0]]} items start fights ${pc(auraV(v[1],t,1))} charged.`);
+  A('edgeCd',v=>`Your leftmost and rightmost items charge ${pc(auraV(v,t,1))} faster.`);
+  A('emptyCd',v=>`Your items charge ${pc(auraV(v,t,1))} faster for each empty hold slot.`);
+  A('hpBonus',v=>`+${auraV(v,t)} max health.`);
+  A('regen',v=>`Heal ${auraV(v,t)} every second.`);
+  A('gold',v=>`Earn +${auraV(v,t)} gold for every fight you win.`);
+  L.push(...fxWords(s.fx));
+  if(s.start)L.push('When a fight starts: '+fxWords(s.start).map(x=>x[0].toLowerCase()+x.slice(1)).join(' '));
+  s.on.forEach(h=>L.push(`${h.ev==='use'?`When you use a ${TAGN[h.tag]} item`:EVN[h.ev]}: `+fxWords(h).map(x=>x[0].toLowerCase()+x.slice(1)).join(' ')));
+  if(s.pre&&d.cd)L.push(`Starts fights ${pc(s.pre)} charged.`);
+  if(s.boost.length)L.push(`Boosted by your ${s.boost.join(', ')}.`);
+  const all=[s.fx,s.start,...s.on];
+  all.forEach(f=>{if(!f)return;if(f.burn||f.burnPerHit)g.add('Burn hits every half second, then drops by 1.');if(f.poison||f.poisonPerHit)g.add('Poison hits every second and ignores shield.');
+    if(f.slow)g.add('Slowed items charge at half speed.');if(f.haste)g.add('Hasted items charge at double speed.');if(f.charge)g.add('Charging moves an item\'s cooldown forward.')});
+  return{s,L,g:[...g],tags:d.tags.map(x=>TAGN[x])};
+}

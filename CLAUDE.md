@@ -1,0 +1,101 @@
+# Ink Crossing: notes for Claude Code
+
+Ink Crossing is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
+
+You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war. It has ports, threats, elites, events, people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 10-slot hold.
+
+## Who you're working with
+Otis is the designer. He doesn't read code. He judges changes by playing them on his phone.
+- Explain every change in plain language: what the player will see and feel, not how the code works.
+- After pushing a branch, give Otis the Vercel preview link so he can play it before it goes live.
+- Keep replies short. When a design decision is his to make, ask one question at a time.
+
+## How the project is built
+- **No build step, no frameworks, no npm packages in the game.** Plain HTML, CSS and JavaScript files are served as-is by Vercel. The only outside code is Google Fonts and, when online services are configured, Supabase's client from a CDN.
+- `index.html`: the front page (an animated voyage and a Play button).
+- `play/index.html`: the game page. It loads `styles.css` and then the scripts in `play/js/` **in the order listed there**.
+- The scripts are classic scripts that share one global scope (`"use strict"` at the top of each). Order matters: while a file is loading, it can only use things defined in files above it. Code that runs later (on a tap, per frame) can use anything.
+- `play/js/config.js`: `VERSION` and the Supabase URL and publishable key. The key is public by design. **Never add a Supabase secret or service key anywhere.**
+- `manifest.webmanifest`, `sw.js`, `icons/`, `og-image.png`: home-screen install and share previews. The service worker is network-first. When you add, rename or remove a game file, update the `CORE` list in `sw.js` and bump `CACHE`.
+- `supabase/`: SQL files Otis runs by hand in the Supabase SQL Editor, numbered in order.
+- `tools/` and `package.json`: test tooling only (Playwright). Never loaded by the game.
+
+| File | What's in it |
+|---|---|
+| config.js | Version and online settings |
+| core.js | Seeded randomness (`RNG`, `pick`, `ri`) |
+| glyphs.js | Ink glyph library, item icons, ship emblems, upgrade chevrons |
+| items.js | All cargo as `I(...)` rows (a shared set plus about 48 per ship), tier scaling, stats in context (auras), generated item text |
+| world.js | Ships, traits, enemies, seas, landmarks (`CHARTS`), story (`LORE`), events |
+| fish.js | Fish species, drawings, creel helpers |
+| people.js | Portraits, NPCs and quests (Hock's locker, Wet Jack's letter, the lost cartographers), dialogue, creel sheet |
+| fishing.js | The fishing minigame |
+| state.js | Voyage state `G`, Atlas `A`, saving and migration, map generation, seeded enemy boards |
+| online.js | Supabase connection and the feedback screen |
+| ui.js | Boards, item sheets, the hold and locker dock, drag and drop |
+| title.js | Title screen, ship selection, starting a voyage |
+| chart.js | The voyage chart, previews, sailing to a stop |
+| port.js | Market, fish market, dock visitors |
+| rewards.js | Events, spoils, landmark picks |
+| battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
+| atlas.js | The cartographer's log and the Atlas |
+| main.js | Startup (always last) |
+
+## Items: the one place to add content
+Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fields)` line in items.js. Item text is generated from the data, so never write descriptions by hand.
+- A cooldown of 0 means passive.
+- Tags: W weapon, C cannon, F food, X fire, T tool, A armor, R rigging, V venom, K crew.
+- The field language (effects, `start`, `on` reactions, auras) is documented at the top of items.js.
+- New glyphs go in glyphs.js. They're 40×40, with class `w` for paper fill and `k` for ink fill.
+
+## Every change
+1. Work on a new branch, never directly on `main`.
+2. Bump `VERSION` in `play/js/config.js` (patch for fixes, minor for features). Add a line to `CHANGELOG.md` in plain language.
+3. Test:
+   - `npm run check`: all scripts parse.
+   - `npm run voyage`: a bot plays full voyages at phone size and fails on any error.
+   - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
+   - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
+4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
+
+## Protect testers' saved progress
+Testers keep progress in their browser's localStorage. An update must never wipe or break it.
+- The keys are `crossing-atlas` (meta progress: ships unlocked, bestiary, cargo, fish, people, landmarks, daily bests) and `crossing-voyage` (the voyage in progress).
+- Never rename or remove a saved field.
+  - New Atlas fields get a default in `migrateAtlas()`.
+  - New voyage fields go in `VOYAGE_DEFAULTS` (both in state.js).
+  - If a field's meaning changes, bump `ATLAS_SCHEMA` or `VOYAGE_SCHEMA` and convert old data in the migrate function.
+- Unreadable save data is kept aside under `-unreadable`. A backup copy of the Atlas is kept under `crossing-atlas-backup` each time the version changes.
+- Changing map generation, enemies or item keys changes voyages already in progress. Tell Otis that paused voyages may look different.
+
+## Keep voyages deterministic
+Two captains on the same voyage code must meet the same map, enemies, events, NPC outcomes, loot, first shop offers and fish. That's what the planned PvP ghosts depend on.
+- All of that uses `RNG(G.seed, ...)`.
+- Only player-driven randomness uses `Math.random`: rerolls, in-fight crits and random targets.
+
+## Supabase
+- Table `crossing_feedback`: tester notes, readable only in the Supabase dashboard. Players are anonymous Supabase users, and row-level security lets each player insert only their own notes.
+- Feedback links only appear once `SUPABASE_URL` and `SUPABASE_ANON_KEY` are filled in `config.js`. The same Supabase project as Ink Nine works, because the table names don't overlap.
+- Any schema change needs a new numbered file in `supabase/` and a clear note to Otis to run it before merging.
+- Planned next: PvP ghosts, meaning snapshots of other captains' holds, replayed on the same stops of the same voyage code.
+
+## Look and feel (keep it consistent)
+- Paper and ink only: white `#fff` and black `#000`, with grey only for secondary text. Show tiers and states with line style, never color:
+  - Bronze: single line
+  - Silver: double line
+  - Gold: heavy line with an offset shadow
+  - Diamond: solid ink
+- Fonts: Fraunces for display (italic 900, italic 400 for the log) and Figtree for the UI (600 and 800).
+- Cards use a 2 to 2.5px ink border, a hard offset shadow and a large radius.
+- Motion follows Disney's principles: squash and stretch, anticipation, follow-through, slow in and out. Use `--spring: cubic-bezier(.34,1.56,.64,1)`.
+- Mobile first, portrait, one thumb. Respect safe areas and `prefers-reduced-motion`. The hold stays docked at the bottom on the chart and port screens.
+- Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
+
+## Smoke test before sharing a preview
+- The front page animates and Play opens the game. The title shows the version.
+- Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
+- Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
+- Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.
+- Try a fishing spot, an NPC and an event.
+- Refresh on the chart, then Continue voyage resumes where you were.
+- No errors in the browser console.
