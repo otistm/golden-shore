@@ -10,8 +10,8 @@ const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
-  const out=Object.assign({sv:ATLAS_SCHEMA,voyages:0,wins:0,bosses:0,elites:0,met:{},beat:{},items:{},charts:{},fish:{},people:{},best:0,daily:{}},m||{});
-  ['met','beat','items','charts','fish','people','daily'].forEach(k=>{if(!out[k]||typeof out[k]!=='object')out[k]={}});
+  const out=Object.assign({sv:ATLAS_SCHEMA,voyages:0,wins:0,bosses:0,elites:0,met:{},beat:{},items:{},charts:{},fish:{},people:{},tips:{},tutDone:false,best:0,daily:{}},m||{});
+  ['met','beat','items','charts','fish','people','tips','daily'].forEach(k=>{if(!out[k]||typeof out[k]!=='object')out[k]={}});
   ['voyages','wins','bosses','elites','best'].forEach(k=>{if(typeof out[k]!=='number'||!isFinite(out[k]))out[k]=0});
   // for the future: if(out.sv<2){ ...convert...; out.sv=2; }
   out.sv=ATLAS_SCHEMA;return out}
@@ -21,7 +21,7 @@ function loadA(){const{raw,val}=readKey('crossing-atlas'),out=migrateAtlas(val);
   out.lastVersion=VERSION;return out}
 let A=loadA();
 function saveA(){try{localStorage.setItem('crossing-atlas',JSON.stringify(A))}catch(e){}}
-function save(){try{const{sel,moving,...r}=G;localStorage.setItem('crossing-voyage',JSON.stringify(r))}catch(e){}}
+function save(){if(G&&G.tut)return;try{const{sel,moving,...r}=G;localStorage.setItem('crossing-voyage',JSON.stringify(r))}catch(e){}}
 function load(){return migrateVoyage(readKey('crossing-voyage').val)}
 function clearSave(){try{localStorage.removeItem('crossing-voyage')}catch(e){}}
 const hasC=k=>!!(G&&G.charts&&G.charts.some(c=>c.k===k));
@@ -68,6 +68,7 @@ function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extr
 
 /* ---------- enemy boards (seeded: every captain on this sea meets the same crew) ---------- */
 function enemyOf(n){
+  if(n.fixed)return{e:ENEMIES[n.enemy],list:n.fixed.list.map(x=>({...x})),hp:n.fixed.hp,depth:depthOf(n)};
   const e=ENEMIES[n.enemy],depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
   let budget=(6+depth*6)*mult;const list=[];
   e.sig.forEach(k=>{const t=rollTier(depth,r);if(used(list)+DEFS[k].s<=10){list.push({k,t});budget-=price(k,t)*.5}});

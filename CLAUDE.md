@@ -39,6 +39,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | rewards.js | Events, spoils, landmark picks |
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
+| coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
 | main.js | Startup (always last) |
 
 ## Items: the one place to add content
@@ -57,6 +58,16 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
+
+## Tutorial and tips
+- The game reports moments with `coach(event)`: `port`, `bought`, `moved`, `chart`, `sail`, `fight`, `spoils`, `spoilsTaken`, `fishing`, `fishDone`, `landmarkOpen`, `landmark`.
+- Each step in `TUT` has `when` (the event that shows it), `until` (the event that moves on, or `next`/`finish` buttons), an optional `target` to highlight, and `pause` to hold the fight.
+- If you rename a screen element a step targets, or change when one of those events fires, update `TUT` and replay the tutorial.
+- The tutorial uses a fixed five-stop map, a guaranteed-winnable fight, `G.tut`, and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone`.
+- One-time tips live in `TIPS` and show once per player. `A.tips` remembers which ones they've seen.
+- Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
+  - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
+  - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
 ## Protect testers' saved progress
 Testers keep progress in their browser's localStorage. An update must never wipe or break it.
@@ -92,6 +103,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
 ## Smoke test before sharing a preview
+- A fresh player sees Learn to sail first. The tutorial runs start to finish on both the fishing and the isle branch, and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
 - Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.

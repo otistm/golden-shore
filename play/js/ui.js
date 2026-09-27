@@ -2,7 +2,7 @@
 "use strict";
 /* ---------- ui helpers ---------- */
 const app=document.getElementById('app');
-function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);const c=document.getElementById('coach');if(c){const r=c.getBoundingClientRect();if(r.top<innerHeight/2)t.style.top=(r.bottom+10)+'px'}setTimeout(()=>t.remove(),2200)}
 function pop(el,txt,cls){if(!el||(B&&B.quiet))return;const r=el.getBoundingClientRect();const p=document.createElement('div');p.className='pop '+(cls||'');p.textContent=txt;p.style.left=(r.left+r.width/2+(Math.random()*18-9))+'px';p.style.top=(r.top+r.height*.45)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}
 function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
@@ -36,7 +36,7 @@ function itemSheet(list,i,mode,after){
 function bindHold(mode,rerender){
   dragHold(mode,rerender);
   app.querySelectorAll('.dock .board[data-side="p"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.i;
-    if(G.moving){if(i!==G.sel){const[it]=G.board.splice(G.sel,1);G.board.splice(i,0,it)}G.moving=false;G.sel=null;save();rerender()}
+    if(G.moving){if(i!==G.sel){const[it]=G.board.splice(G.sel,1);G.board.splice(i,0,it)}G.moving=false;G.sel=null;save();rerender();coach('moved')}
     else itemSheet(G.board,i,mode,rerender)});
   app.querySelectorAll('.dock .board[data-side="p"] .slot').forEach(b=>b.onclick=()=>{if(!G.moving)return;const[it]=G.board.splice(G.sel,1);G.board.push(it);G.moving=false;G.sel=null;save();rerender()});
   app.querySelectorAll('.dock .board[data-side="l"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;if(G.moving){G.moving=false;G.sel=null;return rerender()}itemSheet(G.locker,+b.dataset.i,mode,rerender)});
@@ -94,7 +94,7 @@ function dragHold(mode,rerender){
         if(tgt===src){if(dst===si)return;src.list.splice(si,1);if(dst>si)dst--;src.list.splice(dst,0,d.it)}
         else{src.list.splice(si,1);tgt.list.splice(dst,0,d.it)}
         save();rerender();
-        const moved=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[dst];if(moved)squish(moved,'land');
+        const moved=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[dst];if(moved)squish(moved,'land');coach('moved');
       }
     });
   }));

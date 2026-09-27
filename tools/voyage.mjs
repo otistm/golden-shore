@@ -15,6 +15,7 @@ for (let run = 0; run < runs; run++) {
   await click('.shipcard:not([disabled])'); await page.waitForTimeout(150);
   let result = 'timeout', steps = 0;
   for (; steps < 900; steps++) {
+    if (await q('#coach .cx')) await click('#coach .cx');
     if (await q('.overlay')) {
       if (await q('[data-a=home]')) { result = await page.innerText('.overlay h2'); break; }
       for (const s of ['#next', '.pick:not([disabled])', '[data-l=gold]', '.opt:not([disabled])', '[data-a=go]', '.overlay .primary', '.overlay button']) if (await click(s)) break;

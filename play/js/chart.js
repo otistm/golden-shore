@@ -37,13 +37,13 @@ function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return 
 function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;
   if(G.sel==null)G.moving=false;
-  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span>Sea ${G.sea+1} of 3</span></div>
+  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div>
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
   app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>preview(node(+el.dataset.id));el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
-  save();
+  save();coach('chart');tip('chart');
 }
 function traitsHTML(e,sea){return`<div class="traitlist">${e.traits.map(k=>`<p><b>${TRAITS[k].n}.</b> ${TRAITS[k].d(sea)}</p>`).join('')}</div>`}
 function preview(n){
@@ -61,9 +61,11 @@ function preview(n){
   const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Not yet</button><button class="primary" data-a="go">Sail here</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')go(n.id)});
   ov.querySelector('[data-a="go"]').focus();
+  if(n.enemy&&ENEMIES[n.enemy].kind==='b')tip('boss');else if(n.enemy&&ENEMIES[n.enemy].kind==='e')tip('elite');
 }
 const lossOf=k=>k==='b'?4+G.sea*2:k==='e'?3+G.sea:2+G.sea;
 function go(id){
+  coach('sail');
   G.at=id;G.path.push(id);G.day++;G.moving=false;G.sel=null;updateReveal();save();
   const n=node(id);
   if(n.type==='port')port(id);

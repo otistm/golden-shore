@@ -9,7 +9,7 @@ function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?
 function fight(n){
   app.style.paddingBottom='';
   const f=enemyOf(n),depth=f.depth,sh=SHIPS[G.ship],spd=window._spd||1;
-  const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0);
+  const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+(G.tut?120:0);
   A.met[n.enemy]=1;saveA();
   B={t:0,wait:.9,speed:spd,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0),
      P:mkSide(sh.n,pMax,G.board.map(x=>({...x})),[sh.trait],G.sea),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
@@ -37,11 +37,11 @@ function fight(n){
   E.fel.onclick=()=>{const ov=overlay(`<h2>${E.name}</h2>${traitsHTML(f.e,G.sea)}<button class="primary" data-a="c">Close</button>`);ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()})};
   app.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{B.speed=window._spd=+b.dataset.sp;app.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
   document.getElementById('skip').onclick=()=>{if(B.over)return;B.quiet=true;let k=0;while(!B.over&&k++<30000)step(.05);draw()};
-  draw();last=performance.now();raf=requestAnimationFrame(loop);scrollTo(0,0);
+  draw();last=performance.now();raf=requestAnimationFrame(loop);scrollTo(0,0);coach('fight');
 }
 /* "when a fight starts" effects, both sides */
 function startFx(){for(const[S,F]of[[B.P,B.E],[B.E,B.P]])S.items.forEach((it,i)=>{if(it.s.start)applyFx(S,F,it,i,it.s.start,1)})}
-function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;
+function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;if(B.coachHold)dt=0;
   while(dt>1e-6&&!B.over){const s=Math.min(.05,dt);step(s);dt-=s}draw();if(!B.over)raf=requestAnimationFrame(loop)}
 function hit(T,d,type,src,o){o=o||{};
   if(o.weapon&&hasT(T,'thick'))d*=.75;d=Math.round(d);if(d<=0)return;
@@ -141,7 +141,7 @@ function draw(){
   const c=document.getElementById('clock');
   if(B.wait>0){c.textContent='Setting sail…';c.className='clock'}
   else if(B.t<B.bell){c.textContent=`Storm in ${Math.ceil(B.bell-B.t)}s`;c.className='clock'}
-  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell'}
+  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell';if(!B.quiet&&!B.over)tip('storm','bottom')}
 }
 const CHIPI={
   sh:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h10v5c0 4-3 6-5 7-2-1-5-3-5-7z" fill="#fff" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/></svg>',

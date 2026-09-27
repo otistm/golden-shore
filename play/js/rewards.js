@@ -22,8 +22,8 @@ function chartPick(r,lead,done){
     if(k==='harbour')G.hull+=5;if(k==='pearl')G.gold+=10;if(k==='buoy')updateReveal();
     let msg=`Charted ${CHARTS[k].n}.`;
     if(k==='wreck')msg+=' '+addOrGold(randItem(r,depthOf(node(G.at))+4),'Salvaged');
-    logL(msg);toast(msg);save();done()});
-  ov.querySelector('.pick').focus();
+    logL(msg);toast(msg);save();coach('landmark');done()});
+  ov.querySelector('.pick').focus();coach('landmarkOpen');
 }
 function lootPick(n,done){
   const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;
@@ -34,6 +34,6 @@ function lootPick(n,done){
   ov.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(b.disabled)return;ov.remove();
     if(b.dataset.l==='gold'){G.gold+=gold;bump='gold';logL(`Took ${gold} gold as spoils.`)}
     else{const o=opts[+b.dataset.l];addItem(o);logL(`Took a ${TIER[o.t]} ${DEFS[o.k].n} as spoils.`)}
-    save();done()});
-  (ov.querySelector('.pick:not([disabled])')||ov.querySelector('.ghost')).focus();
+    save();coach('spoilsTaken');done()});
+  (ov.querySelector('.pick:not([disabled])')||ov.querySelector('.ghost')).focus();coach('spoils');
 }

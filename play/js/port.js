@@ -14,6 +14,7 @@ function port(id){
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;
   const vis=!G.hock&&n.row===0&&G.sea<=1?'hock':n.visitor;
+  if(G.tut&&id!==900)n.visitor=null;
   const ups=new Set();S.offers.forEach(o=>{if(!o)return;const j=matchIdx(o);if(j>=0)ups.add(j)});
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   <section>
@@ -40,11 +41,11 @@ function port(id){
     const m=findMatch(o),r=addItem(o);if(!r)return toast(`No room for size ${DEFS[o.k].s}${G.locker?' in your hold or locker':''}. Sell something first.`);
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
     if(r==='locker')toast(`Hold full. Stowed the ${DEFS[o.k].n} in your locker.`);
-    G.gold-=p;S.offers[i]=null;bump='gold';save();port(id)});
-  document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;chart()};
+    G.gold-=p;S.offers[i]=null;bump='gold';save();port(id);coach('bought')});
+  document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;if(G.tut&&G.tut.i>=TUT.length-1)return finishTutorial();chart()};
   const vb=document.getElementById('visitor');if(vb)vb.onclick=()=>talk(vis,id+'v',()=>port(id),()=>{S.talked=true});
   const hb=document.getElementById('hockin');if(hb)hb.onclick=()=>talk('hock2',id+'h',()=>port(id));
   app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const i=+b.dataset.f,f=G.creel[i],g=fishVal(f,f===S.demand?2:1);G.creel.splice(i,1);G.gold+=g;bump='gold';logL(`Sold ${an(FISH[f].n)} for ${g} gold.`);save();toast(`Sold ${an(FISH[f].n)} for ${g} gold`);port(id)});
   const sa=document.getElementById('sellall');if(sa)sa.onclick=()=>{const g=G.creel.reduce((a,f)=>a+fishVal(f,f===S.demand?2:1),0);G.creel=[];G.gold+=g;bump='gold';logL(`Sold my catch at ${n.name} for ${g} gold.`);save();toast(`Sold your catch for ${g} gold`);port(id)};
-  save();
+  save();coach('port');tip('port');
 }
