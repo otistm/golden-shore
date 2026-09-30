@@ -1,9 +1,7 @@
 // Balance check: each ship's randomly drafted holds against every enemy. Also puts every item into a fight once.
-import { chromium } from 'playwright';
-import { pathToFileURL } from 'node:url';
-const url = pathToFileURL(new URL('../play/index.html', import.meta.url).pathname).href;
+import { gameUrl as url, launch } from './browser.mjs';
 const N = +(process.argv[2] || 40);
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await launch();
 const page = await browser.newPage();
 const errors = []; page.on('pageerror', e => errors.push(String(e)));
 await page.goto(url); await page.waitForTimeout(200);
