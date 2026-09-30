@@ -5,7 +5,9 @@ const DESK=matchMedia('(min-width:1180px) and (min-height:640px)');
 const deskEl=document.getElementById('desk');
 function renderDesk(){
   const on=DESK.matches&&!!G&&!!app.querySelector(':scope>.bar');
+  const was=document.body.classList.contains('desk');
   document.body.classList.toggle('desk',on);deskEl.hidden=!on;
+  if(was!==on)fitMap();
   if(!on){deskEl.innerHTML='';return}
   const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const marks=G.charts.length?`<div class="marks">${G.charts.map(c=>`<div class="mark">${glyph(c.k)}<p><b>${CHARTS[c.k].n}.</b> ${CHARTS[c.k].d}</p></div>`).join('')}</div>`

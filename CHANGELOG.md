@@ -4,6 +4,7 @@
 - Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
 - The hold is a band along the bottom with big tiles that show each item's name, and Set sail beside it.
 - Market cards are big, like playing cards, and the fish market sits beside the dock visitor.
+- The chart is redrawn to fill the screen, with stops spread wide instead of squeezed into a phone-shaped strip. The route is the same, only the spacing changes.
 - The chart has a route panel beside it. It lists every stop you can sail to next, and picking one shows what's there right in the panel, with no pop-up.
 - Fights fill the screen with big items.
 - Pop-ups open as cards in the middle. With a mouse, things lift when you point at them. Esc closes a pop-up or a tip, and 1, 2 and 4 set the fight speed.

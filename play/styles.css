@@ -535,10 +535,11 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
   body.desk .offer.sold{font-size:26px}
   body.desk .market{margin-bottom:16px}
   /* chart: the sea on the left, the route panel beside it */
-  body.desk .chartwrap{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
-  body.desk .map{margin:0}
+  body.desk .chartwrap{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,26vw,400px);gap:28px;align-items:start}
+  body.desk .map{margin:0;width:auto;padding:8px 10px}
+  body.desk .map svg{width:100%;height:auto}
   body.desk .tapnote{display:none}
-  body.desk .route{display:flex;flex-direction:column;gap:12px;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);padding:20px 22px;max-width:560px}
+  body.desk .route{display:flex;flex-direction:column;gap:12px;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);padding:20px 22px;}
   body.desk .route>*{animation:routeIn .35s cubic-bezier(.3,.7,.3,1) both}
   body.desk .route h2{font-size:28px}
   body.desk .route .sh-actions{margin-top:4px}

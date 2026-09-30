@@ -103,7 +103,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Mobile first, portrait, one thumb. Respect safe areas and `prefers-reduced-motion`. The hold stays docked at the bottom on the chart and port screens.
 - Desktop has two tiers, both in blocks at the end of `styles.css`, so phones are never touched:
   - At least 900 × 560: a wider single column (4 market cards, the chart fitted to the window, centred pop-ups).
-  - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart gets a route panel (`#route`) where previews open instead of a pop-up. `DESK` in desk.js must match the CSS media query.
+  - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart gets a route panel (`#route`) where previews open instead of a pop-up. `fitMap()` redraws the chart at the size it has (`mapSVG(fit)` stretches x and row height for display only; node positions in the saved map never change). `DESK` in desk.js must match the CSS media query.
   - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 10 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
