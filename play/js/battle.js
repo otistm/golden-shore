@@ -176,14 +176,14 @@ function end(win){
     head=`The ${foe} beat you.`;lines.push(`−${loss} hull, ${Math.max(0,G.hull)} left.`);
     if(G.hull<=0){btn='Abandon ship';next=sink}
     else if(k==='b'){G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
-      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>port(G.at)}
+      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>{port(G.at);hullLoss(G.hull+loss,G.hull)}}
     else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=()=>{chart();hullLoss(G.hull+loss,G.hull)}}
   }
   save();
   setTimeout(()=>{draw();const ov=overlay(`<h2>${head}</h2><div class="lines">${lines.map(l=>`<p>${l}</p>`).join('')}</div><button class="primary" id="next">${btn}</button>`,true,'result');
     const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()}},B.quiet?50:750);
 }
-/* Back on the chart after a lost fight: a card shows the hull you lost. Planks crack off one by one while the number counts down, then it fades. */
+/* Back on the chart (or in port, after a boss) after a lost fight: a card shows the hull you lost. Planks crack off one by one while the number counts down, then it fades. */
 function hullLoss(before,after){
   document.querySelectorAll('.hullcard').forEach(c=>c.remove());
   const n=Math.min(before,40),lost=Math.min(n,before-Math.max(0,after));
