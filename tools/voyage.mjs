@@ -23,8 +23,7 @@ for (let run = 0; run < runs; run++) {
     else if (await q('#leave')) {
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await b.click({ force: true }).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; }
       if (!(await q('.overlay'))) await click('#leave');
-    } else if (await q('#route [data-a=go]')) await click('#route [data-a=go]');
-    else {
+    } else {
       const nodes = await page.$$('.node.reach');
       if (nodes.length) await nodes[Math.floor(Math.random() * nodes.length)].click({ force: true });
     }
