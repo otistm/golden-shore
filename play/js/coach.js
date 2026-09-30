@@ -11,7 +11,7 @@ const TUT=[
   {when:'fight',until:'next',pause:1,target:'#ef',pos:'bottom',text:"A fight. Every enemy has its own tricks. Tap its card any time to read them. Reef Sharks get faster when they're hurt."},
   {until:'next',pause:1,target:'.board[data-side="p"]',text:"Your cargo charges up and fires by itself. Watch the hatching fill each item."},
   {until:'next',pause:1,target:'.speed',text:"After 30 seconds a storm hits both ships. Win before then. Tap 2× or 4× to speed things up."},
-  {when:'spoils',until:'spoilsTaken',text:"You won. Winners take spoils. Pick one piece of their cargo."},
+  {when:'spoils',until:'spoilsTaken',target:'.offers',text:"You won. Winners take spoils. Drag one piece of their cargo into your hold, or tap Take. Then Sail on."},
   {when:'chart',until:'sail',target:'.node.reach',text:"Routes branch. Fishing grounds give you fish to sell at port. Uncharted isles give landmarks that help for the whole voyage. Pick one."},
   {when:['fishing','landmarkOpen'],until:['fishDone','landmark'],textFor:{
     fishing:"Tap Cast. When the bobber dips and shows !, tap fast. Then hold to keep the fish inside the bracket.",

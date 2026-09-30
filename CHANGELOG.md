@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+- Spoils are now a screen of their own, laid out like the market, with your hold docked at the bottom. Drag a spoil into any slot in your hold or locker, or tap Take. Changed your mind? Drag it back onto its card, or tap Put back.
+- Short on room? Drag your own cargo onto the button at the bottom to sell it, at the port price. Spoils that don't fit yet say how many more slots they need.
+- Taking nothing gives you gold, as before: the button reads "Take 4 gold and sail on" until you pick something.
+- Pause, like Ink Nine and Ink Rally. A round pause button sits in the top-right corner. It freezes fights and fishing and opens a card to keep sailing, save and go to the title, or send feedback. In the tutorial it offers to leave instead. The game also pauses by itself if you switch away mid-fight or mid-cast. On a computer, P or Esc pauses too.
+- A fight you leave, or a page you refresh mid-fight, now starts that fight over when you come back. Before, it let you skip the fight.
+
 ## 0.3.0
 - Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
 - The hold is a band along the bottom with big tiles that show each item's name, and Set sail beside it.

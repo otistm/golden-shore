@@ -10,7 +10,7 @@ function fight(n){
   app.style.paddingBottom='';
   const f=enemyOf(n),depth=f.depth,sh=SHIPS[G.ship],spd=window._spd||1;
   const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+(G.tut?120:0);
-  A.met[n.enemy]=1;saveA();
+  A.met[n.enemy]=1;saveA();G.fightAt=n.id;save();
   B={t:0,wait:.9,speed:spd,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0),
      P:mkSide(sh.n,pMax,G.board.map(x=>({...x})),[sh.trait],G.sea),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
   const P=B.P,E=B.E;
@@ -41,7 +41,7 @@ function fight(n){
 }
 /* "when a fight starts" effects, both sides */
 function startFx(){for(const[S,F]of[[B.P,B.E],[B.E,B.P]])S.items.forEach((it,i)=>{if(it.s.start)applyFx(S,F,it,i,it.s.start,1)})}
-function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;if(B.coachHold)dt=0;
+function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;if(B.coachHold||PAUSE.on)dt=0;
   while(dt>1e-6&&!B.over){const s=Math.min(.05,dt);step(s);dt-=s}draw();if(!B.over)raf=requestAnimationFrame(loop)}
 function hit(T,d,type,src,o){o=o||{};
   if(o.weapon&&hasT(T,'thick'))d*=.75;d=Math.round(d);if(d<=0)return;
@@ -159,7 +159,7 @@ function chips(S){
 function end(win){
   B.over=true;cancelAnimationFrame(raf);
   const n=B.node,e=ENEMIES[n.enemy],k=e.kind,depth=depthOf(n),foe=e.n;
-  B.quiet=false;squish((win?B.E:B.P).fel,'ko');
+  B.quiet=false;squish((win?B.E:B.P).fel,'ko');G.fightAt=null;
   let head,lines=[],btn,next;
   if(win){
     A.beat[n.enemy]=1;if(k==='e')A.elites++;if(k==='b')A.bosses++;saveA();
