@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.0
+- Spoils show your hold. Tap one of your items to sell it, at the port price, and make room for a new piece of cargo. Spoils that still don't fit say how many more slots they need.
+
 ## 0.3.0
 - Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
 - The hold is a band along the bottom with big tiles that show each item's name, and Set sail beside it.

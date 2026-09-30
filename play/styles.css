@@ -562,3 +562,17 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 @keyframes plankOff{0%{transform:none}20%{transform:translateY(-5px) rotate(-14deg) scale(1.1,.9);background:repeating-linear-gradient(-45deg,var(--ink) 0 1.5px,var(--paper) 1.5px 4px)}100%{transform:translateY(34px) rotate(55deg);opacity:0;background:repeating-linear-gradient(-45deg,var(--ink) 0 1.5px,var(--paper) 1.5px 4px)}}
 @media (min-width:1180px) and (min-height:640px){body.desk .hullcard{left:calc(var(--fx) + 16px);right:calc(var(--fx) + var(--dw) + 16px)}}
 @media (prefers-reduced-motion:reduce){.hullcard,.hc-ship,.hc-loss{animation:none!important}.planks i.go{animation:none!important;opacity:.2}}
+
+/* spoils: your hold under the picks, tap an item to sell it and make room */
+.spoilhold{border-top:2px solid var(--ink);padding-top:12px}
+.spoilhold .stall-head h3{font:italic 900 18px var(--display)}
+.spoilhold .hint{margin:8px 0 0}
+.spoilhold .item,.spoilhold .slot,body.desk .spoilhold .item,body.desk .spoilhold .slot{height:56px}
+.spoilhold .board.locker .item,.spoilhold .board.locker .slot,body.desk .spoilhold .board.locker .item,body.desk .spoilhold .board.locker .slot{height:46px}
+body.desk .spoilhold .item .nm{display:none}
+body.desk .spoilhold .item{padding:0}
+.spoilhold .locker-head{margin-top:8px}
+.sellbar{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:800;font-size:14px;animation:pop-in .4s var(--spring) both}
+.sellbar span{flex:1}
+.sellbar .ghost{padding:7px 12px;font-size:14px}
+.sellbar .buy{padding:8px 12px}

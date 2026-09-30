@@ -25,15 +25,34 @@ function chartPick(r,lead,done){
     logL(msg);toast(msg);save();coach('landmark');done()});
   ov.querySelector('.pick').focus();coach('landmarkOpen');
 }
+/* why a spoil doesn't fit yet, and how many slots selling would need to free */
+function roomNote(o){const sz=DEFS[o.k].s,need=Math.min(sz-(10-used(G.board)),G.locker?sz-(LOCK-used(G.locker)):99);
+  return`Size ${sz}. Free ${need} more slot${need===1?'':'s'}${G.locker?' in your hold or locker':''} to take it.`}
 function lootPick(n,done){
   const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;
-  const ov=overlay(`<h2>Spoils</h2><p class="soft">Take one piece of their cargo.</p><div class="picks">${opts.map((o,i)=>{
-    const d=DEFS[o.k],up=!!findMatch(o),can=fits(o);
-    return`<button class="pick" data-l="${i}" ${can?'':'disabled'}><span class="pi t${o.t}">${icon(o.k)}${up?CHEV:''}</span><div><b>${TIER[o.t]} ${d.n}${up?', upgrades yours':''}</b><span class="d">${can?describe([o],0).L.join(' '):G.locker?'No room in your hold or locker.':'No room in your hold.'}</span></div></button>`}).join('')}</div>
-    <button class="ghost" data-l="gold">Take ${gold} gold instead</button>`,true);
-  ov.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(b.disabled)return;ov.remove();
-    if(b.dataset.l==='gold'){G.gold+=gold;bump='gold';logL(`Took ${gold} gold as spoils.`)}
-    else{const o=opts[+b.dataset.l];addItem(o);logL(`Took a ${TIER[o.t]} ${DEFS[o.k].n} as spoils.`)}
-    save();coach('spoilsTaken');done()});
-  (ov.querySelector('.pick:not([disabled])')||ov.querySelector('.ghost')).focus();coach('spoils');
+  const ov=overlay('',true),sh=ov.querySelector('.sheet');let sel=null;
+  // your hold sits under the spoils: tap an item to sell it and make room
+  const draw=()=>{
+    const it=sel&&sel.list[sel.i],p=it&&sellP(it.k,it.t);
+    sh.innerHTML=`<h2>Spoils</h2><p class="soft">Take one piece of their cargo.</p><div class="picks">${opts.map((o,i)=>{
+      const d=DEFS[o.k],up=!!findMatch(o),can=fits(o);
+      return`<button class="pick" data-l="${i}" ${can?'':'disabled'}><span class="pi t${o.t}">${icon(o.k)}${up?CHEV:''}</span><div><b>${TIER[o.t]} ${d.n}${up?', upgrades yours':''}</b><span class="d">${can?describe([o],0).L.join(' '):roomNote(o)}</span></div></button>`}).join('')}</div>
+      <div class="spoilhold"><div class="stall-head"><h3>Your hold</h3><span class="soft">${used(G.board)}/10 slots</span></div>
+        ${boardHTML(G.board,'p')}
+        ${G.locker?`<div class="stall-head locker-head"><h3>Locker</h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',null,LOCK)}`:''}
+        ${it?`<div class="sellbar"><span>Sell your ${TIER[it.t]} ${DEFS[it.k].n}?</span><button class="ghost" data-s="keep">Keep</button><button class="buy" data-s="sell">Sell for ${p} gold</button></div>`
+          :`<p class="hint">Tap one of your items to sell it and make room.</p>`}</div>
+      <button class="ghost" data-l="gold">Take ${gold} gold instead</button>`;
+    if(it)sh.querySelectorAll(`.board[data-side="${sel.list===G.board?'p':'l'}"] .item`)[sel.i].classList.add('sel');
+    sh.querySelectorAll('.spoilhold .item').forEach(b=>b.onclick=()=>{const list=b.closest('[data-side="l"]')?G.locker:G.board,i=+b.dataset.i;
+      sel=sel&&sel.list===list&&sel.i===i?null:{list,i};draw();const s=sh.querySelector('[data-s="sell"]');if(s)s.focus()});
+    sh.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{
+      if(b.dataset.s==='sell'){sel.list.splice(sel.i,1);G.gold+=p;bump='gold';save();toast(`Sold ${DEFS[it.k].n} for ${p} gold`)}
+      sel=null;draw();(sh.querySelector('.pick:not([disabled])')||sh.querySelector('[data-l="gold"]')).focus()});
+    sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(b.disabled)return;ov.remove();
+      if(b.dataset.l==='gold'){G.gold+=gold;bump='gold';logL(`Took ${gold} gold as spoils.`)}
+      else{const o=opts[+b.dataset.l];addItem(o);logL(`Took a ${TIER[o.t]} ${DEFS[o.k].n} as spoils.`)}
+      save();coach('spoilsTaken');done()});
+  };
+  draw();(sh.querySelector('.pick:not([disabled])')||sh.querySelector('.ghost')).focus();coach('spoils');
 }
