@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+- Fittings: your ship has 4 fitting spots, hull, sails, guns and figurehead. Each of the 16 fittings changes how you fight, with a trade-off. For example, Double Planking gives +40 health but boards up a hold slot, and the Gull figurehead gives +10% crit on all your damage for 10 less health.
+- A shipwright in every port sells 2 fittings and repairs hull for 2 gold a point, up to 20. A new fitting replaces the one in its spot, which sells for half.
+- Elites carry spare parts: after beating one, you can pick a fitting instead of a landmark.
+- Tap your hull in the top bar to see your ship: its trait, hold size and fittings. On a computer, the captain's desk lists your fittings too.
+
 ## 0.5.0
 - The chart unrolls like a scroll. The roll slides down the page revealing the sea, overshoots a touch and flattens away. It plays the first time you see each sea and when you continue a saved voyage, not every time you come back to the chart.
 

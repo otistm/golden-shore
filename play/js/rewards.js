@@ -12,12 +12,15 @@ function eventAt(n){
   function after(){if(G.hull<=0)return sink();save();chart()}
   (ov.querySelector('[data-o]:not([disabled])')||ov.querySelector('button')).focus();
 }
-function chartPick(r,lead,done){
+function chartPick(r,lead,done,fk){
   const taken=G.charts.map(c=>c.k),pool=Object.keys(CHARTS).filter(k=>!taken.includes(k)),opts=[];
   while(opts.length<2&&pool.length)opts.push(pool.splice(ri(r,pool.length),1)[0]);
-  if(!opts.length){toast('Every landmark is already on your chart.');return done()}
-  const ov=overlay(`<h2>Draw a landmark</h2><p class="soft">${lead} Pick one to add to your chart. It lasts the whole voyage.</p><div class="picks">${opts.map(k=>`<button class="pick" data-k="${k}"><span class="pi plain">${glyph(k)}</span><div><b>${CHARTS[k].n}</b><span class="d">${CHARTS[k].d}</span></div></button>`).join('')}</div>`,true);
-  ov.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const k=b.dataset.k;ov.remove();
+  if(fk&&(hasF(fk)||!FITTINGS[fk]))fk=null;
+  if(!opts.length&&!fk){toast('Every landmark is already on your chart.');return done()}
+  const f=fk&&FITTINGS[fk],old=f&&fitIn(f.spot);
+  const ov=overlay(`<h2>${fk?'Take your pick':'Draw a landmark'}</h2><p class="soft">${lead} ${fk?'Pick a landmark for your chart, or a fitting for your ship. Either lasts the whole voyage.':'Pick one to add to your chart. It lasts the whole voyage.'}</p><div class="picks">${opts.map(k=>`<button class="pick" data-k="${k}"><span class="pi plain">${glyph(k)}</span><div><b>${CHARTS[k].n}</b><span class="d">${CHARTS[k].d}</span></div></button>`).join('')}${fk?`<button class="pick fitpick" data-fk="${fk}" ${canEquip(fk)?'':'disabled'}><span class="pi plain">${fitGlyph(fk)}</span><div><b>${f.n} <span class="soft">${SPOTS[f.spot].toLowerCase()} fitting</span></b><span class="d">${f.d}${old?` Replaces your ${FITTINGS[old].n}, which sells for ${Math.floor(FITTINGS[old].p/2)}.`:''}${canEquip(fk)?'':' Needs a free hold slot.'}</span></div></button>`:''}</div>`,true);
+  const fb=ov.querySelector('[data-fk]');if(fb)fb.onclick=()=>{if(fb.disabled)return;ov.remove();const back=equip(fk);toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);save();coach('landmark');done()};
+  ov.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;ov.remove();
     G.charts.push({k,sea:G.sea,at:G.at});A.charts[k]=1;saveA();
     if(k==='harbour')G.hull+=5;if(k==='pearl')G.gold+=10;if(k==='buoy')updateReveal();
     let msg=`Charted ${CHARTS[k].n}.`;
@@ -26,7 +29,7 @@ function chartPick(r,lead,done){
   ov.querySelector('.pick').focus();coach('landmarkOpen');
 }
 /* why a spoil doesn't fit yet, and how many slots selling would need to free */
-function roomNote(o){const sz=DEFS[o.k].s,need=Math.min(sz-(10-used(G.board)),G.locker?sz-(LOCK-used(G.locker)):99);
+function roomNote(o){const sz=DEFS[o.k].s,need=Math.min(sz-(holdCap()-used(G.board)),G.locker?sz-(LOCK-used(G.locker)):99);
   return`Size ${sz}. Free ${need} more slot${need===1?'':'s'}${G.locker?' in your hold or locker':''} to take it.`}
 /* Spoils: a screen like the market, with your hold docked below. Drag a spoil into the hold (or tap Take), drag it back onto its card
    to change your mind, and drag your own cargo onto Sail on to sell it and make room. One pick, or gold if you take nothing. */

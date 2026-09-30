@@ -97,6 +97,7 @@ const TIPS={
   elite:"Elites hit harder, but they carry a landmark as well as cargo.",
   boss:"Bosses guard the way to the next sea. Lose and you fall back to port to refit, then try again.",
   people:"People can trade, help, or give you a quest. Choices can cost gold, hull or fish.",
+  wright:"The shipwright fits parts to your ship. Each one changes how you fight, with a trade-off. Tap your hull to see your ship.",
   locker:"Your new locker holds spare cargo. It stays out of fights. Drag items between it and your hold."
 };
 function tip(key,pos){

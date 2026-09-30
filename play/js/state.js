@@ -6,7 +6,7 @@ let G=null,B=null,raf=0,last=0,bump=null,fresh=false;
    RULES FOR CHANGES: never rename or remove a field; give new fields a default in migrateAtlas / VOYAGE_DEFAULTS;
    if a field's meaning changes, bump the schema number and convert old data in the migrate function. */
 const ATLAS_SCHEMA=1,VOYAGE_SCHEMA=1;
-const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1};
+const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null};
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
@@ -25,6 +25,21 @@ function save(){if(G&&G.tut)return;try{const{sel,moving,...r}=G;localStorage.set
 function load(){return migrateVoyage(readKey('crossing-voyage').val)}
 function clearSave(){try{localStorage.removeItem('crossing-voyage')}catch(e){}}
 const hasC=k=>!!(G&&G.charts&&G.charts.some(c=>c.k===k));
+/* fittings: G.fit is {hull,sails,guns,head}, or null until the first one */
+const hasF=k=>!!(G&&G.fit&&Object.values(G.fit).includes(k));
+const fitIn=spot=>G&&G.fit&&G.fit[spot]||null;
+const fitHP=()=>G&&G.fit?Object.values(G.fit).reduce((a,k)=>a+(k&&FITTINGS[k].hp||0),0):0;
+/* your hold's size: 10 slots, 9 with Double Planking */
+const holdCap=()=>hasF('planks')?9:10;
+const HULL_MAX=20,REPAIR=2;   // the shipwright repairs hull up to 20, 2 gold a point
+/* fit a part. The one it replaces sells for half. */
+function equip(k){const f=FITTINGS[k],old=fitIn(f.spot);G.fit=Object.assign({hull:null,sails:null,guns:null,head:null},G.fit);
+  let back=0;if(old){back=Math.floor(FITTINGS[old].p/2);G.gold+=back}
+  G.fit[f.spot]=k;if(k==='studding'||old==='studding')updateReveal();
+  logL(old?`Fitted ${f.n} in place of ${FITTINGS[old].n}, which sold for ${back} gold.`:`Fitted ${f.n}.`);return back}
+/* can this part go on? Double Planking needs a free slot, and taking it off always fits */
+function canEquip(k){const f=FITTINGS[k],old=fitIn(f.spot);if(old===k)return false;
+  const cap=10-(k==='planks'?1:0)-(f.spot!=='hull'&&hasF('planks')?1:0);return used(G.board)<=cap}
 const node=id=>G.map.nodes.find(n=>n.id===id);
 const depthOf=n=>G.sea*7+n.row;
 const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]);
@@ -64,7 +79,7 @@ function genMap(seed,sea){
   if(loreN){const c=nodes.filter(n=>n.row>=2&&n.row<=4&&n.type!=='elite');if(c.length){const n=pick(r,c);n.type='npc';n.npc=loreN;delete n.enemy;delete n.ev}}
   return{sea,start,boss,nodes,edges:[...edges].map(e=>e.split('>').map(Number))};
 }
-function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extra+(G.far||0)+(hasC('buoy')?1:0)}
+function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extra+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0)}
 
 /* ---------- enemy boards (seeded: every captain on this sea meets the same crew) ---------- */
 function enemyOf(n){
@@ -87,11 +102,11 @@ function lockerUps(offers){const u=new Set();if(!G.locker)return u;offers.forEac
 function addItem(it){
   const m=findMatch(it);
   if(m){const b=m.list[m.i];b.t=Math.max(b.t+1,it.t);seen(it.k);return'up'}
-  if(used(G.board)+DEFS[it.k].s<=10){G.board.push({k:it.k,t:it.t});seen(it.k);return'add'}
+  if(used(G.board)+DEFS[it.k].s<=holdCap()){G.board.push({k:it.k,t:it.t});seen(it.k);return'add'}
   if(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK){G.locker.push({k:it.k,t:it.t});seen(it.k);return'locker'}
   return false;
 }
-const fits=it=>!!findMatch(it)||used(G.board)+DEFS[it.k].s<=10||!!(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK);
+const fits=it=>!!findMatch(it)||used(G.board)+DEFS[it.k].s<=holdCap()||!!(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK);
 function addOrGold(it,prefix){const r=addItem(it),n=`${TIER[it.t]} ${DEFS[it.k].n}`;
   if(r==='locker')return`${prefix} a ${n}. The hold was full, so it went in the locker.`;
   if(r)return`${prefix} a ${n}.`;const g=Math.max(1,Math.floor(price(it.k,it.t)/2));G.gold+=g;return`${prefix} a ${n}, but there was no room aboard. Sold it for ${g} gold.`}

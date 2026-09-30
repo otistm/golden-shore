@@ -17,6 +17,7 @@ function renderDesk(){
   const log=G.log.slice().reverse().map(e=>e.lore?`<p class="log entry">${e.t}</p>`:`<p class="entry"><b>Day ${e.d}.</b> ${e.t}</p>`).join('');
   deskEl.innerHTML=`<section class="desk-ship">${shipIcon(G.ship)}<div><b>${sh.n}</b><span class="soft">${sh.type}. ${G.tut?'Tutorial voyage':`Voyage ${codeOf(G.seed)}`}</span></div></section>
     <p class="desk-trait"><b>${tr.n}.</b> ${tr.d()}</p>
+    <section><h3>Fittings</h3>${G.fit&&Object.values(G.fit).some(Boolean)?`<div class="marks">${Object.keys(SPOTS).filter(s=>fitIn(s)).map(s=>{const k=fitIn(s);return`<div class="mark">${fitGlyph(k)}<p><b>${FITTINGS[k].n}.</b> ${FITTINGS[k].d}</p></div>`}).join('')}</div>`:'<p class="soft">None yet. The shipwright in any port sells them.</p>'}</section>
     <section><h3>Landmarks</h3>${marks}</section>
     ${catchH}
     <section class="desk-log"><h3>Cartographer's log</h3><div class="entries">${log||'<p class="soft">Nothing written yet.</p>'}</div></section>`;
