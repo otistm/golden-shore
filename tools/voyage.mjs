@@ -1,7 +1,6 @@
 // A bot plays full voyages in headless Chromium. Fails on any page error.
 import { chromium } from 'playwright';
-import { pathToFileURL } from 'node:url';
-const url = pathToFileURL(new URL('../play/index.html', import.meta.url).pathname).href;
+const url = new URL('../play/index.html', import.meta.url).href;
 const runs = +(process.argv[2] || 3);
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -24,7 +23,8 @@ for (let run = 0; run < runs; run++) {
     else if (await q('#leave')) {
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await b.click({ force: true }).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; }
       if (!(await q('.overlay'))) await click('#leave');
-    } else {
+    } else if (await q('#route [data-a=go]')) await click('#route [data-a=go]');
+    else {
       const nodes = await page.$$('.node.reach');
       if (nodes.length) await nodes[Math.floor(Math.random() * nodes.length)].click({ force: true });
     }

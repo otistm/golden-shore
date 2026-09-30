@@ -38,10 +38,11 @@ function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;
   if(G.sel==null)G.moving=false;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div>
-    <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
+    <div class="chartwrap"><div class="map">${mapSVG()}</div><aside class="route" id="route" aria-live="polite"></aside></div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
   app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>preview(node(+el.dataset.id));el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  routeHome();
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
   save();coach('chart');tip('chart');
 }
@@ -58,10 +59,29 @@ function preview(n){
     body=`<p class="soft">${k==='b'?'The guardian of this sea. Beat it to sail on.':k==='e'?'Elite. Tougher, with better spoils.':'A threat on the route.'} ${f.hp} health.</p>${traitsHTML(e,G.sea)}
       ${hasC('sound')?`<div class="mini-board"><p class="label" style="margin:6px 0">Their cargo</p>${boardHTML(f.list,'e')}</div>`:''}
       <p class="soft">Win: ${k==='b'?`${15+G.sea*10} gold and passage to the next sea`:k==='e'?`${10+f.depth} gold, a pick of cargo and a landmark`:`${5+Math.floor(f.depth/2)} gold and a pick of cargo`}. Lose: ${lossOf(k)} hull${k==='b'?' and fall back to port':''}.</p>`}
+  if(n.enemy&&ENEMIES[n.enemy].kind==='b')tip('boss');else if(n.enemy&&ENEMIES[n.enemy].kind==='e')tip('elite');
+  // on a big screen the route panel beside the chart shows the stop, no pop-up
+  const r=document.getElementById('route');
+  if(r&&r.offsetParent){
+    r.onmouseover=r.onmouseleave=null;pickNode(n.id);
+    r.innerHTML=`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Back</button><button class="primary" data-a="go">Sail here</button></div>`;
+    r.onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;if(a.dataset.a==='go')go(n.id);else routeHome()};
+    r.querySelector('[data-a="go"]').focus({preventScroll:true});return}
   const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Not yet</button><button class="primary" data-a="go">Sail here</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')go(n.id)});
   ov.querySelector('[data-a="go"]').focus();
-  if(n.enemy&&ENEMIES[n.enemy].kind==='b')tip('boss');else if(n.enemy&&ENEMIES[n.enemy].kind==='e')tip('elite');
+}
+/* the route panel beside the chart (big screens only): every stop you can sail to next */
+const KIND={port:'Port market',threat:'Threat',elite:'Elite',boss:'Guardian of this sea',event:'Unknown waters',npc:'Someone to meet',fish:'Fishing grounds',isle:'Uncharted isle'};
+function pickNode(id){app.querySelectorAll('.node.picked').forEach(e=>e.classList.remove('picked'));if(id!=null){const el=app.querySelector(`.node[data-id="${id}"]`);if(el)el.classList.add('picked')}}
+function routeHome(){
+  const r=document.getElementById('route');if(!r)return;pickNode(null);
+  r.innerHTML=`<h2>Where to next?</h2><p class="soft">Pick a stop here or on the chart to see what's there.</p>
+    <div class="stops">${reachable().map(id=>{const n=node(id),t=nodeTitle(n);
+      return`<button class="stop" data-id="${id}"><svg viewBox="0 0 24 24" aria-hidden="true">${NG[n.type]}</svg><span><b>${t[0].toUpperCase()+t.slice(1)}</b><span class="soft">${n.type==='npc'?NPCS[n.npc].role:KIND[n.type]}</span></span></button>`}).join('')}</div>`;
+  r.onclick=e=>{const b=e.target.closest('[data-id]');if(b)preview(node(+b.dataset.id))};
+  r.onmouseover=e=>{const b=e.target.closest('[data-id]');pickNode(b?+b.dataset.id:null)};
+  r.onmouseleave=()=>pickNode(null);
 }
 const lossOf=k=>k==='b'?4+G.sea*2:k==='e'?3+G.sea:2+G.sea;
 function go(id){

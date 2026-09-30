@@ -471,3 +471,93 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
   .pick:active,.opt:active,.shipcard:active,.visitor:active{transform:scale(1.03,.92);box-shadow:4px 5px 0 var(--ink)}
   .item,.pick,.opt,.visitor{transition:transform .22s var(--spring),box-shadow .22s var(--spring)}
 }
+
+/* ---- the captain's desk: big screens during a voyage (body.desk is set by desk.js). The stage on the left, the desk panel on the right, the hold along the bottom. ---- */
+.item .nm{display:none}
+.route,#desk{display:none}
+@media (min-width:1180px) and (min-height:640px){
+  body.desk{--fx:max(0px,calc((100vw - 1760px)/2));--dw:clamp(320px,22vw,390px)}
+  body.desk #app{max-width:1760px;padding:22px calc(var(--dw) + 32px) 150px 32px;display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row dense;column-gap:24px;align-content:start}
+  body.desk #app>*{grid-column:1/-1}
+  body.desk #app>.visitor{grid-column:1;max-width:none;margin-bottom:16px}
+  body.desk #app>.market{grid-column:2}
+  body.desk #app:has(.pond)>*{width:100%;max-width:720px;justify-self:center}
+  /* the desk panel */
+  body.desk #desk{display:flex;flex-direction:column;gap:18px;position:fixed;top:0;bottom:0;right:var(--fx);width:var(--dw);z-index:21;background:var(--paper);border-left:2.5px solid var(--ink);padding:22px 22px calc(18px + env(safe-area-inset-bottom,0px));overflow:hidden}
+  #desk h3{font:italic 900 19px/1.1 var(--display);margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+  #desk h3 .soft{font:800 12.5px var(--ui)}
+  #desk>section+section,#desk>p+section{border-top:2px solid var(--ink);padding-top:16px}
+  .desk-ship{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center}
+  .desk-ship b{display:block;font:italic 900 24px/1 var(--display);margin-bottom:3px}
+  .desk-ship .soft{font-size:12.5px}
+  .desk-trait{font-size:13.5px;line-height:1.35;margin-top:-6px}
+  .desk-trait b{font-weight:800}
+  .marks{display:grid;gap:10px}
+  .mark{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;font-size:13px;line-height:1.3}
+  .mark b{font-weight:800}
+  .mark svg{width:38px;height:38px;border:2px solid var(--ink);border-radius:10px;padding:4px;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+  .mark .w{fill:var(--paper)}.mark .k{fill:var(--ink);stroke:none}
+  .catchlist{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+  .fishline{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800}
+  .fishline .fishsvg{width:40px;height:20px;flex:none}
+  .desk-log{flex:1;min-height:0;display:flex;flex-direction:column}
+  .desk-log .entries{flex:1;overflow:auto;display:grid;gap:8px;align-content:start;padding-right:6px;scrollbar-width:thin}
+  .desk-log .entry{font-size:13.5px;line-height:1.4;padding-top:8px}
+  .desk-log .entry:first-child{border-top:0;padding-top:0}
+  .desk-log .log.entry{font-size:15px}
+  /* the hold: a band along the bottom of the stage, with big named tiles */
+  body.desk .cta.dock{left:var(--fx);right:calc(var(--fx) + var(--dw));max-width:none;margin:0;border:0;border-top:2.5px solid var(--ink);border-radius:0;box-shadow:none;padding:14px 32px calc(16px + env(safe-area-inset-bottom,0px))}
+  body.desk .cta.dock .inner:has(>.primary){grid-template-columns:1fr 200px;column-gap:22px}
+  body.desk .item,body.desk .slot{height:clamp(80px,calc(100vh / 8.5),112px)}
+  body.desk .item{justify-content:center;gap:5px;padding:12px 4px 8px}
+  body.desk .item .ico{width:min(40px,64%)}
+  body.desk .item .nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;line-height:1.15;font-weight:800;text-align:center;position:relative;z-index:1;max-width:100%;word-break:break-word}
+  body.desk .item .cdt{font-size:11.5px}
+  body.desk .item .emb{width:12px;height:12px;top:5px;left:5px}
+  body.desk .board.locker .item,body.desk .board.locker .slot,body.desk .mini-board .item,body.desk .mini-board .slot{height:62px}
+  body.desk .board.locker .item .nm,body.desk .mini-board .item .nm{display:none}
+  body.desk .battle .item,body.desk .battle .slot{height:clamp(100px,calc((100vh - 500px) / 2),150px)}
+  body.desk .battle .item .ico{width:min(52px,64%)}
+  body.desk .battle .item .nm{font-size:12px}
+  body.desk .battle{gap:18px;min-height:calc(100vh - 104px);justify-content:center}
+  body.desk #app:has(>.battle){padding-bottom:22px}
+  body.desk .fighter{padding:14px 18px}
+  /* port: big market cards */
+  body.desk .m-head{margin-bottom:14px}
+  body.desk .offers{grid-template-columns:repeat(4,1fr);gap:22px;margin-bottom:26px}
+  body.desk .offer{min-height:clamp(220px,calc(100vh - var(--dock,210px) - 330px),400px);padding:16px;gap:10px}
+  body.desk .o-top{flex-direction:column;align-items:flex-start;gap:10px}
+  body.desk .o-icon{width:clamp(68px,calc(100vh / 10),92px);height:clamp(68px,calc(100vh / 10),92px);padding:10px;border-radius:16px}
+  body.desk .offer h3{font-size:18px}
+  body.desk .o-meta{font-size:13px}
+  body.desk .o-desc{font-size:14.5px;line-height:1.35}
+  body.desk .buy{padding:11px 6px;font-size:15px}
+  body.desk .offer.sold{font-size:26px}
+  body.desk .market{margin-bottom:16px}
+  /* chart: the sea on the left, the route panel beside it */
+  body.desk .chartwrap{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
+  body.desk .map{margin:0}
+  body.desk .tapnote{display:none}
+  body.desk .route{display:flex;flex-direction:column;gap:12px;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);padding:20px 22px;max-width:560px}
+  body.desk .route>*{animation:routeIn .35s cubic-bezier(.3,.7,.3,1) both}
+  body.desk .route h2{font-size:28px}
+  body.desk .route .sh-actions{margin-top:4px}
+  .stops{display:grid;gap:10px;margin-top:4px}
+  .stop{display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center;width:100%;text-align:left;background:var(--paper);border:2.5px solid var(--ink);border-radius:16px;box-shadow:4px 5px 0 var(--ink);padding:10px 14px;transition:transform .22s var(--spring),box-shadow .22s var(--spring)}
+  .stop:active{transform:scale(1.03,.92)}
+  .stop svg{width:46px;height:46px;border:2.2px solid var(--ink);border-radius:50%;padding:9px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .stop .gw{fill:var(--paper)}.stop .gk{fill:var(--ink);stroke:none}
+  .stop b{display:block;font-weight:800;font-size:16px}
+  .stop .soft{font-size:13px}
+  .node.picked .body circle{stroke-width:4}
+  .node.picked .ring{stroke-dasharray:none;stroke-width:2.6}
+  /* things that float over the stage centre on the stage, not the whole window */
+  body.desk .coach{left:calc(var(--fx) + 16px);right:calc(var(--fx) + var(--dw) + 16px)}
+  body.desk .toast{left:calc(var(--fx) + (100vw - 2 * var(--fx) - var(--dw)) / 2)}
+}
+@keyframes routeIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@media (hover:hover) and (pointer:fine){
+  .stop:hover{transform:translate(-2px,-2px);box-shadow:6px 7px 0 var(--ink)}
+  .stop:active{transform:scale(1.03,.92);box-shadow:4px 5px 0 var(--ink)}
+}
+@media (prefers-reduced-motion:reduce){.route>*{animation:none!important}}

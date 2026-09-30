@@ -11,7 +11,7 @@ function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>
 function boardHTML(list,side,ups,cap){cap=cap||10;
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
+    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   return h+'</div>';
 }

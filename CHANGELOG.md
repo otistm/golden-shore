@@ -1,9 +1,12 @@
 # Changelog
 
 ## 0.3.0
-- Ink Crossing now fits a computer screen. On a big window the market shows all 4 cards in a row, the whole chart fits without scrolling, fights stretch wide so every item is easy to read, and the hold runs along the bottom as one long row with Set sail beside it.
-- Pop-ups open as cards in the middle of the screen, and the ship picker shows 2 ships per row.
-- With a mouse, buttons and cards lift a little when you point at them. Esc closes a pop-up or a tip, and 1, 2 and 4 set the fight speed.
+- Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
+- The hold is a band along the bottom with big tiles that show each item's name, and Set sail beside it.
+- Market cards are big, like playing cards, and the fish market sits beside the dock visitor.
+- The chart has a route panel beside it. It lists every stop you can sail to next, and picking one shows what's there right in the panel, with no pop-up.
+- Fights fill the screen with big items.
+- Pop-ups open as cards in the middle. With a mouse, things lift when you point at them. Esc closes a pop-up or a tip, and 1, 2 and 4 set the fight speed.
 - Phones, even turned sideways, look exactly as before.
 
 ## 0.2.1
