@@ -193,6 +193,7 @@ function end(win){
     const loss=lossOf(k);G.hull-=loss;bump='hull';
     logL(`Driven back by the ${foe}. Lost ${loss} hull.`);
     head=`The ${foe} beat you.`;lines.push(`−${loss} hull, ${Math.max(0,G.hull)} left.`);
+    if(G.hull>0){const lf=loseFit(n);if(lf)lines.push(`They tore away your ${FITTINGS[lf].n}.`)}
     if(G.hull<=0){btn='Abandon ship';next=sink}
     else if(k==='b'){G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
       lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>{port(G.at);hullLoss(G.hull+loss,G.hull)}}
@@ -216,6 +217,10 @@ function hullLoss(before,after){
   for(let k=1;k<=before-after;k++)setTimeout(()=>{b.textContent=before-k;squish(b,'bump')},700+(k-1)*140);
   setTimeout(()=>c.classList.add('out'),2900);setTimeout(()=>c.remove(),3300);
 }
+/* losing a fight costs one of your fittings, picked by the voyage code so every captain on this voyage loses the same one */
+function loseFit(n){const have=Object.keys(SPOTS).filter(s=>fitIn(s));if(!have.length)return null;
+  const spot=have[ri(RNG(G.seed,'lostfit',n.id,G.day),have.length)],k=G.fit[spot];G.fit[spot]=null;
+  if(k==='studding')updateReveal();logL(`Lost my ${FITTINGS[k].n} in the fight.`);return k}
 /* the fitting an elite carries: seeded, and never one you already have */
 function eliteFit(n){const r=RNG(G.seed,'elitefit',n.id),pool=Object.keys(FITTINGS).filter(k=>!hasF(k));return pool.length?pool[ri(r,pool.length)]:null}
 function nextSea(){

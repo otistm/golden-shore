@@ -49,7 +49,7 @@ function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <div class="fitlist">${fitRows()}</div>
-    <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
+    <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
     <button class="primary" data-a="c">Close</button>`);
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
 /* ---------- drag and drop: hold and locker ---------- */

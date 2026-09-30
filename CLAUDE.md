@@ -77,6 +77,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - A fitting is one row in `FITTINGS` (world.js): name, spot, price, optional `hp` (health in fights), text and a 30×30 glyph. Its effect is written where it applies, checked with `hasF(key)`, like landmarks with `hasC`.
 - Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks) or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
 - The player's hold size is `holdCap()`, never a literal 10.
+- Losing a fight you survive removes one fitting (`loseFit()` in battle.js, seeded by voyage, stop and day).
 - After adding or changing a fitting, run `npm run sim:fits`. It prints each fitting's win rate against having none. Differences under about 3 points are noise.
 
 ## Chart unroll
