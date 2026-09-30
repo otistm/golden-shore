@@ -100,11 +100,13 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Cards use a 2 to 2.5px ink border, a hard offset shadow and a large radius.
 - Motion follows Disney's principles: squash and stretch, anticipation, follow-through, slow in and out. Use `--spring: cubic-bezier(.34,1.56,.64,1)`.
 - Mobile first, portrait, one thumb. Respect safe areas and `prefers-reduced-motion`. The hold stays docked at the bottom on the chart and port screens.
+- Desktop: windows at least 900 × 560 get the wide layout from the desktop block at the end of `styles.css` (a 1080px table, 4 market cards, the chart fitted to the window, a wide stacked fight, and centred pop-ups). Mouse hover effects sit in their own `(hover:hover)` block. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 10 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
 ## Smoke test before sharing a preview
 - A fresh player sees Learn to sail first. The tutorial runs start to finish on both the fishing and the isle branch, and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
+- At 1440 × 900: the market fits in one row, the chart fits without scrolling, the fight is readable and pop-ups sit in the middle.
 - Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
 - Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.

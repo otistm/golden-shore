@@ -416,3 +416,58 @@ g.coach-hi{outline:none;animation:none}
 g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .tutlink{display:block;margin:2px auto 0}
 @media (prefers-reduced-motion:reduce){.coach,.coach .portrait,.coach-hi,.cx{animation:none}.ctimer .prog{animation:ringFill var(--dur) linear forwards!important;animation-duration:var(--dur)!important}}
+
+/* ---- desktop: a wide table. Only on big windows, so phones (even turned sideways) keep the layout above. ---- */
+@media (min-width:900px) and (min-height:560px){
+  #app{max-width:1080px;padding:22px 24px 140px}
+  .title{max-width:480px;margin:0 auto}
+  .atlas{max-width:760px;margin:0 auto}
+  .cargo{grid-template-columns:repeat(10,1fr)}
+  #app:has(.pond){max-width:720px}
+  /* port: the whole market in one row */
+  .offers{grid-template-columns:repeat(4,1fr);gap:16px}
+  .fishlist{grid-template-columns:1fr 1fr}
+  .visitor{max-width:520px}
+  /* the hold: one long row with roomy slots, Set sail beside it */
+  .item,.slot{height:84px}
+  .item .ico{width:min(38px,70%)}
+  .item .cdt{font-size:12px}
+  .item .emb{width:11px;height:11px}
+  .cta.dock{max-width:1080px;margin:0 auto;border:2.5px solid var(--ink);border-bottom:0;padding:14px 24px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 0 var(--paper)}
+  .cta.dock .inner{max-width:none;display:grid;grid-template-columns:1fr;row-gap:8px}
+  .cta.dock .inner:has(>.primary){grid-template-columns:1fr 210px;column-gap:18px}
+  .dock .inner>*{grid-column:1;margin:0}
+  .dock .inner>.stall-head:first-child{grid-column:1/-1}
+  .dock .inner>.primary{grid-column:2;grid-row:3;align-self:stretch;margin:0;font-size:26px}
+  .dock .inner>.primary.sellzone{font-size:18px}
+  .dock .hint{margin:0}
+  .dock .board{margin:0}
+  .dock .locker-head{margin-top:6px}
+  .board.locker{grid-template-columns:repeat(10,1fr)}
+  .board.locker .item,.board.locker .slot{height:60px}
+  /* chart: the whole sea fits the window, no scrolling */
+  .map{width:fit-content;margin:0 auto;padding:8px 14px}
+  .map svg{width:auto;height:clamp(420px,calc(100vh - var(--dock,190px) - 170px),820px)}
+  .seahead,.tapnote{max-width:none}
+  /* fight: the same stack as on a phone, stretched wide so every item is big and easy to read */
+  .battle{gap:14px}
+  .battle>.mid{justify-content:center;gap:22px}
+  .who .name{font-size:24px}
+  /* pop-ups open as cards in the middle of the screen */
+  .overlay{align-items:center;padding:24px}
+  .sheet{max-width:520px;max-height:calc(100vh - 48px);overflow:auto;border-bottom:2.5px solid var(--ink);border-radius:24px;box-shadow:7px 8px 0 var(--ink);padding-bottom:20px;transform-origin:50% 50%}
+  .sheet:has(.ships){max-width:780px}
+  .ships{grid-template-columns:1fr 1fr}
+  .journal{max-height:calc(100vh - 48px)}
+}
+/* with a mouse: things you can press lift a little when you point at them */
+@media (hover:hover) and (pointer:fine){
+  .primary:hover,.ghost:hover,.buy:hover,.speed button:hover,.fbc:hover{transform:translateY(-2px)}
+  .pick:not([disabled]):hover,.opt:not([disabled]):hover,.shipcard:not([disabled]):not(.static):hover,.visitor:hover{transform:translate(-2px,-2px);box-shadow:6px 7px 0 var(--ink)}
+  .dock .board .item:not(.dragging):not(.sel):hover,.battle .item:hover{transform:translateY(-3px)}
+  .o-top:hover h3,.linkbtn:hover{text-decoration:underline;text-decoration-thickness:2px}
+  .fighter.e:hover{cursor:pointer}
+  .primary:active,.ghost:active,.buy:active,.speed button:active{transform:scale(1.05,.88)}
+  .pick:active,.opt:active,.shipcard:active,.visitor:active{transform:scale(1.03,.92);box-shadow:4px 5px 0 var(--ink)}
+  .item,.pick,.opt,.visitor{transition:transform .22s var(--spring),box-shadow .22s var(--spring)}
+}

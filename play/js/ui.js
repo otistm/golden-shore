@@ -108,4 +108,12 @@ function holdDock(extra,ups,lups){
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}
     ${extra}</div></footer>`;
 }
-function fitDock(){const d=app.querySelector('.dock');if(d)app.style.paddingBottom=(d.offsetHeight+18)+'px'}
+function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
+addEventListener('resize',fitDock);
+/* desktop keys: Esc closes the top pop-up (like tapping outside it) or a tip; 1, 2 and 4 set fight speed */
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea')))return;
+  const ovs=document.querySelectorAll('.overlay'),top=ovs[ovs.length-1];
+  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click()}return}
+  if(B&&!B.over&&!top){const b=app.querySelector(`[data-sp="${e.key}"]`);if(b)b.click()}
+});
