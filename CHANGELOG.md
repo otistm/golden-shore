@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.0
+- The chart unrolls like a scroll. The roll slides down the page revealing the sea, overshoots a touch and flattens away. It plays the first time you see each sea and when you continue a saved voyage, not every time you come back to the chart.
+
 ## 0.4.0
 - Spoils are now a screen of their own, laid out like the market, with your hold docked at the bottom. Drag a spoil into any slot in your hold or locker, or tap Take. Changed your mind? Drag it back onto its card, or tap Put back.
 - Short on room? Drag your own cargo onto the button at the bottom to sell it, at the port price. Spoils that don't fit yet say how many more slots they need.

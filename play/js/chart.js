@@ -44,6 +44,7 @@ function chart(){
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
   bindNodes();fitMap();
+  if(G.unrolled!==G.sea||unrollNext){G.unrolled=G.sea;unrollNext=false;unroll()}
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
   save();coach('chart');tip('chart');
 }
@@ -57,7 +58,16 @@ function fitMap(){
     const w=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=innerHeight-r.top-(d?d.offsetHeight:0)-24-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
     fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(62,Math.min(120,Math.round((h-84)/6)))}}
   m.dataset.fit=on?'1':'';m.innerHTML=mapSVG(fit);bindNodes();
+  if(m.classList.contains('unroll'))addRoll(m);
 }
+/* The chart unrolls like a scroll: the paper is revealed from the top while the rolled-up part travels down, overshoots a touch, and flattens away. */
+let unrollNext=false;
+const UNROLL_MS=1500;
+function unroll(){const m=app.querySelector('.map');if(!m)return;
+  m.dataset.u0=performance.now();m.classList.add('unroll');addRoll(m);
+  setTimeout(()=>{if(!m.isConnected)return;m.classList.remove('unroll');const r=m.querySelector('.roll');if(r)r.remove()},UNROLL_MS+450)}
+function addRoll(m){const r=document.createElement('div');r.className='roll';r.setAttribute('aria-hidden','true');
+  const d=-(performance.now()-(+m.dataset.u0||performance.now()));r.style.setProperty('--ud',d+'ms');m.appendChild(r)}
 addEventListener('resize',()=>{if(app.querySelector('.map'))fitMap()});
 function traitsHTML(e,sea){return`<div class="traitlist">${e.traits.map(k=>`<p><b>${TRAITS[k].n}.</b> ${TRAITS[k].d(sea)}</p>`).join('')}</div>`}
 function preview(n){
