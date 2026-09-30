@@ -542,3 +542,23 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
   body.desk .coach{left:calc(var(--fx) + 16px);right:calc(var(--fx) + var(--dw) + 16px)}
   body.desk .toast{left:calc(var(--fx) + (100vw - 2 * var(--fx) - var(--dw)) / 2)}
 }
+
+/* hull damage card, shown on the chart after a lost fight */
+.hullcard{position:fixed;left:16px;right:16px;top:30%;margin:0 auto;width:min(360px,calc(100vw - 32px));z-index:39;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;background:var(--paper);border:2.5px solid var(--ink);border-radius:20px;box-shadow:6px 7px 0 var(--ink);padding:14px 18px;pointer-events:none;animation:hcIn .55s var(--spring) both}
+.hullcard.out{animation:hcOut .4s ease-in forwards}
+@keyframes hcIn{0%{opacity:0;transform:translateY(24px) scale(.8,1.2)}60%{opacity:1;transform:translateY(-4px) scale(1.04,.96)}100%{transform:none}}
+@keyframes hcOut{30%{transform:scale(1.03,.97)}100%{opacity:0;transform:translateY(-16px) scale(.94,1.06)}}
+.hc-ship{width:64px;height:64px;transform-origin:50% 85%;animation:hcRock .5s ease-in-out .55s 4 both}
+@keyframes hcRock{25%{transform:rotate(-9deg) translateX(-2px)}75%{transform:rotate(7deg) translateX(2px)}}
+.hc-head{font:italic 900 21px/1.1 var(--display)}
+.hc-num{font-weight:800;font-size:14px;margin-top:2px;display:flex;align-items:baseline;gap:6px}
+.hc-num b{display:inline-block;font:italic 900 30px/1 var(--display);font-variant-numeric:tabular-nums;min-width:1.2em}
+.hc-num b.bump{animation:bump .3s var(--spring)}
+.hc-loss{margin-left:auto;font:italic 900 22px var(--display);animation:hcLoss .5s var(--spring) .45s both}
+@keyframes hcLoss{0%{opacity:0;transform:scale(.3,1.6)}60%{opacity:1;transform:scale(1.25,.85)}100%{transform:none}}
+.planks{display:flex;flex-wrap:wrap;gap:3px;margin-top:9px}
+.planks i{width:8px;height:16px;border:2px solid var(--ink);border-radius:2px;background:var(--paper)}
+.planks i.go{animation:plankOff .7s cubic-bezier(.5,0,.8,.4) calc(.6s + var(--d)) forwards}
+@keyframes plankOff{0%{transform:none}20%{transform:translateY(-5px) rotate(-14deg) scale(1.1,.9);background:repeating-linear-gradient(-45deg,var(--ink) 0 1.5px,var(--paper) 1.5px 4px)}100%{transform:translateY(34px) rotate(55deg);opacity:0;background:repeating-linear-gradient(-45deg,var(--ink) 0 1.5px,var(--paper) 1.5px 4px)}}
+@media (min-width:1180px) and (min-height:640px){body.desk .hullcard{left:calc(var(--fx) + 16px);right:calc(var(--fx) + var(--dw) + 16px)}}
+@media (prefers-reduced-motion:reduce){.hullcard,.hc-ship,.hc-loss{animation:none!important}.planks i.go{animation:none!important;opacity:.2}}

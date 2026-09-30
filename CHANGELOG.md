@@ -8,6 +8,7 @@
 - Fights fill the screen with big items.
 - Pop-ups open as cards in the middle. With a mouse, things lift when you point at them. Esc closes a pop-up or a tip, and 1, 2 and 4 set the fight speed.
 - Phones, even turned sideways, look exactly as before.
+- On every screen: after you lose a fight and head back to the chart, a card shows the hull you lost. Your ship rocks, a plank cracks off for each point of hull, and the number counts down. It fades by itself and never blocks the chart.
 
 ## 0.2.1
 - Tutorial tips and one-time tips work like Ink Nine's. Each tip shows a small ring in its corner that fills while you read, then pops into an x that closes it. Tutorial tips show "Tip N of 13". Closing an explanation moves the tutorial on, and closing a "do this" tip just tucks it away until you do it.
