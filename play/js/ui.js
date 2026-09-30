@@ -11,7 +11,7 @@ function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>
 function boardHTML(list,side,ups,cap){cap=cap||10;
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
+    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   return h+'</div>';
 }
@@ -108,4 +108,12 @@ function holdDock(extra,ups,lups){
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}
     ${extra}</div></footer>`;
 }
-function fitDock(){const d=app.querySelector('.dock');if(d)app.style.paddingBottom=(d.offsetHeight+18)+'px'}
+function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
+addEventListener('resize',fitDock);
+/* desktop keys: Esc closes the top pop-up (like tapping outside it) or a tip; 1, 2 and 4 set fight speed */
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea')))return;
+  const ovs=document.querySelectorAll('.overlay'),top=ovs[ovs.length-1];
+  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click()}return}
+  if(B&&!B.over&&!top){const b=app.querySelector(`[data-sp="${e.key}"]`);if(b)b.click()}
+});

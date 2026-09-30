@@ -40,6 +40,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
 | coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
+| desk.js | The captain's desk side panel on big screens (`renderDesk`, `DESK`) |
 | main.js | Startup (always last) |
 
 ## Items: the one place to add content
@@ -100,11 +101,16 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Cards use a 2 to 2.5px ink border, a hard offset shadow and a large radius.
 - Motion follows Disney's principles: squash and stretch, anticipation, follow-through, slow in and out. Use `--spring: cubic-bezier(.34,1.56,.64,1)`.
 - Mobile first, portrait, one thumb. Respect safe areas and `prefers-reduced-motion`. The hold stays docked at the bottom on the chart and port screens.
+- Desktop has two tiers, both in blocks at the end of `styles.css`, so phones are never touched:
+  - At least 900 × 560: a wider single column (4 market cards, the chart fitted to the window, centred pop-ups).
+  - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart fills the stage. `fitMap()` redraws the chart at the size it has (`mapSVG(fit)` stretches x and row height for display only; node positions in the saved map never change). `DESK` in desk.js must match the CSS media query.
+  - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 10 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
 ## Smoke test before sharing a preview
 - A fresh player sees Learn to sail first. The tutorial runs start to finish on both the fishing and the isle branch, and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
+- At 1440 × 900 and 1920 × 1080: the desk panel shows the ship, landmarks and log, the chart fills the stage and tapping a stop opens its preview, the fight fills the screen, and nothing sits behind the hold.
 - Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
 - Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.

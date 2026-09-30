@@ -11,26 +11,28 @@ const NG={
   isle:'<path d="M3 19c4-3 14-3 18 0"/><path d="M12 18c0-4 .5-8 2-10"/><path d="M14 8c-3-2-6-1-7 1M14 8c2-3 5-3 6-1M14 8c1 2 1 4 0 6"/>',
   boss:'<path d="M4 21c-1-7 2-12 6-12s5 5 2 6-3-3-1-3"/><path d="M20 21c1-6-1-11-5-12"/><path d="M12 9c0-3 1-5 3-6"/>'
 };
-function mapSVG(){
-  const m=G.map,W=340,RH=84,H=6*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
+/* The map is laid out 340 wide. fit (big screens only) redraws it at the size of the space it has: stops spread sideways, rows spread down. */
+function mapSVG(fit){
+  const W=fit?fit.W:340,RH=fit?fit.RH:84,X=n=>n.x*W/340;
+  const m=G.map,H=6*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
   const trav=new Set();for(let i=1;i<G.path.length;i++)trav.add(G.path[i-1]+'>'+G.path[i]);
   const vis=n=>n.row<=rev||n.type==='boss'||G.path.includes(n.id);
   let g='';
   if(rev<5)g+=`<rect x="-6" y="0" width="${W+12}" height="${y(rev)-RH/2}" fill="url(#fog)"/><text class="fogtxt" x="${W-8}" y="${y(rev)-RH/2-8}" text-anchor="end">here be monsters</text>`;
   m.edges.forEach(([a,b])=>{const A2=node(a),B2=node(b);if(!(trav.has(a+'>'+b)||(A2.row<=rev&&(B2.row<=rev||B2.type==='boss'))))return;
-    const ya=y(A2.row),yb=y(B2.row),mx=(A2.x+B2.x)/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
+    const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
     const t=trav.has(a+'>'+b),r=a===G.at;
-    g+=`<path d="M${A2.x} ${ya-18}Q${mx} ${my} ${B2.x} ${yb+(B2.type==='boss'?25:18)}" fill="none" stroke="#000" stroke-linecap="round" ${t?'stroke-width="2.8"':r?'stroke-width="2" stroke-dasharray="1 6"':'stroke-width="1.4" stroke-dasharray="1 6" opacity=".45"'}/>`});
+    g+=`<path d="M${X(A2)} ${ya-18}Q${mx} ${my} ${X(B2)} ${yb+(B2.type==='boss'?25:18)}" fill="none" stroke="#000" stroke-linecap="round" ${t?'stroke-width="2.8"':r?'stroke-width="2" stroke-dasharray="1 6"':'stroke-width="1.4" stroke-dasharray="1 6" opacity=".45"'}/>`});
   m.nodes.forEach(n=>{if(!vis(n))return;
     const big=n.type==='boss',rr=big?24:18,known=n.row<=rev||G.path.includes(n.id),isR=reach.has(n.id),v=G.path.includes(n.id)&&n.id!==G.at;
     const gl=known?NG[n.type]:NG.event;
-    g+=`<g class="node${isR?' reach':''}${v?' visited':''}${!isR&&!v&&n.id!==G.at?' dim':''}" data-id="${n.id}" ${isR?`tabindex="0" role="button" aria-label="Sail to ${nodeTitle(n)}"`:''} transform="translate(${n.x} ${y(n.row)})">
+    g+=`<g class="node${isR?' reach':''}${v?' visited':''}${!isR&&!v&&n.id!==G.at?' dim':''}" data-id="${n.id}" ${isR?`tabindex="0" role="button" aria-label="Sail to ${nodeTitle(n)}"`:''} transform="translate(${X(n)} ${y(n.row)})">
       ${isR?`<circle class="ring" r="${rr+4}" fill="none" stroke="#000" stroke-width="1.6" stroke-dasharray="3 4"/>`:''}
       <g class="body"><circle r="${rr}" fill="#fff" stroke="#000" stroke-width="${big?3:2.2}"/><g class="glyph" transform="translate(${big?-13:-10} ${big?-13:-10}) scale(${big?1.08:.83})" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${gl}</g></g>
       ${big?`<text class="maplabel" y="-32" text-anchor="middle">${known?ENEMIES[n.enemy].n:'Something waits'}</text>`:''}</g>`});
   G.charts.forEach((c,i)=>{if(c.sea!==G.sea)return;const n=node(c.at);if(!n)return;const side=n.x>170?-1:1;
-    g+=`<g transform="translate(${n.x+side*30-11} ${y(n.row)-11}) scale(.733)" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">${CHARTS[c.k].g}</g>`});
-  g+=`<g transform="translate(${cur.x-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></g>`;
+    g+=`<g transform="translate(${X(n)+side*30-11} ${y(n.row)-11}) scale(.733)" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">${CHARTS[c.k].g}</g>`});
+  g+=`<g transform="translate(${X(cur)-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></g>`;
   return`<svg viewBox="-6 0 ${W+12} ${H}" aria-label="Chart of ${SEAS[G.sea]}"><defs><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" fill="#000" opacity=".18"/></pattern></defs>${g}</svg>`;
 }
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
@@ -41,10 +43,22 @@ function chart(){
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
-  app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>preview(node(+el.dataset.id));el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  bindNodes();fitMap();
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
   save();coach('chart');tip('chart');
 }
+function bindNodes(){app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>preview(node(+el.dataset.id));el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
+/* big screens: redraw the chart to fill the stage above the hold */
+function fitMap(){
+  const m=app.querySelector('.map');if(!m||!G)return;
+  const on=document.body.classList.contains('desk');if(!on&&!m.dataset.fit)return;
+  let fit=null;
+  if(on){const cs=getComputedStyle(m),r=m.getBoundingClientRect(),d=app.querySelector('.dock');
+    const w=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=innerHeight-r.top-(d?d.offsetHeight:0)-24-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(62,Math.min(120,Math.round((h-84)/6)))}}
+  m.dataset.fit=on?'1':'';m.innerHTML=mapSVG(fit);bindNodes();
+}
+addEventListener('resize',()=>{if(app.querySelector('.map'))fitMap()});
 function traitsHTML(e,sea){return`<div class="traitlist">${e.traits.map(k=>`<p><b>${TRAITS[k].n}.</b> ${TRAITS[k].d(sea)}</p>`).join('')}</div>`}
 function preview(n){
   let body='',head=nodeTitle(n);head=head[0].toUpperCase()+head.slice(1);

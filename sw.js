@@ -1,7 +1,7 @@
 // Ink Crossing service worker: lets the game open from the home screen and on a weak signal.
 // Network first, so players always get the newest version when online; the cache is only a fallback.
 // Bump CACHE whenever the list of files below changes.
-const CACHE = 'inkcrossing-v3';
+const CACHE = 'inkcrossing-v4';
 const CORE = [
   '/', '/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png',
   '/play/', '/play/index.html', '/play/styles.css',
@@ -23,6 +23,7 @@ const CORE = [
   '/play/js/battle.js',
   '/play/js/atlas.js',
   '/play/js/coach.js',
+  '/play/js/desk.js',
   '/play/js/main.js',
 ];
 self.addEventListener('install', e => {

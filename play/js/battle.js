@@ -176,12 +176,26 @@ function end(win){
     head=`The ${foe} beat you.`;lines.push(`−${loss} hull, ${Math.max(0,G.hull)} left.`);
     if(G.hull<=0){btn='Abandon ship';next=sink}
     else if(k==='b'){G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
-      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>port(G.at)}
-    else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=chart}
+      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>{port(G.at);hullLoss(G.hull+loss,G.hull)}}
+    else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=()=>{chart();hullLoss(G.hull+loss,G.hull)}}
   }
   save();
   setTimeout(()=>{draw();const ov=overlay(`<h2>${head}</h2><div class="lines">${lines.map(l=>`<p>${l}</p>`).join('')}</div><button class="primary" id="next">${btn}</button>`,true,'result');
     const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()}},B.quiet?50:750);
+}
+/* Back on the chart (or in port, after a boss) after a lost fight: a card shows the hull you lost. Planks crack off one by one while the number counts down, then it fades. */
+function hullLoss(before,after){
+  document.querySelectorAll('.hullcard').forEach(c=>c.remove());
+  const n=Math.min(before,40),lost=Math.min(n,before-Math.max(0,after));
+  const c=document.createElement('div');c.className='hullcard';c.setAttribute('role','status');
+  c.innerHTML=`<svg class="hc-ship" viewBox="-2 -2 28 28" aria-hidden="true"><g stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></svg>
+    <div><p class="hc-head">Hull damaged</p><p class="hc-num"><b>${before}</b> hull left <span class="hc-loss">−${before-after}</span></p>
+    <div class="planks" aria-hidden="true">${Array.from({length:n},(_,i)=>`<i${i>=n-lost?` class="go" style="--d:${(n-1-i)*140}ms"`:''}></i>`).join('')}</div></div>`;
+  c.setAttribute('aria-label',`Hull damaged. Lost ${before-after}, ${Math.max(0,after)} left.`);
+  document.body.appendChild(c);
+  const b=c.querySelector('.hc-num b');
+  for(let k=1;k<=before-after;k++)setTimeout(()=>{b.textContent=before-k;squish(b,'bump')},700+(k-1)*140);
+  setTimeout(()=>c.classList.add('out'),2900);setTimeout(()=>c.remove(),3300);
 }
 function nextSea(){
   G.sea++;G.map=genMap(G.seed,G.sea);G.at=G.map.start;G.path=[G.at];G.full=false;G.extra=0;updateReveal();
