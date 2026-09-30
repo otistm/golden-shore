@@ -572,3 +572,11 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .offer.spoil.backzone.hot{transform:scale(1.04,.96);background:repeating-linear-gradient(-45deg,var(--hatch) 0 1.5px,transparent 1.5px 6px)}
 .dock #sailon{font-size:21px}
 @media (min-width:1180px) and (min-height:640px){body.desk .offers.spoils{grid-template-columns:repeat(3,1fr)}}
+
+/* pause button in the top bar, and the pause card (like Ink Nine and Ink Rally) */
+.pausebtn{width:34px;height:34px;flex:none;border-radius:50%;border:2.5px solid var(--ink);background:var(--paper);color:var(--ink);box-shadow:2px 3px 0 var(--ink);display:grid;place-items:center;padding:0;margin-left:6px;transition:transform .28s var(--spring)}
+.pausebtn svg{width:20px;height:20px}
+.pausebtn:active{transform:scale(1.12,.86)}
+.pausebtn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.pausecard h2{font-size:34px}
+.pausecard .ver{text-align:center}

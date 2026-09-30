@@ -6,8 +6,8 @@ function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());c
 function pop(el,txt,cls){if(!el||(B&&B.quiet))return;const r=el.getBoundingClientRect();const p=document.createElement('div');p.className='pop '+(cls||'');p.textContent=txt;p.style.left=(r.left+r.width/2+(Math.random()*18-9))+'px';p.style.top=(r.top+r.height*.45)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}
 function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
-function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><span class="pill${b('hull')}">${G.hull} hull</span>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button></header>`;bump=null;return h}
-function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
+function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><span class="pill${b('hull')}">${G.hull} hull</span>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
+function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
 function boardHTML(list,side,ups,cap){cap=cap||10;
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
@@ -127,10 +127,37 @@ function holdDock(extra,ups,lups,hint){
 }
 function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
 addEventListener('resize',fitDock);
-/* desktop keys: Esc closes the top pop-up (like tapping outside it) or a tip; 1, 2 and 4 set fight speed */
+/* desktop keys: Esc closes the top pop-up (like tapping outside it) or a tip, and otherwise pauses. P pauses and resumes. 1, 2 and 4 set fight speed */
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea')))return;
   const ovs=document.querySelectorAll('.overlay'),top=ovs[ovs.length-1];
-  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click()}return}
+  if(e.key==='p'||e.key==='P'){if(PAUSE.on)resumePause();else if(!top)showPause();return}
+  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click();else showPause()}return}
   if(B&&!B.over&&!top){const b=app.querySelector(`[data-sp="${e.key}"]`);if(b)b.click()}
 });
+/* ---------- pause (like Ink Nine and Ink Rally) ----------
+   Freezes fights and fishing: both read the clock through pauseClock(), which stops while paused. */
+const PAUSE={on:false,since:0,total:0,ov:null};
+const pauseClock=()=>(performance.now()-PAUSE.total-(PAUSE.on?performance.now()-PAUSE.since:0))/1000;
+function showPause(){
+  if(PAUSE.on||!G||!app.querySelector(':scope>.bar'))return;
+  PAUSE.on=true;PAUSE.since=performance.now();
+  const fighting=B&&!B.over,fishing=!!app.querySelector('#pond');
+  const note=G.tut?'The tutorial is not saved, so leaving starts it over next time.'
+    :`Your voyage is saved. Pick it up from the title screen whenever you like.${fighting?' If you leave now, this fight starts over when you come back.':fishing?' If you leave now, the casts you have left are lost.':''}`;
+  const ov=PAUSE.ov=overlay(`<h2>Paused</h2><p class="soft">${G.tut?'Tutorial':`${SEAS[G.sea]}, day ${G.day}. Voyage ${codeOf(G.seed)}`}</p><p>${note}</p>
+    <button class="primary" data-p="go">Keep sailing</button><button class="ghost" data-p="home">${G.tut?'Leave the tutorial':'Save and go to the title'}</button>
+    <p class="ver">Version ${VERSION}.${feedbackLink('fbPause')}</p>`,true,'pausecard');
+  ov.addEventListener('click',e=>{if(e.target===ov)return resumePause();const b=e.target.closest('[data-p]');if(!b)return;
+    if(b.dataset.p==='go')resumePause();else leaveToTitle()});
+  const fb=ov.querySelector('#fbPause');if(fb)fb.onclick=()=>{resumePause();showFeedback()};
+  ov.querySelector('[data-p="go"]').focus();
+}
+function resumePause(){if(!PAUSE.on)return;PAUSE.total+=performance.now()-PAUSE.since;PAUSE.on=false;if(PAUSE.ov)PAUSE.ov.remove();PAUSE.ov=null}
+function leaveToTitle(){
+  resumePause();cancelAnimationFrame(raf);cancelAnimationFrame(FR);B=null;hideCoach();
+  document.querySelectorAll('.overlay,.hullcard').forEach(o=>o.remove());
+  if(G&&!G.tut)save();G=null;title();
+}
+/* switching away mid-fight or mid-cast pauses the game, like Ink Rally */
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G&&((B&&!B.over)||app.querySelector('#pond')))showPause()});

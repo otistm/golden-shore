@@ -29,7 +29,7 @@ function fishing(key,casts,done){
   const ui=()=>{$('casts').textContent=`${F.left} cast${F.left===1?'':'s'} left`;$('fmsg').textContent=F.msg};
   const setBtn=(t,cls)=>{btn.textContent=t;btn.className='primary'+(cls?' '+cls:'')};
   ui();
-  const now=()=>performance.now()/1000;
+  const now=pauseClock;
   function cast(){F.phase='fly';F.at=now();F.ax=F.bx;F.ay=F.by;F.tx=200+Math.random()*70;F.ty=88;F.msg='Watch the bobber…';setBtn('Wait…','wait');ui()}
   function bite(){F.phase='bite';F.winEnd=now()+Math.max(.55,.9-G.sea*.1);F.msg='Bite! Tap now!';setBtn('Hook it!','hot');ui();bang.setAttribute('opacity',1);navigator.vibrate&&navigator.vibrate(40)}
   function hook(){F.n++;F.fish=fishOf(RNG(G.seed,'fish',key,F.n));F.phase='reel';F.prog=.3;F.p=.5;F.pt=.5;F.z=.5-zoneW()/2;F.zv=0;
@@ -59,7 +59,7 @@ function fishing(key,casts,done){
   $('fstop').onclick=leave;
   function leave(){cancelAnimationFrame(FR);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',release);save();hideCoachIfTip();coach('fishDone');done()}
   let lt=now();
-  function frame(){const t=now(),dt=Math.min(.05,t-lt);lt=t;
+  function frame(){if(PAUSE.on){FR=requestAnimationFrame(frame);return}const t=now(),dt=Math.min(.05,t-lt);lt=t;
     if(F.phase==='fly'){const k=Math.min(1,(t-F.at)/.6);F.bx=F.ax+(F.tx-F.ax)*k;F.by=F.ay+(F.ty-F.ay)*k-Math.sin(k*Math.PI)*60;
       if(k>=1){F.phase='wait';F.biteAt=t+1.3+Math.random()*2.6;F.nibble=t+.6+Math.random()*.8}}
     else if(F.phase==='wait'){F.bx=F.tx;F.by=F.ty+Math.sin(t*2.4)*1.5;

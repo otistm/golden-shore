@@ -71,6 +71,11 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
   - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
+## Pause
+- The pause button is in the top bar (`barHTML`), so every voyage screen has it. `showPause()`, `resumePause()` and `leaveToTitle()` live in ui.js.
+- Anything that runs on a clock must stand still while `PAUSE.on`: fights set `dt=0` in `loop()`, and fishing reads time through `pauseClock()`. A new timed screen needs the same.
+- `G.fightAt` marks a fight that hasn't finished. `resume()` replays it, so leaving or refreshing never skips a fight.
+
 ## Protect testers' saved progress
 Testers keep progress in their browser's localStorage. An update must never wipe or break it.
 - The keys are `crossing-atlas` (meta progress: ships unlocked, bestiary, cargo, fish, people, landmarks, daily bests) and `crossing-voyage` (the voyage in progress).
@@ -118,4 +123,5 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.
 - Try a fishing spot, an NPC and an event.
 - Refresh on the chart, then Continue voyage resumes where you were.
+- Pause mid-fight and mid-cast: nothing moves until Keep sailing. Save and go to the title mid-fight, then Continue voyage restarts that fight.
 - No errors in the browser console.
