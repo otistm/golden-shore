@@ -1,7 +1,9 @@
 # Changelog
 
 ## 0.4.0
-- Spoils show your hold. Tap one of your items to sell it, at the port price, and make room for a new piece of cargo. Spoils that still don't fit say how many more slots they need.
+- Spoils are now a screen of their own, laid out like the market, with your hold docked at the bottom. Drag a spoil into any slot in your hold or locker, or tap Take. Changed your mind? Drag it back onto its card, or tap Put back.
+- Short on room? Drag your own cargo onto the button at the bottom to sell it, at the port price. Spoils that don't fit yet say how many more slots they need.
+- Taking nothing gives you gold, as before: the button reads "Take 4 gold and sail on" until you pick something.
 
 ## 0.3.0
 - Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.

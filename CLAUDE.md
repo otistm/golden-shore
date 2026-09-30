@@ -36,7 +36,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | title.js | Title screen, ship selection, starting a voyage |
 | chart.js | The voyage chart, previews, sailing to a stop |
 | port.js | Market, fish market, dock visitors |
-| rewards.js | Events, spoils, landmark picks |
+| rewards.js | Events, the spoils screen (drag spoils into the hold, sell onto Sail on), landmark picks |
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
 | coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
@@ -114,6 +114,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - At 1440 × 900 and 1920 × 1080: the desk panel shows the ship, landmarks and log, the chart fills the stage and tapping a stop opens its preview, the fight fills the screen, and nothing sits behind the hold.
 - Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
+- Win a fight with a full hold: sell onto Sail on, drag a spoil into the hold, drag it back onto its card, then take one and sail on.
 - Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.
 - Try a fishing spot, an NPC and an event.
 - Refresh on the chart, then Continue voyage resumes where you were.

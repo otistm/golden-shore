@@ -563,16 +563,12 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 @media (min-width:1180px) and (min-height:640px){body.desk .hullcard{left:calc(var(--fx) + 16px);right:calc(var(--fx) + var(--dw) + 16px)}}
 @media (prefers-reduced-motion:reduce){.hullcard,.hc-ship,.hc-loss{animation:none!important}.planks i.go{animation:none!important;opacity:.2}}
 
-/* spoils: your hold under the picks, tap an item to sell it and make room */
-.spoilhold{border-top:2px solid var(--ink);padding-top:12px}
-.spoilhold .stall-head h3{font:italic 900 18px var(--display)}
-.spoilhold .hint{margin:8px 0 0}
-.spoilhold .item,.spoilhold .slot,body.desk .spoilhold .item,body.desk .spoilhold .slot{height:56px}
-.spoilhold .board.locker .item,.spoilhold .board.locker .slot,body.desk .spoilhold .board.locker .item,body.desk .spoilhold .board.locker .slot{height:46px}
-body.desk .spoilhold .item .nm{display:none}
-body.desk .spoilhold .item{padding:0}
-.spoilhold .locker-head{margin-top:8px}
-.sellbar{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:800;font-size:14px;animation:pop-in .4s var(--spring) both}
-.sellbar span{flex:1}
-.sellbar .ghost{padding:7px 12px;font-size:14px}
-.sellbar .buy{padding:8px 12px}
+/* spoils screen: cards above the docked hold, dragged in like cargo */
+.offer.spoil{touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
+.offer.spoil.dragging{opacity:.35}
+.offer.spoil.taken{border-style:dashed;box-shadow:none;transition:transform .2s var(--spring)}
+.offer.spoil.left{opacity:.45;box-shadow:none;border-style:dashed;cursor:default}
+.offer.spoil.backzone{outline:3px dashed var(--ink);outline-offset:5px}
+.offer.spoil.backzone.hot{transform:scale(1.04,.96);background:repeating-linear-gradient(-45deg,var(--hatch) 0 1.5px,transparent 1.5px 6px)}
+.dock #sailon{font-size:21px}
+@media (min-width:1180px) and (min-height:640px){body.desk .offers.spoils{grid-template-columns:repeat(3,1fr)}}
