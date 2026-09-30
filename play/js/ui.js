@@ -6,17 +6,18 @@ function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());c
 function pop(el,txt,cls){if(!el||(B&&B.quiet))return;const r=el.getBoundingClientRect();const p=document.createElement('div');p.className='pop '+(cls||'');p.textContent=txt;p.style.left=(r.left+r.width/2+(Math.random()*18-9))+'px';p.style.top=(r.top+r.height*.45)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}
 function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
-function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><span class="pill${b('hull')}">${G.hull} hull</span>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
-function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
-function boardHTML(list,side,ups,cap){cap=cap||10;
+function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
+function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
+function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():10);
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
     h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
+  if(side==='p'&&cap<10)for(let k=cap;k<10;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
 }
 function itemSheet(list,i,mode,after){
-  const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?10:LOCK;
+  const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;
   const ov=overlay(`<div class="sh-top"><span class="big t${it.t}">${icon(it.k)}</span><div><h2>${d.n}</h2><p class="soft" style="margin-top:4px"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s cooldown`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}${d.ship!=='any'?`. ${SHIPS[d.ship].n}'s cargo`:''}</p></div></div>
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
@@ -41,12 +42,22 @@ function bindHold(mode,rerender,ext){
   app.querySelectorAll('.dock .board[data-side="p"] .slot').forEach(b=>b.onclick=()=>{if(!G.moving)return;const[it]=G.board.splice(G.sel,1);G.board.push(it);G.moving=false;G.sel=null;save();rerender()});
   app.querySelectorAll('.dock .board[data-side="l"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;if(G.moving){G.moving=false;G.sel=null;return rerender()}itemSheet(G.locker,+b.dataset.i,mode,rerender)});
 }
+/* ---------- your ship: trait and fittings ---------- */
+function fitRows(){return Object.keys(SPOTS).map(s=>{const k=fitIn(s);
+  return`<div class="fitrow${k?'':' empty'}">${k?fitGlyph(k):'<span class="fitnone" aria-hidden="true"></span>'}<div><span class="soft">${SPOTS[s]}</span><b>${k?FITTINGS[k].n:'Empty'}</b>${k?`<span class="d">${FITTINGS[k].d}</span>`:''}</div></div>`}).join('')}
+function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
+  const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
+    <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
+    <div class="fitlist">${fitRows()}</div>
+    <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
+    <button class="primary" data-a="c">Close</button>`);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
 /* ---------- drag and drop: hold and locker ---------- */
 let dragJustEnded=false;
 /* ext (the spoils screen): from, things outside the hold that can be dragged in, each {el,it,drop(tgt,dst)};
    back, {el,ok(it),put(it)}, a spot an item can be dragged back out to */
 function dragHold(mode,rerender,ext){
-  const conts=[['p',G.board,10],['l',G.locker,LOCK]].map(([side,list,cap])=>({side,list,cap,el:app.querySelector(`.dock .board[data-side="${side}"]`)})).filter(c=>c.el&&c.list);
+  const conts=[['p',G.board,holdCap()],['l',G.locker,LOCK]].map(([side,list,cap])=>({side,list,cap,el:app.querySelector(`.dock .board[data-side="${side}"]`)})).filter(c=>c.el&&c.list);
   const sellId=mode==='port'?'leave':mode==='spoils'?'sailon':null;
   conts.forEach(src=>src.el.querySelectorAll('.item').forEach(el=>{const si=+el.dataset.i;arm(el,src.list[si],src,si,null)}));
   if(ext&&ext.from)ext.from.forEach(f=>arm(f.el,f.it,null,-1,f));
@@ -119,7 +130,7 @@ function tileSize(s){const b=app.querySelector('.dock .board[data-side="p"]');if
 function holdDock(extra,ups,lups,hint){
   hint=G.moving?'Tap an item to put it there, or an empty slot to send it to the end.':hint||`Drag to ${G.locker?'move between hold and locker':'rearrange'}${G.inPort?', or onto Set sail to sell':''}. Tap to inspect.`;
   return`<footer class="cta dock"><div class="inner">
-    <div class="stall-head"><h2>Your hold</h2><span class="soft">${used(G.board)}/10 slots</span></div>
+    <div class="stall-head"><h2>Your hold</h2><span class="soft">${used(G.board)}/${holdCap()} slots</span></div>
     <p class="hint${G.moving?' on':''}">${hint}</p>
     ${boardHTML(G.board,'p',ups)}
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}

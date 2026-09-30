@@ -6,25 +6,38 @@ function mkSide(name,max,list,traits,sea){const b=sideOf(list);
     items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i),c:0,h:0,sl:0,g:{},lt:{},el:null}))}}
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
 function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
-function fight(n){
-  app.style.paddingBottom='';
-  const f=enemyOf(n),depth=f.depth,sh=SHIPS[G.ship],spd=window._spd||1;
-  const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+(G.tut?120:0);
-  A.met[n.enemy]=1;saveA();G.fightAt=n.id;save();
-  B={t:0,wait:.9,speed:spd,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0),
-     P:mkSide(sh.n,pMax,G.board.map(x=>({...x})),[sh.trait],G.sea),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
+/* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
+function setupFight(n,f,board){
+  const depth=f.depth,sh=SHIPS[G.ship];
+  const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+fitHP()+(G.tut?120:0);
+  B={t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),
+     P:mkSide(sh.n,pMax,board.map(x=>({...x})),[sh.trait],G.sea),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
   const P=B.P,E=B.E;
   for(const S of [P,E])S.items.forEach(it=>{if(it.s.cd)it.c=it.s.cd*it.s.pre});
   if(hasT(P,'bulwark'))P.shield+=15;if(hasC('light'))P.shield+=20;
   P.items.forEach(it=>{if(!it.s.cd)return;if(hasC('whale'))it.s.cd=Math.round(it.s.cd*9)/10;if(hasC('current'))it.c=Math.max(it.c,it.s.cd*.25)});
   if(hasT(E,'smoke'))P.items.forEach(it=>it.sl=3);
   if(hasT(E,'rush'))E.items.forEach(it=>it.h=Math.max(it.h,4));
-  if(hasT(E,'fire'))P.burn+=TRAITS.fire.x(G.sea);
+  if(hasT(E,'fire'))P.burn+=hasF('copper')?Math.ceil(TRAITS.fire.x(G.sea)/2):TRAITS.fire.x(G.sea);
   if(hasT(E,'whirl'))B.bell-=8;
+  // fittings at the start of a fight
+  if(hasF('kraken')){E.max=E.hp=Math.round(E.max*1.1);E.items.forEach(it=>it.sl=Math.max(it.sl,3))}
+  if(hasF('ballast'))P.shield+=25;
+  const pc=P.items.filter(it=>it.s.cd);
+  if(hasF('lateen')&&pc.length){pc[0].c=pc[0].s.cd*.98;if(pc.length>1)pc[pc.length-1].sl=Math.max(pc[pc.length-1].sl,3)}
+  if(hasF('chase'))P.items.forEach(it=>{const t=DEFS[it.k].tags;if(!it.s.cd)return;if(t.includes('C'))it.c=Math.max(it.c,it.s.cd*.5);if(t.includes('W'))it.sl=Math.max(it.sl,2)});
+  if(hasF('studding'))P.items.forEach(it=>it.sl=Math.max(it.sl,1));
+  return B;
+}
+function fight(n){
+  app.style.paddingBottom='';
+  const f=enemyOf(n);
+  A.met[n.enemy]=1;saveA();G.fightAt=n.id;save();
+  setupFight(n,f,G.board);const P=B.P,E=B.E;
   app.innerHTML=`${barHTML()}<section class="battle">
     ${fighterHTML(E,'e')}${boardHTML(E.list,'e')}
     <div class="mid"><span class="clock" id="clock"></span><div class="speed">${[1,2,4].map(v=>`<button data-sp="${v}" aria-pressed="${B.speed===v}">${v}×</button>`).join('')}<button id="skip">Skip</button></div></div>
-    ${boardHTML(P.list,'p')}${fighterHTML(P,'p')}
+    ${boardHTML(P.list,'p',null,holdCap())}${fighterHTML(P,'p')}
     <p class="tip">Tap any item to see what it does.</p></section>`;
   bindBar();
   for(const[S,k]of[[P,'p'],[E,'e']]){
@@ -64,14 +77,17 @@ function xVal(S,F,x){if(!x)return 0;const[from,r]=x;
   if(from.startsWith('tag:'))return S.list.filter(o=>DEFS[o.k].tags.includes(from.slice(4))).length*r;return 0}
 function applyFx(S,F,it,i,f,depth){
   const g=it.g,el=it.el;
-  if(f.dmg!=null||f.dmgX){const base=(f.dmg||0)+(g.dmg||0)+xVal(S,F,f.dmgX),W=DEFS[it.k].tags.includes('W');
-    for(let k=0;k<(f.multi||1);k++){let d=base;const c=f.crit&&Math.random()<f.crit;if(c)d*=2;
+  if(f.dmg!=null||f.dmgX){const W=DEFS[it.k].tags.includes('W'),C=DEFS[it.k].tags.includes('C'),me=S===B.P;
+    let base=(f.dmg||0)+(g.dmg||0)+xVal(S,F,f.dmgX);
+    if(me){if(W&&hasF('swivel'))base+=2;if(C&&hasF('grapeshot'))base=Math.max(1,base-2);if(C&&hasF('magazine'))base*=1.25}
+    const cc=(f.crit||0)+(me&&hasF('gull')?.1:0);
+    for(let k=0;k<(f.multi||1);k++){let d=base;const c=cc&&Math.random()<cc;if(c)d*=2;
       hit(F,d,c?'crit':'dmg',S,{pierce:f.pierce,weapon:W,depth});
-      if(f.burnPerHit)burnOn(S,F,f.burnPerHit,it,depth);if(f.poisonPerHit)poisonOn(S,F,f.poisonPerHit,it,depth);
+      if(f.burnPerHit)burnOn(S,F,f.burnPerHit,it,depth);if(me&&C&&hasF('grapeshot'))burnOn(S,F,1,it,depth);if(f.poisonPerHit)poisonOn(S,F,f.poisonPerHit,it,depth);
       if(hasT(S,'coil')&&W)F.poison+=1;if(c)emit(S,F,'crit',it,depth)}}
   const sh=(f.shield||0)+(g.shield||0)+Math.round(xVal(S,F,f.shieldX));
   if((f.shield!=null||f.shieldX)&&sh>0){S.shield+=sh;pop(el||S.fel,'+'+sh+' shield','shield');emit(S,F,'shield',it,depth)}
-  const hl=(f.heal||0)+(g.heal||0)+Math.round(xVal(S,F,f.healX));
+  const hl=(f.heal||0)+(g.heal||0)+Math.round(xVal(S,F,f.healX))-(S===B.P&&hasF('mermaid')?2:0);
   if((f.heal!=null||f.healX)&&hl>0){S.hp=Math.min(S.max,S.hp+hl);if(S.burn)S.burn--;if(hasT(S,'lotus'))S.shield+=Math.round(hl/3);pop(el||S.fel,'+'+hl,'heal');emit(S,F,'heal',it,depth)}
   if(f.cleanse)S.poison=0;
   if(f.douse){S.burn=Math.max(0,S.burn-f.douse);S.poison=Math.max(0,S.poison-Math.ceil(f.douse/2))}
@@ -83,8 +99,8 @@ function applyFx(S,F,it,i,f,depth){
   if(f.selfDmg){S.hp-=f.selfDmg;pop(S.fel,'−'+f.selfDmg,'soft')}
   if(f.grow)for(const k in f.grow)g[k]=(g[k]||0)+f.grow[k];
 }
-function burnOn(S,F,n,it,depth){const b=n+(hasT(S,'kindle')?1:0);F.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
-function poisonOn(S,F,n,it,depth){F.poison+=n;pop(it&&it.el||S.fel,'Poison '+n);emit(S,F,'poison',it,depth)}
+function burnOn(S,F,n,it,depth){let b=n+(hasT(S,'kindle')?1:0);if(F===B.P){if(hasF('magazine'))b++;if(hasF('copper'))b=Math.ceil(b/2)}F.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
+function poisonOn(S,F,n,it,depth){if(F===B.P&&hasF('copper'))n=Math.ceil(n/2);F.poison+=n;pop(it&&it.el||S.fel,'Poison '+n);emit(S,F,'poison',it,depth)}
 /* reactions: items listening for things that happen on their own side */
 function emit(S,F,ev,src,depth){
   if(depth>3||!S.items)return;
@@ -114,17 +130,20 @@ function fire(S,F,it,i){
 }
 function step(dt){
   if(B.wait>0){B.wait-=dt;return}
+  if(B.ram){B.ram=false;pop(B.P.fel,'Ram!','haste');hit(B.E,10+G.sea*5,'dmg',B.P);B.P.hp-=3;pop(B.P.fel,'−3','soft')}
   B.t+=dt;
   for(const[S,F]of[[B.P,B.E],[B.E,B.P]]){
     S.items.forEach((it,i)=>{if(!it.s.cd)return;let r=1;
       if(it.h>0){r*=2;it.h-=dt}if(it.sl>0){r*=.5;it.sl-=dt}
       if(hasT(S,'swift'))r*=1.15;if(hasT(S,'frenzy')&&S.hp<S.max/2)r*=1.5;
+      if(S===B.P){if(hasF('topsail'))r*=1.1;if(hasF('ballast'))r*=.95;if(hasF('swivel')&&DEFS[it.k].tags.includes('C'))r*=.9}
       it.c+=dt*r;if(it.c>=it.s.cd){it.c-=it.s.cd;fire(S,F,it,i)}});
     S.traits.forEach(tr=>{const T=TRAITS[tr.k];if(!T.every)return;tr.t+=dt;if(tr.t>=T.every){tr.t-=T.every;act(tr.k,S,F)}});
   }
   B.bt+=dt;if(B.bt>=.5){B.bt-=.5;for(const S of[B.P,B.E])if(S.burn>0){hit(S,S.burn,'burn');S.burn--;tick(S,'bu')}}
-  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0){S.hp-=S.poison;pop(S.fel,'−'+S.poison,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}}
-  if(B.t>=B.bell){B.st+=dt;if(B.st>=.5){B.st-=.5;B.storm++;hit(B.P,B.storm,'storm');hit(B.E,B.storm,'storm')}}
+  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0){S.hp-=S.poison;pop(S.fel,'−'+S.poison,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}
+    if(hasF('mermaid')&&B.P.hp>0&&B.P.hp<B.P.max/2){const h=Math.max(1,Math.round(B.P.max*.02));B.P.hp=Math.min(B.P.max,B.P.hp+h);pop(B.P.fel,'+'+h,'heal')}}
+  if(B.t>=B.bell){B.st+=dt;if(B.st>=.5){B.st-=.5;B.storm++;hit(B.P,hasF('stormsail')?Math.ceil(B.storm/2):B.storm,'storm');hit(B.E,B.storm,'storm')}}
   for(const S of[B.P,B.E])if(S.hp<=0&&hasT(S,'undying')&&!S.risen){S.risen=true;S.hp=S.max*.3;S.burn=0;S.poison=0;pop(S.fel,'It rises!')}
   if(B.P.hp<=0||B.E.hp<=0)end(B.E.hp<=0&&B.P.hp>0);
 }
@@ -163,11 +182,11 @@ function end(win){
   let head,lines=[],btn,next;
   if(win){
     A.beat[n.enemy]=1;if(k==='e')A.elites++;if(k==='b')A.bosses++;saveA();
-    const gold=(k==='b'?15+G.sea*10:k==='e'?10+depth:5+Math.floor(depth/2))+B.P.gold+(hasC('trade')?3:0);
+    const gold=(k==='b'?15+G.sea*10:k==='e'?10+depth:5+Math.floor(depth/2))+B.P.gold+(hasC('trade')?3:0)+(hasF('lion')?4:0);
     G.gold+=gold;bump='gold';logL(`Beat the ${foe}. +${gold} gold.`);
     head=`You beat the ${foe}.`;lines.push(`+${gold} gold.`);
     if(k==='t'){btn='Take the spoils';next=()=>lootPick(n,chart)}
-    else if(k==='e'){btn='Take the spoils';next=()=>lootPick(n,()=>chartPick(RNG(G.seed,'elite',n.id),`The ${foe} was carrying a chart.`,chart))}
+    else if(k==='e'){btn='Take the spoils';next=()=>lootPick(n,()=>chartPick(RNG(G.seed,'elite',n.id),`The ${foe} was carrying a chart and spare parts.`,chart,eliteFit(n)))}
     else if(G.sea<2){lines.push(`The way into ${SEAS[G.sea+1]} is open.`);btn=`Sail into ${SEAS[G.sea+1]}`;next=nextSea}
     else{btn='Sight land';next=()=>ending(true)}
   }else{
@@ -197,6 +216,8 @@ function hullLoss(before,after){
   for(let k=1;k<=before-after;k++)setTimeout(()=>{b.textContent=before-k;squish(b,'bump')},700+(k-1)*140);
   setTimeout(()=>c.classList.add('out'),2900);setTimeout(()=>c.remove(),3300);
 }
+/* the fitting an elite carries: seeded, and never one you already have */
+function eliteFit(n){const r=RNG(G.seed,'elitefit',n.id),pool=Object.keys(FITTINGS).filter(k=>!hasF(k));return pool.length?pool[ri(r,pool.length)]:null}
 function nextSea(){
   G.sea++;G.map=genMap(G.seed,G.sea);G.at=G.map.start;G.path=[G.at];G.full=false;G.extra=0;updateReveal();
   lore(LORE[G.sea]);save();port(G.at);

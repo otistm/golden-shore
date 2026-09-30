@@ -5,7 +5,8 @@
   "scripts": {
     "check": "node tools/check.mjs",
     "voyage": "node tools/voyage.mjs",
-    "sim": "node tools/sim.mjs"
+    "sim": "node tools/sim.mjs",
+    "sim:fits": "node tools/sim.mjs 12 fits"
   },
   "devDependencies": {
     "playwright": "^1.47.0"

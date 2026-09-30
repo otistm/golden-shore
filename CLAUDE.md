@@ -40,6 +40,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
 | coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
+| (fittings) | `FITTINGS` and `SPOTS` live in world.js, `hasF`, `equip`, `canEquip`, `holdCap` in state.js, their fight effects in battle.js, the shipwright in port.js |
 | desk.js | The captain's desk side panel on big screens (`renderDesk`, `DESK`) |
 | main.js | Startup (always last) |
 
@@ -57,6 +58,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - `npm run check`: all scripts parse.
    - `npm run voyage`: a bot plays full voyages at phone size and fails on any error.
    - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
+   - `npm run sim:fits`: the same, once per fitting, compared with no fitting.
    - `voyage` and `sim` share `tools/browser.mjs`. They use `CHROMIUM_PATH` if set, then Playwright's own Chromium, then the installed Chrome or Edge, so they run on Windows and Mac with no browser download.
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
@@ -70,6 +72,12 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
   - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
+
+## Fittings
+- A fitting is one row in `FITTINGS` (world.js): name, spot, price, optional `hp` (health in fights), text and a 30×30 glyph. Its effect is written where it applies, checked with `hasF(key)`, like landmarks with `hasC`.
+- Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks) or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
+- The player's hold size is `holdCap()`, never a literal 10.
+- After adding or changing a fitting, run `npm run sim:fits`. It prints each fitting's win rate against having none. Differences under about 3 points are noise.
 
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
