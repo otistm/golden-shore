@@ -71,6 +71,9 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
   - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
+## Chart unroll
+- `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
+
 ## Pause
 - The pause button is in the top bar (`barHTML`), so every voyage screen has it. `showPause()`, `resumePause()` and `leaveToTitle()` live in ui.js.
 - Anything that runs on a clock must stand still while `PAUSE.on`: fights set `dt=0` in `loop()`, and fishing reads time through `pauseClock()`. A new timed screen needs the same.

@@ -57,4 +57,4 @@ function startVoyage(seed,ship){
   const ov=overlay(`<h2>Gullhaven</h2><p class="log">${LORE.start}</p><button class="primary" data-a="c">Open the market</button>`,true);
   ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus();
 }
-function resume(){if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}
+function resume(){unrollNext=true;if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}

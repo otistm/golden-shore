@@ -580,3 +580,15 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .pausebtn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .pausecard h2{font-size:34px}
 .pausecard .ver{text-align:center}
+
+/* the chart unrolls like a scroll (chart.js unroll()): the paper shows from the top down while the roll travels to the bottom */
+.map.unroll{clip-path:inset(0 -12px 0 -12px round 18px);animation:unrollClip 1.5s cubic-bezier(.5,.05,.25,1) both}
+@keyframes unrollClip{0%,8%{clip-path:inset(0 -12px calc(100% - 30px) -12px round 18px)}92%,100%{clip-path:inset(0 -12px 0 -12px round 18px)}}
+.roll{position:absolute;left:-8px;right:-8px;top:0;height:30px;z-index:4;pointer-events:none;border:2.5px solid var(--ink);border-radius:15px;box-shadow:0 4px 0 var(--ink);
+  background:repeating-linear-gradient(180deg,var(--paper) 0 5px,var(--hatch) 5px 6.5px,var(--paper) 6.5px 9px),var(--paper);
+  animation:rollDown 1.5s cubic-bezier(.5,.05,.25,1) var(--ud,0ms) both,rollAway .45s var(--spring) calc(var(--ud,0ms) + 1.5s) forwards;transform-origin:50% 100%}
+.roll::before,.roll::after{content:"";position:absolute;top:50%;width:20px;height:20px;margin-top:-10px;border:2.5px solid var(--ink);border-radius:50%;background:radial-gradient(circle,var(--ink) 0 2px,var(--paper) 2.5px 5px,var(--ink) 5.5px 6.5px,var(--paper) 7px)}
+.roll::before{left:-4px}.roll::after{right:-4px}
+@keyframes rollDown{0%{top:0;transform:scale(1.02,1.1)}8%{top:0;transform:scale(1,1)}92%{top:calc(100% - 30px)}96%{top:calc(100% - 27px);transform:scale(1.03,.85)}100%{top:calc(100% - 30px);transform:none}}
+@keyframes rollAway{0%{opacity:1;top:calc(100% - 30px)}40%{transform:scale(1.04,.55)}100%{top:calc(100% - 30px);transform:scale(1.06,.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){.map.unroll{animation:none;clip-path:none}.roll{display:none}}
