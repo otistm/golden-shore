@@ -57,6 +57,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - `npm run check`: all scripts parse.
    - `npm run voyage`: a bot plays full voyages at phone size and fails on any error.
    - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
+   - `voyage` and `sim` share `tools/browser.mjs`. They use `CHROMIUM_PATH` if set, then Playwright's own Chromium, then the installed Chrome or Edge, so they run on Windows and Mac with no browser download.
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
 

@@ -1,8 +1,7 @@
 // A bot plays full voyages in headless Chromium. Fails on any page error.
-import { chromium } from 'playwright';
-const url = new URL('../play/index.html', import.meta.url).href;
+import { gameUrl as url, launch } from './browser.mjs';
 const runs = +(process.argv[2] || 3);
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const errors = [];
 page.on('pageerror', e => errors.push(String(e)));
