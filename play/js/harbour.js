@@ -24,8 +24,6 @@ const hCrate=(x,y,w,h)=>`<g><rect class="w" x="${x}" y="${y-h}" width="${w}" hei
 const hSign=(x,y,t,w)=>{w=w||t.length*8+18;return`<g class="hsign"><path d="M${x} ${y}v8" stroke-width="1.4"/><rect class="w" x="${x-w/2}" y="${y+8}" width="${w}" height="20" rx="3"/><text x="${x}" y="${y+23}" text-anchor="middle">${t}</text></g>`};
 const hBoard=(x,y,lines)=>`<g class="hboard"><path d="M${x+4} ${y+40}l6-40M${x+52} ${y+40}l-6-40" stroke-width="1.6"/><rect class="k" x="${x+4}" y="${y}" width="48" height="${12+lines.length*11}" rx="2"/>${lines.map((l,i)=>`<text x="${x+28}" y="${y+13+i*11}" text-anchor="middle">${l}</text>`).join('')}</g>`;
 /* someone standing on the pier, bobbing a little, with a "!" when they want a word */
-const hFigure=(x,y)=>`<g class="hwho" transform="translate(${x} ${y})"><g class="bob"><circle class="w" cx="0" cy="-30" r="6"/><path class="w" d="M-8 0c0-12 3-18 8-18s8 6 8 18z"/><path class="k" d="M-6 -34q6-5 12 0v-3h-12z"/></g>
-  <g class="hbubble"><path class="w" d="M6 -58h18a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5h-10l-6 6v-6h-2a5 5 0 0 1-5-5v-10a5 5 0 0 1 5-5z"/><text x="15" y="-43" text-anchor="middle">!</text></g></g>`;
 /* faces at a window, one per hand looking for work */
 const hFace=(x,y)=>`<g><circle class="w" cx="${x}" cy="${y}" r="4.5" stroke-width="1.4"/><path d="M${x-6} ${y+9}q6-7 12 0" stroke-width="1.4"/></g>`;
 
@@ -44,7 +42,7 @@ function harbourWorld(I){
     <path d="M238 278V246c4-5 10-8 16-8H${HW}" stroke-width="2.2"/>
     ${hStones(244,HW,243,276)}
     ${hGrass(250,HW,239)}`;
-  // DOCKS: a pier on stilts, barrels, a rod over the water, a rowboat, and whoever is waiting
+  // DOCKS: a pier on stilts, barrels, a rod over the water, a rowboat
   g+=`<g class="hstop" data-bld="docks" role="button" tabindex="0" aria-label="Docks: ${I.docks.say}"><rect class="hit" x="0" y="120" width="250" height="200"/>
     <path d="M30 236V320M85 236V320M140 236V320M195 236V320" stroke-width="3"/>
     <path d="M30 248l55 30M85 248l-55 30M85 248l55 30M140 248l-55 30M140 248l55 30M195 248l-55 30" stroke-width="1.6"/>
@@ -53,8 +51,7 @@ function harbourWorld(I){
     <path d="M24 226l-14-28" stroke-width="2"/><path d="M10 198q-6 30-2 78" stroke-width=".9"/><circle class="w" cx="8" cy="279" r="3" stroke-width="1.3"/>
     <path d="M222 226v-12h8v12" class="w" stroke-width="1.6"/><path d="M226 214v-3" stroke-width="2"/>
     <path d="M132 226v-50" stroke-width="2.4"/>${hSign(132,170,'Docks')}<path d="M122 170h20" stroke-width="2"/>
-    ${I.docks.fish?`<g>${hCrate(150,226,26,14)}<path d="M154 212c5-5 10-5 14 0-4 4-9 4-14 0zM160 210l4-6 3 6" class="w" stroke-width="1.2"/><text class="hchalk" x="163" y="248" text-anchor="middle">${I.docks.fish} fish</text></g>`:''}
-    ${I.docks.who?hFigure(198,226):''}</g>`;
+    ${I.docks.fish?`<g>${hCrate(150,226,26,14)}<path d="M154 212c5-5 10-5 14 0-4 4-9 4-14 0zM160 210l4-6 3 6" class="w" stroke-width="1.2"/><text class="hchalk" x="163" y="248" text-anchor="middle">${I.docks.fish} fish</text></g>`:''}</g>`;
   // MARKET: a warehouse with a striped stall, its counter laid with what's for sale
   const goods=[g=>hCrate(318,212,20,16),g=>`<path class="w" d="M352 212c-6 0-8-14 0-18 8 4 6 18 0 18z"/><path d="M348 197h8" stroke-width="1.2"/>`,
     g=>hBarrel(382,212,.75),g=>`<path class="w" d="M404 212v-12h14v12z"/><path class="w" d="M406 200c0-6 10-6 10 0" />`];
