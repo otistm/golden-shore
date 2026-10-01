@@ -216,9 +216,23 @@ function end(win){
     lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Pick a perk.`:''}`);
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}
   save();
-  setTimeout(()=>{draw();const ov=overlay(`<h2>${head}</h2><div class="lines">${lines.map(l=>`<p>${l}</p>`).join('')}</div><button class="primary" id="next">${btn}</button>`,true,'result');
+  setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):overlay(`<h2>${head}</h2><div class="lines">${lines.map(l=>`<p>${l}</p>`).join('')}</div><button class="primary" id="next">${btn}</button>`,true,'result');
     const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()}},B.quiet?50:750);
 }
+/* the victory card: a "Victory!" banner stamps down in a burst of ink, stars pop around it, the gold counts up, and each line
+   (renown, rank-ups, the way on) drops in after it before the button arrives */
+function victoryCard(head,lines,btn){const g=lines[0].match(/^\+(\d+) gold\.$/),rest=g?lines.slice(1):lines;
+  const ov=overlay(`<div class="vic-top"><svg class="vic-burst" viewBox="-100 -60 200 120" aria-hidden="true">${Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2,r1=i%2?56:50,r2=i%2?78:92;return`<path d="M${(Math.cos(a)*r1).toFixed(1)} ${(Math.sin(a)*r1*.42).toFixed(1)}L${(Math.cos(a)*r2).toFixed(1)} ${(Math.sin(a)*r2*.42).toFixed(1)}"/>`}).join('')}</svg>
+      ${[[-78,-30,0],[82,-26,1],[-64,30,2],[70,34,3],[0,-52,4]].map(([x,y,i])=>`<svg class="vic-star" style="--x:${x}px;--y:${y}px;--i:${i}" viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0-9l2.6 5.6 6.2.7-4.6 4.2 1.3 6.1L0 4.5l-5.5 3.1 1.3-6.1-4.6-4.2 6.2-.7z"/></svg>`).join('')}
+      <h2 class="vic-head">Victory!</h2></div>
+    <p class="vic-sub">${head}</p>
+    ${g?`<p class="vic-gold">${sicon('gold')}<b>+<span id="vicgold">0</span></b> gold</p>`:''}
+    <div class="lines">${rest.map((l,i)=>`<p style="--i:${i}">${l}</p>`).join('')}</div>
+    <button class="primary" id="next" style="--i:${rest.length}">${btn}</button>`,true,'result win');
+  if(g){const to=+g[1],el=ov.querySelector('#vicgold'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(still)el.textContent=to;else{const t0=performance.now()+650,T=Math.min(900,300+to*40);
+      const tick=now=>{const k=Math.max(0,Math.min(1,(now-t0)/T)),v=Math.round(to*(1-Math.pow(1-k,3)));if(el.textContent!==String(v)){el.textContent=v;squish(el.parentElement,'bump')}if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}}
+  return ov}
 /* Back on the chart (or in port, after a boss) after a lost fight: a card shows the hull you lost. Planks crack off one by one while the number counts down, then it fades. */
 function hullLoss(before,after){
   document.querySelectorAll('.hullcard').forEach(c=>c.remove());

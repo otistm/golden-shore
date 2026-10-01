@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.1
+- Winning a fight gets a victory card: a black "Victory!" banner stamps down in a burst of ink with stars popping around it, the gold you won counts up, and the rest (rank-ups, renown, the way on) drops in line by line before the button arrives.
+- New cargo celebrates arriving: it drops into its slot with a squash, an ink burst and a "New" label floating off it. An upgrade spins up big with a star burst and its new tier ("Silver!", "Gold!") rising above it. This plays however the item arrives: buying, dragging off the market table, spoils, events and people.
+
 ## 0.23.0
 - Spoils are a spectacle. After a win a treasure chest drops onto the screen, squashes as it lands, rattles harder and harder, then bursts open: the lid flies back, ink rays spin out behind it, a shower of tumbling coins and jewels sprays up and rains down, and the spoils leap out of the chest one by one and land in their places. Tap to open it straight away, tap again to skip to the end. Reduced motion skips the show.
 

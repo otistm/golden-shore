@@ -44,7 +44,7 @@ function port(id,view){
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
   // the market's goods drag straight off the table into the hold or locker, paying as they land
   const buyInto=(i,tgt,dst)=>{const o=S.offers[i],p=buyP(o);if(G.gold<p){toast(`Need ${p-G.gold} more gold`);return null}
-    let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{tgt.list.splice(dst,0,{k:o.k,t:o.t});seen(o.k);at=dst}
+    let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{const b={k:o.k,t:o.t};tgt.list.splice(dst,0,b);seen(o.k);flash={ref:b,kind:'add'};at=dst}
     G.gold-=p;S.offers[i]=null;PV.msel=null;bump='gold';save();setTimeout(()=>coach('bought'));return at};
   bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
