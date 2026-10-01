@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.17.4
+- Crew portraits in circles are cropped closer, so each face fills its circle.
+- The Harbour button is the same height as the other place buttons, with a proper ink arrow.
+
+## 0.17.3
+- The tavern bar fills the whole tavern space, edge to edge and down to the hold. The speech bubble now floats over the scene just under whoever you're talking to, sized like a speech bubble, with its tail pointing up at them.
+
+## 0.17.2
+- The top strip is redesigned: day, gold, hull and your catch sit in matching chips with small ink icons, with a hull gauge, and the log and pause buttons on the right. On phones the chips show icons and numbers so they fit on one line.
+- The tavern bar runs the full width of the screen, with the bar and its shelves stretching to the edges and the hands seated in the middle. The speech bubble now sits above the bar, pointing down at whoever you're talking to, so the bar can be shorter.
+- The Harbour shortcut matches the other place buttons.
+
+## 0.17.1
+- The tavern is a bar now. Everyone looking for work sits at the counter, shown in full, with a mug in front of them. Tap someone to have a word: they lean in and make their pitch in a speech bubble, with their crafts, wage and a Hire button below. Hired hands leave an empty stool and a tipped-over mug.
+- Every hire has their own line, from the Fencing Master's "Steel is a conversation" to the Powder Monkey who has only set himself on fire twice.
+
+## 0.17.0
+- New crew portraits, drawn like Open Peeps: a hand-inked bust built from layers (body, hair, face, facial hair, accessory). Every crew member uses the same base figure for now, ready to be given their own hair, expressions, clothes and accessories. They show in the tavern, the crew strip, your ship card and the captain's desk.
+
 ## 0.16.0
 - The harbour is a side-on scene now, like a 2D platformer drawn in ink: sky, gulls and the Gullhaven light on the horizon, a cobbled quay, and the water below. Swipe along it, or tap the arrows at its edges, to walk from the docks to the market, the tavern and the shipwright.
 - Each place shows what it has in the drawing itself: goods laid out on the market counter, faces at the tavern windows for every hand looking for work, a chalk notice at the shipwright with your hull, and someone waiting on the pier with a "!" when they want a word. Fish to sell sit in a crate on the dock.

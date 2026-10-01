@@ -9,7 +9,17 @@ function overlay(html,center,cls){const ov=document.createElement('div');ov.clas
 /* the hull the top bar last showed. When a screen draws with less, the hull card plays, so every loss shows: fights, events, people. */
 let hullSeen=null;
 function noteHull(){if(!G)return;if(hullSeen!=null&&G.hull<hullSeen&&G.hull>0){const a=hullSeen,b=G.hull;setTimeout(()=>hullLoss(a,b),80)}hullSeen=G.hull}
-function barHTML(){noteHull();const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
+/* the top strip: day, gold, hull and catch as chips with small ink icons, then the log and pause */
+const SI={gold:'<circle class="w" cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="3.4"/>',fish:'<path class="w" d="M1.5 8c3-4 8-4 10.5 0-2.5 4-7.5 4-10.5 0z"/><path class="w" d="M12 8l3-2.5v5z"/><circle class="k" cx="5" cy="7.4" r=".8"/>',
+  log:'<path class="w" d="M1.5 3.5c2.2-1 4.4-.9 6.5.6v9.4c-2.1-1.5-4.3-1.6-6.5-.6zM14.5 3.5c-2.2-1-4.4-.9-6.5.6v9.4c2.1-1.5 4.3-1.6 6.5-.6z"/>'};
+const sicon=(k,inner)=>`<svg class="sic" viewBox="0 0 ${inner?12:16} ${inner?12:16}" aria-hidden="true">${inner||SI[k]}</svg>`;
+function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.min(1,G.hull/HULL_MAX));
+  const h=`<header class="bar"><div class="stats">
+    <span class="stat day">Day <b>${G.day}</b></span>
+    <span class="stat${b('gold')}" aria-label="${G.gold} gold">${sicon('gold')}<b>${G.gold}</b><small>gold</small></span>
+    <button class="stat hullst${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull">${sicon(0,EMB[G.ship])}<b>${G.hull}</b><small>hull</small><span class="hmeter" aria-hidden="true"><i style="width:${Math.round(hp*100)}%"></i></span></button>
+    ${G.creel&&G.creel.length?`<button class="stat" id="creelbtn" aria-label="${G.creel.length} fish">${sicon('fish')}<b>${G.creel.length}</b><small>fish</small></button>`:''}
+  </div><div class="acts"><button class="logbtn" id="logbtn" aria-label="Cartographer's log">${sicon('log')}<span>Log</span></button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></div></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
 function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
@@ -56,7 +66,7 @@ const crewCrafts1=k=>CREW[k].crafts.map(c=>`<span class="chipc">${craftIcon(c)}$
 const pips=(n,max,cls)=>`<span class="${cls}" aria-label="${n} of ${max}">${Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
 function crewRows(edit){const cs=G.crew||[];
   return cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx=rankXP()[rk];
-    return`<div class="crewrow"><span class="o-icon crewic">${icon(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
+    return`<div class="crewrow"><span class="o-icon crewic">${crewFace(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
       <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${wageOf(c.k)}. Morale ${pips(c.m,3,'mor')}</span></div>
       ${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')+
     Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="crewrow empty"><span class="fitnone"></span><div><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('')}
@@ -169,7 +179,7 @@ function holdDock(extra,ups,lups,hint){
     <p class="hint${G.moving?' on':''}">${hint}</p>
     ${boardHTML(G.board,'p',ups)}
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}
-    ${G.crew?`<button class="crewbar" id="crewbar" type="button" aria-label="Your crew"><span class="cb-l">Crew</span>${G.crew.map(c=>`<span class="cb-c" title="${CREW[c.k].n}">${icon(c.k)}</span>`).join('')}${Array.from({length:Math.max(0,berths()-G.crew.length)},()=>'<span class="cb-c empty"></span>').join('')}<span class="cb-cr">${[...crewCrafts()].map(craftIcon).join('')}</span></button>`:''}
+    ${G.crew?`<button class="crewbar" id="crewbar" type="button" aria-label="Your crew"><span class="cb-l">Crew</span>${G.crew.map(c=>`<span class="cb-c" title="${CREW[c.k].n}">${crewFace(c.k)}</span>`).join('')}${Array.from({length:Math.max(0,berths()-G.crew.length)},()=>'<span class="cb-c empty"></span>').join('')}<span class="cb-cr">${[...crewCrafts()].map(craftIcon).join('')}</span></button>`:''}
     ${extra}</div></footer>`;
 }
 function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
