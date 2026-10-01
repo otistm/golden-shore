@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.0
+- On a computer, the title screen spreads out: your ship, the name and how to play on the left, and the way in on the right.
+- The front page does the same: the animated voyage large on the left, with the Play card beside it.
+- Phones look the same as before.
+
 ## 0.14.0
 - Each ship has its own ink drawing: the Wren's single sail and jib, the Bulwark's three masts and gunports, the Ember's dark sails and flame pennant, and the Lotus's ribbed junk sails. They appear in the ship picker, on your ship card, on the captain's desk and in the Atlas.
 - The title screen shows the ship you're sailing.
