@@ -774,3 +774,54 @@ details.crafts summary{font-weight:800;cursor:pointer}
 @media (min-width:900px) and (min-height:560px){.sfish{width:72px;height:36px}.sf2{width:52px;height:26px}.sf3{width:64px;height:32px}.sfish.leap{width:58px;height:29px}@keyframes leapY{0%,79%{transform:translateY(0) rotate(30deg) scaleX(-1);opacity:0}80%{opacity:1;transform:translateY(0) rotate(30deg) scaleX(-1)}86%{transform:translateY(-70px) rotate(0) scaleX(-1)}92%{transform:translateY(0) rotate(-35deg) scaleX(-1);opacity:1}93%,100%{opacity:0;transform:translateY(4px) rotate(-35deg) scaleX(-1)}}}
 @media (prefers-reduced-motion:reduce){.sfish,.sfish.leap>span{animation:none!important}.sfish.leap{display:none}.sf1{left:22%}.sf2{left:58%}.sf3{left:78%}}
 .seafish .fishsvg .w{fill:var(--paper)}.seafish .fishsvg .k{fill:var(--ink);stroke:none}
+
+/* the harbour scene: a side-on ink panorama you walk along */
+.hscene{position:relative;border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);overflow:hidden;margin-bottom:6px}
+.hscroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.hscroll::-webkit-scrollbar{display:none}
+.hworld{display:block;height:clamp(250px,calc(100vh - var(--dock,250px) - 180px),400px);width:auto;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hworld .w{fill:var(--paper)}.hworld .k{fill:var(--ink);stroke:none}
+.hworld .hit{fill:transparent;stroke:none}
+.hworld text{stroke:none;fill:var(--ink)}
+.hsign text{font:italic 900 14px var(--display)}
+.hboard text{font:800 9.5px var(--ui);fill:var(--paper)}
+.hchalk{font:italic 400 12px var(--display);fill:var(--soft)!important}
+.hbubble text{font:900 13px var(--ui)}
+.hstop{cursor:pointer;outline:none}
+.hstop:focus-visible .hit{stroke:var(--ink);stroke-width:2;stroke-dasharray:6 6}
+.hstop .hsign{transform-box:fill-box;transform-origin:50% 0;transition:transform .3s var(--spring)}
+.hstop:active .hsign{transform:rotate(-6deg)}
+@media (hover:hover) and (pointer:fine){.hstop:hover .hsign{transform:rotate(4deg) scale(1.06)}.hstop:hover .hsign rect{stroke-width:2.6}}
+.smoke{animation:smoke 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes smoke{50%{transform:translate(3px,-3px) scale(1.05);opacity:.6}}
+.hflag{transform-box:fill-box;transform-origin:0 50%;animation:flap .7s ease-in-out infinite alternate}
+.hlamp,.hswing{transform-box:fill-box;transform-origin:50% 0;animation:swing 2.6s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.hboat{animation:bob 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 90%}
+.hwaves path{animation:pw 4s linear infinite}.hwaves path+path{animation-duration:6s;animation-direction:reverse}
+.hwho .bob{animation:nodebob 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+.hbubble{animation:pop-in .5s var(--spring) both .3s;transform-box:fill-box;transform-origin:0 100%}
+.hnav{position:absolute;bottom:10px;height:40px;display:inline-flex;align-items:center;gap:4px;padding:0 12px;border:2.5px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:3px 4px 0 var(--ink);font:800 13px var(--ui);color:var(--ink);transition:transform .25s var(--spring);z-index:2}
+.hnav span{font:900 22px/1 var(--display)}
+.hnav.prev{left:8px}.hnav.next{right:8px}
+.hnav:active{transform:scale(1.08,.9)}
+.hnav[hidden]{display:none}
+@media (min-width:900px) and (min-height:560px){.hworld{height:clamp(300px,calc(100vh - var(--dock,230px) - 150px),560px)}}
+@media (prefers-reduced-motion:reduce){.smoke,.hflag,.hlamp,.hswing,.hboat,.hwaves path,.hwho .bob,.hbubble{animation:none!important}.hscroll{scroll-behavior:auto}}
+.hbeam{animation:beam 3s ease-in-out infinite}@keyframes beam{50%{opacity:.1}}
+@media (prefers-reduced-motion:reduce){.hbeam{animation:none}}
+.hcat{transform-box:fill-box;transform-origin:50% 100%;animation:catb 4s ease-in-out infinite}@keyframes catb{50%{transform:scale(1.03,.97)}}
+@media (prefers-reduced-motion:reduce){.hcat{animation:none}}
+
+/* the harbour sky: clouds drift and wrap, gulls fly across flapping, the sun's rays turn and its beams shimmer */
+.hcloud{animation:hdrift 150s linear infinite}
+@keyframes hdrift{from{transform:translateX(-130px)}to{transform:translateX(1410px)}}
+.hgull{animation:hfly 70s linear infinite}
+@keyframes hfly{from{transform:translateX(-60px)}to{transform:translateX(1340px)}}
+.hglide{animation:hglide 9s ease-in-out infinite}
+@keyframes hglide{0%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}65%{transform:translateY(6px)}}
+.hrays{transform-box:view-box;transform-origin:120px 58px;animation:hrays 40s linear infinite}
+@keyframes hrays{to{transform:rotate(360deg)}}
+.hsun-rays{animation:hbeams 6s ease-in-out infinite}
+@keyframes hbeams{50%{opacity:.02}}
+@media (prefers-reduced-motion:reduce){.hcloud,.hgull,.hglide,.hrays,.hsun-rays{animation:none!important}}
