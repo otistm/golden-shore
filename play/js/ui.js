@@ -70,9 +70,6 @@ function crewRows(edit){const cs=G.crew||[];
       <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${wageOf(c.k)}. Morale ${pips(c.m,3,'mor')}</span></div>
       ${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')+
     Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="crewrow empty"><span class="fitnone"></span><div><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('')}
-/* the crafts your crew cover, and rank rules they've opened */
-function craftSummary(){const r=craftRanks();return Object.keys(CRAFTS).map(c=>{const n=r[c]||0;
-  return`<div class="craftline${n?'':' off'}">${craftIcon(c)}<b>${CRAFTS[c]}</b><span>${n?`${CRAFTD[c]}${n>=2?`. ${RANKS[c].slice(0,n-1).join(' ')}`:''}`:`No one aboard. ${CRAFTD[c][0].toUpperCase()+CRAFTD[c].slice(1)} won't work.`}</span></div>`}).join('')}
 /* ---------- your ship: trait and fittings ---------- */
 function fitRows(){return Object.keys(SPOTS).map(s=>{const k=fitIn(s);
   return`<div class="fitrow${k?'':' empty'}">${k?fitGlyph(k):'<span class="fitnone" aria-hidden="true"></span>'}<div><span class="soft">${SPOTS[s]}</span><b>${k?FITTINGS[k].n:'Empty'}</b>${k?`<span class="d">${FITTINGS[k].d}</span>`:''}</div></div>`}).join('')}
@@ -87,7 +84,6 @@ function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
     <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
-    <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details>
     ${renownHTML()}
     <h3 class="shead">Fittings</h3>
     <div class="fitlist">${fitRows()}</div>
@@ -125,8 +121,7 @@ function shipCard(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait],cs=G.crew||[],edi
       <svg class="sc-lines" aria-hidden="true"></svg>
     </div>
     <p class="sc-note soft">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
-    <div class="sc-foot"><section class="sc-crew"><h3 class="shead">Crew</h3><div class="sc-hands">${crew}</div>
-        <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details></section>
+    <div class="sc-foot"><section class="sc-crew"><h3 class="shead">Crew</h3><div class="sc-hands">${crew}</div></section>
       <section class="sc-picks"><h3 class="shead">Captain's picks</h3>${picks}</section></div>`,true,'shipview');
   // leader lines from each fitting to its part of the ship, drawn once the card is laid out (and again if the window changes)
   const lay=()=>{const hero=ov.querySelector('#schero');if(!hero)return;const svg=hero.querySelector('.sc-lines'),art=hero.querySelector('.sc-art'),H=hero.getBoundingClientRect(),A=art.getBoundingClientRect(),P=SHIPSPOTS[G.ship]||SHIPSPOTS.sloop;

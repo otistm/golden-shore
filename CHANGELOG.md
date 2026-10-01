@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.3
+- The ship card no longer has the "What your crew can work" section, on phones or big screens.
+
 ## 0.22.2
 - The ship card on big screens is redesigned around the ship. Your ship is drawn large on the water as the centrepiece, with its four fittings (figurehead, hull, sails, guns) as cards pinned to the part of the ship they belong to; empty spots are dashed. The name, voyage and trait head the card with hull, hold, crew and renown as big numbers beside them, and your crew are mustered along the bottom next to your captain's picks. Phones keep the simple list.
 

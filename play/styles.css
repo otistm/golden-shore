@@ -653,11 +653,6 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .crewrow.empty{border-style:dashed;color:var(--soft);grid-template-columns:44px 1fr}
 .crewrow .fitnone{width:44px;height:44px;border-radius:50%}
 .mor{display:inline-flex;gap:2px;vertical-align:-1px}.mor i{width:7px;height:7px;border:1.5px solid var(--ink);border-radius:50%}.mor i.on{background:var(--ink)}
-details.crafts{border:2px solid var(--ink);border-radius:14px;padding:8px 12px}
-details.crafts summary{font-weight:800;cursor:pointer}
-.craftline{display:grid;grid-template-columns:16px auto 1fr;gap:6px;align-items:baseline;font-size:12.5px;padding-top:6px}
-.craftline b{font-weight:800}
-.craftline.off{color:var(--soft)}
 .crewbar{display:flex;align-items:center;gap:5px;width:100%;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:4px 8px;margin-bottom:10px;text-align:left}
 .cb-l{font:italic 900 15px var(--display);margin-right:2px}
 .cb-c{width:28px;height:28px;border:2px solid var(--ink);border-radius:50%;overflow:hidden;display:grid;place-items:center;flex:none}
