@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.17.3
+- The tavern bar fills the whole tavern space, edge to edge and down to the hold. The speech bubble now floats over the scene just under whoever you're talking to, sized like a speech bubble, with its tail pointing up at them.
+
 ## 0.17.2
 - The top strip is redesigned: day, gold, hull and your catch sit in matching chips with small ink icons, with a hull gauge, and the log and pause buttons on the right. On phones the chips show icons and numbers so they fit on one line.
 - The tavern bar runs the full width of the screen, with the bar and its shelves stretching to the edges and the hands seated in the middle. The speech bubble now sits above the bar, pointing down at whoever you're talking to, so the bar can be shorter.

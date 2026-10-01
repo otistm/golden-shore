@@ -824,28 +824,26 @@ details.crafts summary{font-weight:800;cursor:pointer}
 @keyframes hbeams{50%{opacity:.02}}
 @media (prefers-reduced-motion:reduce){.hcloud,.hgull,.hglide,.hrays,.hsun-rays{animation:none!important}}
 
-/* the tavern bar: the counter runs the full width, the hands sit in the middle, and the one you're talking to speaks from above */
-.barroom{container-type:inline-size;--bh:min(var(--bmax),calc(100cqw * 320 / var(--pw)))}
-.barroom{--bmax:250px}
-.barview{border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);overflow:hidden}
-.barscene{display:block;width:100%;height:var(--bh);fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* the tavern bar: the scene fills the room, and the one you're talking to speaks in a bubble floating just under them */
+.barroom{position:relative;border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);overflow:hidden;min-height:260px}
+.barscene{position:absolute;inset:0;width:100%;height:100%;display:block;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .barscene .w{fill:var(--paper)}.barscene .hit{fill:transparent;stroke:none}
 .barscene text{stroke:none}
 .patron{cursor:pointer;outline:none}
 .patron .bust{transition:transform .35s var(--spring)}
 .patron:focus-visible .hit{stroke:var(--ink);stroke-width:3;stroke-dasharray:8 8}
 @media (hover:hover) and (pointer:fine){.patron:not(.sel):hover .bust{transform:translateY(-6px)}}
-.talk{position:relative;margin-bottom:16px}
-.talk .bubble{position:relative;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);background:var(--paper);padding:14px 16px;display:grid;gap:8px;animation:pop-in .4s var(--spring) both}
-.talk .bubble::after{content:"";position:absolute;bottom:-13px;left:calc(50% + var(--off) * var(--bh) / 320 - 11px);width:20px;height:20px;background:var(--paper);border-right:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg)}
-.talk .say{font:italic 400 18px/1.35 var(--display)}
+.talk{position:absolute;left:8px;top:150px;width:min(300px,calc(100% - 16px));border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);background:var(--paper);padding:12px 14px;display:grid;gap:6px;z-index:2;animation:pop-in .4s var(--spring) both;transform-origin:var(--ax,50%) 0}
+.talk::before{content:"";position:absolute;top:-12px;left:calc(var(--ax,50%) - 10px);width:18px;height:18px;background:var(--paper);border-left:2.5px solid var(--ink);border-top:2.5px solid var(--ink);transform:rotate(45deg)}
+.talk .say{font:italic 400 16px/1.35 var(--display)}
 .talk .who{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
-.talk .who b{font:italic 900 18px var(--display);margin-right:4px}
-.talk .terms{font-size:13.5px;color:var(--soft)}
+.talk .who b{font:italic 900 17px var(--display);margin-right:4px}
+.talk .terms{font-size:12.5px;color:var(--soft)}
 .talk .terms b{color:var(--ink)}
-.talk .buy{justify-self:start;padding:10px 18px;font-size:15px}
-@media (min-width:900px) and (min-height:560px){.barroom{--bmax:clamp(180px,calc(100vh - var(--dock,230px) - 430px),300px)}}
-@media (prefers-reduced-motion:reduce){.talk .bubble{animation:none}}
+.talk .buy{justify-self:start;padding:8px 16px;font-size:14px}
+.talk.quiet{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:italic 400 16px var(--display);text-align:center}
+.talk.quiet::before{display:none}
+@media (prefers-reduced-motion:reduce){.talk{animation:none}}
 .bldtab{min-height:32px}
 .bldtab.back::before{content:"‹";font:900 17px/1 var(--display);margin-right:1px}
 
@@ -873,4 +871,4 @@ button.stat:active{transform:scale(1.06,.9)}
 @media (max-width:520px){.stat small,.hmeter,.logbtn span{display:none}.stat{padding:0 8px}.logbtn{width:34px;padding:0;justify-content:center}}
 @media (hover:hover) and (pointer:fine){button.stat:hover,.logbtn:hover{transform:translateY(-2px)}}
 /* phones: a tighter word at the bar so the hands stay in view above the hold */
-@media (max-width:520px){.talk{margin-bottom:12px}.talk .bubble{padding:10px 12px;gap:6px}.talk .say{font-size:16px}.talk .terms{display:none}.talk .buy{padding:8px 14px;font-size:14px}.tavern .m-head{margin-bottom:8px}}
+@media (max-width:520px){.talk{padding:10px 12px;gap:5px}.talk .say{font-size:15px}.talk .terms{display:none}.tavern .m-head{margin-bottom:8px}}
