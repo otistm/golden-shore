@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0
+- Ports are a drawn harbour now. Tap the market, the tavern, the shipwright or the docks to go in. Each building wears a badge: how much is for sale or for hire, "!" when the hull needs work or someone is waiting on the dock.
+- Inside a building, a row of shortcuts takes you to the others or back to the harbour, and your hold stays docked below.
+- The tutorial still opens straight onto the market.
+
 ## 0.12.0
 - Every voyage starts with a bare ship: an empty hold, no crew, and 30 gold from the Guild to outfit her. The opening story says so.
 - Gullhaven's first market always stocks your ship's own gear, and its tavern always has the hands who suit her, so you can fit out any ship for its style. What you buy and who you hire is up to you.

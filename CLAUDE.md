@@ -35,7 +35,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | ui.js | Boards, item sheets, the hold and locker dock, drag and drop |
 | title.js | Title screen, ship selection, starting a voyage |
 | chart.js | The voyage chart, previews, sailing to a stop |
-| port.js | Market, fish market, dock visitors |
+| port.js | The harbour drawing and its buildings: market, tavern, shipwright, docks (visitors and the fish market) |
 | rewards.js | Events, the spoils screen (drag spoils into the hold, sell onto Sail on), landmark picks |
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
@@ -97,6 +97,10 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Renown per win: threat 1, elite 2, boss 3 (`end()` in battle.js), levels at `RENOWN` in state.js. `perkPick()` runs before spoils or the next sea while `perksOwed()` is above 0. Offers are seeded by voyage and level.
 - `migrateVoyage()` clears picks that no longer exist, so those players re-pick. Keep that.
 - After changing an order, run `npm run sim:perks`. Orders are measured on every ship; differences under about 5 points are noise.
+
+## The harbour
+- A port opens on `harbourSVG()` (port.js), an ink drawing with four buildings (`BLD`). `port(id,view)` draws the harbour or one building; `PV` remembers the view while you stay, and `chart()` resets it. Re-renders inside a port must call `port(id,view)` so you stay put.
+- Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
 
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.

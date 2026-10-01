@@ -37,7 +37,7 @@ function mapSVG(fit){
 }
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
-  cancelAnimationFrame(raf);B=null;G.inPort=false;
+  cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div>
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>

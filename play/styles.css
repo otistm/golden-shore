@@ -693,3 +693,38 @@ details.crafts summary{font-weight:800;cursor:pointer}
 #codein{width:100%;border:2.5px solid var(--ink);border-radius:14px;padding:11px 14px;font:italic 900 22px var(--display);letter-spacing:.06em;text-transform:uppercase;background:var(--paper);color:var(--ink)}
 #codein:focus{outline:3px solid var(--ink);outline-offset:2px}
 .sheet ul li:has(>.ab){list-style:none;margin-left:-18px}
+
+/* the harbour: an ink drawing of the port, each building a button */
+.harbour{border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);padding:6px 4px 0;margin-bottom:6px;overflow:hidden}
+.harbour svg{display:block;width:100%;height:auto;overflow:visible;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.harbour .w{fill:var(--paper)}.harbour .k{fill:var(--ink);stroke:none}
+.harbour .hit{fill:transparent;stroke:none}
+.bld{cursor:pointer;outline:none}
+.bld .bart{transform-box:fill-box;transform-origin:50% 100%;transition:transform .25s var(--spring)}
+.bld:active .bart{transform:scale(1.05,.92)}
+.bld:focus-visible .hit{stroke:var(--ink);stroke-width:2;stroke-dasharray:4 4}
+.hlabel{font:italic 900 16px var(--display);fill:var(--ink);stroke:var(--paper);stroke-width:5px;paint-order:stroke}
+.hbdg circle{fill:var(--ink);stroke:var(--paper);stroke-width:2.5}
+.hbdg text{font:800 12px var(--ui);fill:var(--paper);stroke:none}
+.hbdg{animation:nodebob 2s ease-in-out infinite;transform-box:fill-box}
+.hwater path{animation:pw 4s linear infinite;stroke-width:1.6}
+.hwater path+path{animation-duration:6s;animation-direction:reverse}
+@media (hover:hover) and (pointer:fine){.bld:hover .bart{transform:translateY(-3px) scale(1.02)}}
+.bldnav{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:8px;scrollbar-width:none}
+.bldnav::-webkit-scrollbar{display:none}
+.bldtab{flex:none;border:2px solid var(--ink);background:var(--paper);border-radius:999px;padding:5px 12px;font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;gap:5px}
+.bldtab.on{background:var(--ink);color:var(--paper)}
+.bldtab.back{margin-left:auto;border-style:dashed}
+.bdg{min-width:17px;height:17px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:11px;display:inline-grid;place-items:center;padding:0 4px}
+.bldtab.on .bdg{background:var(--paper);color:var(--ink)}
+.dockempty{margin:18px 4px;font-size:14.5px}
+@media (min-width:900px) and (min-height:560px){.harbour{max-width:760px;margin:0 auto 6px;width:100%}}
+@media (min-width:1180px) and (min-height:640px){body.desk #app>.tavern,body.desk #app>.wright{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){.hbdg,.hwater path{animation:none}}
+.bldnav{flex-wrap:wrap;overflow:visible;gap:5px}
+.bldtab{padding:4px 9px;font-size:12.5px}
+.bldtab.back{margin-left:0}
+@media (min-width:900px) and (min-height:560px){
+  .harbour{width:fit-content;max-width:100%}
+  .harbour svg{width:auto;max-width:100%;height:clamp(280px,calc(100vh - var(--dock,230px) - 150px),640px)}
+}

@@ -24,7 +24,9 @@ for (let run = 0; run < runs; run++) {
     else if (await q('#skip')) await click('#skip');
     else if (await q('#sailon')) { await click('.spoil .buy:not([aria-disabled])'); await page.waitForTimeout(20); await click('#sailon'); }
     else if (await q('#leave')) {
-      for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; }
+      // walk round the harbour: market, tavern and shipwright, buying what we can in each
+      for (const bld of ['market', 'tavern', 'wright']) { if (await q('.overlay')) break; if (await click(`[data-bld="${bld}"]`)) await page.waitForTimeout(20);
+      for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; } }
       if (!(await q('.overlay'))) await click('#leave');
     } else {
       const nodes = await page.$$('.node.reach');
