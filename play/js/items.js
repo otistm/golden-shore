@@ -227,6 +227,8 @@ const TAGN={W:'Weapon',C:'Cannon',F:'Food',X:'Fire',T:'Tool',A:'Armor',R:'Riggin
 const TIER=['Bronze','Silver','Gold','Diamond'];
 const M=[1,2,3,4];
 const BELL=30;
+/* every hold in the game has 9 slots, yours and every enemy's. Nothing may ever add slots; Double Planking only takes one away. */
+const HOLD=9;
 const price=(k,t)=>({1:3,2:6,3:9})[DEFS[k].s]*[1,2,4,8][t];
 const sellP=(k,t)=>hasC('cove')?price(k,t):Math.max(1,Math.floor(price(k,t)/2));
 const used=l=>l.reduce((a,b)=>a+DEFS[b.k].s,0);
@@ -280,7 +282,7 @@ const auraV=(v,t,ratio,dot)=>ratio?+(v*(1+.25*t)).toFixed(3):Math.round(v*(dot?D
 function statsOf(list,i,cr){
   const it=list[i],d=DEFS[it.k],t=it.t,tags=d.tags,ok=c=>!cr||!c||cr.has(c);
   const fx=gateFx(scaleFx(pickFx(d),t),d,ok)||{},s={cd:d.cd||0,fx,start:gateFx(scaleFx(d.start,t),d,ok),on:(d.on||[]).map(h=>gateFx(Object.assign(scaleFx(h,t),{ev:h.ev,tag:h.tag,icd:h.icd}),d,ok)).filter(Boolean),pre:0,boost:[],W:tags.includes('W')};
-  const last=list.length-1,empty=(cr&&typeof holdCap==='function'&&G?holdCap():10)-used(list);
+  const last=list.length-1,empty=(cr&&typeof holdCap==='function'&&G?holdCap():HOLD)-used(list);
   list.forEach((o,j)=>{if(j===i)return;const a=DEFS[o.k],tj=o.t,adj=Math.abs(j-i)===1,nm=a.n;
     let key0='';const add=(cond,apply)=>{if(cond&&ok(auraCraft(key0,a))){apply();if(!s.boost.includes(nm))s.boost.push(nm)}};
     if(adj){

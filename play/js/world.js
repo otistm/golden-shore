@@ -80,7 +80,7 @@ const glyph=(k,cls)=>`<svg viewBox="0 0 30 30" class="${cls||'gl'}" aria-hidden=
    hp changes your health in fights. The rest is read by name where it applies (battle.js, port.js, state.js). ---------- */
 const SPOTS={hull:'Hull',sails:'Sails',guns:'Guns',head:'Figurehead'};
 const FITTINGS={
-  planks:{n:'Double Planking',spot:'hull',p:10,hp:40,d:'+40 health in fights. Your hold has 9 slots.',g:'<path class="w" d="M3 7h24v7H3zM3 16h24v7H3z"/><circle class="k" cx="7" cy="10.5" r="1.1"/><circle class="k" cx="23" cy="10.5" r="1.1"/><circle class="k" cx="7" cy="19.5" r="1.1"/><circle class="k" cx="23" cy="19.5" r="1.1"/>'},
+  planks:{n:'Double Planking',spot:'hull',p:10,hp:40,d:'+40 health in fights. Boards up one hold slot, leaving 8.',g:'<path class="w" d="M3 7h24v7H3zM3 16h24v7H3z"/><circle class="k" cx="7" cy="10.5" r="1.1"/><circle class="k" cx="23" cy="10.5" r="1.1"/><circle class="k" cx="7" cy="19.5" r="1.1"/><circle class="k" cx="23" cy="19.5" r="1.1"/>'},
   copper:{n:'Copper Sheathing',spot:'hull',p:10,hp:-20,d:'Burn and poison put on you are halved. −20 health in fights.',g:'<path class="w" d="M3 9h24c-2 10-7 15-12 17C10 24 5 19 3 9z"/><path d="M7 14h16M10 19h10" stroke-width="1.4"/>'},
   ram:{n:'Iron Ram',spot:'hull',p:10,d:'Every fight opens with a ram: 10 damage, +5 per sea. You take 3.',g:'<path class="w" d="M3 11h15l9 4-9 4H3z"/><path d="M18 11v8M8 11v8" stroke-width="1.4"/>'},
   ballast:{n:'Crew Quarters',spot:'hull',p:10,hp:-15,berth:1,d:'+1 crew berth. −15 health in fights.',g:'<path d="M3 8v6M27 8v6"/><path class="w" d="M3 10c5 8 19 8 24 0z"/><circle class="w" cx="15" cy="8" r="3"/>'},

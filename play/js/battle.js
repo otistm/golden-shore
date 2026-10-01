@@ -77,7 +77,7 @@ function targets(S,i,tgt){const L=S.items;
   return[]}
 function xVal(S,F,x){if(!x)return 0;const[from,r]=x;
   if(from==='shield')return S.shield*r;if(from==='enemyBurn')return F.burn*r;if(from==='enemyPoison')return F.poison*r;
-  if(from==='missing')return(S.max-S.hp)*r;if(from==='empty')return(10-used(S.list))*r;
+  if(from==='missing')return(S.max-S.hp)*r;if(from==='empty')return((S===B.P?holdCap():HOLD)-used(S.list))*r;
   if(from.startsWith('tag:'))return S.list.filter(o=>DEFS[o.k].tags.includes(from.slice(4))).length*r;return 0}
 function applyFx(S,F,it,i,f,depth){
   const g=it.g,el=it.el;

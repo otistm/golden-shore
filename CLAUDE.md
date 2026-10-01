@@ -2,7 +2,7 @@
 
 Ink Crossing is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
 
-You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war. It has ports, threats, elites, events, people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 10-slot hold.
+You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war. It has ports, threats, elites, events, people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
 
 ## Who you're working with
 Otis is the designer. He doesn't read code. He judges changes by playing them on his phone.
@@ -85,7 +85,8 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## Fittings
 - A fitting is one row in `FITTINGS` (world.js): name, spot, price, optional `hp` (health in fights), text and a 30×30 glyph. Its effect is written where it applies, checked with `hasF(key)`, like landmarks with `hasC`.
 - Fittings change rules or the ship's shape (berths, hold size, positions, the storm), not plain numbers. Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks), `fire()` or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
-- The player's hold size is `holdCap()`, never a literal 10.
+- Every hold has `HOLD` (9) slots, enemies included. The player's hold size is `holdCap()`, never a literal number.
+- **Rule: nothing may ever increase the number of hold slots.** No item, fitting, landmark, captain's pick, crew rank or event adds slots. Things may only take slots away (like Double Planking). Extra space belongs in the locker or crew berths instead.
 - Losing a fight you survive removes one fitting (`loseFit()` in battle.js, seeded by voyage, stop and day).
 - After adding or changing a fitting, run `npm run sim:fits`. It prints each fitting's win rate against having none. Differences under about 3 points are noise.
 
@@ -138,7 +139,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Desktop has two tiers, both in blocks at the end of `styles.css`, so phones are never touched:
   - At least 900 × 560: a wider single column (4 market cards, the chart fitted to the window, centred pop-ups).
   - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart fills the stage. `fitMap()` redraws the chart at the size it has (`mapSVG(fit)` stretches x and row height for display only; node positions in the saved map never change). `DESK` in desk.js must match the CSS media query.
-  - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 10 so neighbours stay side by side.
+  - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 9 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
 ## Smoke test before sharing a preview

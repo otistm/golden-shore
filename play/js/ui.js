@@ -8,12 +8,12 @@ function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);voi
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
 function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
-function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():10);const cr=list.enemy||side==='e'?null:crewCrafts();
+function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i,cr),use=itemUse(it.k,cr),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
     h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
-  if(side==='p'&&cap<10)for(let k=cap;k<10;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
+  if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
 }
 function itemSheet(list,i,mode,after){
@@ -157,7 +157,7 @@ function dragHold(mode,rerender,ext){
 }
 /* the size of an item tile in the docked hold, for an item of size s */
 function tileSize(s){const b=app.querySelector('.dock .board[data-side="p"]');if(!b)return{w:40*s,h:66};
-  const cs=getComputedStyle(b),gap=parseFloat(cs.columnGap)||4,cell=(b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-9*gap)/10,c=b.firstElementChild;
+  const cs=getComputedStyle(b),gap=parseFloat(cs.columnGap)||4,cell=(b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-(HOLD-1)*gap)/HOLD,c=b.firstElementChild;
   return{w:cell*s+gap*(s-1),h:c?c.getBoundingClientRect().height:66}}
 function holdDock(extra,ups,lups,hint){
   hint=G.moving?'Tap an item to put it there, or an empty slot to send it to the end.':hint||`Drag to ${G.locker?'move between hold and locker':'rearrange'}${G.inPort?', or onto Set sail to sell':''}. Tap to inspect.`;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0
+- Every hold now has 9 slots, yours and every enemy's. Double Planking still boards one up, leaving 8. Nothing can ever add slots, so every slot counts.
+- Voyages in progress: if your cargo no longer fits, the last items move to your locker, or are sold if there's no room. The log says what happened.
+
 ## 0.9.0
 - Renown is now the captain's call. Instead of stat perks, each level offers 3 captain's picks, the same list for every ship.
 - Orders: Brace!, All hands!, Fire at will!, Douse the fires!, Cut their rigging! and Patch the hull! Your crew carry each one out once a fight, at the moment you choose: when the fight starts, below half health, when the storm hits, or when the enemy drops below half. Change the moment any time on your ship card.

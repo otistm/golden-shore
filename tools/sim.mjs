@@ -10,7 +10,7 @@ await page.goto(url); await page.waitForTimeout(200);
 const res = await page.evaluate(([N, FITS, PERK]) => {
   const realEnd = end; let res = null; end = w => { B.over = true; res = w; };
   const errs = [];
-  const board = (budget, depth, ship) => { const list = []; let t = 0; while (t++ < 150 && used(list) < 10 && budget > 2) { const k = drawKey(Math.random, ship), d = DEFS[k]; if (k === 'chest') continue; const tier = rollTier(depth), p = price(k, tier); if (used(list) + d.s > 10 || p > budget) continue; list.push({ k, t: tier }); budget -= p; } return list; };
+  const board = (budget, depth, ship) => { const list = []; let t = 0; while (t++ < 150 && used(list) < HOLD && budget > 2) { const k = drawKey(Math.random, ship), d = DEFS[k]; if (k === 'chest') continue; const tier = rollTier(depth), p = price(k, tier); if (used(list) + d.s > HOLD || p > budget) continue; list.push({ k, t: tier }); budget -= p; } return list; };
   // crew like a sensible captain: the ship's starting crew, then whoever covers the crafts this hold needs most. Rank 1, full morale.
   const NOCREW = false;
   const crewFor = (pb, ship) => { const b = SHIPS[ship].berths || 3, crew = (SHIPS[ship].crew || []).map(k => ({ k, xp: 0, m: 3 })), need = {};
@@ -25,12 +25,12 @@ const res = await page.evaluate(([N, FITS, PERK]) => {
     startFx(); res = null; let k = 0; while (!B.over && k++ < 4000) step(.05); return res;
   };
   G = { seed: 'SIM', ship: 'sloop', sea: 0, charts: [], board: [], map: { nodes: [] }, fit: null };
-  try { for (const sh of SHIPKEYS) { const ks = KEYS.filter(k => DEFS[k].ship === sh || DEFS[k].ship === 'any'); for (let i = 0; i < ks.length; i += 5) { const pb = ks.slice(i, i + 5).map(k => ({ k, t: 2 })); while (used(pb) > 10) pb.pop(); run(pb, 'sharks', 0, 3, sh); } } } catch (e) { errs.push(String(e.stack || e)); }
+  try { for (const sh of SHIPKEYS) { const ks = KEYS.filter(k => DEFS[k].ship === sh || DEFS[k].ship === 'any'); for (let i = 0; i < ks.length; i += 5) { const pb = ks.slice(i, i + 5).map(k => ({ k, t: 2 })); while (used(pb) > HOLD) pb.pop(); run(pb, 'sharks', 0, 3, sh); } } } catch (e) { errs.push(String(e.stack || e)); }
   const out = {};
   for (const ship of SHIPKEYS) { out[ship] = {}; for (const [ek, e] of Object.entries(ENEMIES)) { let w = 0; for (let n = 0; n < N; n++) { const row = e.kind === 'b' ? 6 : e.kind === 'e' ? 3 : 2 + Math.floor(Math.random() * 3), depth = e.sea * 7 + row; try { if (run(board(14 + depth * 8, depth + 1, ship), ek, e.sea, row, ship)) w++; } catch (er) { errs.push(String(er.stack || er)); } } out[ship][ek] = Math.round(w / N * 100); } }
   // fittings: every ship against every enemy with one fitting on, compared with none (same enemies, same kind of holds)
   const fits = {};
-  if (FITS) { const avg = () => { let w = 0, n = 0; for (const ship of SHIPKEYS) for (const [ek, e] of Object.entries(ENEMIES)) for (let i = 0; i < N; i++) { const row = e.kind === 'b' ? 6 : e.kind === 'e' ? 3 : 2 + Math.floor(Math.random() * 3), depth = e.sea * 7 + row; const pb = board(14 + depth * 8, depth + 1, ship); if (G.fit && G.fit.hull === 'planks') while (used(pb) > 9) pb.pop(); try { if (run(pb, ek, e.sea, row, ship)) w++; } catch (er) { errs.push(String(er.stack || er)); } n++; } return Math.round(w / n * 1000) / 10; };
+  if (FITS) { const avg = () => { let w = 0, n = 0; for (const ship of SHIPKEYS) for (const [ek, e] of Object.entries(ENEMIES)) for (let i = 0; i < N; i++) { const row = e.kind === 'b' ? 6 : e.kind === 'e' ? 3 : 2 + Math.floor(Math.random() * 3), depth = e.sea * 7 + row; const pb = board(14 + depth * 8, depth + 1, ship); if (G.fit && G.fit.hull === 'planks') while (used(pb) > HOLD - 1) pb.pop(); try { if (run(pb, ek, e.sea, row, ship)) w++; } catch (er) { errs.push(String(er.stack || er)); } n++; } return Math.round(w / n * 1000) / 10; };
     G.fit = null; fits.none = avg();
     for (const [k, F] of Object.entries(FITTINGS)) { G.fit = { hull: null, sails: null, guns: null, head: null }; G.fit[F.spot] = k; fits[k] = avg(); }
     G.fit = null; }
