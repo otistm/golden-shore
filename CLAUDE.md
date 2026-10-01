@@ -75,6 +75,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
 ## Crafts and crew
+- Voyages start bare (no cargo, no crew, 30 gold). The first port of sea 1 stocks the ship's `start` items and `crew` hires (port.js), so `SHIPS[k].start` and `.crew` mean "what Gullhaven stocks for her", not what she carries.
 - Every ability belongs to a craft (`CRAFTS` in items.js). `KEYCRAFT` and `AURACRAFT` map effect and aura fields to crafts; damage is Gunnery on cannons and Steel otherwise.
 - `statsOf(list,i,cr)` drops abilities whose craft isn't in `cr` (a Set from `crewCrafts()`), so fights need no gating of their own. Pass `cr` for the player's cargo only. Enemy lists carry `list.enemy=true` and are never gated.
 - `describe()` shows every ability with its craft and greys out missing ones (`abl()`). `itemUse(k,cr)` says 'all', 'some' or 'none' for the faded look in the hold.
@@ -146,7 +147,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - A fresh player sees Learn to sail first. The tutorial runs start to finish on both the fishing and the isle branch, and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
 - At 1440 × 900 and 1920 × 1080: the desk panel shows the ship, landmarks and log, the chart fills the stage and tapping a stop opens its preview, the fight fills the screen, and nothing sits behind the hold.
-- Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
+- Start a voyage: pick a ship, Gullhaven's intro appears with a bare ship and 30 gold, the market and tavern lead with the ship's own gear and hands, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
 - Win a fight with a full hold: sell onto Sail on, drag a spoil into the hold, drag it back onto its card, then take one and sail on.
 - Buy an item whose craft nobody has: its ability is crossed out and it looks faded. Hire someone with that craft at the tavern and it comes alive.

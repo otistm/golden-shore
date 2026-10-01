@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0
+- Every voyage starts with a bare ship: an empty hold, no crew, and 30 gold from the Guild to outfit her. The opening story says so.
+- Gullhaven's first market always stocks your ship's own gear, and its tavern always has the hands who suit her, so you can fit out any ship for its style. What you buy and who you hire is up to you.
+- Setting sail with an empty hold or nobody aboard asks you first.
+- The ship picker lists each ship's berths and the gear Gullhaven stocks for her.
+- The tutorial still hands you a ready ship.
+
 ## 0.11.0
 - Item abilities have checkboxes. A box is ticked when someone in your crew can work that ability, and empty, with the craft it needs, when nobody can. Nothing is crossed out any more.
 - The hull card plays whenever you lose hull, not just after fights: events, people you meet and anything else that damages the ship.

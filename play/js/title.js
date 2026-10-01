@@ -59,7 +59,7 @@ function codeSheet(done){
 }
 function shipPick(seed){
   const ov=overlay(`<h2>Choose your ship</h2><div class="ships">${Object.entries(SHIPS).map(([k,s])=>{const ok=!s.ok||s.ok(A);
-    return`<button class="shipcard" data-s="${k}" ${ok?'':'disabled'}>${shipIcon(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} Starts with ${s.start.map(x=>DEFS[x.k].n).join(' and ')}.`:s.lock}</span></div></button>`}).join('')}</div>
+    return`<button class="shipcard" data-s="${k}" ${ok?'':'disabled'}>${shipIcon(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} ${s.berths||3} crew berths. Gullhaven stocks her gear: ${s.start.map(x=>DEFS[x.k].n).join(' and ')}, and hands like the ${(s.crew||[]).map(k=>CREW[k].n).join(' and the ')}.`:s.lock}</span></div></button>`}).join('')}</div>
     <p class="seed">Voyage: ${codeOf(seed)}</p><button class="ghost" data-a="close">Back</button>`,false,'journal');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]')){ov.remove();return}
     const b=e.target.closest('[data-s]');if(!b||b.disabled)return;ov.remove();startVoyage(seed,b.dataset.s)});
@@ -67,11 +67,11 @@ function shipPick(seed){
 function shipIcon(k){return`<span class="shipemb"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[k]}</svg></span>`}
 function startVoyage(seed,ship){
   const map=genMap(seed,0);
-  G={seed,ship,sea:0,map,at:map.start,path:[map.start],day:1,gold:10,hull:20,board:SHIPS[ship].start.map(x=>({...x})),charts:[],log:[],creel:[],rod:0,tip:0,far:0,quest:null,hock:null,locker:null,shops:{},freeRoll:true,full:false,extra:0,reveal:2,crew:(SHIPS[ship].crew||[]).map(k=>({k,xp:0,m:3}))};
-  G.board.forEach(b=>seen(b.k));updateReveal();
+  G={seed,ship,sea:0,map,at:map.start,path:[map.start],day:1,gold:30,hull:20,board:[],charts:[],log:[],creel:[],rod:0,tip:0,far:0,quest:null,hock:null,locker:null,shops:{},freeRoll:true,full:false,extra:0,reveal:2,crew:[]};
+  updateReveal();
   A.voyages++;saveA();lore(LORE.start);logL(`Set out from Gullhaven aboard ${SHIPS[ship].n}.`);save();
   port(map.start);
-  const ov=overlay(`<h2>Gullhaven</h2><p class="log">${LORE.start}</p><button class="primary" data-a="c">Open the market</button>`,true);
+  const ov=overlay(`<h2>Gullhaven</h2><p class="log">${LORE.start}</p><button class="primary" data-a="c">Find a crew and cargo</button>`,true);
   ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus();
 }
 function resume(){unrollNext=true;if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}
