@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.5
+- Renown levels are celebrated: a solid ink star medal spins in with your new level on it, little stars burst off it, a "Renown up!" ribbon stamps on, and the three captain's picks are dealt in like cards. Tap one and it jumps forward inked black while the others drop away, then the voyage carries on (orders still ask when the crew should carry them out).
+
 ## 0.23.4
 - Catching a fish is a moment: it bursts out of the water in a splash of droplets with a ripple spreading behind it, arcs over the waves twisting as it flies, and lands in your boat. Then its card shows it flopping in with a splash and wiggling, its rarity stamped on (Common, Uncommon in a double line, Rare in solid ink with rays spinning behind it), and a "New!" tag the first time you catch that kind.
 
