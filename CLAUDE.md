@@ -135,6 +135,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - `perkPick()` opens with the renown medal, ribbon and dealt picks (`.perkpick`); the chosen pick is marked `.chosen`, the rest `.dropped`, and the choice goes through after the animation.
 - Hiring at the tavern plays `hireFly()` (port.js): the hand's face flies from their seat to their spot in the crew strip.
 - Buying a fitting plays `fitFly()` (port.js) over the yard, using `SHIPSPOTS` to find where the fitting goes on the ship.
+- Sales call `sellFx(x,y,gold)` (ui.js) after redrawing: a puff where the cargo was and coins flying into the purse (`#goldst`), which counts up from the old total.
 - Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses show `defeatCard()`: the swinging, cracked sign with rain, or "Sunk" with bubbles when the hull is gone. The hull card still plays back on the chart.
 - Anything that puts an item in the hold or locker sets `flash={ref,kind}` (`addItem()` does it for you; direct inserts set it themselves). `bindHold()` calls `holdFlash()`, which plays the drop or upgrade on that tile with an ink burst and a rising label.
 

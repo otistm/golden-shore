@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.8
+- Selling pays out where you can see it: the cargo goes up in a puff of ink, and a little spray of coins springs out and flies up into your purse in the top bar, which counts up as each coin lands. It plays when you drag cargo onto Set sail or Sail on, sell from an item's card, or sell fish at the docks.
+
 ## 0.23.7
 - Buying a fitting shows it going on: your ship appears big, the fitting spins off the wright's bench and flies onto its part of the ship (knocking the old one off and tumbling away if there was one), three hammer blows jolt the ship with ink sparks, "Fitted!" rises and a line says what went where. Tap to hurry it.
 
