@@ -52,9 +52,9 @@ const craftIcon=c=>`<svg class="cri" viewBox="0 0 16 16" aria-hidden="true">${CR
 const crewCrafts1=k=>CREW[k].crafts.map(c=>`<span class="chipc">${craftIcon(c)}${CRAFTS[c]}</span>`).join('');
 const pips=(n,max,cls)=>`<span class="${cls}" aria-label="${n} of ${max}">${Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
 function crewRows(edit){const cs=G.crew||[];
-  return cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx=RANKXP[rk];
+  return cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx=rankXP()[rk];
     return`<div class="crewrow"><span class="o-icon crewic">${icon(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
-      <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${C.wage}. Morale ${pips(c.m,3,'mor')}</span></div>
+      <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${wageOf(c.k)}. Morale ${pips(c.m,3,'mor')}</span></div>
       ${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')+
     Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="crewrow empty"><span class="fitnone"></span><div><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('')}
 /* the crafts your crew cover, and rank rules they've opened */
@@ -66,7 +66,8 @@ function fitRows(){return Object.keys(SPOTS).map(s=>{const k=fitIn(s);
 function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv?RENOWN[lv-1]:0,pc=nx?Math.round((n-prev)/(nx-prev)*100):100;
   return`<div class="renown"><div class="rn-head"><b>Renown ${lv}</b><span class="soft">${nx?`${n} of ${nx} to the next level`:`${n}, the top level`}</span></div>
     <div class="rn-bar" aria-hidden="true"><span style="width:${pc}%"></span></div>
-    ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}.</b> ${PERKS[k].d}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you pick a perk for this voyage.</p>'}</div>`}
+    ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` <label class="when">Fires <select data-ord="${k}">${Object.entries(WHEN).map(([w,t])=>`<option value="${w}"${orderWhen(k)===w?' selected':''}>${t}</option>`).join('')}</select></label>`:''}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you make a captain\'s pick for this voyage: an order your crew carry out in fights, or a way of running the ship.</p>'}</div>`}
+const orderWhen=k=>(G.orders&&G.orders[k])||PERKS[k].when;
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
@@ -78,6 +79,7 @@ function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
     <div class="fitlist">${fitRows()}</div>
     <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
     <button class="primary" data-a="c">Close</button>`);
+  ov.querySelectorAll('[data-ord]').forEach(s=>s.onchange=()=>{G.orders=Object.assign({},G.orders,{[s.dataset.ord]:s.value});save();toast(`${PERKS[s.dataset.ord].n} fires ${WHEN[s.value]}`)});
   ov.addEventListener('click',e=>{const d=e.target.closest('[data-dis]');if(d){const c=G.crew[+d.dataset.dis];
       if(d.dataset.sure){G.crew.splice(+d.dataset.dis,1);logL(`Let ${CREW[c.k].n} go.`);save();ov.remove();toast(`${CREW[c.k].n} leaves the ship`);if(app.querySelector('#leave'))port(G.at);else chart();return}
       d.dataset.sure=1;d.textContent='Tap again to dismiss';return}

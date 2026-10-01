@@ -34,7 +34,7 @@ function roomNote(o){const sz=DEFS[o.k].s,need=Math.min(sz-(holdCap()-used(G.boa
 /* Spoils: a screen like the market, with your hold docked below. Drag a spoil into the hold (or tap Take), drag it back onto its card
    to change your mind, and drag your own cargo onto Sail on to sell it and make room. One pick, or gold if you take nothing. */
 function lootPick(n,done){
-  const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;
+  const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;if(hasP('prize'))opts.push(randItem(r,depth));
   cancelAnimationFrame(raf);B=null;G.inPort=false;G.moving=false;G.sel=null;
   let taken=null,ref=null,kind=null,first=true;   // which spoil, the item object it became, and 'add', 'locker' or 'up'
   const aboard=()=>ref&&(G.board.includes(ref)||(G.locker||[]).includes(ref));

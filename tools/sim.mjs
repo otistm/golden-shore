@@ -1,6 +1,6 @@
 // Balance check: each ship's randomly drafted holds against every enemy. Also puts every item into a fight once.
 // node tools/sim.mjs [fights] fits: also compares win rates with each fitting on the ship against none.
-// node tools/sim.mjs [fights] perks: the same for each renown perk, on its own ship.
+// node tools/sim.mjs [fights] perks: the same for each captain's order (on its suggested trigger), on every ship.
 import { gameUrl as url, launch } from './browser.mjs';
 const N = +(process.argv[2] || 40), FITS = process.argv[3] === 'fits', PERK = process.argv[3] === 'perks';
 const browser = await launch();
@@ -37,7 +37,7 @@ const res = await page.evaluate(([N, FITS, PERK]) => {
   // perks: each ship against every enemy with one of its perks, compared with none
   const perks = {};
   if (PERK) { const avg = ship => { let w = 0, n = 0; for (const [ek, e] of Object.entries(ENEMIES)) for (let i = 0; i < N; i++) { const row = e.kind === 'b' ? 6 : e.kind === 'e' ? 3 : 2 + Math.floor(Math.random() * 3), depth = e.sea * 7 + row; try { if (run(board(14 + depth * 8, depth + 1, ship), ek, e.sea, row, ship)) w++; } catch (er) { errs.push(String(er.stack || er)); } n++; } return Math.round(w / n * 1000) / 10; };
-    for (const ship of SHIPKEYS) { G.perks = null; perks[ship] = { none: avg(ship) }; for (const [k, p] of Object.entries(PERKS)) if (p.ship === ship) { G.perks = [k]; perks[ship][k] = avg(ship); } }
+    for (const ship of SHIPKEYS) { G.perks = null; perks[ship] = { none: avg(ship) }; for (const [k, p] of Object.entries(PERKS)) if (p.order) { G.perks = [k]; G.orders = null; perks[ship][k] = avg(ship); } }
     G.perks = null; }
   end = realEnd; B = null; G = null; return { out, fits, perks, errs: errs.slice(0, 3) };
 }, [N, FITS, PERK]);
