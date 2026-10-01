@@ -1073,3 +1073,16 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 @keyframes rain{from{transform:translateY(0) rotate(12deg)}to{transform:translateY(190px) rotate(12deg)}}
 @keyframes bubble{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:.5}100%{transform:translateY(-170px) scale(1.1);opacity:0}}
 @media (prefers-reduced-motion:reduce){.def-sign{animation:none;transform:rotate(5deg)}.def-crack{animation:none;stroke-dashoffset:0}.def-fx{display:none}.def-sub,.result.lose .lines p,.result.lose #next{animation:none}}
+/* the fight's opening: the enemy sails in from above and you from below, cargo drops in tile by tile, then "Fight!" stamps down */
+.battle.intro{animation:jolt .32s .78s both}
+.battle.intro .fighter.e,.battle.intro .board[data-side="e"]{animation:fromtop .5s var(--spring) both}
+.battle.intro .fighter.p,.battle.intro .board[data-side="p"]{animation:frombot .5s .12s var(--spring) both}
+.battle.intro .mid{animation:fadein .3s .55s both}
+.battle.intro .board .item{animation:tilein .42s calc(.22s + var(--i,0) * 55ms) var(--spring) both}
+.fightcall{position:fixed;left:50%;top:50%;z-index:30;pointer-events:none;transform:translate(-50%,-50%)}
+.fightcall span{display:block;font:italic 900 54px/1 var(--display);background:var(--ink);color:var(--paper);padding:8px 26px 12px;border-radius:16px;box-shadow:5px 5px 0 var(--paper),8px 8px 0 var(--ink);animation:fightcall 1.2s .62s both}
+@keyframes fromtop{from{transform:translateY(-70px);opacity:0}to{transform:none;opacity:1}}
+@keyframes frombot{from{transform:translateY(70px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tilein{0%{transform:translateY(-18px) scale(.5,1.3);opacity:0}60%{transform:translateY(2px) scale(1.1,.9);opacity:1}100%{transform:none;opacity:1}}
+@keyframes fightcall{0%{transform:scale(2.6) rotate(-14deg);opacity:0}16%{transform:scale(.9) rotate(-3deg);opacity:1}24%{transform:rotate(-5deg)}70%{transform:rotate(-5deg);opacity:1}100%{transform:scale(1.7) rotate(-2deg);opacity:0}}
+@keyframes jolt{0%,100%{transform:none}20%{transform:translate(-5px,3px)}40%{transform:translate(4px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}

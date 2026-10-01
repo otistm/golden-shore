@@ -50,14 +50,21 @@ function fight(n){
     S.ui={lag:document.getElementById(k+'lag'),bs:document.getElementById(k+'bs'),ps:document.getElementById(k+'ps'),hp:document.getElementById(k+'hp'),hpf:document.getElementById(k+'hpf'),shf:document.getElementById(k+'shf'),st:document.getElementById(k+'st')};
   }
   B.wait=.9;startFx();
+  // the opening: both sides sail into place, their cargo drops in tile by tile, the screen jolts and "Fight!" stamps down.
+  // The clock holds until it's done; a tap anywhere starts the fight at once.
+  if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&!G.tut){const bt=app.querySelector('.battle');B.intro=true;bt.classList.add('intro');
+    bt.querySelectorAll('.board').forEach(b=>b.querySelectorAll('.item').forEach((el,i)=>el.style.setProperty('--i',i)));
+    const call=document.createElement('div');call.className='fightcall';call.setAttribute('aria-hidden','true');call.innerHTML='<span>Fight!</span>';document.body.appendChild(call);const mr=bt.querySelector('.mid').getBoundingClientRect();call.style.top=(mr.top+mr.height/2)+'px';   // between the two sides
+    const end=()=>{if(!B||!B.intro)return;B.intro=false;setTimeout(()=>{bt.classList.remove('intro');call.remove()},500);bt.removeEventListener('pointerdown',end,true)};
+    setTimeout(end,1650);bt.addEventListener('pointerdown',end,true)}
   E.fel.onclick=()=>{const ov=overlay(`<h2>${E.name}</h2>${traitsHTML(f.e,G.sea)}<button class="primary" data-a="c">Close</button>`);ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()})};
   app.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{B.speed=window._spd=+b.dataset.sp;app.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
-  document.getElementById('skip').onclick=()=>{if(B.over)return;B.quiet=true;let k=0;while(!B.over&&k++<30000)step(.05);draw()};
+  document.getElementById('skip').onclick=()=>{if(B.over)return;B.intro=false;B.quiet=true;let k=0;while(!B.over&&k++<30000)step(.05);draw()};
   draw();last=performance.now();raf=requestAnimationFrame(loop);scrollTo(0,0);coach('fight');
 }
 /* "when a fight starts" effects, both sides */
 function startFx(){for(const[S,F]of[[B.P,B.E],[B.E,B.P]])S.items.forEach((it,i)=>{if(it.s.start)applyFx(S,F,it,i,it.s.start,1)})}
-function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;if(B.coachHold||PAUSE.on)dt=0;
+function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last=now;if(B.coachHold||PAUSE.on||B.intro)dt=0;
   while(dt>1e-6&&!B.over){const s=Math.min(.05,dt);step(s);dt-=s}draw();if(!B.over)raf=requestAnimationFrame(loop)}
 function hit(T,d,type,src,o){o=o||{};
   if(o.weapon&&hasT(T,'thick'))d*=.75;d=Math.round(d);if(d<=0)return;
