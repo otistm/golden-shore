@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.19.2
+- The tavern speech bubble grows a little wider when a long name and its crafts need it, so the craft chips always stay on one line next to the name and the bubble doesn't get taller.
+
 ## 0.19.1
 - The tavern speech bubble lines up the same way for everyone: one left edge, even spacing between the quote, name, terms and Hire button, and the craft chips sit right after the name instead of spreading across the bubble.
 
