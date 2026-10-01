@@ -79,7 +79,8 @@ function port(id,view){
   app.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>{const i=+b.dataset.hire,k=S.tavern[i],C=CREW[k];
     if((G.crew||[]).length>=berths())return toast('Your deck is full. Dismiss someone on the ship card first.');
     if(G.gold<feeOf(k))return toast(`Need ${feeOf(k)-G.gold} more gold`);
-    G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view)});
+    const from=(app.querySelector('.patron.sel .bust')||b).getBoundingClientRect();
+    G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view);hireFly(k,from)});
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
@@ -163,6 +164,21 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
       <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
+/* a new hand joins: they leap off their bar stool and fly down into their berth in the crew strip, landing with a squash,
+   an ink burst and "Aboard!" rising off them */
+function hireFly(k,from){const strip=app.querySelectorAll('#crewbar .cb-c:not(.empty)'),to=strip[strip.length-1];
+  if(!to||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const T=to.getBoundingClientRect(),size=Math.min(96,Math.max(56,from.width*.55)),sx=from.left+from.width/2,sy=from.top+from.height*.35,tx=T.left+T.width/2,ty=T.top+T.height/2;
+  const f=document.createElement('div');f.className='hirefly';f.innerHTML=crewFace(k);f.style.cssText=`width:${size}px;height:${size}px;left:${sx-size/2}px;top:${sy-size/2}px`;
+  document.body.appendChild(f);to.style.opacity='0';
+  const dx=tx-sx,dy=ty-sy,s=T.width/size;
+  f.animate([{transform:'translate(0,0) scale(1)'},{transform:`translate(${dx*.25}px,${dy*.25-90}px) scale(1.15) rotate(-12deg)`,offset:.35},{transform:`translate(${dx}px,${dy}px) scale(${s}) rotate(8deg)`}],
+    {duration:850,easing:'cubic-bezier(.45,0,.4,1)'}).onfinish=()=>{f.remove();to.style.opacity='';squish(to,'land');
+    const b=document.createElement('div');b.className='inkburst';b.style.left=tx+'px';b.style.top=ty+'px';
+    b.innerHTML=`<svg viewBox="-50 -50 100 100" aria-hidden="true">${Array.from({length:8},(_,n)=>{const a=n/8*Math.PI*2;return`<path d="M${Math.cos(a)*24} ${Math.sin(a)*24}L${Math.cos(a)*(n%2?36:44)} ${Math.sin(a)*(n%2?36:44)}"/>`}).join('')}</svg>`;
+    const l=document.createElement('div');l.className='floatlbl up';l.textContent='Aboard!';l.style.left=tx+'px';l.style.top=T.top+'px';
+    document.body.append(b,l);const hw=l.offsetWidth/2+6;l.style.left=Math.max(hw,Math.min(innerWidth-hw,tx))+'px';
+    const cr=app.querySelector('#crewbar .cb-cr');if(cr)squish(cr,'bump');setTimeout(()=>{b.remove();l.remove()},1300)}}
 /* the tavern: everyone looking for work sits at the bar. Tap one to have a word; they make their pitch below. */
 /* the tavern: the bar scene fills the room. Everyone looking for work sits at the counter; tap one and a speech bubble
    floats over the scene just under them, pointing up, with their pitch and a Hire button. layBar() fits it all to the space. */
