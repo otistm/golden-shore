@@ -16,7 +16,7 @@ const sicon=(k,inner)=>`<svg class="sic" viewBox="0 0 ${inner?12:16} ${inner?12:
 function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.min(1,G.hull/HULL_MAX));
   const h=`<header class="bar"><div class="stats">
     <span class="stat day">Day <b>${G.day}</b></span>
-    <span class="stat${b('gold')}" aria-label="${G.gold} gold">${sicon('gold')}<b>${G.gold}</b><small>gold</small></span>
+    <span class="stat${b('gold')}" id="goldst" aria-label="${G.gold} gold">${sicon('gold')}<b>${G.gold}</b><small>gold</small></span>
     <button class="stat hullst${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull">${sicon(0,EMB[G.ship])}<b>${G.hull}</b><small>hull</small><span class="hmeter" aria-hidden="true"><i style="width:${Math.round(hp*100)}%"></i></span></button>
     ${G.creel&&G.creel.length?`<button class="stat" id="creelbtn" aria-label="${G.creel.length} fish">${sicon('fish')}<b>${G.creel.length}</b><small>fish</small></button>`:''}
   </div><div class="acts"><button class="logbtn" id="logbtn" aria-label="Cartographer's log">${sicon('log')}<span>Log</span></button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></div></header>`;bump=null;return h}
@@ -42,7 +42,7 @@ function itemSheet(list,i,mode,after){
   ov.addEventListener('click',e=>{
     if(e.target===ov){ov.remove();return}
     const a=e.target.closest('[data-a]');if(!a||a.disabled)return;ov.remove();
-    if(a.dataset.a==='sell'){G.gold+=sellP(it.k,it.t);list.splice(i,1);bump='gold';save();toast(`Sold ${d.n}`);after()}
+    if(a.dataset.a==='sell'){const r=a.getBoundingClientRect(),g=sellP(it.k,it.t);G.gold+=g;list.splice(i,1);save();toast(`Sold ${d.n}`);after();sellFx(r.left+r.width/2,r.top+r.height/2,g)}
     if(a.dataset.a==='move'){G.moving=true;G.sel=i;after()}
     if(a.dataset.a==='swap'){list.splice(i,1);other.push(it);save();toast(inL?`Moved the ${d.n} to your hold`:`Stowed the ${d.n} in your locker`);after()}
   });
@@ -150,6 +150,20 @@ function shipBind(ov){
       if(d.dataset.sure){G.crew.splice(+d.dataset.dis,1);logL(`Let ${CREW[c.k].n} go.`);save();ov.remove();toast(`${CREW[c.k].n} leaves the ship`);if(app.querySelector('#leave'))port(G.at);else chart();return}
       d.dataset.sure=1;d.textContent='Tap again to dismiss';return}
     if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
+/* a sale: the cargo goes up in a puff of ink, and coins spring out of it and fly up into your purse in the top bar,
+   which counts up as each one lands */
+function sellFx(x,y,gold){const el=document.getElementById('goldst'),b=el&&el.querySelector('b');if(!b)return;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){squish(el,'bump');return}
+  const to=el.querySelector('.sic').getBoundingClientRect(),tx=to.left+to.width/2,ty=to.top+to.height/2,start=G.gold-gold,n=Math.max(3,Math.min(10,Math.round(gold/2)+2));
+  b.textContent=start;
+  const puff=document.createElement('div');puff.className='sellpuff';puff.style.left=x+'px';puff.style.top=y+'px';
+  puff.innerHTML=Array.from({length:6},(_,i)=>`<i style="--a:${i*60}deg"></i>`).join('');document.body.appendChild(puff);setTimeout(()=>puff.remove(),700);
+  let landed=0;
+  for(let i=0;i<n;i++){const c=document.createElement('div');c.className='flycoin';c.innerHTML=sicon('gold');c.style.left=x+'px';c.style.top=y+'px';document.body.appendChild(c);
+    const a=Math.random()*Math.PI*2,r=24+Math.random()*30,mx=Math.cos(a)*r,my=Math.sin(a)*r-30;
+    c.animate([{transform:'translate(-50%,-50%) scale(.4)',opacity:0},{transform:`translate(calc(-50% + ${mx}px),calc(-50% + ${my}px)) scale(1.2)`,opacity:1,offset:.3},{transform:`translate(calc(-50% + ${tx-x}px),calc(-50% + ${ty-y}px)) scale(.8)`,opacity:1}],
+      {duration:700+i*45,delay:i*35,easing:'cubic-bezier(.5,0,.5,1)',fill:'both'}).onfinish=()=>{c.remove();landed++;
+      b.textContent=landed>=n?G.gold:Math.round(start+gold*landed/n);squish(el,'bump')}}}
 /* ---------- drag and drop: hold and locker ---------- */
 let dragJustEnded=false;
 /* ext (the spoils screen): from, things outside the hold that can be dragged in, each {el,it,drop(tgt,dst)};
@@ -181,7 +195,7 @@ function dragHold(mode,rerender,ext){
         return{ghost,marks,sell,back,it,ox,oy,lx:ev.clientX,tilt:0,tgt:null,dst:null,full:false,overSell:false,overBack:false};
       }
       function follow(ev){
-        const d=drag,vx=ev.clientX-d.lx;d.lx=ev.clientX;
+        const d=drag,vx=ev.clientX-d.lx;d.lx=ev.clientX;d.ly=ev.clientY;
         d.tilt=Math.max(-14,Math.min(14,d.tilt*.7+vx*.9));
         d.ghost.style.transform=`translate(${ev.clientX-d.ox}px,${ev.clientY-d.oy}px) rotate(${d.tilt}deg) scale(1.14)`;
         const over=(b,m)=>{if(!b)return false;const r=b.getBoundingClientRect();return ev.clientY>=r.top-m&&ev.clientY<=r.bottom+m&&ev.clientX>=r.left&&ev.clientX<=r.right};
@@ -207,7 +221,7 @@ function dragHold(mode,rerender,ext){
         if(d.sell){d.sell.textContent=d.sell.dataset.label;d.sell.classList.remove('sellzone','hot')}
         if(d.back)d.back.classList.remove('backzone','hot');
         if(cancel)return;
-        if(d.overSell){G.gold+=sellP(d.it.k,d.it.t);src.list.splice(si,1);bump='gold';save();toast(`Sold ${DEFS[d.it.k].n}`);rerender();return}
+        if(d.overSell){const g=sellP(d.it.k,d.it.t),x=d.lx,y=d.ly;G.gold+=g;src.list.splice(si,1);save();toast(`Sold ${DEFS[d.it.k].n}`);rerender();sellFx(x,y,g);return}
         if(d.overBack){ext.back.put(d.it);rerender();return}
         const tgt=d.tgt;if(!tgt||d.dst==null)return;
         if(d.full)return toast(tgt.side==='l'?'No room in the locker.':'No room in the hold.');
