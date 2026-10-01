@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.22.3
+- The ship card no longer has the "What your crew can work" section, on phones or big screens.
+
+## 0.22.2
+- The ship card on big screens is redesigned around the ship. Your ship is drawn large on the water as the centrepiece, with its four fittings (figurehead, hull, sails, guns) as cards pinned to the part of the ship they belong to; empty spots are dashed. The name, voyage and trait head the card with hull, hold, crew and renown as big numbers beside them, and your crew are mustered along the bottom next to your captain's picks. Phones keep the simple list.
+
+## 0.22.1
+- On big screens the ship card (tap your hull or Your ship) opens wide in two columns, the ship and crew on the left and renown and fittings on the right, so it all fits without scrolling. Crew portraits on it no longer overlap their names. Phones are unchanged.
+
 ## 0.22.0
 - The docks get the market's layout. A fishmonger stands on the pier in front of the sea with a speech bubble beside them, and your catch is laid out on their crates. Tap a fish to hear what they'll pay, then Sell, or sell the whole creel at once. The fish they want today wears a 2× mark.
 - Anyone else on the dock (a visitor, or Hock with his quest) waits as a face in the corner. Tap them and they step up to say their piece, with a Talk button.
