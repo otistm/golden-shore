@@ -19,7 +19,7 @@ function port(id,view){
     const wg=payWages();if(wg)msg.push(wg);
     if(msg.length)setTimeout(()=>toast(msg.join('. ')),250)}
   const S=G.shops[id];
-  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null};
+  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null,wsel:PV.id===id?PV.wsel:null};
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;
   const vis=!G.hock&&n.row===0&&G.sea<=1?'hock':n.visitor;
@@ -27,6 +27,8 @@ function port(id,view){
   const ups=new Set();S.offers.forEach(o=>{if(!o)return;const j=matchIdx(o);if(j>=0)ups.add(j)});
   // the shipwright's two fittings for this visit, seeded like the first market offers
   if(!G.tut&&!S.fits){const r=RNG(G.seed,'wright',id,G.shopVisit||0),pool=Object.keys(FITTINGS).filter(k=>!hasF(k));S.fits=[];
+    // the wright's own speciality goes on the bench first
+    const mine=pool.filter(k=>FITTINGS[k].spot===WRIGHTS[wrightOf(id)].spot);if(mine.length){const k=mine[ri(r,mine.length)];S.fits.push(k);pool.splice(pool.indexOf(k),1)}
     while(S.fits.length<(hasP('wright')?3:2)&&pool.length)S.fits.push(pool.splice(ri(r,pool.length),1)[0])}
   const rr=S.reroll+(hasF('lion')?1:0);
   // the tavern's hires for this visit, seeded like the market
@@ -42,7 +44,7 @@ function port(id,view){
   const info=harbourInfo(S,vis);
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
-      ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S)):(docksH.trim()?docksH:'<p class="soft dockempty">Nobody is on the dock today, and you have no fish to sell.</p>')}`;
+      ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S,id,anim)):(docksH.trim()?docksH:'<p class="soft dockempty">Nobody is on the dock today, and you have no fish to sell.</p>')}`;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
@@ -75,7 +77,7 @@ function port(id,view){
   app.querySelectorAll('[data-fit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.fit,k=S.fits[i],f=FITTINGS[k];
     if(G.gold<f.p)return toast(`Need ${f.p-G.gold} more gold`);
     if(!canEquip(k))return toast('Double Planking boards up a slot. Sell something to make room first.');
-    G.gold-=f.p;const back=equip(k);S.fits[i]=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view)});
+    G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view)});
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
     if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
     G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();toast(`Repaired ${n} hull`);port(id,view)});
@@ -86,7 +88,8 @@ function port(id,view){
     G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view)});
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
-  if(view==='market'){layStall();requestAnimationFrame(layStall)}
+  if(view==='market'||view==='wright'){layStall();requestAnimationFrame(layStall)}
+  app.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const v=b.dataset.w;PV.wsel=v==='r'?'r':+v;port(id,view)});
   app.querySelectorAll('[data-sel]').forEach(b=>{const go=()=>{PV.tsel=+b.dataset.sel;port(id,view)};b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
@@ -190,14 +193,42 @@ function harbourInfo(S,vis){const n=S.offers.filter(Boolean).length,h=(S.tavern|
     docks:{badge:who?'!':G.creel.length||'',say:`${who?'someone is waiting':'nobody waiting'}${G.creel.length?`, ${G.creel.length} fish to sell`:''}`,who,fish:G.creel.length}}}
 /* how much hull you can afford to repair, up to the most the shipwright will fix */
 const repairable=()=>Math.max(0,Math.min(HULL_MAX-G.hull,Math.floor(G.gold/repairCost())));
-function wrightHTML(S){
-  const all=repairable();
-  return`<section class="wright"><div class="m-head"><h2 style="font-size:20px">Shipwright</h2><button class="ghost" id="yourship">Your ship</button></div>
-    <div class="repair"><div><b>Hull ${G.hull}/${HULL_MAX}</b><span class="soft">Repairs cost ${repairCost()} gold a point.</span></div>
-      ${G.hull<HULL_MAX?`<button class="buy" data-r="1" ${G.gold<repairCost()?'aria-disabled="true"':''}>Repair 1 for ${repairCost()}</button>${all>1?`<button class="buy" data-r="all">Repair ${all} for ${all*repairCost()}</button>`:''}`:'<span class="soft">Fully repaired</span>'}</div>
-    <div class="offers fits">${S.fits.map((k,i)=>{if(!k)return`<div class="offer sold">Fitted</div>`;
-      const f=FITTINGS[k],old=fitIn(f.spot),ok=canEquip(k);
-      return`<div class="offer fit"><div class="o-top"><span class="o-icon plain">${fitGlyph(k)}</span><div><h3>${f.n}</h3><p class="o-meta">${SPOTS[f.spot]} fitting</p></div></div>
-        <p class="o-desc">${f.d}${old?` <span class="soft">Replaces your ${FITTINGS[old].n}, which sells for ${Math.floor(FITTINGS[old].p/2)}.</span>`:''}${ok?'':' <b>Needs a free hold slot first.</b>'}</p>
-        <button class="buy" data-fit="${i}" ${G.gold<f.p||!ok?'aria-disabled="true"':''}>Fit for ${f.p} gold</button></div>`}).join('')}</div></section>`;
-}
+/* the shipwright: a yard laid out like the market stall. The wright stands at their workbench with a speech bubble beside them;
+   on the bench are the fittings for sale and a mallet for hull repairs. Tap one and they tell you about it, with the button. */
+const REPAIRG='<path class="w" d="M3 19h24v6H3z"/><path d="M7 19v6M15 19v6M23 19v6" stroke-width="1.2"/><path class="w" d="M15 4h10v6H15z"/><path d="M20 10l-7 9" stroke-width="2.4"/>';
+function wrightHTML(S,id,anim){const wk=wrightOf(id),W=WRIGHTS[wk],all=repairable(),hurt=G.hull<HULL_MAX;
+  let sel=PV.wsel;if(sel==null||(sel!=='r'&&!S.fits[sel]))sel=S.fits.findIndex(Boolean);if(sel<0)sel='r';
+  const tag=t=>`<span class="ptag">${t}</span>`;
+  const goods=S.fits.map((k,i)=>{if(!k)return`<span class="good gone" aria-label="Fitted"><span class="o-icon"></span>${tag('fitted')}</span>`;
+      const f=FITTINGS[k];
+      return`<button class="good fitgood${i===sel?' sel':''}${anim?' in':''}" data-w="${i}" style="animation-delay:${i*70}ms" aria-label="${f.n}, ${f.p} gold${i===sel?', selected':''}"><span class="o-icon plain">${fitGlyph(k)}</span>${tag(`${sicon('gold')}${f.p}`)}</button>`}).join('')
+    +`<button class="good fitgood${sel==='r'?' sel':''}${anim?' in':''}" data-w="r" style="animation-delay:${S.fits.length*70}ms" aria-label="Hull repairs${sel==='r'?', selected':''}"><span class="o-icon plain"><svg viewBox="0 0 30 30" class="gl" aria-hidden="true">${REPAIRG}</svg></span>${tag(hurt?`${sicon('gold')}${repairCost()} each`:'sound')}</button>`;
+  let talk;
+  if(sel==='r'){
+    talk=`<div class="talk" id="talk"><p class="say">“${!hurt?W.full:G.gold<repairCost()?W.broke:W.repair}”</p>
+      <p class="who"><b>Hull repairs</b><span class="chipc">hull ${G.hull}/${HULL_MAX}</span></p>
+      ${hurt?`<div class="acts"><button class="buy" data-r="${all>1?'all':1}" ${all<1?'aria-disabled="true"':''}>Repair ${Math.max(1,all)} for ${Math.max(1,all)*repairCost()} gold</button>${all>1?`<button class="linkbtn" data-r="1">Just 1</button>`:''}</div>`:''}</div>`}
+  else{const k=S.fits[sel],f=FITTINGS[k],old=fitIn(f.spot),ok=canEquip(k),poor=G.gold<f.p;
+    talk=`<div class="talk" id="talk"><p class="say">“${!ok?W.slot:poor?W.broke:W.say[f.spot]}”</p>
+      <p class="who"><b>${f.n}</b><span class="chipc">${SPOTS[f.spot]}</span>${f.hp?`<span class="chipc">${f.hp>0?'+':'−'}${Math.abs(f.hp)} health</span>`:''}</p>
+      <p class="desc">${f.d}${old?` <span class="soft">Replaces your ${FITTINGS[old].n}, which sells for ${Math.floor(FITTINGS[old].p/2)}.</span>`:''}</p>
+      <button class="buy" data-fit="${sel}" ${poor||!ok?'aria-disabled="true"':''}>Fit for ${f.p} gold</button></div>`}
+  // the back wall: a pegboard of saws, mallets, coiled rope and planks, tiled so it fills any width
+  const tools=`<pattern id="tools" width="150" height="70" patternUnits="userSpaceOnUse"><g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 10h6v46h-6z"/><path d="M8 10h10M13 4v6" fill="none"/>
+      <path d="M30 12h26l-4 14H30z"/><path d="M34 26v6M42 26v6M50 26v4" fill="none"/><path d="M28 12h-6v8h6" fill="none"/>
+      <circle cx="80" cy="30" r="15"/><circle cx="80" cy="30" r="9"/><path d="M80 15v-9" fill="none"/>
+      <path d="M108 8h14v10h-14z"/><path d="M115 18v40" fill="none"/>
+      <path d="M134 10l6 50M140 10l6 50" fill="none"/></g></pattern>`;
+  return`<section class="stallsec yardsec">
+    <div class="stall yard" id="stall">
+      <svg class="stallwall" aria-hidden="true"><defs>${tools}</defs>
+        <rect x="0" y="0" width="100%" height="30" fill="#000"/><path d="M0 9H4000M0 20H4000" stroke="#fff" stroke-width="1.4" stroke-dasharray="40 14"/>
+        <rect x="0" y="54" width="100%" height="70" fill="url(#tools)"/>
+        <rect x="0" y="136" width="100%" height="70" fill="url(#tools)" transform="translate(-74 0)"/></svg>
+      <h2 class="stallsign">${W.short}'s yard</h2>
+      <button class="ghost more" id="yourship">Your ship</button>
+      <div class="stalltop"><div class="seller" aria-label="${W.n}, the shipwright">${peep(W.look,'40 22 172 150')}</div>${talk}</div>
+      <div class="table bench"><div class="goods" id="goods" style="--n:${S.fits.length+1}">${goods}</div></div>
+    </div>
+  </section>`}

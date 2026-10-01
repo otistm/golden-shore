@@ -112,6 +112,36 @@ function pitch(sk,o){const P=SELLERS[sk],t=DEFS[o.k].tags,order=P.lean.concat(['
 /* stock for a stall: half of it leans to what the seller deals in */
 function stallItem(r,depth,sk,i){if(i<2){for(let n=0;n<14;n++){const it=randItem(r,depth);if(DEFS[it.k].tags.some(x=>SELLERS[sk].lean.includes(x)))return it}}
   return randItem(r,depth)}
+/* ---------- the shipwrights ----------
+   Like the sellers: Hock keeps the yard at Gullhaven, and three more travel, one per port, picked by voyage and port. spot is the
+   part of the ship they're best at (the first fitting on their bench is one for it, when there is one). say has a line per
+   fitting spot; repair, full, broke, out and slot cover the rest. */
+const WRIGHTS={
+  hock:{short:'Hock',n:'Hock',look:NPCS.hock.look,spot:'hull',
+    say:{hull:"Good timber, tight seams. She'll take a beating and ask for more.",sails:"Better canvas than you've got. Not hard, mind.",
+      guns:"Bolt this on and they'll hear you coming. That's the point.",head:'Every ship needs a face. Yours could use a better one.'},
+    repair:"Bring her round. I'll have those holes plugged by the tide.",full:'Hull is sound. Nothing for me to patch.',broke:'Wood costs money, captain. So do I.',
+    out:"That's all I had. Come back when the yard's restocked.",slot:'That boards up a slot in your hold. Sell something first, then come back.'},
+  nan:{short:'Nan',n:'Nan Keel',look:{body:'Sweater',head:'Medium Bangs 2',face:'Smile Teeth Gap'},spot:'sails',
+    say:{hull:'Sound as a bell. Knock on it. Go on.',sails:"Cut it myself. She'll fly like a gull with a grudge.",
+      guns:"Heavy, but she'll carry it. Most ships do, eventually.",head:'Carved her from a single log. Took all winter.'},
+    repair:"Holes? I love holes. Pay me and they're gone.",full:'Not a scratch on her. Lucky you.',broke:'Short a few coins? Sail careful, then.',
+    out:"Yard's empty. Everything's out on the water.",slot:'No room in your hold to board one up. Make a space first.'},
+  brann:{short:'Tor',n:'Tor Brann',look:{body:'Gym Shirt',head:'Cornrows 2',face:'Driven',beard:'Full 2'},spot:'guns',
+    say:{hull:'Thick hull, thick skin. Both help.',sails:'Sails. Fine. Faster to the fight.',
+      guns:"Now that's a fitting. Mind your ears.",head:"Pretty. Does it shoot? No. Sailors like them anyway."},
+    repair:'Patch the holes, then go and make some in someone else.',full:"She's whole. Go put holes in somebody else.",broke:'No coin, no iron.',
+    out:"Sold the lot. Should've come sooner.",slot:'Needs a free hold slot to board up. Clear one.'},
+  ishbel:{short:'Ishbel',n:'Old Ishbel',look:{body:'Coffee',head:'Bangs 2',face:'Old',acc:'Glasses 4'},spot:'head',
+    say:{hull:'The sea respects a sturdy keel. So do I.',sails:'Good wind lives in good canvas.',
+      guns:"Loud things. The sea doesn't like loud things. Still.",head:'Carved for luck. The sea notices these things.'},
+    repair:"Every hole's a story. Let me close a few.",full:"She's whole. The sea has been kind to you.",broke:'Gold first, luck after.',
+    out:'Nothing left on my slip, dear.',slot:"There's no room in your hold for the boards, dear."}};
+/* who keeps this port's yard: Hock at home, otherwise one of the travellers */
+function wrightOf(id){const S=G.shops[id];if(S&&S.wright)return S.wright;
+  const trav=Object.keys(WRIGHTS).filter(k=>k!=='hock');
+  const k=G.sea===0&&id===G.map.start?'hock':trav[ri(RNG(G.seed,'wrightwho',id),trav.length)];
+  if(S)S.wright=k;return k}
 const NPC_POOL=Object.keys(NPCS).filter(k=>!NPCS[k].lore&&!NPCS[k].quest);
 function talk(k,key,done,after){
   const N=NPCS[k];A.people=A.people||{};A.people[k]=1;saveA();setTimeout(()=>tip('people'),400);
