@@ -6,7 +6,7 @@ let G=null,B=null,raf=0,last=0,bump=null,fresh=false;
    RULES FOR CHANGES: never rename or remove a field; give new fields a default in migrateAtlas / VOYAGE_DEFAULTS;
    if a field's meaning changes, bump the schema number and convert old data in the migrate function. */
 const ATLAS_SCHEMA=1,VOYAGE_SCHEMA=1;
-const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null};
+const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null,renown:0,perks:null};
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
@@ -32,6 +32,14 @@ const fitHP=()=>G&&G.fit?Object.values(G.fit).reduce((a,k)=>a+(k&&FITTINGS[k].hp
 /* your hold's size: 10 slots, 9 with Double Planking */
 const holdCap=()=>hasF('planks')?9:10;
 const HULL_MAX=20,REPAIR=2;   // the shipwright repairs hull up to 20, 2 gold a point
+/* renown: win fights to earn it (threat 1, elite 2, boss 3). Each level lets you pick a perk. Resets every voyage. */
+const RENOWN=[3,7,12,18,25];
+const renownLvl=()=>RENOWN.filter(x=>(G.renown||0)>=x).length;
+const renownNext=()=>RENOWN.find(x=>(G.renown||0)<x);
+const perksOwed=()=>renownLvl()-(G.perks||[]).length;
+/* everything your perks add up to, read by the fight */
+function perkSum(){const o={tagRate:{},tagDmg:{}};((G&&G.perks)||[]).forEach(k=>{const fx=PERKS[k].fx;
+  for(const f in fx){if(f==='tagRate'||f==='tagDmg'){const[t,v]=fx[f];o[f][t]=(o[f][t]||0)+v}else o[f]=(o[f]||0)+fx[f]}});return o}
 /* fit a part. The one it replaces sells for half. */
 function equip(k){const f=FITTINGS[k],old=fitIn(f.spot);G.fit=Object.assign({hull:null,sails:null,guns:null,head:null},G.fit);
   let back=0;if(old){back=Math.floor(FITTINGS[old].p/2);G.gold+=back}

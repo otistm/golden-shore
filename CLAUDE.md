@@ -59,6 +59,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - `npm run voyage`: a bot plays full voyages at phone size and fails on any error.
    - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
    - `npm run sim:fits`: the same, once per fitting, compared with no fitting.
+   - `npm run sim:perks`: the same for each renown perk, on its own ship.
    - `voyage` and `sim` share `tools/browser.mjs`. They use `CHROMIUM_PATH` if set, then Playwright's own Chromium, then the installed Chrome or Edge, so they run on Windows and Mac with no browser download.
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
@@ -79,6 +80,11 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - The player's hold size is `holdCap()`, never a literal 10.
 - Losing a fight you survive removes one fitting (`loseFit()` in battle.js, seeded by voyage, stop and day).
 - After adding or changing a fitting, run `npm run sim:fits`. It prints each fitting's win rate against having none. Differences under about 3 points are noise.
+
+## Renown and perks
+- `PERKS` in world.js: 10 per ship, each with text and an `fx` object. `perkSum()` (state.js) adds them up into `B.pk` when a fight is set up, and the fight reads `B.pk` (the field list is at the top of `PERKS`). A new kind of perk effect needs a hook in battle.js like the others.
+- Renown per win: threat 1, elite 2, boss 3 (`end()` in battle.js). Levels at `RENOWN` in state.js. `perkPick()` runs before spoils or the next sea while `perksOwed()` is above 0. Offers are seeded by voyage, ship and level.
+- After changing a perk, run `npm run sim:perks`. Differences under about 4 points are noise. Gold and hull perks show about 0 there, which is expected.
 
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
