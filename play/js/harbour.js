@@ -2,11 +2,17 @@
    Docks, market, tavern and shipwright stand along one quay. What each place has for you is drawn into the scene:
    goods on the market counter, faces in the tavern windows, a chalk notice at the shipwright, someone waiting on the pier. */
 "use strict";
-const HW=1280,HH=320;                    // the world, in drawing units
+const HW=1280,HH=320;
+const HCALM=matchMedia('(prefers-reduced-motion: reduce)').matches;   // no wingbeats for players who asked for less motion                    // the world, in drawing units
 const HSTOPS=[['docks','Docks',130],['market','Market',400],['tavern','Tavern',715],['wright','Shipwright',1110]];
 /* small ink helpers */
-const hCloud=(x,y,s)=>`<path class="w" transform="translate(${x} ${y}) scale(${s})" d="M0 0c-2-8 8-12 13-7 3-9 17-10 21-1 6-4 14 0 13 7 6 1 6 9-1 9H1c-6 0-7-7-1-8z"/>`;
-const hGull=(x,y,d)=>`<g transform="translate(${x} ${y})"><path class="gull" style="animation-delay:${d}s" d="M-7 0q3.5-4 7 0q3.5-4 7 0" stroke-width="1.6"/></g>`;
+/* a cloud drifting right across the whole sky and round again; dur in seconds, starting where it's drawn */
+const hCloud=(x,y,s,dur)=>{dur=dur||150;const lap=HW+260,d=-((x+130)/lap)*dur;
+  return`<g class="hcloud" style="animation-duration:${dur}s;animation-delay:${d.toFixed(1)}s"><path class="w" transform="translate(0 ${y}) scale(${s})" d="M0 0c-2-8 8-12 13-7 3-9 17-10 21-1 6-4 14 0 13 7 6 1 6 9-1 9H1c-6 0-7-7-1-8z"/></g>`};
+/* a gull flying across the sky: x where it starts, y its height, dur the crossing in seconds, flap the wingbeat */
+const hGull=(x,y,dur,flap,s)=>{const lap=HW+120,d=-((x+60)/lap)*dur;
+  return`<g transform="translate(0 ${y}) scale(${s||1})"><g class="hgull" style="animation-duration:${dur}s;animation-delay:${d.toFixed(1)}s"><g class="hglide" style="animation-delay:${(d/3).toFixed(1)}s">
+    <path d="M-8 0q4-5 8 0q4-5 8 0" stroke-width="1.7">${HCALM?'':`<animate attributeName="d" dur="${flap}s" repeatCount="indefinite" values="M-8 0q4-5 8 0q4-5 8 0;M-8 3q4-2 8-3q4 1 8 3;M-8 0q4-5 8 0q4-5 8 0;M-8 -4q4 1 8 4q4-3 8-4;M-8 0q4-5 8 0q4-5 8 0"/>`}</path></g></g></g>`};
 const hPlanks=(x,y,w,h,step)=>{let d='';for(let yy=y+step;yy<y+h-1;yy+=step)d+=`M${x} ${yy}h${w}`;return`<path d="${d}" stroke-width="1" opacity=".55"/>`};
 const hGrass=(x0,x1,y)=>{let d='';for(let x=x0;x<x1;x+=11+((x*7)%9)){d+=`M${x} ${y}l-2-6M${x+3} ${y}l1-8M${x+6} ${y}l3-5`}return`<path d="${d}" stroke-width="1.3"/>`};
 const hStones=(x0,x1,y0,y1)=>{let s='';const rows=Math.max(2,Math.floor((y1-y0)/12));
@@ -26,9 +32,9 @@ const hFace=(x,y)=>`<g><circle class="w" cx="${x}" cy="${y}" r="4.5" stroke-widt
 function harbourWorld(I){
   // sky, sea and quay
   let g=`<path class="hsun-rays" d="M90 0l140 150M140 0l130 130M200 0l100 100" stroke-width="10" opacity=".07"/>
-    <circle class="w" cx="120" cy="58" r="22" stroke-width="2.2"/><path d="M120 26v-10M120 90v10M88 58H78M152 58h10M97 35l-7-7M143 81l7 7M97 81l-7 7M143 35l7-7" stroke-width="1.8"/>
-    ${hCloud(250,60,1)}${hCloud(470,26,1.1)}${hCloud(820,74,.9)}${hCloud(1040,46,1.2)}${hCloud(1210,82,.8)}
-    <g class="gulls">${hGull(330,84,0)}${hGull(352,94,.4)}${hGull(960,64,.8)}${hGull(1180,110,.2)}</g>
+    <g class="hrays"><path d="M120 26v-10M120 90v10M88 58H78M152 58h10M97 35l-7-7M143 81l7 7M97 81l-7 7M143 35l7-7" stroke-width="1.8"/></g><circle class="w" cx="120" cy="58" r="22" stroke-width="2.2"/>
+    ${hCloud(250,60,1,170)}${hCloud(470,26,1.1,140)}${hCloud(820,74,.9,190)}${hCloud(1040,46,1.2,150)}${hCloud(1210,82,.8,210)}
+    <g class="gulls">${hGull(330,84,70,.9)}${hGull(356,96,74,.8,.85)}${hGull(960,64,58,1)}${hGull(1180,112,88,1.1,.8)}${hGull(700,40,64,.95,.9)}</g>
     <path d="M0 168H${HW}" stroke-width="1.4"/>
     <path class="w" d="M250 168c30-14 70-22 120-16s80 6 110 16z" stroke-width="1.3" opacity=".8"/><path d="M290 160l6-3M330 156l8-2M400 156l6 1" stroke-width="1" opacity=".6"/>
     <g opacity=".85"><path class="w" d="M168 168c4-8 34-8 40 0z" stroke-width="1.4"/><path class="w" d="M182 162l2-34h8l2 34z" stroke-width="1.4"/><path d="M183 140h10M183 150h10" stroke-width="1"/><path class="w" d="M181 128h14l-2-6h-10z" stroke-width="1.4"/><path class="hbeam" d="M195 124l26-6M181 124l-26-6" stroke-width="1.2" opacity=".5"/></g>

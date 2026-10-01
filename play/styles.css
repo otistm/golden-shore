@@ -792,8 +792,6 @@ details.crafts summary{font-weight:800;cursor:pointer}
 .hstop .hsign{transform-box:fill-box;transform-origin:50% 0;transition:transform .3s var(--spring)}
 .hstop:active .hsign{transform:rotate(-6deg)}
 @media (hover:hover) and (pointer:fine){.hstop:hover .hsign{transform:rotate(4deg) scale(1.06)}.hstop:hover .hsign rect{stroke-width:2.6}}
-.gull{animation:gull 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
-@keyframes gull{50%{transform:translateY(-4px) scaleY(.7)}}
 .smoke{animation:smoke 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
 @keyframes smoke{50%{transform:translate(3px,-3px) scale(1.05);opacity:.6}}
 .hflag{transform-box:fill-box;transform-origin:0 50%;animation:flap .7s ease-in-out infinite alternate}
@@ -809,8 +807,21 @@ details.crafts summary{font-weight:800;cursor:pointer}
 .hnav:active{transform:scale(1.08,.9)}
 .hnav[hidden]{display:none}
 @media (min-width:900px) and (min-height:560px){.hworld{height:clamp(300px,calc(100vh - var(--dock,230px) - 150px),560px)}}
-@media (prefers-reduced-motion:reduce){.gull,.smoke,.hflag,.hlamp,.hswing,.hboat,.hwaves path,.hwho .bob,.hbubble{animation:none!important}.hscroll{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.smoke,.hflag,.hlamp,.hswing,.hboat,.hwaves path,.hwho .bob,.hbubble{animation:none!important}.hscroll{scroll-behavior:auto}}
 .hbeam{animation:beam 3s ease-in-out infinite}@keyframes beam{50%{opacity:.1}}
 @media (prefers-reduced-motion:reduce){.hbeam{animation:none}}
 .hcat{transform-box:fill-box;transform-origin:50% 100%;animation:catb 4s ease-in-out infinite}@keyframes catb{50%{transform:scale(1.03,.97)}}
 @media (prefers-reduced-motion:reduce){.hcat{animation:none}}
+
+/* the harbour sky: clouds drift and wrap, gulls fly across flapping, the sun's rays turn and its beams shimmer */
+.hcloud{animation:hdrift 150s linear infinite}
+@keyframes hdrift{from{transform:translateX(-130px)}to{transform:translateX(1410px)}}
+.hgull{animation:hfly 70s linear infinite}
+@keyframes hfly{from{transform:translateX(-60px)}to{transform:translateX(1340px)}}
+.hglide{animation:hglide 9s ease-in-out infinite}
+@keyframes hglide{0%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}65%{transform:translateY(6px)}}
+.hrays{transform-box:view-box;transform-origin:120px 58px;animation:hrays 40s linear infinite}
+@keyframes hrays{to{transform:rotate(360deg)}}
+.hsun-rays{animation:hbeams 6s ease-in-out infinite}
+@keyframes hbeams{50%{opacity:.02}}
+@media (prefers-reduced-motion:reduce){.hcloud,.hgull,.hglide,.hrays,.hsun-rays{animation:none!important}}
