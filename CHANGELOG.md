@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.24.1
-- The little figure and its "!" speech bubble are gone from the pier in the harbour panorama. The Docks sign still shows a ! when someone is waiting to talk.
+- The little figure and its "!" speech bubble are gone from the pier in the harbour panorama. Once you're inside the port, the Docks button still shows a ! when someone is waiting to talk.
 
 ## 0.24.0
 - Sailing into a new sea plays like a film. Black letterbox bars close in, your ship drives across the screen through rolling swell and slanting rain, pitching and climbing every wave. Into the Fog Sea, banks of fog roll across it; into the Deep, the waves tower, the ship heaves harder and lightning splits the sky twice with the whole screen flashing. "Sea 2 of 3" and the sea's name slam onto the screen, then the bars close to black and you make port. Tap to skip; reduced motion shows just the title.
