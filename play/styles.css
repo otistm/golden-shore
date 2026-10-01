@@ -877,44 +877,41 @@ button.stat:active{transform:scale(1.06,.9)}
 /* phones: a tighter word at the bar so the hands stay in view above the hold */
 @media (max-width:520px){.talk{padding:12px;gap:8px}.talk .who{gap:4px 5px}.talk .who b{font-size:16px}.talk .who .chipc{padding:0 5px 0 3px}.talk .say{font-size:15px}.talk .terms{display:none}.tavern .m-head{margin-bottom:8px}}
 .portrait.ghost{border-style:dashed}
-/* the market stall: the seller at the back, their bubble hanging from their face, and the goods out on the table in front */
+/* the market stall: the seller behind the table with their bubble beside them, and the goods out on the table below */
 .stall{position:relative;border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
-.stallwall{position:absolute;left:0;top:0;width:100%;height:210px;pointer-events:none}
-.stallsign{position:absolute;z-index:3;left:50%;top:8px;transform:translateX(-50%) rotate(-2deg);margin:0;background:var(--paper);border:2.5px solid var(--ink);border-radius:8px;box-shadow:3px 3px 0 var(--ink);padding:2px 12px;font-size:17px;white-space:nowrap}
-.ghost.more{position:absolute;z-index:3;right:8px;top:42px;display:grid;justify-items:center;gap:1px;padding:5px 10px;font-size:12.5px;border-radius:12px;line-height:1.2}
+.stallwall{position:absolute;left:0;top:0;width:100%;height:200px;pointer-events:none}
+.stallsign{position:absolute;z-index:3;left:10px;top:7px;transform:rotate(-2deg);margin:0;background:var(--paper);border:2.5px solid var(--ink);border-radius:8px;box-shadow:3px 3px 0 var(--ink);padding:2px 12px;font-size:17px;white-space:nowrap}
+.ghost.more{position:absolute;z-index:3;right:10px;top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12.5px;border-radius:12px;line-height:1.2}
 .ghost.more .cost{display:inline-flex;align-items:center;gap:2px}
-.seller{position:relative;width:118px;height:105px;margin:6px auto 0;z-index:1}
+.stalltop{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:center;gap:16px;padding:46px 10px 0}
+.seller{flex:none;width:108px;height:94px}
 .seller svg{display:block;width:100%;height:100%}
-.stall .talk{position:relative;left:auto;top:auto;z-index:3;align-self:center;margin:-16px 10px 0;gap:6px;padding:10px 12px}
-.stall .talk .desc{width:0;min-width:100%;font-size:13px;line-height:1.35}
-.stall .talk .acts{display:flex;align-items:center;gap:14px}
-.stall .talk.quiet{transform:none;margin:-20px 16px 0;max-width:300px;text-align:center}
-.table{position:relative;z-index:2;margin-top:auto;padding-top:4px}
-.goods{position:relative;z-index:2;display:flex;justify-content:space-evenly;align-items:flex-end;padding:0 4px;margin-bottom:-18px}
-.tabletop{height:22px;border-top:3px solid var(--ink);border-bottom:2.5px solid var(--ink);background:var(--paper)}
-.tablefront{height:8px;background:var(--paper) repeating-linear-gradient(90deg,transparent 0 39px,rgba(0,0,0,.18) 39px 40px)}
-.good{position:relative;background:none;border:0;padding:0 0 12px;display:flex;flex-direction:column;align-items:center;cursor:pointer}
-.good .o-icon{width:58px;height:58px;padding:8px;border-radius:14px;background:var(--paper);transition:transform .35s var(--spring),translate .35s var(--spring)}
-.good .ptag{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);padding:0 7px 0 4px;font-weight:800;font-size:12.5px;line-height:20px;transition:translate .35s var(--spring)}
+.stall .talk{position:relative;left:auto;top:auto;flex:1 1 auto;width:auto;min-width:0;max-width:none;align-self:flex-end;margin:0 0 10px;gap:6px;padding:10px 12px}
+.stall .talk::before{top:auto;bottom:34px;left:-12px;border-top:0;border-bottom:2.5px solid var(--ink)}
+.stall .talk .say{font-size:14px}
+.stall .talk .who b{font-size:15.5px}
+.stall .talk .desc{width:0;min-width:100%;font-size:12.5px;line-height:1.35}
+.stall .talk .buy{padding:7px 12px;font-size:13.5px}
+.stall .talk.quiet{transform:none;text-align:left}
+.table{position:relative;z-index:2;flex:1;border-top:3px solid var(--ink);padding:16px 10px 10px;background:var(--paper) repeating-linear-gradient(180deg,transparent 0 27px,rgba(0,0,0,.14) 27px 28px)}
+.goods{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:640px;margin:0 auto}
+.good{position:relative;background:none;border:0;padding:0 0 12px;display:flex;flex-direction:column;align-items:stretch;cursor:pointer;min-width:0}
+.good .o-icon{width:100%;height:auto;aspect-ratio:1;padding:16%;border-radius:14px;background:var(--paper);transition:transform .35s var(--spring),translate .35s var(--spring)}
+.good .ptag{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);padding:0 8px 0 5px;font-weight:800;font-size:13px;line-height:22px;transition:translate .35s var(--spring)}
 .good .ptag .sic{width:13px;height:13px}
 .good.sel .o-icon,.good.sel .ptag{translate:0 -8px}
 .good.sel .ptag{background:var(--ink);color:var(--paper)}.good.sel .ptag .sic{stroke:var(--paper)}.good.sel .ptag .sic .w{fill:var(--ink)}
-.good.gone{cursor:default}.good.gone .o-icon{border:2px dashed var(--soft)}.good.gone .ptag{border-style:dashed;color:var(--soft);padding:0 7px}
+.good.gone{cursor:default}.good.gone .o-icon{border:2px dashed var(--soft)}.good.gone .ptag{border-style:dashed;color:var(--soft);padding:0 8px}
 .good.in{animation:pop-in .5s var(--spring) both}
 @media (hover:hover) and (pointer:fine){.good:not(.sel):not(.gone):hover .o-icon{transform:translateY(-5px)}}
-/* big screens: the seller stands left of centre and talks out to their right; the goods spread along a longer table */
 @media (min-width:900px) and (min-height:560px){
-  .stall{min-height:340px}
-  .stallsign{font-size:20px;top:10px}.ghost.more{right:14px;top:50px;font-size:14px;padding:7px 14px}
-  .seller{margin:22px 0 0}
-  .stall .talk{gap:8px;padding:14px 16px}
-  .stall .talk{position:absolute;margin:0}
-  .stall .talk::before{top:30px;left:-12px;border-top:0;border-bottom:2.5px solid var(--ink)}
-  .stall .talk .desc{font-size:14px}
-  .stall .talk.quiet{margin:0;text-align:left}
-  .goods{justify-content:center;gap:44px;margin-bottom:-22px}
-  .good{padding-bottom:14px}
-  .good .o-icon{width:96px;height:96px;padding:14px;border-radius:18px}
-  .good .ptag{font-size:14px;line-height:24px;padding:0 9px 0 6px}
-  .tabletop{height:34px}.tablefront{height:28px}}
+  .stallsign{font-size:20px;left:16px;top:8px}.ghost.more{right:16px;top:7px;font-size:14px;padding:6px 14px}
+  .stalltop{gap:22px;padding-top:50px}
+  .stall .talk{max-width:440px;padding:14px 16px;gap:8px;margin-bottom:24px}
+  .stall .talk::before{bottom:74px}
+  .stall .talk .say{font-size:16px}.stall .talk .who b{font-size:17px}.stall .talk .desc{font-size:14px}.stall .talk .buy{padding:8px 16px;font-size:14px}
+  .goods{gap:28px;max-width:600px}
+  body.desk .good .o-icon,.good .o-icon{width:100%;height:auto;padding:16%;border-radius:18px}
+  .good .ptag{font-size:14px;line-height:24px;padding:0 10px 0 6px}
+  .table{padding:22px 16px 18px}}
 @media (prefers-reduced-motion:reduce){.good .o-icon,.good .ptag{transition:none}}

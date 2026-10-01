@@ -58,7 +58,7 @@ function port(id,view){
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
     if(r==='locker')toast(`Hold full. Stowed the ${DEFS[o.k].n} in your locker.`);
     G.gold-=p;S.offers[i]=null;PV.msel=null;bump='gold';save();port(id,view);coach('bought')});
-  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{PV.msel=+b.dataset.g;port(id,view)});
+  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const i=+b.dataset.g;if(b.classList.contains('sel'))return itemSheet([S.offers[i]],0,'view',()=>{});PV.msel=i;port(id,view)});
   document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;if(G.tut&&G.tut.i>=TUT.length-1)return finishTutorial();
     const bare=!G.tut&&(!G.board.length||!(G.crew||[]).length);if(!bare)return chart();
     const ov=overlay(`<h2>Sail like this?</h2><p>${!G.board.length&&!(G.crew||[]).length?'Your hold is empty and nobody is aboard.':!G.board.length?'Your hold is empty. Nothing will fire in a fight.':'Nobody is aboard to work your cargo, so none of it will fire in a fight.'}</p>
@@ -88,9 +88,9 @@ function port(id,view){
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
   save();coach('port');tip('port');tip('crew');tip('wright');
 }
-/* the market: a seller's stall. The seller stands at the back and the day's goods sit out on the table in front; tap one and it
-   lifts while the seller tells you about it in a speech bubble from their mouth, with the Buy button. layStall() fits it to the room. */
-function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0),big=matchMedia(BIGSTALL).matches;
+/* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
+   out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. Tap it again for its sheet. */
+function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
   let sel=PV.msel;if(sel==null||!S.offers[sel])sel=S.offers.findIndex(Boolean);
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
@@ -101,7 +101,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
       <p class="who"><b>${d.n}</b><span class="chipc">${TIER[o.t]}</span><span class="chipc">size ${d.s}</span>${d.cd?`<span class="chipc">${d.cd}s</span>`:''}</p>
       <p class="desc">${describe([o],0).L.join(' ')}</p>
-      <div class="acts"><button class="buy${up?' up':''}" data-b="${sel}" ${poor?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button><button class="linkbtn" data-v="${sel}">Look closer</button></div></div>`}
+      <button class="buy${up?' up':''}" data-b="${sel}" ${poor?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}
   else talk=`<p class="talk quiet" id="talk">“${P.out}”</p>`;
   // the back wall: two shelves of crates, sacks, jars and barrels, drawn as tiles so it fills any width
   const shelf=`<pattern id="stock" width="132" height="58" patternUnits="userSpaceOnUse"><g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round">
@@ -112,30 +112,23 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   return`<section class="stallsec">
     <div class="stall" id="stall">
       <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#000"/><path d="M22 0h22v22q-11 12-22 0z" fill="#fff" stroke="#000" stroke-width="2"/></pattern></defs>
-        <rect x="0" y="70" width="100%" height="58" fill="url(#stock)"/><path d="M0 128.5H4000" stroke="#000" stroke-width="3"/>
-        <rect x="0" y="146" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 204.5H4000" stroke="#000" stroke-width="3"/>
+        <rect x="0" y="62" width="100%" height="58" fill="url(#stock)"/><path d="M0 120.5H4000" stroke="#000" stroke-width="3"/>
+        <rect x="0" y="138" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 196.5H4000" stroke="#000" stroke-width="3"/>
         <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>
       <h2 class="stallsign">${P.short}'s</h2>
       <button class="ghost more" id="reroll">Show me more<span class="cost">${hasC('route')&&G.freeRoll?'free':`${sicon('gold')}${rr}`}</span></button>
-      <div class="seller" aria-label="${P.n}, the seller">${peep(P.look,big?'38 22 176 156':'62 28 140 124')}</div>
-      ${talk}
-      <div class="table"><div class="goods" id="goods">${goods}</div><div class="tabletop"></div><div class="tablefront"></div></div>
+      <div class="stalltop"><div class="seller" aria-label="${P.n}, the seller">${peep(P.look,'40 22 172 150')}</div>${talk}</div>
+      <div class="table"><div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
-/* fit the stall to the room (down to the hold) and hang the seller's bubble from their mouth. BIGSTALL matches the CSS block for big screens. */
-const BIGSTALL='(min-width:900px) and (min-height:560px)';
+/* fit the stall to the room, down to the hold */
 function layStall(){const room=document.getElementById('stall');if(!room)return;
   const dock=app.querySelector('.dock'),top=room.getBoundingClientRect().top,dh=dock?dock.offsetHeight:0;
   room.style.minHeight=Math.max(300,Math.round(innerHeight-top-dh-14))+'px';
-  const big=matchMedia(BIGSTALL).matches,sel=room.querySelector('.seller'),talk=document.getElementById('talk');
-  if(big){// the seller grows into the space above the table, left of centre; the bubble comes out to their right
-    const th=room.querySelector('.table').offsetHeight,h=Math.round(Math.min(300,Math.max(170,room.clientHeight-th-40))),w=Math.round(h*176/156);
-    sel.style.height=h+'px';sel.style.width=w+'px';sel.style.marginLeft=`calc(32% - ${w/2}px)`;
-    if(!talk)return;const x=Math.round(sel.offsetLeft+w*.84);
-    talk.style.left=x+'px';talk.style.top=Math.round(sel.offsetTop+h*.2)+'px';talk.style.maxWidth=(room.clientWidth-x-14)+'px';return}
-  sel.style.cssText='';if(!talk)return;
-  // phones: the bubble hangs just under the seller's face, tail pointing up at them
-  talk.style.setProperty('--ax',Math.round(sel.offsetLeft+sel.offsetWidth*.55-talk.offsetLeft)+'px')}
+  // big screens: the seller fills the space the table leaves above it
+  const sel=room.querySelector('.seller');if(!matchMedia('(min-width:900px) and (min-height:560px)').matches){sel.style.cssText='';return}
+  const h=Math.round(Math.min(280,Math.max(140,room.clientHeight-room.querySelector('.goods').offsetHeight-44-54)));
+  sel.style.height=h+'px';sel.style.width=Math.round(h*172/150)+'px'}
 /* the tavern: everyone looking for work sits at the bar. Tap one to have a word; they make their pitch below. */
 /* the tavern: the bar scene fills the room. Everyone looking for work sits at the counter; tap one and a speech bubble
    floats over the scene just under them, pointing up, with their pitch and a Hire button. layBar() fits it all to the space. */

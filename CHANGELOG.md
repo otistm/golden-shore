@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.20.2
+- The market follows Otis's sketch: the seller stands behind the table in the top half with their speech bubble beside them, and the four goods sit large on the table in the bottom half. Tap a good to hear about it, tap it again to look closer.
+
 ## 0.20.1
 - The market's goods now sit out on a table at the front of the stall, bigger and clear of the seller, and the chosen one lifts with an inked price tag. The seller's speech bubble comes straight from them: just under their face on phones, beside it on big screens.
 
