@@ -82,16 +82,20 @@ function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv
     ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` <label class="when">Fires <select data-ord="${k}">${Object.entries(WHEN).map(([w,t])=>`<option value="${w}"${orderWhen(k)===w?' selected':''}>${t}</option>`).join('')}</select></label>`:''}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you make a captain\'s pick for this voyage: an order your crew carry out in fights, or a way of running the ship.</p>'}</div>`}
 const orderWhen=k=>(G.orders&&G.orders[k])||PERKS[k].when;
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
-  const ov=overlay(`<div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
+  // two columns on big screens (the ship and crew, then renown and fittings); on phones the columns melt away into one list
+  const ov=overlay(`<div class="shipcols"><div class="col">
+    <div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
     <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
     <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details>
+    </div><div class="col">
     ${renownHTML()}
     <h3 class="shead">Fittings</h3>
     <div class="fitlist">${fitRows()}</div>
     <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
-    <button class="primary" data-a="c">Close</button>`);
+    </div></div>
+    <button class="primary" data-a="c">Close</button>`,false,'shipsheet');
   ov.querySelectorAll('[data-ord]').forEach(s=>s.onchange=()=>{G.orders=Object.assign({},G.orders,{[s.dataset.ord]:s.value});save();toast(`${PERKS[s.dataset.ord].n} fires ${WHEN[s.value]}`)});
   ov.addEventListener('click',e=>{const d=e.target.closest('[data-dis]');if(d){const c=G.crew[+d.dataset.dis];
       if(d.dataset.sure){G.crew.splice(+d.dataset.dis,1);logL(`Let ${CREW[c.k].n} go.`);save();ov.remove();toast(`${CREW[c.k].n} leaves the ship`);if(app.querySelector('#leave'))port(G.at);else chart();return}

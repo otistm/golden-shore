@@ -941,3 +941,11 @@ button.stat:active{transform:scale(1.06,.9)}
 .crates .goods::-webkit-scrollbar{display:none}
 .crates .good{flex:0 0 calc((100% - 30px) / 4)}
 @media (min-width:900px) and (min-height:560px){.crates .goods{gap:28px;max-width:600px}.crates .good{flex-basis:calc((100% - 84px) / 4)}}
+/* the ship sheet: one list on phones, two columns on big screens (ship and crew | renown and fittings) */
+.shipcols,.shipcols>.col{display:contents}
+body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;border-radius:50%}
+@media (min-width:900px) and (min-height:560px){
+  .sheet.shipsheet{max-width:960px}
+  .shipcols{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;align-items:start}
+  .shipcols>.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .sheet.shipsheet>.primary{align-self:center;min-width:280px}}

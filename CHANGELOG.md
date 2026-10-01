@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.1
+- On big screens the ship card (tap your hull or Your ship) opens wide in two columns, the ship and crew on the left and renown and fittings on the right, so it all fits without scrolling. Crew portraits on it no longer overlap their names. Phones are unchanged.
+
 ## 0.22.0
 - The docks get the market's layout. A fishmonger stands on the pier in front of the sea with a speech bubble beside them, and your catch is laid out on their crates. Tap a fish to hear what they'll pay, then Sell, or sell the whole creel at once. The fish they want today wears a 2× mark.
 - Anyone else on the dock (a visitor, or Hock with his quest) waits as a face in the corner. Tap them and they step up to say their piece, with a Talk button.
