@@ -58,7 +58,7 @@ function port(id,view){
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
     if(r==='locker')toast(`Hold full. Stowed the ${DEFS[o.k].n} in your locker.`);
     G.gold-=p;S.offers[i]=null;PV.msel=null;bump='gold';save();port(id,view);coach('bought')});
-  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.g;if(b.classList.contains('sel'))return itemSheet([S.offers[i]],0,'view',()=>{});PV.msel=i;port(id,view)});
+  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.g;if(b.classList.contains('sel'))return;PV.msel=i;port(id,view)});
   document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;if(G.tut&&G.tut.i>=TUT.length-1)return finishTutorial();
     const bare=!G.tut&&(!G.board.length||!(G.crew||[]).length);if(!bare)return chart();
     const ov=overlay(`<h2>Sail like this?</h2><p>${!G.board.length&&!(G.crew||[]).length?'Your hold is empty and nobody is aboard.':!G.board.length?'Your hold is empty. Nothing will fire in a fight.':'Nobody is aboard to work your cargo, so none of it will fire in a fight.'}</p>
@@ -92,7 +92,7 @@ function port(id,view){
   save();coach('port');tip('port');tip('crew');tip('wright');
 }
 /* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
-   out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. Tap it again for its sheet. */
+   out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. */
 function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
   let sel=PV.msel;if(sel==null||!S.offers[sel])sel=S.offers.findIndex(Boolean);
   const o=sel>=0?S.offers[sel]:null;
