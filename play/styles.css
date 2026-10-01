@@ -872,3 +872,4 @@ button.stat:active{transform:scale(1.06,.9)}
 @media (hover:hover) and (pointer:fine){button.stat:hover,.logbtn:hover{transform:translateY(-2px)}}
 /* phones: a tighter word at the bar so the hands stay in view above the hold */
 @media (max-width:520px){.talk{padding:10px 12px;gap:5px}.talk .say{font-size:15px}.talk .terms{display:none}.tavern .m-head{margin-bottom:8px}}
+.portrait.ghost{border-style:dashed}

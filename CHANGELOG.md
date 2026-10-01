@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.19.0
+- Every character is now built from the Open Peeps set: all 21 crew, every person you meet at sea and on the docks, and Ansel the coach. Each one has their own hair or hat, face, clothes, facial hair and glasses or eyepatch, so the tavern, your crew strip and every conversation show real, different people. Ghosts (Wet Jack, the Second Cartographer) get a dashed ring. This replaces the hand-drawn hats, props and animals from 0.18.0.
+
 ## 0.18.0
 - Every crew member has their own look: hats (beanie, bandana, tricorn, peaked cap, helmet, hood, witch's hat, goggles), hair, faces, beards, clothes (stripes, waistcoat, coat, apron, robe, bandolier) and something in hand that says what they do, like the Fire-eater's flame, the Gunner's cannonball and the Sailmaker's needle. The Parrot and the Cormorant perch on their sailor's shoulder.
 
