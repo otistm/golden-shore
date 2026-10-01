@@ -3,12 +3,12 @@
 /* ---------- port ---------- */
 /* which part of the port you're looking at: the drawn harbour, or one of its buildings. Kept while you stay in the same port. */
 let PV={id:null,view:'harbour'};
-addEventListener('resize',()=>{if(document.getElementById('barroom'))layBar()});
+addEventListener('resize',()=>{if(document.getElementById('barroom'))layBar();if(document.getElementById('stall'))layStall()});
 const BLD={market:'Market',tavern:'Tavern',wright:'Shipwright',docks:'Docks'};
 function port(id,view){
   cancelAnimationFrame(raf);B=null;G.inPort=true;
   const n=node(id);
-  if(!G.shops[id]){const r=RNG(G.seed,'shop',id,G.shopVisit||0);G.shops[id]={offers:Array.from({length:4},()=>randItem(r,depthOf(n))),reroll:1};
+  if(!G.shops[id]){const r=RNG(G.seed,'shop',id,G.shopVisit||0),sk=sellerOf(id);G.shops[id]={seller:sk,offers:Array.from({length:4},(_,i)=>stallItem(r,depthOf(n),sk,i)),reroll:1};
     // the first port of a voyage stocks your ship's own gear and hands, so a bare ship can always be outfitted for its style
     if(!G.tut&&G.sea===0&&id===G.map.start&&G.path.length===1){const sh=SHIPS[G.ship];sh.start.forEach((x,i)=>G.shops[id].offers[i]={k:x.k,t:x.t});
       const pool=Object.keys(CREW).filter(k=>!(sh.crew||[]).includes(k));G.shops[id].tavern=(sh.crew||[]).concat(pool[ri(r,pool.length)])}
@@ -19,7 +19,7 @@ function port(id,view){
     const wg=payWages();if(wg)msg.push(wg);
     if(msg.length)setTimeout(()=>toast(msg.join('. ')),250)}
   const S=G.shops[id];
-  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null};
+  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null};
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;
   const vis=!G.hock&&n.row===0&&G.sea<=1?'hock':n.visitor;
@@ -32,14 +32,7 @@ function port(id,view){
   // the tavern's hires for this visit, seeded like the market
   if(!G.tut&&!S.tavern){const r=RNG(G.seed,'tavern',id,G.shopVisit||0),pool=Object.keys(CREW).filter(k=>!(G.crew||[]).some(c=>c.k===k));S.tavern=[];
     while(S.tavern.length<(hasP('recruiter')?4:3)&&pool.length)S.tavern.push(pool.splice(ri(r,pool.length),1)[0])}
-  const marketH=`  <section>
-    <div class="m-head"><h2 style="font-size:20px">Port market</h2><button class="ghost" id="reroll">${hasC('route')&&G.freeRoll?'Free reroll':`Reroll for ${rr}`}</button></div>
-    <div class="offers">${S.offers.map((o,i)=>{
-      if(!o)return`<div class="offer sold">Sold</div>`;
-      const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o);
-      return`<div class="offer${anim?' in':''}" style="animation-delay:${i*70}ms"><button class="o-top" data-v="${i}" style="background:none;border:0;padding:0;text-align:left"><span class="o-icon t${o.t}">${emb(o.k)}${icon(o.k)}${up?CHEV:''}</span><div><h3>${d.n}</h3><p class="o-meta"><span class="tierword">${TIER[o.t]}</span>, size ${d.s}${d.cd?`, ${d.cd}s`:''}</p></div></button><p class="o-desc">${describe([o],0).L.join(' ')}</p><button class="buy${up?' up':''}" data-b="${i}" ${G.gold<p?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}).join('')}</div>
-  </section>
-`;
+  const marketH=stallHTML(S,id,anim);
   const docksH=`  ${vis&&!S.talked?`<button class="visitor" id="visitor">${portrait(NPCS[vis].look)}<div><span class="soft">On the dock: ${NPCS[vis].role.toLowerCase()}</span><b>${NPCS[vis].n}</b></div><span class="talk">Talk</span></button>`:''}
   ${G.hock==='active'?`<button class="visitor quest" id="hockin">${portrait(NPCS.hock.look)}<div><span class="soft">Quest: three fish for Hock</span><b>Hock is on the dock</b></div><span class="talk">Talk</span></button>`:''}
   ${G.creel.length?`<section class="market"><div class="m-head"><h2 style="font-size:20px">Fish market</h2><button class="ghost" id="sellall">Sell all for ${G.creel.reduce((a,f)=>a+fishVal(f,f===S.demand?2:1),0)}</button></div>
@@ -52,19 +45,24 @@ function port(id,view){
       ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S)):(docksH.trim()?docksH:'<p class="soft dockempty">Nobody is on the dock today, and you have no fish to sell.</p>')}`;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   ${page}
-  ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers))}`;
-  bindBar();bindHold('port',()=>port(id,view));fitDock();
+  ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
+  // the market's goods drag straight off the table into the hold or locker, paying as they land
+  const buyInto=(i,tgt,dst)=>{const o=S.offers[i],p=buyP(o);if(G.gold<p){toast(`Need ${p-G.gold} more gold`);return null}
+    let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{tgt.list.splice(dst,0,{k:o.k,t:o.t});seen(o.k);at=dst}
+    G.gold-=p;S.offers[i]=null;PV.msel=null;bump='gold';save();setTimeout(()=>coach('bought'));return at};
+  bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
     if(hasC('route')&&G.freeRoll){G.freeRoll=false}
     else{if(G.gold<rr)return toast(`Need ${rr-G.gold} more gold`);G.gold-=rr;S.reroll++;bump='gold'}
-    S.offers=Array.from({length:4},()=>randItem(Math.random,depthOf(n)));fresh=true;save();port(id,view)};
+    S.offers=Array.from({length:4},(_,i)=>stallItem(Math.random,depthOf(n),sellerOf(id),i));PV.msel=null;fresh=true;save();port(id,view)};
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>itemSheet([S.offers[+b.dataset.v]],0,'view',()=>{}));
   app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,o=S.offers[i],p=buyP(o);
     if(G.gold<p)return toast(`Need ${p-G.gold} more gold`);
     const m=findMatch(o),r=addItem(o);if(!r)return toast(`No room for size ${DEFS[o.k].s}${G.locker?' in your hold or locker':''}. Sell something first.`);
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
     if(r==='locker')toast(`Hold full. Stowed the ${DEFS[o.k].n} in your locker.`);
-    G.gold-=p;S.offers[i]=null;bump='gold';save();port(id,view);coach('bought')});
+    G.gold-=p;S.offers[i]=null;PV.msel=null;bump='gold';save();port(id,view);coach('bought')});
+  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.g;if(b.classList.contains('sel'))return itemSheet([S.offers[i]],0,'view',()=>{});PV.msel=i;port(id,view)});
   document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;if(G.tut&&G.tut.i>=TUT.length-1)return finishTutorial();
     const bare=!G.tut&&(!G.board.length||!(G.crew||[]).length);if(!bare)return chart();
     const ov=overlay(`<h2>Sail like this?</h2><p>${!G.board.length&&!(G.crew||[]).length?'Your hold is empty and nobody is aboard.':!G.board.length?'Your hold is empty. Nothing will fire in a fight.':'Nobody is aboard to work your cargo, so none of it will fire in a fight.'}</p>
@@ -88,11 +86,53 @@ function port(id,view){
     G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view)});
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
+  if(view==='market'){layStall();requestAnimationFrame(layStall)}
   app.querySelectorAll('[data-sel]').forEach(b=>{const go=()=>{PV.tsel=+b.dataset.sel;port(id,view)};b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
   save();coach('port');tip('port');tip('crew');tip('wright');
 }
+/* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
+   out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. Tap it again for its sheet. */
+function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
+  let sel=PV.msel;if(sel==null||!S.offers[sel])sel=S.offers.findIndex(Boolean);
+  const o=sel>=0?S.offers[sel]:null;
+  const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
+    const d=DEFS[g.k],up=!!findMatch(g);
+    return`<button class="good${i===sel?' sel':''}${anim?' in':''}" data-g="${i}" style="animation-delay:${i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
+  let talk;
+  if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
+    talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
+      <p class="who"><b>${d.n}</b><span class="chipc">${TIER[o.t]}</span><span class="chipc">size ${d.s}</span>${d.cd?`<span class="chipc">${d.cd}s</span>`:''}</p>
+      <p class="desc">${describe([o],0).L.join(' ')}</p>
+      <button class="buy${up?' up':''}" data-b="${sel}" ${poor?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}
+  else talk=`<p class="talk quiet" id="talk">“${P.out}”</p>`;
+  // the back wall: two shelves of crates, sacks, jars and barrels, drawn as tiles so it fills any width
+  const shelf=`<pattern id="stock" width="132" height="58" patternUnits="userSpaceOnUse"><g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round">
+      <rect x="6" y="22" width="30" height="32"/><path d="M6 32h30M6 44h30" fill="none"/>
+      <path d="M44 54q-6-14 2-26q6-6 12 0q8 12 2 26z"/><path d="M47 30q5 3 10 0" fill="none"/>
+      <rect x="70" y="34" width="14" height="20" rx="3"/><rect x="73" y="28" width="8" height="6"/>
+      <path d="M92 54q-3-14 0-28h22q3 14 0 28z"/><path d="M91 34h24M91 46h24" fill="none"/></g></pattern>`;
+  return`<section class="stallsec">
+    <div class="stall" id="stall">
+      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#000"/><path d="M22 0h22v22q-11 12-22 0z" fill="#fff" stroke="#000" stroke-width="2"/></pattern></defs>
+        <rect x="0" y="62" width="100%" height="58" fill="url(#stock)"/><path d="M0 120.5H4000" stroke="#000" stroke-width="3"/>
+        <rect x="0" y="138" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 196.5H4000" stroke="#000" stroke-width="3"/>
+        <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>
+      <h2 class="stallsign">${P.short}'s</h2>
+      <button class="ghost more" id="reroll">Show me more<span class="cost">${hasC('route')&&G.freeRoll?'free':`${sicon('gold')}${rr}`}</span></button>
+      <div class="stalltop"><div class="seller" aria-label="${P.n}, the seller">${peep(P.look,'40 22 172 150')}</div>${talk}</div>
+      <div class="table"><div class="goods" id="goods">${goods}</div></div>
+    </div>
+  </section>`}
+/* fit the stall to the room, down to the hold */
+function layStall(){const room=document.getElementById('stall');if(!room)return;
+  const dock=app.querySelector('.dock'),top=room.getBoundingClientRect().top,dh=dock?dock.offsetHeight:0;
+  room.style.minHeight=Math.max(300,Math.round(innerHeight-top-dh-14))+'px';
+  // big screens: the seller fills the space the table leaves above it
+  const sel=room.querySelector('.seller');if(!matchMedia('(min-width:900px) and (min-height:560px)').matches){sel.style.cssText='';return}
+  const h=Math.round(Math.min(280,Math.max(140,room.clientHeight-room.querySelector('.goods').offsetHeight-44-54)));
+  sel.style.height=h+'px';sel.style.width=Math.round(h*172/150)+'px'}
 /* the tavern: everyone looking for work sits at the bar. Tap one to have a word; they make their pitch below. */
 /* the tavern: the bar scene fills the room. Everyone looking for work sits at the counter; tap one and a speech bubble
    floats over the scene just under them, pointing up, with their pitch and a Hire button. layBar() fits it all to the space. */

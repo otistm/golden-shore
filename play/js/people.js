@@ -66,6 +66,52 @@ NPCS.hock2={n:'Hock',role:'Shipwright',look:{body:'Polo and Sweater',head:'Short
   {l:'Pay him 20 gold instead',d:'Unlock the locker without fish.',need:()=>G.gold>=20,f:()=>{G.gold-=20;unlockLocker();return'Paid Hock 20 gold. He built me a locker below deck.'}},
   {l:'Not yet',d:G_fishHint(),f:()=>"Told Hock I'd be back with fish."}]};
 function G_fishHint(){return'Catch fish at fishing grounds, events, or with Old Marrow.'}
+/* ---------- the market's sellers ----------
+   A small cast who keep the market stalls. Marta is always at home in Gullhaven; the rest travel, and each port's stall is kept
+   by one of them, picked by voyage and port so two captains on one voyage code meet the same seller. lean is the cargo they tend
+   to stock (half the counter). say holds one pitch per kind of cargo, in their voice; up, broke and out cover the rest. */
+const SELLERS={
+  marta:{short:'Marta',n:'Marta Brine',look:{body:'Sweater',head:'Gray Medium',face:'Smile',acc:'Glasses 2'},lean:['F','T'],
+    out:"That's me cleaned out, love. Fair winds.",up:"You've one of these already. Put them together and it comes up a grade.",broke:"Come back when your purse is heavier, love.",
+    say:{F:"Fresh this morning. You'll fight better on a full stomach.",T:'Good honest tool. My late husband swore by these.',A:"Keeps the splinters out. I'd want one, out there.",
+      W:'Sharp end goes toward them, love. Mind your fingers.',C:'Heavy as sin and loud as thunder. Your crew will love it.',X:"Keep it away from the sails, that's all I ask.",
+      V:"Nasty stuff. Don't let me catch you using it on my gulls.",R:'Good canvas and good rope. Makes a ship sing.','*':"A bit of everything at Marta's."}},
+  gully:{short:'Gully',n:'Gully Fenn',look:{body:'Polo and Sweater',head:'Cornrows',face:'Smile Big',beard:'Moustache 8'},lean:['C','X'],
+    out:'Sold out! Come back with more gold and fewer questions.',up:'Ha! Bolt it onto the one you have. Twice the bang.',broke:"No gold, no boom. That's the rule.",
+    say:{C:"Hear that? That's the sound of their hull giving up.",X:'Light it, throw it, run. In that order.',W:"Bit quiet for my taste, but it'll do the job.",
+      A:'Armour is for people who expect to get hit. Fair enough.',F:'Eat something. Hungry gunners miss.',V:'Poison is slow. I like things that go bang. Still, it works.',
+      R:'Faster ship, more broadsides. Simple sums.',T:'Useful. Not loud, but useful.','*':'Everything here goes bang, or helps something go bang.'}},
+  vane:{short:'Sister Vane',n:'Sister Vane',look:{body:'Turtleneck',head:'Long Bangs',face:'Serious'},lean:['V'],
+    out:'The shelf is bare. The sea will provide again.',up:'A twin to the one you carry. Together they grow stronger.',broke:'Patience. Gold comes to those who survive.',
+    say:{V:'A drop is a kindness. Two drops is a lesson.',F:"Food heals. Most of it. I'd check.",X:'Fire is quick. I prefer things that take their time.',
+      W:'A blade is honest. I admire that.',C:"Loud. Crude. Effective, I'm told.",A:'Protection. Wise. Not everyone out there is as gentle as me.',
+      R:'The wind serves those who ask it nicely.',T:'A tool for careful hands.','*':'Everything on this counter has a purpose.'}},
+  odo:{short:'Odo',n:'Odo Crane',look:{body:'Killer',head:'Medium 2',face:'Cheeky',beard:'Goatee 2'},lean:['W'],
+    out:"Cleaned out. You didn't see me, I didn't sell you nothing.",up:'Matches the one in your hold. Funny, that. Must be fate.',broke:"Credit? Captain, I'm a fence, not a priest.",
+    say:{W:'Fell off a navy ship. Into my hands. Very careful fall.',C:"Don't ask where the rest of the battery went.",X:"Smells of smoke because it's honest, not because it's stolen.",
+      V:'Never touched it myself. Gloves, every time.',F:'Even crooks eat. Fresh, mostly.',A:"Last owner won't be needing it. Don't ask why.",
+      R:'Off a racing sloop. The owner was racing me at the time.',T:'Tools. Legit. Mostly.','*':"Everything's for sale. Some of it is even mine."}},
+  pell:{short:'Pell',n:'Pell Rigby',look:{body:'Button Shirt 1',head:'Twists 2',face:'Driven',acc:'Glasses 3'},lean:['R','T'],
+    out:'Shelves empty! Stock: none. Joy: also none.',up:'Oh, that pairs with yours. Snug fit. Lovely.',broke:'Short on coin? Tides turn. So will your luck.',
+    say:{R:"Rig this right and she'll fly. I tied the knots myself.",T:"Precision made. Well. Made. It's made.",W:"Balanced at the third rivet. You'll feel it.",
+      C:'Mind the recoil. Brace your rigging first.',X:'Fire near the rigging? Bold. I respect bold.',V:'Measured doses only. I wrote the label.',
+      F:'Ship biscuit. Breaks teeth, saves lives.',A:'Riveted, pegged and tested. Twice.','*':'Good gear makes a fast ship. Have a look.'}},
+  bruna:{short:'Bruna',n:'Bruna Hask',look:{body:'Fur Jacket',head:'Buns',face:'Serious'},lean:['A'],
+    out:'Nothing left. Go on, then.',up:'Same as the one you have. Stack them. Stronger.',broke:"Can't pay, can't have. Simple.",
+    say:{A:'Took a cannonball for me once. Still here. So am I.',W:'Heavy. Good. Light weapons are for show.',C:'Big gun. Brace your feet.',
+      X:'Fire is fine. Burns are not. Wear something.',V:"Coward's weapon. Works, though.",F:'Eat. Then fight.',
+      R:'Sails and ropes. Not my trade, but it is sound.',T:'Good iron in that.','*':'Built to last. Like me.'}}};
+/* who keeps this port's stall: Marta at home (and in the tutorial), otherwise one of the travellers */
+function sellerOf(id){const S=G.shops[id];if(S&&S.seller)return S.seller;
+  const trav=Object.keys(SELLERS).filter(k=>k!=='marta');
+  const k=G.tut||(G.sea===0&&id===G.map.start)?'marta':trav[ri(RNG(G.seed,'seller',id),trav.length)];
+  if(S)S.seller=k;return k}
+/* the seller's line for an item: their pitch for its kind of cargo, the kind they care about first */
+function pitch(sk,o){const P=SELLERS[sk],t=DEFS[o.k].tags,order=P.lean.concat(['C','X','V','F','A','R','T','W']);
+  const tag=order.find(x=>t.includes(x));return P.say[tag]||P.say['*']}
+/* stock for a stall: half of it leans to what the seller deals in */
+function stallItem(r,depth,sk,i){if(i<2){for(let n=0;n<14;n++){const it=randItem(r,depth);if(DEFS[it.k].tags.some(x=>SELLERS[sk].lean.includes(x)))return it}}
+  return randItem(r,depth)}
 const NPC_POOL=Object.keys(NPCS).filter(k=>!NPCS[k].lore&&!NPCS[k].quest);
 function talk(k,key,done,after){
   const N=NPCS[k];A.people=A.people||{};A.people[k]=1;saveA();setTimeout(()=>tip('people'),400);

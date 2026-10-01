@@ -4,7 +4,7 @@
    until: the event that moves on ('next' shows a Next button, 'finish' a Finish button). pause: holds the fight while it's shown. */
 const TUT=[
   {when:'port',until:'next',text:"Welcome aboard, cartographer. I'm Ansel. I keep the Gullhaven light, and I'll see you out of the harbour."},
-  {until:'bought',target:'.offers',text:"This is the port market. Buy something with a Buy button. You have enough gold for any of these."},
+  {until:'bought',target:'#stall',text:"This is Marta's stall. Tap something on her counter to hear about it, then Buy. You have enough gold for any of these."},
   {until:'moved',target:'.dock .board',skip:1,text:"It went into your hold. In a fight, each item fires on its own when it's charged. Drag an item to a new spot. Some items boost their neighbours."},
   {until:'chart',target:'#leave',text:"Good. When you're ready, tap Set sail."},
   {when:'chart',until:'fight',target:'.node.reach',text:"This is your chart. Fog hides what's far off. Tap the glowing mark to see what's there, then sail."},

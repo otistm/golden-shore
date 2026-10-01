@@ -102,6 +102,11 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - `migrateVoyage()` clears picks that no longer exist, so those players re-pick. Keep that.
 - After changing an order, run `npm run sim:perks`. Orders are measured on every ship; differences under about 5 points are noise.
 
+## The market stall
+- The market is a seller's stall (`stallHTML()` and `layStall()` in port.js): the top half is the seller with their speech bubble (`.talk`) beside them, the bottom half is the table with the 4 offers as large goods (`.good`, `data-g`). The bubble has their pitch and the Buy button for the chosen good (`PV.msel`); tapping the chosen good again opens its item sheet. Goods also drag into the hold or locker through `bindHold`'s `ext.from` (like spoils), paying on drop (`buyInto` in `port()`). On big screens `layStall()` sizes the seller to the space the table leaves.
+- Sellers are `SELLERS` in people.js: `short`, `n`, a peep `look`, `lean` (tags they stock: 2 of the 4 offers lean that way, via `stallItem()`), one pitch per cargo tag in `say`, and `up`, `broke`, `out` lines. `sellerOf(id)` picks one per port from the voyage seed (Marta at Gullhaven and in the tutorial) and stores it as `S.seller`.
+- The tutorial's market step targets `#stall`. The bot taps each `[data-g]` and then `.talk .buy`.
+
 ## The harbour
 - A port opens on the harbour scene in harbour.js: one wide ink panorama (`harbourWorld()`, `HW`×`HH` units) you scroll along, with places at `HSTOPS` positions and arrows that walk between them (`bindHarbour()`, which remembers the spot in `PV.hx`). Each place shows its state in the drawing (goods, faces at windows, chalk notices, a figure on the pier), not with badges. `port(id,view)` draws the harbour or one building; `PV` remembers the view while you stay, and `chart()` resets it. Re-renders inside a port must call `port(id,view)` so you stay put.
 - Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
