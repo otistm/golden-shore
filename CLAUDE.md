@@ -129,6 +129,9 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage.
 
+## The spoils chest
+- `chestReveal(cards,done)` in rewards.js plays when the spoils screen first appears: the chest (`CHEST`) drops in and rattles (CSS), opens with rays and a canvas of coins and jewels, then flies each spoil card out of it (`.spoil.flying` lifts them above the veil). `lootPick()` waits for it before the tutorial's `spoils` step. Its layer is `.chestfx`, not `.overlay`, so the bot and Esc ignore it.
+
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
 

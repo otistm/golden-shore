@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.0
+- Spoils are a spectacle. After a win a treasure chest drops onto the screen, squashes as it lands, rattles harder and harder, then bursts open: the lid flies back, ink rays spin out behind it, a shower of tumbling coins and jewels sprays up and rains down, and the spoils leap out of the chest one by one and land in their places. Tap to open it straight away, tap again to skip to the end. Reduced motion skips the show.
+
 ## 0.22.7
 - When you choose Sail here, your little boat sails along the route on the chart to the next stop, inking its wake behind it, turning to face the way it's heading, and settling above the stop before the next screen opens. With reduced motion it goes straight there.
 
