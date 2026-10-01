@@ -26,6 +26,7 @@ for (let run = 0; run < runs; run++) {
     else if (await q('#leave')) {
       // walk round the harbour: market, tavern and shipwright, buying what we can in each
       for (const bld of ['market', 'tavern', 'wright']) { if (await q('.overlay')) break; if (await click(`[data-bld="${bld}"]`)) await page.waitForTimeout(20);
+      for (let g = 0; g < 4; g++) if (await click(`[data-g="${g}"]`)) { await page.waitForTimeout(20); await click('.talk .buy:not([aria-disabled])'); await page.waitForTimeout(20); }
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; } }
       if (!(await q('.overlay'))) await click('#leave');
     } else {

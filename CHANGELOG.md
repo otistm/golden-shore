@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.0
+- The market is now a seller's stall. Someone stands behind the counter with the day's goods laid out in front of them. Tap a piece of cargo and it lifts off the counter while the seller tells you about it in a speech bubble, with its stats and the Buy button.
+- Six sellers with their own looks and voices: Marta Brine keeps the stall at Gullhaven, and Gully Fenn, Sister Vane, Odo Crane, Pell Rigby and Bruna Hask travel the seas. Each port's stall is kept by one of them (the same one for everyone on a voyage code), and they lean towards their trade: Gully stocks cannons and fire, Sister Vane poisons, Odo weapons, Pell rigging and tools, Bruna armour.
+- Reroll is now Show me more. If you can't afford something the seller says so, and if it would upgrade one of yours they tell you that too. A cleaned-out stall gets a goodbye line.
+
 ## 0.19.2
 - The tavern speech bubble grows a little wider when a long name and its crafts need it, so the craft chips always stay on one line next to the name and the bubble doesn't get taller.
 
