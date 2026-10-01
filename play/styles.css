@@ -916,3 +916,11 @@ button.stat:active{transform:scale(1.06,.9)}
   .good .ptag{font-size:14px;line-height:24px;padding:0 10px 0 6px}
   .table{padding:22px 16px 18px}}
 @media (prefers-reduced-motion:reduce){.good .o-icon,.good .ptag{transition:none}}
+/* the shipwright's yard: the market stall's layout, with a workbench of fittings and the repair mallet */
+.stall .talk .acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bench .goods{display:flex;justify-content:center;gap:10px}
+.bench .good{flex:0 0 calc((100% - 30px) / 4)}
+.fitgood .o-icon .gl{width:100%;height:100%;display:block;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.fitgood .o-icon .gl .w{fill:var(--paper)}.fitgood .o-icon .gl .k{fill:var(--ink);stroke:none}
+.yard .table{background:var(--paper) repeating-linear-gradient(180deg,transparent 0 21px,rgba(0,0,0,.14) 21px 22px)}
+@media (min-width:900px) and (min-height:560px){.bench .goods{gap:28px}.bench .good{flex-basis:calc((100% - 84px) / 4)}}

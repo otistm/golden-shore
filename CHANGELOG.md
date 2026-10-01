@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.0
+- The shipwright is now a yard laid out like the market. The wright stands at their workbench under a pegboard of tools with their speech bubble beside them, and the fittings for sale sit on the bench with a repair mallet. Tap one to hear about it. The mallet repairs your hull in one go, with a Just 1 option.
+- Four shipwrights: Hock keeps the yard at Gullhaven, and Nan Keel (sails), Tor Brann (guns) and Old Ishbel (figureheads) travel the seas. Each port's yard has one of them, and their speciality is always first on the bench.
+
 ## 0.20.3
 - Drag goods straight off the market table into your hold (or locker) to buy them. They land where you drop them and you pay as they land. Dropping one onto a matching item upgrades it, and if you can't afford it the seller's price stays on the table.
 
