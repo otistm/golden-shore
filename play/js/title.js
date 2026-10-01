@@ -2,10 +2,32 @@
 "use strict";
 /* ---------- title ---------- */
 const WAVE=`<svg class="waves" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 Q25 4 50 18 T100 18 T150 18 T200 18 T250 18 T300 18 T350 18 T400 18" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"/></svg>`;
-const SHIPART=`<svg class="ship" viewBox="0 0 120 110" aria-hidden="true"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">
-  <path d="M52 8v78M76 20v66" fill="none"/><path class="flag" d="M52 6l16 5-16 5z" fill="#000"/>
-  <path d="M54 14c16 6 20 24 16 44H54z"/><path d="M54 62c14 3 18 12 16 20H54z"/><path d="M78 24c14 8 16 22 12 36H78z"/>
-  <path d="M8 80h104l-12 20H24z"/><path d="M16 86h88" fill="none" stroke-width="1.4"/><circle cx="40" cy="92" r="2.4" fill="#000" stroke="none"/><circle cx="60" cy="92" r="2.4" fill="#000" stroke="none"/><circle cx="80" cy="92" r="2.4" fill="#000" stroke="none"/></g></svg>`;
+/* each ship drawn in ink, 120 by 110, waterline at the bottom. The flag group flaps on the title screen. */
+const SHIPDRAW={
+  sloop:`<path d="M60 8v72" fill="none"/><path class="flag" d="M60 6l15 4-15 4z" fill="#000"/>
+    <path d="M63 13c17 15 28 37 31 61H63z"/><path d="M57 17v55H24z"/><path d="M63 74h32" fill="none" stroke-width="2"/>
+    <path d="M14 78h92l-9 18H26z"/><path d="M14 78l-9-5" fill="none"/><path d="M20 85h80" fill="none" stroke-width="1.4"/>
+    <circle cx="48" cy="90" r="2.2" fill="#000" stroke="none"/><circle cx="68" cy="90" r="2.2" fill="#000" stroke="none"/>`,
+  galleon:`<path d="M30 14v58M58 6v66M86 16v56" fill="none"/><path class="flag" d="M58 4l15 4-15 4z" fill="#000"/>
+    <path d="M20 22q10-3 20 0v12q-10 3-20 0z"/><path d="M16 38q14-4 28 0v22q-14 4-28 0z"/>
+    <path d="M46 14q12-3 24 0v14q-12 3-24 0z"/><path d="M42 32q16-4 32 0v26q-16 4-32 0z"/>
+    <path d="M76 24q10-3 20 0v12q-10 3-20 0z"/><path d="M73 40q13-4 26 0v18q-13 4-26 0z"/>
+    <path d="M6 72h86l4-12h16v14l-10 24H24z"/><path d="M96 66h12M14 82h82" fill="none" stroke-width="1.4"/>
+    <rect x="22" y="86" width="7" height="5" fill="#000" stroke="none"/><rect x="38" y="86" width="7" height="5" fill="#000" stroke="none"/><rect x="54" y="86" width="7" height="5" fill="#000" stroke="none"/><rect x="70" y="86" width="7" height="5" fill="#000" stroke="none"/><rect x="86" y="86" width="7" height="5" fill="#000" stroke="none"/>`,
+  privateer:`<path d="M44 10v66M78 6v70" fill="none"/><path class="flag" d="M78 4c6 0 9 3 15 2-3 3-3 5 0 8-6 1-9-2-15-2z" fill="#000"/>
+    <path d="M30 20q14-4 28 0v14q-14 4-28 0z" fill="#000"/><path d="M26 38q18-5 36 0v24q-18 5-36 0z" fill="#000"/><path d="M30 49q14-3 28 0" fill="none" stroke="#fff" stroke-width="1.6"/>
+    <path d="M80 12l26 10v48H80z"/><path d="M80 40h26" fill="none" stroke-width="1.4"/>
+    <path d="M10 76h100l-10 20H22z"/><path d="M16 84h88" fill="none" stroke-width="1.4"/>
+    <rect x="24" y="86" width="10" height="5" fill="#000" stroke="none"/><rect x="50" y="86" width="10" height="5" fill="#000" stroke="none"/><rect x="76" y="86" width="10" height="5" fill="#000" stroke="none"/>
+    <path d="M10 76l-6-6" fill="none"/>`,
+  junk:`<path d="M46 8v66M84 20v54" fill="none"/><path class="flag" d="M46 6c4-3 10-3 14 0-4 3-10 3-14 0z" fill="#000"/>
+    <path d="M48 12l30 6 4 54H48z"/><path d="M48 21l31 4M48 30l32 4M48 39l32 4M48 48l33 3M48 57l33 3M48 66l33 2" fill="none" stroke-width="1.3"/>
+    <path d="M86 24l18 6 2 42H86z"/><path d="M86 33l19 4M86 42l19 4M86 51l20 3M86 60l20 3" fill="none" stroke-width="1.3"/>
+    <path d="M22 44l22-6v32H18z"/><path d="M20 52l24-4M19 61l25-3" fill="none" stroke-width="1.3"/>
+    <path d="M4 66c6 0 10 8 14 12h78c6-4 12-14 22-18l-4 20c-4 8-10 14-16 16H24C14 94 6 82 4 66z"/><path d="M18 84h82" fill="none" stroke-width="1.4"/>
+    <circle cx="96" cy="78" r="4" fill="#fff"/><path d="M96 74v8M92 78h8" fill="none" stroke-width="1.2"/>`
+};
+const shipArt=(k,cls)=>`<svg class="${cls||'shipart'}" viewBox="0 0 120 110" aria-hidden="true"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[k]||SHIPDRAW.sloop}</g></svg>`;
 const BOAT=`<svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></svg>`;
 const today=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const codeOf=seed=>seed.startsWith('D')?`Daily ${seed.slice(1)}`:seed;
@@ -13,7 +35,7 @@ function title(){
   cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
   app.innerHTML=`<section class="title">
-    <div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${SHIPART}${WAVE}</div>
+    <div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}</div>
     <h1>Ink Crossing</h1>
     <p class="tag">Chart the sea. Reach the far shore.</p>
     <div class="buttons">
@@ -59,7 +81,7 @@ function codeSheet(done){
 }
 function shipPick(seed){
   const ov=overlay(`<h2>Choose your ship</h2><div class="ships">${Object.entries(SHIPS).map(([k,s])=>{const ok=!s.ok||s.ok(A);
-    return`<button class="shipcard" data-s="${k}" ${ok?'':'disabled'}>${shipIcon(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} ${s.berths||3} crew berths. Gullhaven stocks her gear: ${s.start.map(x=>DEFS[x.k].n).join(' and ')}, and hands like the ${(s.crew||[]).map(k=>CREW[k].n).join(' and the ')}.`:s.lock}</span></div></button>`}).join('')}</div>
+    return`<button class="shipcard art" data-s="${k}" ${ok?'':'disabled'}>${shipArt(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} ${s.berths||3} crew berths. Gullhaven stocks her gear: ${s.start.map(x=>DEFS[x.k].n).join(' and ')}, and hands like the ${(s.crew||[]).map(k=>CREW[k].n).join(' and the ')}.`:s.lock}</span></div></button>`}).join('')}</div>
     <p class="seed">Voyage: ${codeOf(seed)}</p><button class="ghost" data-a="close">Back</button>`,false,'journal');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]')){ov.remove();return}
     const b=e.target.closest('[data-s]');if(!b||b.disabled)return;ov.remove();startVoyage(seed,b.dataset.s)});

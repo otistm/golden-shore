@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.0
+- Each ship has its own ink drawing: the Wren's single sail and jib, the Bulwark's three masts and gunports, the Ember's dark sails and flame pennant, and the Lotus's ribbed junk sails. They appear in the ship picker, on your ship card, on the captain's desk and in the Atlas.
+- The title screen shows the ship you're sailing.
+
 ## 0.13.0
 - Ports are a drawn harbour now. Tap the market, the tavern, the shipwright or the docks to go in. Each building wears a badge: how much is for sale or for hire, "!" when the hull needs work or someone is waiting on the dock.
 - Inside a building, a row of shortcuts takes you to the others or back to the harbour, and your hold stays docked below.

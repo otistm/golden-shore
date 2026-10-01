@@ -728,3 +728,15 @@ details.crafts summary{font-weight:800;cursor:pointer}
   .harbour{width:fit-content;max-width:100%}
   .harbour svg{width:auto;max-width:100%;height:clamp(280px,calc(100vh - var(--dock,230px) - 150px),640px)}
 }
+
+/* ship drawings */
+.shipart{display:block;width:100%;height:auto;overflow:visible}
+.shipcard.art{grid-template-columns:84px 1fr}
+.shipcard.art .shipart{width:84px;transition:transform .3s var(--spring);transform-origin:50% 90%}
+.shipcard.art:not([disabled]):not(.static):hover .shipart,.shipcard.art:not([disabled]):not(.static):focus-visible .shipart{transform:rotate(-4deg) scale(1.06,.96)}
+.shipcard.art[disabled] .shipart,.shipcard.static.locked .shipart{opacity:.35}
+.shipsheet-top .shipart{width:96px;flex:none}
+.desk-ship{grid-template-columns:76px 1fr}
+.desk-ship .shipart{width:76px}
+.ship .flag{transform-box:fill-box;transform-origin:0 50%}
+.shipcard.art .shipart,.shipsheet-top .shipart,.desk-ship .shipart{height:auto}
