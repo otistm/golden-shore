@@ -1021,3 +1021,36 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 @keyframes chpop{0%{transform:scale(1.12,.92)}40%{transform:translateY(-12px) scale(.94,1.12)}100%{transform:none}}
 @keyframes raysspin{to{rotate:360deg}}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
+/* the victory card: a stamped banner in a burst of ink, popping stars, gold counting up, lines dropping in one by one */
+.result.win{text-align:center;align-items:center;overflow:hidden}
+.vic-top{position:relative;display:grid;place-items:center;padding:24px 0 14px;width:100%}
+.vic-head{position:relative;z-index:1;font-size:46px;line-height:1;background:var(--ink);color:var(--paper);padding:6px 22px 10px;border-radius:14px;transform:rotate(-4deg);box-shadow:5px 5px 0 var(--paper),7px 7px 0 var(--ink);animation:stamp .55s .1s cubic-bezier(.2,1.6,.4,1) both}
+.vic-burst{position:absolute;left:50%;top:50%;width:240px;height:144px;margin:-72px 0 0 -120px;fill:none;stroke:var(--ink);stroke-width:3.4;stroke-linecap:round;animation:vburst .6s .35s ease-out both}
+.vic-star{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;fill:var(--paper);stroke:var(--ink);stroke-width:1.8;stroke-linejoin:round;transform:translate(var(--x),var(--y));animation:vstar .5s calc(.45s + var(--i) * 70ms) var(--spring) both}
+.vic-star:nth-of-type(odd){fill:var(--ink)}
+.vic-sub{font:italic 400 17px var(--display);animation:vline .4s .55s both}
+.vic-gold{display:inline-flex;align-items:center;gap:6px;justify-self:center;align-self:center;font:italic 900 28px var(--display);animation:vline .4s .6s both}
+.vic-gold .sic{width:26px;height:26px;stroke-width:1.4}
+.vic-gold b.bump{animation:bump .25s var(--spring)}
+.result.win .lines p{animation:vline .4s calc(1.4s + var(--i) * 160ms) both}
+.result.win #next{animation:vbtn .45s calc(1.6s + var(--i) * 160ms) var(--spring) both}
+@keyframes stamp{0%{transform:scale(2.4) rotate(-14deg);opacity:0}60%{transform:scale(.92) rotate(-3deg);opacity:1}100%{transform:rotate(-4deg)}}
+@keyframes vburst{0%{transform:scale(.4);opacity:0}40%{opacity:1}100%{transform:scale(1.15);opacity:.9}}
+@keyframes vstar{0%{transform:translate(0,0) scale(0) rotate(-90deg)}100%{transform:translate(var(--x),var(--y)) scale(1) rotate(0)}}
+@keyframes vline{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes vbtn{from{opacity:0;transform:scale(.7,1.2)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.vic-head,.vic-burst,.vic-star,.vic-sub,.vic-gold,.result.win .lines p,.result.win #next{animation:none}}
+/* something new in the hold: it drops in with a squash; an upgrade spins up big. An ink burst and a rising label mark it. */
+.item.gain{animation:gain .6s var(--spring)}
+.item.upgain{animation:upgain .75s var(--spring)}
+@keyframes gain{0%{transform:translateY(-26px) scale(.6,1.3);opacity:0}50%{transform:translateY(3px) scale(1.14,.86);opacity:1}75%{transform:scale(.96,1.04)}100%{transform:none}}
+@keyframes upgain{0%{transform:none}30%{transform:scale(1.32) rotate(-7deg)}55%{transform:scale(.9) rotate(3deg)}80%{transform:scale(1.04)}100%{transform:none}}
+.inkburst{position:fixed;z-index:70;width:100px;height:100px;margin:-50px 0 0 -50px;pointer-events:none}
+.inkburst.big{width:150px;height:150px;margin:-75px 0 0 -75px}
+.inkburst svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;animation:iburst .7s ease-out both}
+.inkburst .star{fill:var(--ink);stroke:none}
+@keyframes iburst{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.2);opacity:0}}
+.floatlbl{position:fixed;z-index:71;transform:translate(-50%,-100%);pointer-events:none;background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:1px 10px;font:italic 900 15px var(--display);white-space:nowrap;animation:floatup 1.2s ease-out both}
+.floatlbl.up{background:var(--ink);color:var(--paper);font-size:17px}
+@keyframes floatup{0%{transform:translate(-50%,-60%) scale(.6);opacity:0}20%{transform:translate(-50%,-110%) scale(1.08);opacity:1}70%{opacity:1}100%{transform:translate(-50%,-190%);opacity:0}}
+@media (prefers-reduced-motion:reduce){.item.gain,.item.upgain{animation:none}}

@@ -48,8 +48,20 @@ function itemSheet(list,i,mode,after){
   });
   ov.querySelector('[data-a="close"]').focus();
 }
+/* something just came aboard: it drops into its slot with an ink burst and a label rising off it ("New", or the tier it went up to) */
+function holdFlash(){if(!flash)return;const f=flash;flash=null;
+  for(const [side,list] of [['p',G.board],['l',G.locker||[]]]){const i=list.indexOf(f.ref);if(i<0)continue;
+    const el=app.querySelector(`.dock .board[data-side="${side}"] .item[data-i="${i}"]`);if(!el)return;
+    el.classList.add(f.kind==='up'?'upgain':'gain');
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,up=f.kind==='up';
+    const burst=document.createElement('div');burst.className='inkburst'+(up?' big':'');burst.style.left=cx+'px';burst.style.top=cy+'px';
+    burst.innerHTML=`<svg viewBox="-50 -50 100 100" aria-hidden="true">${Array.from({length:up?12:8},(_,k)=>{const a=k/(up?12:8)*Math.PI*2;return`<path d="M${Math.cos(a)*24} ${Math.sin(a)*24}L${Math.cos(a)*(k%2?36:44)} ${Math.sin(a)*(k%2?36:44)}"/>`}).join('')}${up?'<path class="star" d="M0-46l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>':''}</svg>`;
+    const tag=document.createElement('div');tag.className='floatlbl'+(up?' up':'');tag.textContent=up?`${TIER[f.ref.t]}!`:'New';tag.style.left=cx+'px';tag.style.top=r.top+'px';
+    document.body.append(burst,tag);const hw=tag.offsetWidth/2+6;tag.style.left=Math.max(hw,Math.min(innerWidth-hw,cx))+'px';   // keep the label on screen
+    setTimeout(()=>{burst.remove();tag.remove()},1300);return}}
 function bindHold(mode,rerender,ext){
-  dragHold(mode,rerender,ext);const cb=document.getElementById('crewbar');if(cb)cb.onclick=shipSheet;
+  dragHold(mode,rerender,ext);holdFlash();const cb=document.getElementById('crewbar');if(cb)cb.onclick=shipSheet;
   app.querySelectorAll('.dock .board[data-side="p"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.i;
     if(G.moving){if(i!==G.sel){const[it]=G.board.splice(G.sel,1);G.board.splice(i,0,it)}G.moving=false;G.sel=null;save();rerender();coach('moved')}
     else itemSheet(G.board,i,mode,rerender)});

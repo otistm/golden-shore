@@ -129,6 +129,10 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage.
 
+## Celebrations
+- Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses keep the plain result card.
+- Anything that puts an item in the hold or locker sets `flash={ref,kind}` (`addItem()` does it for you; direct inserts set it themselves). `bindHold()` calls `holdFlash()`, which plays the drop or upgrade on that tile with an ink burst and a rising label.
+
 ## The spoils chest
 - `chestReveal(cards,done)` in rewards.js plays when the spoils screen first appears: the chest (`CHEST`) drops in and rattles (CSS), opens with rays and a canvas of coins and jewels, then flies each spoil card out of it (`.spoil.flying` lifts them above the veil). `lootPick()` waits for it before the tutorial's `spoils` step. Its layer is `.chestfx`, not `.overlay`, so the bot and Esc ignore it.
 

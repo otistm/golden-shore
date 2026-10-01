@@ -85,7 +85,7 @@ function lootPick(n,done){
   const canBack=()=>taken!=null&&kind!=='up'&&aboard();
   const take=(i,tgt,dst)=>{const o=opts[i];
     if(findMatch(o)){addItem(o);kind='up';ref=null}
-    else if(tgt){ref={k:o.k,t:o.t};tgt.list.splice(dst,0,ref);seen(o.k);kind=tgt.side==='l'?'locker':'add'}
+    else if(tgt){ref={k:o.k,t:o.t};tgt.list.splice(dst,0,ref);seen(o.k);flash={ref,kind:'add'};kind=tgt.side==='l'?'locker':'add'}
     else{kind=addItem(o);if(!kind)return toast(`No room for size ${DEFS[o.k].s}. Sell something first.`);ref=kind==='up'?null:(kind==='locker'?G.locker:G.board).slice(-1)[0]}
     taken=i;save();return tgt&&kind!=='up'?dst:null};
   const putBack=()=>{for(const l of [G.board,G.locker||[]]){const k=l.indexOf(ref);if(k>=0)l.splice(k,1)}taken=ref=kind=null;save()};

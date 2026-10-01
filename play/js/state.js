@@ -145,11 +145,13 @@ const LOCK=6;
 function matchIdx(it){let j=-1;G.board.forEach((b,i)=>{if(b.k===it.k&&b.t<3&&it.t>=b.t&&(j<0||b.t>G.board[j].t))j=i});return j}
 function findMatch(it){let best=null;for(const list of [G.board,G.locker||[]])list.forEach((b,i)=>{if(b.k===it.k&&b.t<3&&it.t>=b.t&&(!best||b.t>best.list[best.i].t))best={list,i}});return best}
 function lockerUps(offers){const u=new Set();if(!G.locker)return u;offers.forEach(o=>{if(!o)return;if(matchIdx(o)>=0)return;const m=findMatch(o);if(m&&m.list===G.locker)u.add(m.i)});return u}
+/* the item that just came aboard (or was upgraded), so the hold can celebrate it the next time it's drawn (holdFlash in ui.js) */
+let flash=null;
 function addItem(it){
   const m=findMatch(it);
-  if(m){const b=m.list[m.i];b.t=Math.max(b.t+1,it.t);seen(it.k);return'up'}
-  if(used(G.board)+DEFS[it.k].s<=holdCap()){G.board.push({k:it.k,t:it.t});seen(it.k);return'add'}
-  if(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK){G.locker.push({k:it.k,t:it.t});seen(it.k);return'locker'}
+  if(m){const b=m.list[m.i];b.t=Math.max(b.t+1,it.t);seen(it.k);flash={ref:b,kind:'up'};return'up'}
+  if(used(G.board)+DEFS[it.k].s<=holdCap()){const b={k:it.k,t:it.t};G.board.push(b);seen(it.k);flash={ref:b,kind:'add'};return'add'}
+  if(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK){const b={k:it.k,t:it.t};G.locker.push(b);seen(it.k);flash={ref:b,kind:'add'};return'locker'}
   return false;
 }
 const fits=it=>!!findMatch(it)||used(G.board)+DEFS[it.k].s<=holdCap()||!!(G.locker&&used(G.locker)+DEFS[it.k].s<=LOCK);
