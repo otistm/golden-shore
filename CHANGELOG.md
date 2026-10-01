@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.2
+- The ship card on big screens is redesigned around the ship. Your ship is drawn large on the water as the centrepiece, with its four fittings (figurehead, hull, sails, guns) as cards pinned to the part of the ship they belong to; empty spots are dashed. The name, voyage and trait head the card with hull, hold, crew and renown as big numbers beside them, and your crew are mustered along the bottom next to your captain's picks. Phones keep the simple list.
+
 ## 0.22.1
 - On big screens the ship card (tap your hull or Your ship) opens wide in two columns, the ship and crew on the left and renown and fittings on the right, so it all fits without scrolling. Crew portraits on it no longer overlap their names. Phones are unchanged.
 

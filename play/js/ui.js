@@ -82,20 +82,62 @@ function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv
     ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` <label class="when">Fires <select data-ord="${k}">${Object.entries(WHEN).map(([w,t])=>`<option value="${w}"${orderWhen(k)===w?' selected':''}>${t}</option>`).join('')}</select></label>`:''}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you make a captain\'s pick for this voyage: an order your crew carry out in fights, or a way of running the ship.</p>'}</div>`}
 const orderWhen=k=>(G.orders&&G.orders[k])||PERKS[k].when;
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
-  // two columns on big screens (the ship and crew, then renown and fittings); on phones the columns melt away into one list
-  const ov=overlay(`<div class="shipcols"><div class="col">
-    <div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
+  if(matchMedia(SHIPWIDE).matches)return shipCard();
+  const ov=overlay(`<div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
     <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
     <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details>
-    </div><div class="col">
     ${renownHTML()}
     <h3 class="shead">Fittings</h3>
     <div class="fitlist">${fitRows()}</div>
     <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
-    </div></div>
-    <button class="primary" data-a="c">Close</button>`,false,'shipsheet');
+    <button class="primary" data-a="c">Close</button>`);
+  shipBind(ov)}
+/* big screens: the ship card is built for the space. The ship itself is the hero, drawn large on the water with its four fittings
+   pinned to the parts they belong to; its numbers sit along the top and the crew are mustered along the bottom. */
+const SHIPWIDE='(min-width:900px) and (min-height:620px)';
+// where each fitting spot sits on each ship's drawing (in its 120 by 110 frame)
+const SHIPSPOTS={sloop:{sails:[62,36],guns:[72,89],hull:[44,95],head:[12,77]},galleon:{sails:[60,40],guns:[46,88],hull:[66,98],head:[10,76]},
+  privateer:{sails:[34,40],guns:[46,89],hull:[64,96],head:[6,71]},junk:{sails:[64,40],guns:[76,88],hull:[44,99],head:[8,72]}};
+function shipCard(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait],cs=G.crew||[],edit=!!(app.querySelector('#leave')||app.querySelector('.map'));
+  const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv?RENOWN[lv-1]:0,pc=nx?Math.round((n-prev)/(nx-prev)*100):100;
+  const bar=p=>`<span class="sc-bar" aria-hidden="true"><i style="width:${p}%"></i></span>`;
+  const stat=(lbl,big,small,extra)=>`<div class="sc-stat"><span class="sc-lbl">${lbl}</span><b>${big}</b>${small?`<span class="soft">${small}</span>`:''}${extra||''}</div>`;
+  const callout=s=>{const k=fitIn(s),F=k&&FITTINGS[k];
+    return`<div class="sc-fit${k?'':' empty'}" data-spot="${s}"><span class="sc-lbl">${SPOTS[s]}</span>
+      <div class="sc-fithead">${k?fitGlyph(k):'<span class="fitnone" aria-hidden="true"></span>'}<b>${F?F.n:'Empty'}</b></div>
+      <p>${F?F.d:`Any port's shipwright can fit ${SPOTS[s].toLowerCase()==='figurehead'?'a figurehead':SPOTS[s].toLowerCase()==='guns'?'guns':`a ${SPOTS[s].toLowerCase()} fitting`}.`}</p></div>`};
+  const crew=cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx2=rankXP()[rk];
+      return`<div class="sc-hand"><span class="sc-face">${crewFace(c.k)}</span><div class="sc-who"><b>${C.n}</b><span class="sc-crafts">${crewCrafts1(c.k)}</span>
+        <span class="soft">Rank ${rk}${nx2!=null?`, ${nx2-c.xp} more win${nx2-c.xp===1?'':'s'} to rank ${rk+1}`:''}</span>
+        <span class="soft">Wage ${wageOf(c.k)}. Morale ${pips(c.m,3,'mor')}</span></div>${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')
+    +Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="sc-hand empty"><span class="sc-face"></span><div class="sc-who"><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('');
+  const picks=(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` <label class="when">Fires <select data-ord="${k}">${Object.entries(WHEN).map(([w,t])=>`<option value="${w}"${orderWhen(k)===w?' selected':''}>${t}</option>`).join('')}</select></label>`:''}</li>`).join('')}</ul>`
+    :'<p class="soft">Win fights to earn renown. Each level lets you make a captain\'s pick for this voyage.</p>';
+  const ov=overlay(`<button class="sc-x" data-a="c" aria-label="Close">${'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>'}</button>
+    <header class="sc-head"><div class="sc-title"><h2>${sh.n}</h2><p class="soft">${sh.type}, voyage ${codeOf(G.seed)}</p><p class="sc-trait"><b>${tr.n}.</b> ${tr.d()}</p></div>
+      <div class="sc-stats">${stat('Hull',`${G.hull}<small>/${HULL_MAX}</small>`,'',bar(Math.round(G.hull/HULL_MAX*100)))}${stat('Hold',holdCap(),'slots')}${stat('Crew',`${cs.length}<small>/${berths()}</small>`,'berths')}${stat('Renown',lv,nx?`${n} of ${nx}`:'top level',bar(pc))}</div></header>
+    <div class="sc-hero" id="schero">
+      <div class="sc-fits left">${callout('head')}${callout('hull')}</div>
+      <div class="sc-ship">${shipArt(G.ship,'sc-art')}<svg class="sc-waves" viewBox="0 0 240 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 8q10-7 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0"/><path d="M0 16q10-6 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" opacity=".45"/></svg></div>
+      <div class="sc-fits right">${callout('sails')}${callout('guns')}</div>
+      <svg class="sc-lines" aria-hidden="true"></svg>
+    </div>
+    <p class="sc-note soft">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
+    <div class="sc-foot"><section class="sc-crew"><h3 class="shead">Crew</h3><div class="sc-hands">${crew}</div>
+        <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details></section>
+      <section class="sc-picks"><h3 class="shead">Captain's picks</h3>${picks}</section></div>`,true,'shipview');
+  // leader lines from each fitting to its part of the ship, drawn once the card is laid out (and again if the window changes)
+  const lay=()=>{const hero=ov.querySelector('#schero');if(!hero)return;const svg=hero.querySelector('.sc-lines'),art=hero.querySelector('.sc-art'),H=hero.getBoundingClientRect(),A=art.getBoundingClientRect(),P=SHIPSPOTS[G.ship]||SHIPSPOTS.sloop;
+    svg.setAttribute('viewBox',`0 0 ${H.width} ${H.height}`);
+    svg.innerHTML=[...hero.querySelectorAll('.sc-fit')].map(el=>{const r=el.getBoundingClientRect(),[ax,ay]=P[el.dataset.spot],x=A.left-H.left+ax/120*A.width,y=A.top-H.top+ay/110*A.height,
+      left=el.parentElement.classList.contains('left'),sx=(left?r.right:r.left)-H.left,sy=r.top-H.top+22,mx=sx+(left?28:-28);
+      return`<path d="M${sx} ${sy}H${mx}L${x} ${y}"${el.classList.contains('empty')?' stroke-dasharray="4 4"':''}/><circle cx="${x}" cy="${y}" r="4.5"/>`}).join('')};
+  requestAnimationFrame(lay);addEventListener('resize',lay);
+  shipBind(ov)}
+/* the ship card's buttons: order triggers, dismissing crew, closing */
+function shipBind(ov){
   ov.querySelectorAll('[data-ord]').forEach(s=>s.onchange=()=>{G.orders=Object.assign({},G.orders,{[s.dataset.ord]:s.value});save();toast(`${PERKS[s.dataset.ord].n} fires ${WHEN[s.value]}`)});
   ov.addEventListener('click',e=>{const d=e.target.closest('[data-dis]');if(d){const c=G.crew[+d.dataset.dis];
       if(d.dataset.sure){G.crew.splice(+d.dataset.dis,1);logL(`Let ${CREW[c.k].n} go.`);save();ov.remove();toast(`${CREW[c.k].n} leaves the ship`);if(app.querySelector('#leave'))port(G.at);else chart();return}
