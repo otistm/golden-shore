@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.1
+- On phones, tall cards like your ship now scroll instead of running off the top of the screen.
+
 ## 0.8.0
 - Crafts: every ability on every item belongs to one of 7 crafts: Steel, Gunnery, Fire, Alchemy, Medicine, Carpentry and Seamanship. An ability only works if someone in your crew has its craft. Item cards show each ability's craft, and cross out the ones nobody aboard can work. Cargo nobody can use looks faded in your hold.
 - Crew live on their own deck now, not in the hold: 3 berths, or 4 on the Bulwark. Each ship starts with 2 crew who can work its starting cargo. The crew strip under your hold shows who's aboard; tap it to see their crafts, rank and morale.
