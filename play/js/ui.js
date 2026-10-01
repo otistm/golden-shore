@@ -45,11 +45,16 @@ function bindHold(mode,rerender,ext){
 /* ---------- your ship: trait and fittings ---------- */
 function fitRows(){return Object.keys(SPOTS).map(s=>{const k=fitIn(s);
   return`<div class="fitrow${k?'':' empty'}">${k?fitGlyph(k):'<span class="fitnone" aria-hidden="true"></span>'}<div><span class="soft">${SPOTS[s]}</span><b>${k?FITTINGS[k].n:'Empty'}</b>${k?`<span class="d">${FITTINGS[k].d}</span>`:''}</div></div>`}).join('')}
+function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv?RENOWN[lv-1]:0,pc=nx?Math.round((n-prev)/(nx-prev)*100):100;
+  return`<div class="renown"><div class="rn-head"><b>Renown ${lv}</b><span class="soft">${nx?`${n} of ${nx} to the next level`:`${n}, the top level`}</span></div>
+    <div class="rn-bar" aria-hidden="true"><span style="width:${pc}%"></span></div>
+    ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}.</b> ${PERKS[k].d}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you pick a perk for this voyage.</p>'}</div>`}
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
+    ${renownHTML()}
     <div class="fitlist">${fitRows()}</div>
-    <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
+    <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
     <button class="primary" data-a="c">Close</button>`);
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
 /* ---------- drag and drop: hold and locker ---------- */

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0
+- Renown: winning fights earns renown, 1 for a threat, 2 for an elite and 3 for a boss. At 3, 7, 12, 18 and 25 renown your ship levels up and you pick 1 of 3 perks for the rest of the voyage. Renown starts at zero every voyage.
+- Each ship has its own 10 perks that lean into its style: speed and crits for the Wren, shields and health for the Bulwark, cannons and burn for the Ember, healing and poison for the Lotus. Everyone on the same voyage is offered the same perks.
+- Your renown, progress to the next level and perks show on the ship card (tap your hull) and on the captain's desk.
+
+## 0.6.1
+- Losing a fight now tears away one of your fittings, as well as costing hull. The fight result says which one. Every captain on the same voyage loses the same one.
+
 ## 0.6.0
 - Fittings: your ship has 4 fitting spots, hull, sails, guns and figurehead. Each of the 16 fittings changes how you fight, with a trade-off. For example, Double Planking gives +40 health but boards up a hold slot, and the Gull figurehead gives +10% crit on all your damage for 10 less health.
 - A shipwright in every port sells 2 fittings and repairs hull for 2 gold a point, up to 20. A new fitting replaces the one in its spot, which sells for half.
