@@ -34,8 +34,7 @@ const codeOf=seed=>seed.startsWith('D')?`Daily ${seed.slice(1)}`:seed;
 function title(){
   cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
-  app.innerHTML=`<section class="title"><div class="brand">
-    <div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}</div>
+  app.innerHTML=`<section class="title"><div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}</div><div class="brand">
     <h1>Ink Crossing</h1>
     <p class="tag">Chart the sea. Reach the far shore.</p></div>
     <div class="way"><div class="buttons">
