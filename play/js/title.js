@@ -28,13 +28,15 @@ const SHIPDRAW={
     <circle cx="96" cy="78" r="4" fill="#fff"/><path d="M96 74v8M92 78h8" fill="none" stroke-width="1.2"/>`
 };
 const shipArt=(k,cls)=>`<svg class="${cls||'shipart'}" viewBox="0 0 120 110" aria-hidden="true"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[k]||SHIPDRAW.sloop}</g></svg>`;
+/* fish under the title's waves: three swim past at their own depth and speed, and one leaps now and then */
+const SEAFISH=()=>`<div class="seafish">${[['mackerel','sf1'],['sardine','sf2'],['snapper','sf3']].map(([k,c])=>`<span class="sfish ${c}">${fishSVG(k)}</span>`).join('')}<span class="sfish leap"><span>${fishSVG('sardine')}</span></span></div>`;
 const BOAT=`<svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></svg>`;
 const today=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const codeOf=seed=>seed.startsWith('D')?`Daily ${seed.slice(1)}`:seed;
 function title(){
   cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
-  app.innerHTML=`<section class="title"><div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}</div><div class="brand">
+  app.innerHTML=`<section class="title"><div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}${SEAFISH()}</div><div class="brand">
     <h1>Ink Crossing</h1>
     <p class="tag">Chart the sea. Reach the far shore.</p></div>
     <div class="way"><div class="buttons">

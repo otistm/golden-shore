@@ -3,7 +3,8 @@
 ## 0.15.0
 - On a computer, the title screen spreads out: your ship rides the water across the top of the screen, then the name and how to play sit on the left and the way in on the right, both centred so the name leads.
 - The front page does the same: the animated voyage large on the left, with the Play card beside it.
-- Phones look the same as before.
+- Fish swim under the title screen's waves, and every so often one leaps out of the water.
+- Phones look the same as before, apart from the fish.
 
 ## 0.14.0
 - Each ship has its own ink drawing: the Wren's single sail and jib, the Bulwark's three masts and gunports, the Ember's dark sails and flame pennant, and the Lotus's ribbed junk sails. They appear in the ship picker, on your ship card, on the captain's desk and in the Atlas.
