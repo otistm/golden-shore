@@ -714,7 +714,6 @@ details.crafts summary{font-weight:800;cursor:pointer}
 .bldnav::-webkit-scrollbar{display:none}
 .bldtab{flex:none;border:2px solid var(--ink);background:var(--paper);border-radius:999px;padding:5px 12px;font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;gap:5px}
 .bldtab.on{background:var(--ink);color:var(--paper)}
-.bldtab.back{margin-left:auto;border-style:dashed}
 .bdg{min-width:17px;height:17px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:11px;display:inline-grid;place-items:center;padding:0 4px}
 .bldtab.on .bdg{background:var(--paper);color:var(--ink)}
 .dockempty{margin:18px 4px;font-size:14.5px}
@@ -723,7 +722,6 @@ details.crafts summary{font-weight:800;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.hbdg,.hwater path{animation:none}}
 .bldnav{flex-wrap:wrap;overflow:visible;gap:5px}
 .bldtab{padding:4px 9px;font-size:12.5px}
-.bldtab.back{margin-left:0}
 @media (min-width:900px) and (min-height:560px){
   .harbour{width:fit-content;max-width:100%}
   .harbour svg{width:auto;max-width:100%;height:clamp(280px,calc(100vh - var(--dock,230px) - 150px),640px)}
@@ -826,23 +824,53 @@ details.crafts summary{font-weight:800;cursor:pointer}
 @keyframes hbeams{50%{opacity:.02}}
 @media (prefers-reduced-motion:reduce){.hcloud,.hgull,.hglide,.hrays,.hsun-rays{animation:none!important}}
 
-/* the tavern bar: hands seated at the counter, a word with whoever you pick */
-.bar{border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);overflow:hidden}
-.barscene{display:block;width:100%;height:auto;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* the tavern bar: the counter runs the full width, the hands sit in the middle, and the one you're talking to speaks from above */
+.barroom{container-type:inline-size;--bh:min(var(--bmax),calc(100cqw * 320 / var(--pw)))}
+.barroom{--bmax:250px}
+.barview{border:2.5px solid var(--ink);border-radius:18px;background:var(--paper);overflow:hidden}
+.barscene{display:block;width:100%;height:var(--bh);fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .barscene .w{fill:var(--paper)}.barscene .hit{fill:transparent;stroke:none}
 .barscene text{stroke:none}
 .patron{cursor:pointer;outline:none}
 .patron .bust{transition:transform .35s var(--spring)}
 .patron:focus-visible .hit{stroke:var(--ink);stroke-width:3;stroke-dasharray:8 8}
 @media (hover:hover) and (pointer:fine){.patron:not(.sel):hover .bust{transform:translateY(-6px)}}
-.talk{position:relative;margin-top:16px}
+.talk{position:relative;margin-bottom:16px}
 .talk .bubble{position:relative;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 var(--ink);background:var(--paper);padding:14px 16px;display:grid;gap:8px;animation:pop-in .4s var(--spring) both}
-.talk .bubble::before{content:"";position:absolute;top:-13px;left:calc(var(--tail) - 11px);width:20px;height:20px;background:var(--paper);border-left:2.5px solid var(--ink);border-top:2.5px solid var(--ink);transform:rotate(45deg)}
+.talk .bubble::after{content:"";position:absolute;bottom:-13px;left:calc(50% + var(--off) * var(--bh) / 320 - 11px);width:20px;height:20px;background:var(--paper);border-right:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg)}
 .talk .say{font:italic 400 18px/1.35 var(--display)}
 .talk .who{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 .talk .who b{font:italic 900 18px var(--display);margin-right:4px}
 .talk .terms{font-size:13.5px;color:var(--soft)}
 .talk .terms b{color:var(--ink)}
 .talk .buy{justify-self:start;padding:10px 18px;font-size:15px}
-@media (min-width:900px) and (min-height:560px){.bar{max-width:560px;margin:0 auto}.talk{max-width:620px;margin:16px auto 0}}
+@media (min-width:900px) and (min-height:560px){.barroom{--bmax:clamp(180px,calc(100vh - var(--dock,230px) - 430px),300px)}}
 @media (prefers-reduced-motion:reduce){.talk .bubble{animation:none}}
+.bldtab{min-height:32px}
+.bldtab.back::before{content:"‹";font:900 17px/1 var(--display);margin-right:1px}
+
+/* the top strip: chips with small ink icons, the log and pause on the right */
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-bottom:14px}
+.bar .stats{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.bar .acts{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
+.stat{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 10px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);font:800 12px var(--ui);white-space:nowrap}
+.stat b{font:italic 900 17px/1 var(--display)}
+.stat small{font:800 11.5px var(--ui);color:var(--soft)}
+.stat.day{background:var(--ink);color:var(--paper);font:italic 400 14px var(--display)}
+.stat.day b{font-size:18px}
+button.stat{cursor:pointer;transition:transform .22s var(--spring)}
+button.stat:active{transform:scale(1.06,.9)}
+.stat.bump b{display:inline-block;animation:bump .45s var(--spring)}
+.sic{width:16px;height:16px;flex:none;fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sic .w{fill:var(--paper)}.sic .k{fill:var(--ink);stroke:none}
+.hullst .sic{fill:var(--ink);stroke:none;width:14px;height:14px}
+.hmeter{width:30px;height:8px;border:1.6px solid var(--ink);border-radius:5px;overflow:hidden;display:inline-block;margin-left:2px}
+.hmeter i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--ink) 0 1.6px,var(--paper) 1.6px 3.6px);border-right:1.6px solid var(--ink)}
+.logbtn{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 12px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);font:800 13px var(--ui);color:var(--ink);transition:transform .22s var(--spring)}
+.logbtn:active{transform:scale(1.06,.9)}
+.bar .pausebtn{margin-left:0}
+/* phones: icons and numbers only, so the strip fits on one line */
+@media (max-width:520px){.stat small,.hmeter,.logbtn span{display:none}.stat{padding:0 8px}.logbtn{width:34px;padding:0;justify-content:center}}
+@media (hover:hover) and (pointer:fine){button.stat:hover,.logbtn:hover{transform:translateY(-2px)}}
+/* phones: a tighter word at the bar so the hands stay in view above the hold */
+@media (max-width:520px){.talk{margin-bottom:12px}.talk .bubble{padding:10px 12px;gap:6px}.talk .say{font-size:16px}.talk .terms{display:none}.talk .buy{padding:8px 14px;font-size:14px}.tavern .m-head{margin-bottom:8px}}

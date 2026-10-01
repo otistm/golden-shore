@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.17.2
+- The top strip is redesigned: day, gold, hull and your catch sit in matching chips with small ink icons, with a hull gauge, and the log and pause buttons on the right. On phones the chips show icons and numbers so they fit on one line.
+- The tavern bar runs the full width of the screen, with the bar and its shelves stretching to the edges and the hands seated in the middle. The speech bubble now sits above the bar, pointing down at whoever you're talking to, so the bar can be shorter.
+- The Harbour shortcut matches the other place buttons.
+
 ## 0.17.1
 - The tavern is a bar now. Everyone looking for work sits at the counter, shown in full, with a mug in front of them. Tap someone to have a word: they lean in and make their pitch in a speech bubble, with their crafts, wage and a Hire button below. Hired hands leave an empty stool and a tipped-over mug.
 - Every hire has their own line, from the Fencing Master's "Steel is a conversation" to the Powder Monkey who has only set himself on fire twice.
