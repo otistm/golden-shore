@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.2
+- Losing a fight gets its own card: a "Defeat" sign drops in, swings from a single nail and settles crooked, a crack inks across it, and rain falls behind it. If your ship goes down the sign reads "Sunk" and bubbles rise instead. The details and the button follow it in.
+
 ## 0.23.1
 - Winning a fight gets a victory card: a black "Victory!" banner stamps down in a burst of ink with stars popping around it, the gold you won counts up, and the rest (rank-ups, renown, the way on) drops in line by line before the button arrives.
 - New cargo celebrates arriving: it drops into its slot with a squash, an ink burst and a "New" label floating off it. An upgrade spins up big with a star burst and its new tier ("Silver!", "Gold!") rising above it. This plays however the item arrives: buying, dragging off the market table, spoils, events and people.

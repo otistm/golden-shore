@@ -216,7 +216,7 @@ function end(win){
     lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Pick a perk.`:''}`);
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}
   save();
-  setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):overlay(`<h2>${head}</h2><div class="lines">${lines.map(l=>`<p>${l}</p>`).join('')}</div><button class="primary" id="next">${btn}</button>`,true,'result');
+  setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):defeatCard(head,lines,btn,G.hull<=0);
     const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()}},B.quiet?50:750);
 }
 /* the victory card: a "Victory!" banner stamps down in a burst of ink, stars pop around it, the gold counts up, and each line
@@ -233,6 +233,15 @@ function victoryCard(head,lines,btn){const g=lines[0].match(/^\+(\d+) gold\.$/),
     if(still)el.textContent=to;else{const t0=performance.now()+650,T=Math.min(900,300+to*40);
       const tick=now=>{const k=Math.max(0,Math.min(1,(now-t0)/T)),v=Math.round(to*(1-Math.pow(1-k,3)));if(el.textContent!==String(v)){el.textContent=v;squish(el.parentElement,'bump')}if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}}
   return ov}
+/* the defeat card: a "Defeat" sign falls in and swings from one nail before settling crooked, a crack inks across it and rain
+   falls behind; if the ship went down it reads "Sunk" and bubbles rise instead. The lines and button follow it in. */
+function defeatCard(head,lines,btn,sunk){
+  const drops=Array.from({length:sunk?9:14},(_,i)=>`<i style="--x:${(i*37+11)%100}%;--d:${((i*53)%17)/10}s;--s:${.9+((i*29)%7)/10}s"></i>`).join('');
+  return overlay(`<div class="def-top${sunk?' sunk':''}"><div class="def-fx" aria-hidden="true">${drops}</div>
+      <div class="def-sign"><span class="def-nail"></span><h2>${sunk?'Sunk':'Defeat'}</h2><svg class="def-crack" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><path d="M70 0l-6 12 8 6-10 9 5 13"/></svg></div></div>
+    <p class="def-sub">${head}</p>
+    <div class="lines">${lines.map((l,i)=>`<p style="--i:${i}">${l}</p>`).join('')}</div>
+    <button class="primary" id="next" style="--i:${lines.length}">${btn}</button>`,true,'result lose')}
 /* Back on the chart (or in port, after a boss) after a lost fight: a card shows the hull you lost. Planks crack off one by one while the number counts down, then it fades. */
 function hullLoss(before,after){
   document.querySelectorAll('.hullcard').forEach(c=>c.remove());
