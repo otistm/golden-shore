@@ -33,6 +33,50 @@ function roomNote(o){const sz=DEFS[o.k].s,need=Math.min(sz-(holdCap()-used(G.boa
   return`Size ${sz}. Free ${need} more slot${need===1?'':'s'}${G.locker?' in your hold or locker':''} to take it.`}
 /* Spoils: a screen like the market, with your hold docked below. Drag a spoil into the hold (or tap Take), drag it back onto its card
    to change your mind, and drag your own cargo onto Sail on to sell it and make room. One pick, or gold if you take nothing. */
+/* ---------- the spoils chest ----------
+   Winning a fight is worth a show: a chest drops in, squashes, rattles with anticipation, then bursts open with a shower of
+   coins and jewels, and the spoils fly out of it to their places. Tap anywhere to hurry it. Skipped with reduced motion. */
+const CHEST=`<svg class="chest" viewBox="0 0 160 140" aria-hidden="true"><g stroke="#000" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  <g class="ch-body"><path fill="#fff" d="M14 64h132v62q0 6-6 6H20q-6 0-6-6z"/><path fill="none" d="M14 84h132M40 64v68M120 64v68"/>
+    <path fill="#000" d="M70 74h20v22q0 6-10 10q-10-4-10-10z"/><circle cx="80" cy="84" r="3.5" fill="#fff" stroke="none"/></g>
+  <g class="ch-lid"><path fill="#fff" d="M14 64V48q0-30 66-30t66 30v16z"/><path fill="none" d="M40 64V24M120 64V24M14 52h132"/><path fill="#000" d="M70 54h20v10H70z"/></g></g></svg>`;
+function chestReveal(cards,done){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches||!cards.length){cards.forEach(c=>c.classList.add('in'));return done()}
+  const fx=document.createElement('div');fx.className='chestfx';
+  fx.innerHTML=`<canvas></canvas><div class="ch-rays"></div><div class="ch-wrap">${CHEST}</div><p class="ch-skip">Tap to open</p>`;
+  document.body.appendChild(fx);cards.forEach(c=>{c.style.opacity='0';c.classList.add('flying')});
+  const cv=fx.querySelector('canvas'),cx=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);
+  const size=()=>{cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cx.setTransform(dpr,0,0,dpr,0,0)};size();
+  const wrap=fx.querySelector('.ch-wrap'),lid=fx.querySelector('.ch-lid'),parts=[];let timers=[],raf2=0,over=false,opened=false;
+  const at=(ms,f)=>timers.push(setTimeout(f,ms));
+  // coins and jewels: drawn in ink, tossed up out of the chest's mouth, tumbling down under gravity
+  const burst=()=>{const r=wrap.getBoundingClientRect(),ox=r.left+r.width/2,oy=r.top+r.height*.42;
+    for(let i=0;i<46;i++){const a=-Math.PI/2+(Math.random()-.5)*2.1,v=7+Math.random()*9;
+      parts.push({x:ox+(Math.random()-.5)*50,y:oy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,r:Math.random()*6.3,vr:(Math.random()-.5)*.4,kind:i%3===0?'gem':'coin',s:7+Math.random()*6,solid:Math.random()<.4})}};
+  const draw=()=>{cx.clearRect(0,0,innerWidth,innerHeight);cx.lineWidth=2.2;cx.strokeStyle='#000';
+    for(const p of parts){p.vy+=.42;p.x+=p.vx;p.y+=p.vy;p.vx*=.995;p.r+=p.vr;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);
+      if(p.kind==='coin'){const w=Math.abs(Math.cos(p.r*1.7))*p.s+1.5;cx.beginPath();cx.ellipse(0,0,w,p.s,0,0,Math.PI*2);cx.fillStyle='#fff';cx.fill();cx.stroke();
+        if(w>4){cx.beginPath();cx.ellipse(0,0,w*.55,p.s*.55,0,0,Math.PI*2);cx.stroke()}}
+      else{cx.beginPath();cx.moveTo(0,-p.s);cx.lineTo(p.s*.8,-p.s*.25);cx.lineTo(0,p.s);cx.lineTo(-p.s*.8,-p.s*.25);cx.closePath();cx.fillStyle=p.solid?'#000':'#fff';cx.fill();cx.stroke();
+        if(!p.solid){cx.beginPath();cx.moveTo(-p.s*.8,-p.s*.25);cx.lineTo(p.s*.8,-p.s*.25);cx.stroke()}}
+      cx.restore()}
+    for(let i=parts.length-1;i>=0;i--)if(parts[i].y>innerHeight+40)parts.splice(i,1);
+    if(!over||parts.length)raf2=requestAnimationFrame(draw)};
+  // the spoils leap out of the chest and land in their places
+  const flyOut=()=>{const r=wrap.getBoundingClientRect(),ox=r.left+r.width/2,oy=r.top+r.height*.45;
+    cards.forEach((c,i)=>{const b=c.getBoundingClientRect(),dx=ox-(b.left+b.width/2),dy=oy-(b.top+b.height/2);c.style.opacity='';
+      c.animate([{transform:`translate(${dx}px,${dy}px) scale(.15) rotate(${i%2?-20:20}deg)`,opacity:0},{transform:`translate(${dx*.4}px,${dy*.55-60}px) scale(.8) rotate(${i%2?8:-8}deg)`,opacity:1,offset:.55},{transform:'scale(1.05,.95)',offset:.85},{transform:'none',opacity:1}],
+        {duration:720,delay:i*130,easing:'cubic-bezier(.34,1.3,.64,1)',fill:'backwards'})})};
+  const open=()=>{if(opened)return;opened=true;fx.classList.add('open');burst();fx.querySelector('.ch-skip').textContent='';
+    at(260,flyOut);at(260+cards.length*130+900,finish)};
+  const finish=()=>{if(over)return;over=true;timers.forEach(clearTimeout);cards.forEach(c=>{c.style.opacity='';setTimeout(()=>c.classList.remove('flying'),500)});
+    fx.classList.add('gone');setTimeout(()=>{cancelAnimationFrame(raf2);fx.remove();removeEventListener('resize',size)},500);done()};
+  addEventListener('resize',size);raf2=requestAnimationFrame(draw);
+  // drop in, settle, rattle, then burst open; a tap opens it at once, a second tap skips to the end
+  at(1250,open);
+  fx.addEventListener('click',()=>{if(!opened){timers.forEach(clearTimeout);timers=[];open()}else finish()});
+}
 function lootPick(n,done){
   const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;if(hasP('prize'))opts.push(randItem(r,depth));
   cancelAnimationFrame(raf);B=null;G.inPort=false;G.moving=false;G.sel=null;
@@ -71,5 +115,6 @@ function lootPick(n,done){
       else{const o=opts[taken];logL(`Took a ${TIER[o.t]} ${DEFS[o.k].n} as spoils.`)}
       save();coach('spoilsTaken');done()};
   };
-  render();scrollTo(0,0);coach('spoils');
+  // the first look at the spoils comes out of a chest; the cards draw without their usual pop so the chest can throw them
+  first=false;render();scrollTo(0,0);chestReveal([...app.querySelectorAll('.spoil')],()=>coach('spoils'));
 }
