@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.15.1
+- The ship picker no longer lists the gear and hands Gullhaven stocks for each ship. It shows the ship's style, trait and berths.
+
 ## 0.15.0
 - On a computer, the title screen spreads out: your ship rides the water across the top of the screen, then the name and how to play sit on the left and the way in on the right, both centred so the name leads.
 - The front page does the same: the animated voyage large on the left, with the Play card beside it.
