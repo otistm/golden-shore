@@ -1134,3 +1134,16 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .hirefly svg{display:block;width:100%;height:100%}
 .cb-c.land{animation:land2 .45s var(--spring)}
 .cb-cr.bump{animation:bump .45s var(--spring)}
+/* a fitting going on: the ship big on a paper veil, the fitting flying onto its part, hammer sparks, "Fitted!" */
+.fitfx{position:fixed;inset:0;z-index:74;background:rgba(255,255,255,.92);display:grid;place-items:center;align-content:center;gap:14px;cursor:pointer;transition:opacity .4s;animation:fadein .3s both}
+.fitfx.gone{opacity:0;pointer-events:none}
+.ff-ship{width:min(70vw,340px);animation:shipin .5s var(--spring) both}
+.ff-ship.jolt{animation:jolt .18s}
+.ff-art{display:block;width:100%;height:auto}
+.ff-cap{font:italic 400 17px var(--display);text-align:center;opacity:0;transition:opacity .3s}
+.ff-cap b{font-weight:900}
+.fitfx.done .ff-cap{opacity:1}
+.ff-glyph{position:fixed;z-index:75;background:var(--paper);border:2.5px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);padding:5px;pointer-events:none}
+.ff-glyph .gl{width:100%;height:100%;display:block;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.ff-glyph .gl .w{fill:var(--paper)}.ff-glyph .gl .k{fill:var(--ink);stroke:none}
+@keyframes shipin{from{transform:translateY(30px) scale(.8);opacity:0}to{transform:none;opacity:1}}

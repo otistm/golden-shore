@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.7
+- Buying a fitting shows it going on: your ship appears big, the fitting spins off the wright's bench and flies onto its part of the ship (knocking the old one off and tumbling away if there was one), three hammer blows jolt the ship with ink sparks, "Fitted!" rises and a line says what went where. Tap to hurry it.
+
 ## 0.23.6
 - Hiring is a moment: the new hand's face leaps up off their bar stool, arcs down into their berth in the crew strip under your hold and lands with a squash, an ink burst and "Aboard!" rising off them, while the craft icons beside the strip bounce.
 
