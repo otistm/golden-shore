@@ -88,9 +88,9 @@ function port(id,view){
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
   save();coach('port');tip('port');tip('crew');tip('wright');
 }
-/* the market: a seller's stall. They stand behind the counter with the day's goods laid out on it; tap one and they tell you
-   about it in a speech bubble under it, with the Buy button. layStall() fills the room down to the hold and points the bubble. */
-function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
+/* the market: a seller's stall. The seller stands at the back and the day's goods sit out on the table in front; tap one and it
+   lifts while the seller tells you about it in a speech bubble from their mouth, with the Buy button. layStall() fits it to the room. */
+function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0),big=matchMedia(BIGSTALL).matches;
   let sel=PV.msel;if(sel==null||!S.offers[sel])sel=S.offers.findIndex(Boolean);
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
@@ -117,27 +117,25 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
         <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>
       <h2 class="stallsign">${P.short}'s</h2>
       <button class="ghost more" id="reroll">Show me more<span class="cost">${hasC('route')&&G.freeRoll?'free':`${sicon('gold')}${rr}`}</span></button>
-      <div class="seller" aria-label="${P.n}, the seller">${peep(P.look,'38 22 176 156')}</div>
-      <div class="counter">
-        <div class="goods" id="goods">${goods}</div>
-        ${talk}
-      </div>
+      <div class="seller" aria-label="${P.n}, the seller">${peep(P.look,big?'38 22 176 156':'62 28 140 124')}</div>
+      ${talk}
+      <div class="table"><div class="goods" id="goods">${goods}</div><div class="tabletop"></div><div class="tablefront"></div></div>
     </div>
   </section>`}
-/* fit the stall to the room (down to the hold) and point the bubble at the chosen good */
+/* fit the stall to the room (down to the hold) and hang the seller's bubble from their mouth. BIGSTALL matches the CSS block for big screens. */
+const BIGSTALL='(min-width:900px) and (min-height:560px)';
 function layStall(){const room=document.getElementById('stall');if(!room)return;
   const dock=app.querySelector('.dock'),top=room.getBoundingClientRect().top,dh=dock?dock.offsetHeight:0;
   room.style.minHeight=Math.max(300,Math.round(innerHeight-top-dh-14))+'px';
-  const big=matchMedia('(min-width:900px) and (min-height:560px)').matches,sel=room.querySelector('.seller');
-  // big screens: the seller grows with the room, so they and their counter fill it instead of huddling at the top
-  if(big){const h=Math.round(Math.min(330,Math.max(200,room.clientHeight*.6))),w=Math.round(h*176/156);sel.style.height=h+'px';sel.style.width=w+'px';sel.style.marginLeft=`calc(30% - ${w/2}px)`}
-  else sel.style.cssText='';
-  const talk=document.getElementById('talk'),g=room.querySelector('.good.sel');if(!talk||!g||talk.classList.contains('quiet'))return;
-  // big screens: the bubble sits to the right of the counter's goods, level with the seller, tail pointing back at them
-  if(big){const gs=room.querySelector('.goods').lastElementChild.getBoundingClientRect(),r0=room.getBoundingClientRect(),x=Math.round(gs.right-r0.left+28);
-    talk.style.marginLeft='';talk.style.left=x+'px';talk.style.top=Math.round(sel.offsetTop+sel.offsetHeight*.22)+'px';talk.style.maxWidth=(room.clientWidth-x-14)+'px';return}
-  const cw=room.clientWidth,tw=talk.offsetWidth,r=room.getBoundingClientRect(),gr=g.getBoundingClientRect(),px=gr.left-r.left+gr.width/2;
-  const left=Math.max(8,Math.min(cw-tw-8,px-tw/2));talk.style.marginLeft=left+'px';talk.style.setProperty('--ax',(px-left)+'px')}
+  const big=matchMedia(BIGSTALL).matches,sel=room.querySelector('.seller'),talk=document.getElementById('talk');
+  if(big){// the seller grows into the space above the table, left of centre; the bubble comes out to their right
+    const th=room.querySelector('.table').offsetHeight,h=Math.round(Math.min(300,Math.max(170,room.clientHeight-th-40))),w=Math.round(h*176/156);
+    sel.style.height=h+'px';sel.style.width=w+'px';sel.style.marginLeft=`calc(32% - ${w/2}px)`;
+    if(!talk)return;const x=Math.round(sel.offsetLeft+w*.84);
+    talk.style.left=x+'px';talk.style.top=Math.round(sel.offsetTop+h*.2)+'px';talk.style.maxWidth=(room.clientWidth-x-14)+'px';return}
+  sel.style.cssText='';if(!talk)return;
+  // phones: the bubble hangs just under the seller's face, tail pointing up at them
+  talk.style.setProperty('--ax',Math.round(sel.offsetLeft+sel.offsetWidth*.55-talk.offsetLeft)+'px')}
 /* the tavern: everyone looking for work sits at the bar. Tap one to have a word; they make their pitch below. */
 /* the tavern: the bar scene fills the room. Everyone looking for work sits at the counter; tap one and a speech bubble
    floats over the scene just under them, pointing up, with their pitch and a Hire button. layBar() fits it all to the space. */

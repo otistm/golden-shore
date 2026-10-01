@@ -103,7 +103,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - After changing an order, run `npm run sim:perks`. Orders are measured on every ship; differences under about 5 points are noise.
 
 ## The market stall
-- The market is a seller's stall (`stallHTML()` and `layStall()` in port.js): the seller's bust behind a counter, the 4 offers as goods on it (`.good`, `data-g`), and a speech bubble (`.talk`) with their pitch and the Buy button for the chosen good (`PV.msel`). On phones the bubble sits under the goods with its tail at the chosen one; on big screens it sits to the right, level with the seller.
+- The market is a seller's stall (`stallHTML()` and `layStall()` in port.js): the seller at the back, the 4 offers as goods on a table at the front (`.good`, `data-g`), and the seller's speech bubble (`.talk`) with their pitch and the Buy button for the chosen good (`PV.msel`). On phones the bubble hangs just under the seller's face; on big screens (`BIGSTALL`, matching the CSS block) the seller grows with the room and the bubble sits to their right.
 - Sellers are `SELLERS` in people.js: `short`, `n`, a peep `look`, `lean` (tags they stock: 2 of the 4 offers lean that way, via `stallItem()`), one pitch per cargo tag in `say`, and `up`, `broke`, `out` lines. `sellerOf(id)` picks one per port from the voyage seed (Marta at Gullhaven and in the tutorial) and stores it as `S.seller`.
 - The tutorial's market step targets `#stall`. The bot taps each `[data-g]` and then `.talk .buy`.
 

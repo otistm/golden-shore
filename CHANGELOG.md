@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.20.1
+- The market's goods now sit out on a table at the front of the stall, bigger and clear of the seller, and the chosen one lifts with an inked price tag. The seller's speech bubble comes straight from them: just under their face on phones, beside it on big screens.
+
 ## 0.20.0
 - The market is now a seller's stall. Someone stands behind the counter with the day's goods laid out in front of them. Tap a piece of cargo and it lifts off the counter while the seller tells you about it in a speech bubble, with its stats and the Buy button.
 - Six sellers with their own looks and voices: Marta Brine keeps the stall at Gullhaven, and Gully Fenn, Sister Vane, Odo Crane, Pell Rigby and Bruna Hask travel the seas. Each port's stall is kept by one of them (the same one for everyone on a voyage code), and they lean towards their trade: Gully stocks cannons and fire, Sister Vane poisons, Odo weapons, Pell rigging and tools, Bruna armour.
