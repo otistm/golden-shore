@@ -122,6 +122,9 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - A port opens on the harbour scene in harbour.js: one wide ink panorama (`harbourWorld()`, `HW`×`HH` units) you scroll along, with places at `HSTOPS` positions and arrows that walk between them (`bindHarbour()`, which remembers the spot in `PV.hx`). Each place shows its state in the drawing (goods, faces at windows, chalk notices, a figure on the pier), not with badges. `port(id,view)` draws the harbour or one building; `PV` remembers the view while you stay, and `chart()` resets it. Re-renders inside a port must call `port(id,view)` so you stay put.
 - Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
 
+## Chart water
+- `chartWater()` in chart.js draws the sea under the chart: wave marks (`.wv`) kept clear of stops and the fog, islands under ports and isles (shores, then outlines, then land, so neighbours merge), and a ripple under every other stop. It uses its own `RNG(G.seed,'water',G.sea)`, so it never touches gameplay randomness.
+
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
 

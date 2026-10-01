@@ -17,7 +17,7 @@ function mapSVG(fit){
   const m=G.map,H=6*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
   const trav=new Set();for(let i=1;i<G.path.length;i++)trav.add(G.path[i-1]+'>'+G.path[i]);
   const vis=n=>n.row<=rev||n.type==='boss'||G.path.includes(n.id);
-  let g='';
+  let g=chartWater(m,X,y,W,H,RH,vis,rev);
   if(rev<5)g+=`<rect x="-6" y="0" width="${W+12}" height="${y(rev)-RH/2}" fill="url(#fog)"/><text class="fogtxt" x="${W-8}" y="${y(rev)-RH/2-8}" text-anchor="end">here be monsters</text>`;
   m.edges.forEach(([a,b])=>{const A2=node(a),B2=node(b);if(!(trav.has(a+'>'+b)||(A2.row<=rev&&(B2.row<=rev||B2.type==='boss'))))return;
     const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
@@ -35,6 +35,26 @@ function mapSVG(fit){
   g+=`<g transform="translate(${X(cur)-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></g>`;
   return`<svg viewBox="-6 0 ${W+12} ${H}" aria-label="Chart of ${SEAS[G.sea]}"><defs><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" fill="#000" opacity=".18"/></pattern></defs>${g}</svg>`;
 }
+/* the water under the chart: little wave marks bobbing on open sea, and islands under the ports and isles with ripples lapping
+   their shores. Placed from the voyage seed, so a chart always looks the same; nothing is drawn in the fog. */
+function chartWater(m,X,y,W,H,RH,vis,rev){const r=RNG(G.seed,'water',G.sea),top=rev<5?y(rev)-RH/2:0;let g='',shore='',edge='',land='';
+  const pts=m.nodes.filter(vis).map(n=>[X(n),y(n.row)]);
+  // islands: a wobbly blob with a dashed shoreline around it, under each port and uncharted isle
+  m.nodes.forEach(n=>{if(!vis(n))return;
+    // stops out on the water float on a ripple; ports and isles stand on land
+    if(n.type!=='port'&&n.type!=='isle'){const rr=n.type==='boss'?24:18;g+=`<path class="ripple" d="M${X(n)-rr-10} ${y(n.row)+rr-3}q${rr/2+5} 7 ${rr+10} 0t${rr+10} 0"/>`;return}
+    const R=n.type==='port'?36:30,k=10,cx=X(n),cy=y(n.row)+10;
+    const pt=Array.from({length:k},(_,i)=>{const a=i/k*Math.PI*2,rr=R*(.82+r()*.3);return[cx+Math.cos(a)*rr*1.25,cy+Math.sin(a)*rr*.8]});
+    const blob=s=>'M'+pt.map((p,i)=>{const q=pt[(i+1)%k],sx=cx+(p[0]-cx)*s,sy=cy+(p[1]-cy)*s,ex=cx+((p[0]+q[0])/2-cx)*s,ey=cy+((p[1]+q[1])/2-cy)*s;return`${i?'':`${ex} ${ey}`}Q${cx+(q[0]-cx)*s} ${cy+(q[1]-cy)*s} ${cx+(((q[0]+pt[(i+2)%k][0])/2)-cx)*s} ${cy+(((q[1]+pt[(i+2)%k][1])/2)-cy)*s}`}).join('')+'Z';
+    // drawn in layers (shores, then outlines, then land) so neighbouring islands merge into one coastline
+    shore+=`<path class="shore" d="${blob(1.22)}"/>`;edge+=`<path d="${blob(1)}"/>`;land+=`<path d="${blob(1)}"/>`+
+      Array.from({length:4},(_,i)=>{const a=-.4+i*.35+r()*.2,x0=cx+Math.cos(Math.PI+a)*R*.9,y0=cy+Math.sin(a)*R*.45+R*.25;return`<path class="hatch" d="M${x0} ${y0}l5 -2"/>`}).join('')});
+  g+=`<g class="isles">${shore}<g class="edge">${edge}</g><g class="land">${land}</g></g>`;
+  // wave marks on the open water, kept clear of the stops and the fog
+  let n=0;for(let t=0;t<220&&n<Math.round(W*H/9500);t++){const x=12+r()*(W-24),yy=top+18+r()*(H-top-36);
+    if(pts.some(([px,py])=>Math.hypot(px-x,(py-yy)*1.2)<46))continue;
+    const w=8+r()*6;g+=`<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)})"><path class="wv" style="animation-delay:${(-r()*6).toFixed(2)}s" d="M${-w} 0q${w/4} -4 ${w/2} 0t${w/2} 0t${w/2} 0t${w/2} 0"/></g>`;n++}
+  return g}
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;

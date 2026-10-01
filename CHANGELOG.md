@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.4
+- The chart feels like water. Little wave marks bob across the open sea, ports and uncharted isles stand on islands with ripples lapping their shores (neighbouring islands join into one coastline), and every stop out on the water floats on a gentle ripple. The fog stays clear of it all, and nothing moves for players who prefer reduced motion.
+
 ## 0.22.3
 - The ship card no longer has the "What your crew can work" section, on phones or big screens.
 
