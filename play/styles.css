@@ -1154,3 +1154,40 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .sellpuff i{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border:2.5px solid var(--ink);border-radius:50%;background:var(--paper);transform:rotate(var(--a)) translateY(0) scale(.3);animation:puff .6s ease-out both}
 @keyframes puff{0%{transform:rotate(var(--a)) translateY(0) scale(.3);opacity:1}100%{transform:rotate(var(--a)) translateY(-34px) scale(1.1);opacity:0}}
 #goldst.bump b{display:inline-block;animation:bump .3s var(--spring)}
+/* crossing into a new sea: letterbox bars, a ship driving through swell and rain, fog or lightning, the sea's name slammed on */
+.seacross{position:fixed;inset:0;z-index:90;background:var(--paper);overflow:hidden;cursor:pointer;animation:fadein .35s both}
+.seacross.out{opacity:0;transition:opacity .45s}
+.sx-bar{position:absolute;left:0;right:0;height:0;background:var(--ink);z-index:5;transition:height .55s cubic-bezier(.7,0,.3,1)}
+.sx-bar.top{top:0;animation:barin .6s .1s cubic-bezier(.3,.9,.4,1) both}.sx-bar.bot{bottom:0;animation:barin .6s .1s cubic-bezier(.3,.9,.4,1) both}
+@keyframes barin{from{height:0}to{height:11vh}}
+.seacross.close .sx-bar{animation:none;height:51vh}
+.sx-sea{position:absolute;left:0;right:0;bottom:0;width:100%;height:100%}
+.sx-sea .w{fill:var(--paper);stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
+.sx-w1 .w{stroke-width:1.6;opacity:.6}
+.sx-horizon{stroke:var(--ink);stroke-width:1.6;opacity:.5}
+.sx-w1{--len:80px;animation:swell 7s linear infinite}
+.sx-w2{--len:100px;animation:swell2 3.2s linear infinite}
+.sx-w3{--len:120px;animation:swell3 2.2s linear infinite}
+.deep .sx-w2{--len:120px}.deep .sx-w3{--len:150px}
+@keyframes swell{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--len)))}}
+@keyframes swell2{0%{transform:translate(0,0)}50%{transform:translate(calc(-.5 * var(--len)),-6px)}100%{transform:translate(calc(-1 * var(--len)),0)}}
+@keyframes swell3{0%{transform:translate(0,0)}50%{transform:translate(calc(-.5 * var(--len)),-10px)}100%{transform:translate(calc(-1 * var(--len)),0)}}
+.sx-ship{animation:sxsail 4.6s cubic-bezier(.4,0,.6,1) both;transform-box:fill-box;transform-origin:50% 80%}
+@keyframes sxsail{0%{transform:translate(-300px,6px) rotate(6deg)}14%{transform:translate(-200px,-8px) rotate(-9deg)}28%{transform:translate(-110px,8px) rotate(8deg)}42%{transform:translate(-40px,-10px) rotate(-10deg)}56%{transform:translate(10px,8px) rotate(7deg)}70%{transform:translate(60px,-8px) rotate(-8deg)}84%{transform:translate(140px,6px) rotate(6deg)}100%{transform:translate(320px,-4px) rotate(-4deg)}}
+.deep .sx-ship{animation-name:sxsaildeep}
+@keyframes sxsaildeep{0%{transform:translate(-300px,10px) rotate(10deg)}14%{transform:translate(-200px,-16px) rotate(-15deg)}28%{transform:translate(-110px,14px) rotate(13deg)}42%{transform:translate(-40px,-18px) rotate(-16deg)}56%{transform:translate(10px,14px) rotate(12deg)}70%{transform:translate(60px,-14px) rotate(-13deg)}84%{transform:translate(140px,10px) rotate(9deg)}100%{transform:translate(320px,-6px) rotate(-6deg)}}
+.sx-rain{position:absolute;inset:0;z-index:1;pointer-events:none}
+.sx-rain i{position:absolute;left:var(--x);top:-30px;width:2px;height:22px;background:var(--ink);opacity:.35;transform:rotate(18deg);animation:sxrain var(--s) var(--d) linear infinite}
+@keyframes sxrain{from{transform:translate(0,0) rotate(18deg)}to{transform:translate(-36vh,115vh) rotate(18deg)}}
+.sx-bolt{fill:var(--ink);opacity:0;animation:bolt 4.6s both}
+@keyframes bolt{0%,30%{opacity:0}31%,33%{opacity:1}34%,52%{opacity:0}53%,54.5%{opacity:1}56%,100%{opacity:0}}
+.seacross.deep{animation:fadein .35s both,flash 4.6s both}
+@keyframes flash{0%,30%{filter:none}31%,32%{filter:invert(1)}33%,52%{filter:none}53%,54%{filter:invert(1)}55%,100%{filter:none}}
+.sx-fog{position:absolute;inset:0;z-index:2;pointer-events:none}
+.sx-fog span{position:absolute;bottom:calc(14vh + var(--i) * 6vh);left:0;width:70vw;height:18vh;border-radius:50%;background:var(--paper);border:2px dashed var(--ink);opacity:0;animation:fogroll 4.6s calc(var(--i) * .35s) ease-in-out both}
+@keyframes fogroll{0%{transform:translateX(110vw) scale(.9);opacity:0}25%{opacity:.92}70%{opacity:.92}100%{transform:translateX(-80vw) scale(1.15);opacity:0}}
+.sx-title{position:absolute;inset:0;z-index:4;display:grid;place-content:center;text-align:center;pointer-events:none}
+.sx-kicker{font:800 13px var(--ui);letter-spacing:.2em;text-transform:uppercase;animation:vline .5s 1.5s both}
+.sx-name{font:italic 900 clamp(46px,13vw,110px)/1 var(--display);background:var(--paper);padding:4px 20px 12px;border:3.5px solid var(--ink);border-radius:18px;box-shadow:7px 7px 0 var(--ink);margin-top:10px;animation:seaname 3.2s 1.7s both}
+@keyframes seaname{0%{transform:scale(3) rotate(-10deg);opacity:0}9%{transform:scale(.94) rotate(-2deg);opacity:1}13%{transform:rotate(-3deg)}85%{transform:rotate(-3deg) scale(1.02);opacity:1}100%{transform:scale(1.1) rotate(-3deg);opacity:0}}
+.seacross.still *{animation:none!important}.seacross.still .sx-bar{height:11vh}.seacross.still .sx-rain,.seacross.still .sx-fog,.seacross.still .sx-bolt{display:none}
