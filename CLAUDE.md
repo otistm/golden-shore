@@ -125,6 +125,8 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## Chart water
 - `chartWater()` in chart.js draws the sea under the chart: wave marks (`.wv`) kept clear of stops and the fog, islands under ports and isles (shores, then outlines, then land, so neighbours merge), and a ripple under every other stop. It uses its own `RNG(G.seed,'water',G.sea)`, so it never touches gameplay randomness.
 
+- The fog is `chartFog()`: a bank with billowing edges and drifting wisps, clipped to the chart. `fogLift()` runs after each chart draw: if the fog edge moved up since the last draw (`fogSeen`), it rolls the bank back from the old edge.
+
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
 

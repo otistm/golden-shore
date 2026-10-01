@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.6
+- The fog looks like fog: a cloud bank with a billowing inked edge and a fainter row of billows in front, soft stipple inside, and curling wisps drifting slowly through it. When you sail on and more of the sea is revealed, the fog rolls back up to its new edge instead of just jumping.
+
 ## 0.22.5
 - In the market, tapping the good the seller is already talking about no longer opens its item card. The speech bubble has everything.
 

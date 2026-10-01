@@ -18,7 +18,7 @@ function mapSVG(fit){
   const trav=new Set();for(let i=1;i<G.path.length;i++)trav.add(G.path[i-1]+'>'+G.path[i]);
   const vis=n=>n.row<=rev||n.type==='boss'||G.path.includes(n.id);
   let g=chartWater(m,X,y,W,H,RH,vis,rev);
-  if(rev<5)g+=`<rect x="-6" y="0" width="${W+12}" height="${y(rev)-RH/2}" fill="url(#fog)"/><text class="fogtxt" x="${W-8}" y="${y(rev)-RH/2-8}" text-anchor="end">here be monsters</text>`;
+  if(rev<5)g+=chartFog(W,y(rev)-RH/2);
   m.edges.forEach(([a,b])=>{const A2=node(a),B2=node(b);if(!(trav.has(a+'>'+b)||(A2.row<=rev&&(B2.row<=rev||B2.type==='boss'))))return;
     const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
     const t=trav.has(a+'>'+b),r=a===G.at;
@@ -33,7 +33,7 @@ function mapSVG(fit){
   G.charts.forEach((c,i)=>{if(c.sea!==G.sea)return;const n=node(c.at);if(!n)return;const side=n.x>170?-1:1;
     g+=`<g transform="translate(${X(n)+side*30-11} ${y(n.row)-11}) scale(.733)" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">${CHARTS[c.k].g}</g>`});
   g+=`<g transform="translate(${X(cur)-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></g>`;
-  return`<svg viewBox="-6 0 ${W+12} ${H}" aria-label="Chart of ${SEAS[G.sea]}"><defs><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" fill="#000" opacity=".18"/></pattern></defs>${g}</svg>`;
+  return`<svg viewBox="-6 0 ${W+12} ${H}" aria-label="Chart of ${SEAS[G.sea]}"><defs><clipPath id="chartclip"><rect x="-6" y="0" width="${W+12}" height="${H}"/></clipPath><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" fill="#000" opacity=".18"/></pattern></defs>${g}</svg>`;
 }
 /* the water under the chart: little wave marks bobbing on open sea, and islands under the ports and isles with ripples lapping
    their shores. Placed from the voyage seed, so a chart always looks the same; nothing is drawn in the fog. */
@@ -55,6 +55,23 @@ function chartWater(m,X,y,W,H,RH,vis,rev){const r=RNG(G.seed,'water',G.sea),top=
     if(pts.some(([px,py])=>Math.hypot(px-x,(py-yy)*1.2)<46))continue;
     const w=8+r()*6;g+=`<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)})"><path class="wv" style="animation-delay:${(-r()*6).toFixed(2)}s" d="M${-w} 0q${w/4} -4 ${w/2} 0t${w/2} 0t${w/2} 0t${w/2} 0"/></g>`;n++}
   return g}
+/* the fog over unknown water: a bank of cloud with a billowing lower edge, faint stipple inside, and wisps drifting across it.
+   When you sail on and the fog lifts, the bank rolls back up to its new edge (fogLift). */
+let fogSeen=null;
+function chartFog(W,bot){const r=RNG(G.seed,'fog',G.sea);
+  // a billowing edge: arcs bulging down along the bottom of the bank, and a fainter second row of billows just above it
+  const edge=(base,lo,hi)=>{let d=`M-20 -300V${base.toFixed(1)}`,x=-20;while(x<W+24){const w=lo+r()*(hi-lo);d+=`a${(w*.55).toFixed(1)} ${(w*.5).toFixed(1)} 0 0 0 ${w.toFixed(1)} 0`;x+=w}return d+`V-300Z`};
+  let wisps='';
+  for(let yy=bot-56;yy>40;yy-=54+r()*24){const x=16+r()*(W-110),w=26+r()*30;
+    wisps+=`<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)})"><path class="wisp" style="animation-delay:${(-r()*14).toFixed(1)}s" d="M0 0q-6 -6 0 -8q5 0 4 5q${w*.25} 4 ${w*.5} 0t${w*.5} 0q5 -3 3 -7"/></g>`}
+  const lift=fogSeen&&fogSeen.sea===G.sea&&fogSeen.seed===G.seed&&fogSeen.bot>bot+1?Math.round(fogSeen.bot-bot):0;
+  return`<g clip-path="url(#chartclip)"><g class="fog"${lift?` data-lift="${lift}"`:''} data-bot="${bot.toFixed(1)}"><path class="billow back" d="${edge(bot-6,30,46)}"/><path class="billow" d="${edge(bot-18,22,38)}"/>
+    <rect x="-6" y="-300" width="${W+12}" height="${(bot+280).toFixed(1)}" fill="url(#fog)"/>${wisps}<text class="fogtxt" x="${W-8}" y="${(bot-26).toFixed(1)}" text-anchor="end">here be monsters</text></g></g>`}
+/* after the chart is drawn: roll the fog back if it just lifted, and remember where its edge is now */
+function fogLift(){const f=app.querySelector('.map .fog'),m=app.querySelector('.map svg');
+  const bot=f?+f.dataset.bot:-1;
+  if(f&&f.dataset.lift&&!matchMedia('(prefers-reduced-motion:reduce)').matches)f.animate([{transform:`translateY(${f.dataset.lift}px)`},{transform:'none'}],{duration:1600,easing:'cubic-bezier(.2,.7,.2,1)'});
+  if(m)fogSeen={sea:G.sea,seed:G.seed,bot:bot<0?1e9:bot}}
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
@@ -63,7 +80,7 @@ function chart(){
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
-  bindNodes();fitMap();
+  bindNodes();fitMap();fogLift();
   if(G.unrolled!==G.sea||unrollNext){G.unrolled=G.sea;unrollNext=false;unroll()}
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
   save();coach('chart');tip('chart');
