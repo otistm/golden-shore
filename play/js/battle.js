@@ -207,8 +207,8 @@ function end(win){
     if(G.hull>0){const lf=loseFit(n);if(lf)lines.push(`They tore away your ${FITTINGS[lf].n}.`)}
     if(G.hull<=0){btn='Abandon ship';next=sink}
     else if(k==='b'){G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
-      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>{port(G.at);hullLoss(G.hull+loss,G.hull)}}
-    else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=()=>{chart();hullLoss(G.hull+loss,G.hull)}}
+      lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>port(G.at)}
+    else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=chart}
   }
   if(win&&G.crew){G.crew.forEach(c=>{const was=crewRank(c);c.xp++;const now=crewRank(c);
     if(now>was){const C=CREW[c.k];lines.push(`${C.n} is now rank ${now}: ${C.crafts.map(x=>RANKS[x][now-2]).join(' ')}`);logL(`${C.n} made rank ${now}.`)}})}

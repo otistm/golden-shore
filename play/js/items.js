@@ -340,7 +340,8 @@ function fxWords(f,dc){const L=[],P=(t,c)=>L.push([t,c]);if(!f)return L;dc=dc||'
   if(f.grow)for(const k in f.grow)P(`Gains +${f.grow[k]} ${k==='dmg'?'damage':k} each use this fight.`,GROWCRAFT[k]==='dmg'?dc:GROWCRAFT[k]);
   return L}
 /* one ability, marked with its craft, greyed out if nobody aboard has the craft */
-function abl(t,c,cr){if(!c)return t;const off=cr&&!cr.has(c);return`<span class="ab${off?' off':''}">${t} <span class="crt" title="${off?'Needs':'Uses'} ${CRAFTS[c]}">${craftIcon(c)}${off?CRAFTS[c]:''}</span></span>`}
+function abl(t,c,cr){if(!c||!cr)return t;const on=cr.has(c);
+  return`<span class="ab${on?'':' off'}"><span class="cbx" role="img" aria-label="${on?'Your crew can work this':'Needs '+CRAFTS[c]}">${on?'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5 4.5-6"/></svg>':''}</span><span class="abt">${t} <span class="crt">${craftIcon(c)}${CRAFTS[c]}</span></span></span>`}
 const EVN={crit:'When you crit',burn:'When you apply burn',poison:'When you apply poison',shield:'When you gain shield',heal:'When you heal',hurt:'When a weapon hits you',lowhp:'The first time you drop below half health',haste:'When you haste an item',adjUse:'When an adjacent item is used'};
 /* the item's text. Enemy lists are marked .enemy and never greyed out; everything else is read against your crew. */
 function describe(list,i,cr){

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0
+- Item abilities have checkboxes. A box is ticked when someone in your crew can work that ability, and empty, with the craft it needs, when nobody can. Nothing is crossed out any more.
+- The hull card plays whenever you lose hull, not just after fights: events, people you meet and anything else that damages the ship.
+- Ports no longer pay you for trading when you dock. Gold comes from winning fights, selling cargo and fish, and the people you meet.
+- Sail a voyage code: a new button on the title screen. Type a friend's code to sail the same sea, with the same enemies and the same first markets.
+
 ## 0.10.0
 - Every hold now has 9 slots, yours and every enemy's. Double Planking still boards one up, leaving 8. Nothing can ever add slots, so every slot counts.
 - Voyages in progress: if your cargo no longer fits, the last items move to your locker, or are sold if there's no room. The log says what happened.

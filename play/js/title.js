@@ -10,7 +10,7 @@ const BOAT=`<svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#000" stroke-
 const today=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const codeOf=seed=>seed.startsWith('D')?`Daily ${seed.slice(1)}`:seed;
 function title(){
-  cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';
+  cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
   app.innerHTML=`<section class="title">
     <div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${SHIPART}${WAVE}</div>
@@ -21,6 +21,7 @@ function title(){
       ${!A.tutDone&&!saved?`<button class="primary" id="tut">Learn to sail</button>`:''}
       <button class="${saved||!A.tutDone?'ghost':'primary'}" id="daily">Today's voyage</button>
       <button class="ghost" id="new">New voyage</button>
+      <button class="ghost" id="code">Sail a voyage code</button>
       <button class="ghost" id="atlas">Atlas</button>
       ${A.tutDone||saved?`<button class="linkbtn tutlink" id="tut">${A.tutDone?'Replay the tutorial':'Learn to sail'}</button>`:''}
     </div>
@@ -34,11 +35,27 @@ function title(){
   const warn=fn=>()=>{if(!saved)return fn();const ov=overlay(`<h2>Start over?</h2><p>Your current voyage will be lost.</p><div class="sh-actions"><button class="ghost" data-a="no">Keep it</button><button class="primary" data-a="yes">Start over</button></div>`,true);
     ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='yes'){clearSave();fn()}})};
   document.getElementById('daily').onclick=warn(()=>shipPick(dayKey));
-  document.getElementById('new').onclick=warn(()=>shipPick(Math.random().toString(36).slice(2,7).toUpperCase()));
+  document.getElementById('new').onclick=warn(()=>shipPick(newCode()));
+  document.getElementById('code').onclick=()=>codeSheet(seed=>warn(()=>shipPick(seed))());
   document.getElementById('atlas').onclick=atlas;
   document.getElementById('tut').onclick=startTutorial;
   const fb=document.getElementById('fbBtn');if(fb)fb.onclick=showFeedback;
   const cb=document.getElementById('cont');if(cb)cb.onclick=()=>{G=saved;resume()};
+}
+/* a fresh random code. Never starting with D, which marks a daily voyage. */
+function newCode(){let c;do c=Math.random().toString(36).slice(2,7).toUpperCase();while(c.length<5||c[0]==='D');return c}
+/* a voyage code is the voyage's seed: the same code always charts the same sea. "Daily 2026-09-30" is that day's voyage. */
+function seedOf(code){code=String(code||'').trim();const d=code.match(/^daily\s*(\d{4}-\d{2}-\d{2})$/i);if(d)return'D'+d[1];
+  const c=code.toUpperCase().replace(/[^A-Z0-9]/g,'');return c.length>=3&&c.length<=12?c:null}
+function codeSheet(done){
+  const ov=overlay(`<h2>Sail a voyage code</h2><p>Every voyage has a code. Sail the same code as a friend and you'll meet the same sea, the same enemies and the same first markets.</p>
+    <input id="codein" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="e.g. K4QZ7" aria-label="Voyage code">
+    <p class="fbmsg" id="codemsg"></p>
+    <div class="sh-actions"><button class="ghost" data-a="no">Back</button><button class="primary" data-a="go">Sail it</button></div>`,true);
+  const inp=ov.querySelector('#codein'),go=()=>{const s=seedOf(inp.value);if(!s){ov.querySelector('#codemsg').textContent='Codes are 3 to 12 letters and numbers.';return}ov.remove();done(s)};
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+  ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;if(a.dataset.a==='go')go();else ov.remove()});
+  setTimeout(()=>inp.focus(),60);
 }
 function shipPick(seed){
   const ov=overlay(`<h2>Choose your ship</h2><div class="ships">${Object.entries(SHIPS).map(([k,s])=>{const ok=!s.ok||s.ok(A);

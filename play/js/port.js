@@ -5,12 +5,12 @@ function port(id){
   cancelAnimationFrame(raf);B=null;G.inPort=true;
   const n=node(id);
   if(!G.shops[id]){const r=RNG(G.seed,'shop',id,G.shopVisit||0);G.shops[id]={offers:Array.from({length:4},()=>randItem(r,depthOf(n))),reroll:1};
-    const inc=4+G.sea*2;G.gold+=inc;bump='gold';fresh=true;G.freeRoll=true;logL(`Docked at ${n.name}.`);
+    fresh=true;G.freeRoll=true;logL(`Docked at ${n.name}.`);
     const pool=Object.keys(FISH).filter(k=>FISH[k].sea===G.sea);G.shops[id].demand=pool[ri(r,pool.length)];
-    let msg=`+${inc} gold for trading at ${n.name}`;
-    if(G.quest==='letter'){G.quest=null;G.gold+=15;logL(`Delivered Wet Jack's letter at ${n.name}. His girl cried, then paid me 15 gold.`);msg+='. Delivered the letter: +15 gold'}
-    const wg=payWages();if(wg)msg+='. '+wg;
-    setTimeout(()=>toast(msg),250)}
+    const msg=[];
+    if(G.quest==='letter'){G.quest=null;G.gold+=15;bump='gold';logL(`Delivered Wet Jack's letter at ${n.name}. His girl cried, then paid me 15 gold.`);msg.push('Delivered the letter: +15 gold')}
+    const wg=payWages();if(wg)msg.push(wg);
+    if(msg.length)setTimeout(()=>toast(msg.join('. ')),250)}
   const S=G.shops[id];
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;

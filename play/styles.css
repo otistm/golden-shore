@@ -635,9 +635,6 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 /* crafts and crew */
 .cri{width:13px;height:13px;flex:none;display:inline-block;vertical-align:-2px;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;fill:none}
 .cri .w{fill:var(--paper)}.cri .k{fill:currentColor;stroke:none}
-.ab .crt{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:800;white-space:nowrap}
-.ab.off{color:var(--soft);text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(0,0,0,.35)}
-.ab.off .crt{text-decoration:none;border:1.5px dashed var(--soft);border-radius:999px;padding:0 5px 0 3px;margin-left:2px}
 .chipc{display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--ink);border-radius:999px;padding:0 6px 0 4px;font-size:11px;font-weight:800;margin:2px 4px 0 0;white-space:nowrap}
 .item.use-none .ico{opacity:.28}
 .item.use-none{border-style:dashed}
@@ -682,3 +679,17 @@ details.crafts summary{font-weight:800;cursor:pointer}
 .perks select{font:600 13px var(--ui);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:3px 6px;margin-left:4px;max-width:100%}
 .perks li{margin-bottom:4px}
 .opt span{display:block}
+
+/* abilities: a box is ticked when someone in your crew can work it */
+.ab{display:inline-flex;align-items:flex-start;gap:6px}
+.ab .abt{flex:1}
+.cbx{flex:none;width:15px;height:15px;margin-top:2px;border:2px solid var(--ink);border-radius:4px;display:grid;place-items:center;background:var(--paper)}
+.cbx svg{width:11px;height:11px;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.ab.off .cbx{border-style:dashed;border-color:var(--soft)}
+.ab .crt{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:800;white-space:nowrap;color:var(--soft)}
+.ab.off .crt{color:var(--ink)}
+.o-desc .ab{display:flex;margin-bottom:3px}
+/* voyage code entry */
+#codein{width:100%;border:2.5px solid var(--ink);border-radius:14px;padding:11px 14px;font:italic 900 22px var(--display);letter-spacing:.06em;text-transform:uppercase;background:var(--paper);color:var(--ink)}
+#codein:focus{outline:3px solid var(--ink);outline-offset:2px}
+.sheet ul li:has(>.ab){list-style:none;margin-left:-18px}
