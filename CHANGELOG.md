@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.15.0
-- On a computer, the title screen spreads out: your ship, the name and how to play on the left, and the way in on the right.
+- On a computer, the title screen spreads out: your ship, the name and how to play on the left, and the way in on the right, both centred so the name leads.
 - The front page does the same: the animated voyage large on the left, with the Play card beside it.
 - Phones look the same as before.
 

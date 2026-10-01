@@ -34,11 +34,11 @@ const codeOf=seed=>seed.startsWith('D')?`Daily ${seed.slice(1)}`:seed;
 function title(){
   cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
-  app.innerHTML=`<section class="title">
+  app.innerHTML=`<section class="title"><div class="brand">
     <div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}</div>
     <h1>Ink Crossing</h1>
-    <p class="tag">Chart the sea. Reach the far shore.</p>
-    <div class="buttons">
+    <p class="tag">Chart the sea. Reach the far shore.</p></div>
+    <div class="way"><div class="buttons">
       ${saved?`<button class="primary" id="cont">Continue voyage</button>`:''}
       ${!A.tutDone&&!saved?`<button class="primary" id="tut">Learn to sail</button>`:''}
       <button class="${saved||!A.tutDone?'ghost':'primary'}" id="daily">Today's voyage</button>
@@ -48,7 +48,7 @@ function title(){
       ${A.tutDone||saved?`<button class="linkbtn tutlink" id="tut">${A.tutDone?'Replay the tutorial':'Learn to sail'}</button>`:''}
     </div>
     <p class="seed">Today's voyage is the same sea for every captain.${db?` Your best today: ${db}.`:''}</p>
-    <p class="ver">Version ${VERSION}.${feedbackLink('fbBtn')}</p>
+    <p class="ver">Version ${VERSION}.${feedbackLink('fbBtn')}</p></div>
     <div class="rules">
       <p><b>Chart.</b> You're a cartographer mapping three seas no one has come back from. Pick your route. Fog hides everything more than two rows ahead.</p>
       <p><b>Fight.</b> Your cargo fires on its own. Every enemy has its own tricks, so read them before you sail.</p>
