@@ -15,7 +15,12 @@ function migrateAtlas(m){
   ['voyages','wins','bosses','elites','best'].forEach(k=>{if(typeof out[k]!=='number'||!isFinite(out[k]))out[k]=0});
   // for the future: if(out.sv<2){ ...convert...; out.sv=2; }
   out.sv=ATLAS_SCHEMA;return out}
-function migrateVoyage(v){if(!v||!v.map||!v.board)return null;const out=Object.assign({},VOYAGE_DEFAULTS,v);out.sv=VOYAGE_SCHEMA;if(!out.crew)crewFromOldSave(out);if(out.perks&&out.perks.some(k=>!PERKS[k]))out.perks=[];return out}
+function migrateVoyage(v){if(!v||!v.map||!v.board)return null;const out=Object.assign({},VOYAGE_DEFAULTS,v);out.sv=VOYAGE_SCHEMA;if(!out.crew)crewFromOldSave(out);trimHold(out);if(out.perks&&out.perks.some(k=>!PERKS[k]))out.perks=[];return out}
+/* holds shrank from 10 slots to 9: whatever no longer fits moves to the locker if there's room, otherwise it's sold */
+function trimHold(g){const cap=g.fit&&Object.values(g.fit).includes('planks')?HOLD-1:HOLD;
+  while(g.board.length&&used(g.board)>cap){const it=g.board.pop(),d=DEFS[it.k];
+    if(g.locker&&used(g.locker)+d.s<=LOCK){g.locker.push(it);g.log.push({d:g.day,t:`The hold shrank to ${cap} slots. Stowed the ${d.n} in the locker.`})}
+    else{const p=Math.max(1,Math.floor(price(it.k,it.t)/2));g.gold+=p;g.log.push({d:g.day,t:`The hold shrank to ${cap} slots. Sold the ${d.n} for ${p} gold.`})}}}
 /* voyages from before crafts: crew items leave the hold for the deck, the ship gets its starting crew, and free berths go to whoever covers the crafts the hold needs most */
 function crewFromOldSave(g){
   const b=SHIPS[g.ship].berths||3,crew=[],has=k=>crew.some(c=>c.k===k),addC=k=>{if(!has(k)&&CREW[k]&&crew.length<b)crew.push({k,xp:0,m:3})};
@@ -61,8 +66,8 @@ function payWages(){if(!G.crew||!G.crew.length||G.tut||G.path.length<2)return'';
 const hasF=k=>!!(G&&G.fit&&Object.values(G.fit).includes(k));
 const fitIn=spot=>G&&G.fit&&G.fit[spot]||null;
 const fitHP=()=>G&&G.fit?Object.values(G.fit).reduce((a,k)=>a+(k&&FITTINGS[k].hp||0),0):0;
-/* your hold's size: 10 slots, 9 with Double Planking */
-const holdCap=()=>hasF('planks')?9:10;
+/* your hold's size: HOLD slots, one fewer with Double Planking. Never more than HOLD. */
+const holdCap=()=>hasF('planks')?HOLD-1:HOLD;
 const HULL_MAX=20;   // the shipwright repairs hull up to 20
 const repairCost=()=>hasP('wright')?1:2;
 /* renown: win fights to earn it (threat 1, elite 2, boss 3). Each level lets you pick a perk. Resets every voyage. */
@@ -79,7 +84,7 @@ function equip(k){const f=FITTINGS[k],old=fitIn(f.spot);G.fit=Object.assign({hul
   logL(old?`Fitted ${f.n} in place of ${FITTINGS[old].n}, which sold for ${back} gold.`:`Fitted ${f.n}.`);return back}
 /* can this part go on? Double Planking needs a free slot, and taking it off always fits */
 function canEquip(k){const f=FITTINGS[k],old=fitIn(f.spot);if(old===k)return false;
-  const cap=10-(k==='planks'?1:0)-(f.spot!=='hull'&&hasF('planks')?1:0);return used(G.board)<=cap}
+  const cap=HOLD-(k==='planks'?1:0)-(f.spot!=='hull'&&hasF('planks')?1:0);return used(G.board)<=cap}
 const node=id=>G.map.nodes.find(n=>n.id===id);
 const depthOf=n=>G.sea*7+n.row;
 const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]);
@@ -126,10 +131,10 @@ function enemyOf(n){
   if(n.fixed){const list=n.fixed.list.map(x=>({...x}));list.enemy=true;return{e:ENEMIES[n.enemy],list,hp:n.fixed.hp,depth:depthOf(n)}}
   const e=ENEMIES[n.enemy],depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
   let budget=(6+depth*6)*mult;const list=[];
-  e.sig.forEach(k=>{const t=rollTier(depth,r);if(used(list)+DEFS[k].s<=10){list.push({k,t});budget-=price(k,t)*.5}});
+  e.sig.forEach(k=>{const t=rollTier(depth,r);if(used(list)+DEFS[k].s<=HOLD){list.push({k,t});budget-=price(k,t)*.5}});
   const theme=pick(r,SHIPKEYS);
-  let tries=0;while(tries++<90&&used(list)<10&&budget>2){const k=drawKey(r,theme),d=DEFS[k];if(k==='chest')continue;
-    const t=rollTier(depth,r),p=price(k,t);if(used(list)+d.s>10||p>budget)continue;list.splice(ri(r,list.length+1),0,{k,t});budget-=p}
+  let tries=0;while(tries++<90&&used(list)<HOLD&&budget>2){const k=drawKey(r,theme),d=DEFS[k];if(k==='chest')continue;
+    const t=rollTier(depth,r),p=price(k,t);if(used(list)+d.s>HOLD||p>budget)continue;list.splice(ri(r,list.length+1),0,{k,t});budget-=p}
   const hp=Math.round((70+depth*12)*(e.kind==='e'?1.15:e.kind==='b'?1.3:1));
   list.enemy=true;   // enemy cargo needs no crew
   return{e,list,hp,depth};
