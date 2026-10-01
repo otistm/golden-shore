@@ -779,7 +779,6 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .hsign text{font:italic 900 14px var(--display)}
 .hboard text{font:800 9.5px var(--ui);fill:var(--paper)}
 .hchalk{font:italic 400 12px var(--display);fill:var(--soft)!important}
-.hbubble text{font:900 13px var(--ui)}
 .hstop{cursor:pointer;outline:none}
 .hstop:focus-visible .hit{stroke:var(--ink);stroke-width:2;stroke-dasharray:6 6}
 .hstop .hsign{transform-box:fill-box;transform-origin:50% 0;transition:transform .3s var(--spring)}
@@ -792,15 +791,13 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 @keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 .hboat{animation:bob 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 90%}
 .hwaves path{animation:pw 4s linear infinite}.hwaves path+path{animation-duration:6s;animation-direction:reverse}
-.hwho .bob{animation:nodebob 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
-.hbubble{animation:pop-in .5s var(--spring) both .3s;transform-box:fill-box;transform-origin:0 100%}
 .hnav{position:absolute;bottom:10px;height:40px;display:inline-flex;align-items:center;gap:4px;padding:0 12px;border:2.5px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:3px 4px 0 var(--ink);font:800 13px var(--ui);color:var(--ink);transition:transform .25s var(--spring);z-index:2}
 .hnav span{font:900 22px/1 var(--display)}
 .hnav.prev{left:8px}.hnav.next{right:8px}
 .hnav:active{transform:scale(1.08,.9)}
 .hnav[hidden]{display:none}
 @media (min-width:900px) and (min-height:560px){.hworld{height:clamp(300px,calc(100vh - var(--dock,230px) - 150px),560px)}}
-@media (prefers-reduced-motion:reduce){.smoke,.hflag,.hlamp,.hswing,.hboat,.hwaves path,.hwho .bob,.hbubble{animation:none!important}.hscroll{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.smoke,.hflag,.hlamp,.hswing,.hboat,.hwaves path,.hbubble{animation:none!important}.hscroll{scroll-behavior:auto}}
 .hbeam{animation:beam 3s ease-in-out infinite}@keyframes beam{50%{opacity:.1}}
 @media (prefers-reduced-motion:reduce){.hbeam{animation:none}}
 .hcat{transform-box:fill-box;transform-origin:50% 100%;animation:catb 4s ease-in-out infinite}@keyframes catb{50%{transform:scale(1.03,.97)}}
