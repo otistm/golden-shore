@@ -157,7 +157,7 @@ const fitGlyph=(k,cls)=>`<svg viewBox="0 0 30 30" class="${cls||'gl'}" aria-hidd
 
 /* ---------- the cartographer's story ---------- */
 const LORE={
-  start:"The Guild pays well for a map to the Far Shore. Three cartographers sailed before me. None came back. I have a small ship, a blank chart, and ten gold.",
+  start:"The Guild pays well for a map to the Far Shore. Three cartographers sailed before me. None came back. The Guild gave me a bare ship, a blank chart and 30 gold to outfit her. The tavern is full of hands looking for a berth, and the market smells of tar and powder.",
   1:"The serpent sank back into the Shallows. Past here the charts I carry go blank and the fog begins. The second cartographer's last page ends somewhere in this fog.",
   2:"The Queen had the third cartographer's compass. It doesn't point north. It points into the Deep, at something huge.",
   end:"No one has drawn this coast before. Now someone has. I'm sailing home with the only map there is.",

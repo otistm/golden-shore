@@ -37,7 +37,7 @@ function mapSVG(fit){
 }
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
-  cancelAnimationFrame(raf);B=null;G.inPort=false;
+  cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div>
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
@@ -72,7 +72,7 @@ addEventListener('resize',()=>{if(app.querySelector('.map'))fitMap()});
 function traitsHTML(e,sea){return`<div class="traitlist">${e.traits.map(k=>`<p><b>${TRAITS[k].n}.</b> ${TRAITS[k].d(sea)}</p>`).join('')}</div>`}
 function preview(n){
   let body='',head=nodeTitle(n);head=head[0].toUpperCase()+head.slice(1);
-  if(n.type==='port')body=`<p>A port market. Buy and sell cargo, and earn ${4+G.sea*2} gold for trading when you arrive.</p>`;
+  if(n.type==='port')body=`<p>A port market, a tavern and a shipwright. Buy and sell cargo, hire crew and repair your hull.</p>`;
   if(n.type==='event')body=`<p>Something is out there. It could help or hurt.</p>`;
   if(n.type==='isle')body=`<p>Land no map shows. Draw a new landmark on your chart.</p>`;
   if(n.type==='npc'){const N=NPCS[n.npc];body=`<div class="npc">${portrait(N.look)}<div><p><b>${N.role}.</b> Someone to talk to. They may trade, help, or ask for something.</p></div></div>`}

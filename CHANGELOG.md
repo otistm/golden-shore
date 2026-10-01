@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.15.0
+- On a computer, the title screen spreads out: your ship rides the water across the top of the screen, then the name and how to play sit on the left and the way in on the right, both centred so the name leads.
+- The front page does the same: the animated voyage large on the left, with the Play card beside it.
+- Fish swim under the title screen's waves, and every so often one leaps out of the water.
+- Phones look the same as before, apart from the fish.
+
+## 0.14.0
+- Each ship has its own ink drawing: the Wren's single sail and jib, the Bulwark's three masts and gunports, the Ember's dark sails and flame pennant, and the Lotus's ribbed junk sails. They appear in the ship picker, on your ship card, on the captain's desk and in the Atlas.
+- The title screen shows the ship you're sailing.
+
+## 0.13.0
+- Ports are a drawn harbour now. Tap the market, the tavern, the shipwright or the docks to go in. Each building wears a badge: how much is for sale or for hire, "!" when the hull needs work or someone is waiting on the dock.
+- Inside a building, a row of shortcuts takes you to the others or back to the harbour, and your hold stays docked below.
+- The tutorial still opens straight onto the market.
+
+## 0.12.0
+- Every voyage starts with a bare ship: an empty hold, no crew, and 30 gold from the Guild to outfit her. The opening story says so.
+- Gullhaven's first market always stocks your ship's own gear, and its tavern always has the hands who suit her, so you can fit out any ship for its style. What you buy and who you hire is up to you.
+- Setting sail with an empty hold or nobody aboard asks you first.
+- The ship picker lists each ship's berths and the gear Gullhaven stocks for her.
+- The tutorial still hands you a ready ship.
+
+## 0.11.0
+- Item abilities have checkboxes. A box is ticked when someone in your crew can work that ability, and empty, with the craft it needs, when nobody can. Nothing is crossed out any more.
+- The hull card plays whenever you lose hull, not just after fights: events, people you meet and anything else that damages the ship.
+- Ports no longer pay you for trading when you dock. Gold comes from winning fights, selling cargo and fish, and the people you meet.
+- Sail a voyage code: a new button on the title screen. Type a friend's code to sail the same sea, with the same enemies and the same first markets.
+
 ## 0.10.0
 - Every hold now has 9 slots, yours and every enemy's. Double Planking still boards one up, leaving 8. Nothing can ever add slots, so every slot counts.
 - Voyages in progress: if your cargo no longer fits, the last items move to your locker, or are sold if there's no room. The log says what happened.

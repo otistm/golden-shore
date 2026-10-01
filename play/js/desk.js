@@ -15,7 +15,7 @@ function renderDesk(){
   const fish={};G.creel.forEach(f=>fish[f]=(fish[f]||0)+1);
   const catchH=G.creel.length?`<section><h3>Catch <span class="soft">${G.creel.length} fish</span></h3><div class="catchlist">${Object.entries(fish).map(([f,k])=>`<div class="fishline">${fishSVG(f)}<span>${FISH[f].n}${k>1?` ×${k}`:''}</span></div>`).join('')}</div></section>`:'';
   const log=G.log.slice().reverse().map(e=>e.lore?`<p class="log entry">${e.t}</p>`:`<p class="entry"><b>Day ${e.d}.</b> ${e.t}</p>`).join('');
-  deskEl.innerHTML=`<section class="desk-ship">${shipIcon(G.ship)}<div><b>${sh.n}</b><span class="soft">${sh.type}. ${G.tut?'Tutorial voyage':`Voyage ${codeOf(G.seed)}`}</span></div></section>
+  deskEl.innerHTML=`<section class="desk-ship">${shipArt(G.ship)}<div><b>${sh.n}</b><span class="soft">${sh.type}. ${G.tut?'Tutorial voyage':`Voyage ${codeOf(G.seed)}`}</span></div></section>
     <p class="desk-trait"><b>${tr.n}.</b> ${tr.d()}</p>
     <section><h3>Crew <span class="soft">${(G.crew||[]).length}/${berths()}</span></h3><div class="marks">${(G.crew||[]).map(c=>`<div class="mark crewmark"><span class="crewic">${icon(c.k)}</span><p><b>${CREW[c.k].n}</b>, rank ${crewRank(c)}. ${CREW[c.k].crafts.map(x=>CRAFTS[x]).join(' and ')}.</p></div>`).join('')||'<p class="soft">No crew. Your cargo needs hands.</p>'}</div></section>
     <section><h3>Renown ${renownLvl()} <span class="soft">${renownNext()?`${G.renown||0} of ${renownNext()}`:'top level'}</span></h3>${(G.perks||[]).length?`<div class="marks">${G.perks.map(k=>`<div class="mark">${STAR}<p><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` Fires ${WHEN[orderWhen(k)]}.`:''}</p></div>`).join('')}</div>`:'<p class="soft">Win fights to earn renown and make captain\'s picks.</p>'}</section>

@@ -97,7 +97,7 @@ const TIPS={
   elite:"Elites hit harder, but they carry a landmark as well as cargo.",
   boss:"Bosses guard the way to the next sea. Lose and you fall back to port to refit, then try again.",
   people:"People can trade, help, or give you a quest. Choices can cost gold, hull or fish.",
-  crew:"Your crew make your cargo work. Each item ability needs someone aboard with its craft, like Steel for weapon damage or Alchemy for poison. Greyed abilities need a new hire from the tavern.",
+  crew:"Your crew make your cargo work. Each item ability needs someone aboard with its craft, like Steel for weapon damage or Alchemy for poison. An ability is ticked when someone aboard can work it. Unticked ones need a new hire from the tavern.",
   wright:"The shipwright fits parts to your ship. Each one changes how you fight, with a trade-off. Tap your hull to see your ship.",
   locker:"Your new locker holds spare cargo. It stays out of fights. Drag items between it and your hold."
 };

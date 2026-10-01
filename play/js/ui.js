@@ -6,7 +6,10 @@ function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());c
 function pop(el,txt,cls){if(!el||(B&&B.quiet))return;const r=el.getBoundingClientRect();const p=document.createElement('div');p.className='pop '+(cls||'');p.textContent=txt;p.style.left=(r.left+r.width/2+(Math.random()*18-9))+'px';p.style.top=(r.top+r.height*.45)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}
 function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
-function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
+/* the hull the top bar last showed. When a screen draws with less, the hull card plays, so every loss shows: fights, events, people. */
+let hullSeen=null;
+function noteHull(){if(!G)return;if(hullSeen!=null&&G.hull<hullSeen&&G.hull>0){const a=hullSeen,b=G.hull;setTimeout(()=>hullLoss(a,b),80)}hullSeen=G.hull}
+function barHTML(){noteHull();const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
 function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
@@ -23,7 +26,7 @@ function itemSheet(list,i,mode,after){
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
     <ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>
     ${g.length?`<div class="gloss">${g.map(x=>`<span>${x}</span>`).join('')}</div>`:''}
-    ${!list.enemy&&itemUse(it.k,crewCrafts())!=='all'?'<p class="gloss">Greyed abilities need someone aboard with that craft. Hire crew at a port tavern.</p>':''}
+    ${!list.enemy&&itemUse(it.k,crewCrafts())!=='all'?'<p class="gloss">Unticked abilities need someone aboard with that craft. Hire crew at a port tavern.</p>':''}
     ${mode!=='view'&&it.t<3?`<p class="gloss">Get another ${d.n}, ${TIER[it.t]} or better, to upgrade it to ${TIER[it.t+1]}.</p>`:''}
     <div class="sh-actions">${mode!=='view'&&!inL?`<button class="ghost" data-a="move">Move</button>`:''}${canSwap?`<button class="ghost" data-a="swap" ${swapOk?'':'disabled'}>${inL?'Move to hold':'Stow in locker'}</button>`:''}${mode==='port'||mode==='spoils'?`<button class="ghost" data-a="sell">Sell for ${sellP(it.k,it.t)} gold</button>`:''}<button class="primary" data-a="close">Close</button></div>`);
   ov.addEventListener('click',e=>{
@@ -69,7 +72,7 @@ function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv
     ${(G.perks||[]).length?`<ul class="perks">${G.perks.map(k=>`<li><b>${PERKS[k].n}</b> ${PERKS[k].d}${PERKS[k].order?` <label class="when">Fires <select data-ord="${k}">${Object.entries(WHEN).map(([w,t])=>`<option value="${w}"${orderWhen(k)===w?' selected':''}>${t}</option>`).join('')}</select></label>`:''}</li>`).join('')}</ul>`:'<p class="soft" style="font-size:13px">Win fights to earn renown. Each level lets you make a captain\'s pick for this voyage: an order your crew carry out in fights, or a way of running the ship.</p>'}</div>`}
 const orderWhen=k=>(G.orders&&G.orders[k])||PERKS[k].when;
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
-  const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
+  const ov=overlay(`<div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
     <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
