@@ -71,7 +71,8 @@ function port(id,view){
   app.querySelectorAll('[data-fit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.fit,k=S.fits[i],f=FITTINGS[k];
     if(G.gold<f.p)return toast(`Need ${f.p-G.gold} more gold`);
     if(!canEquip(k))return toast('Double Planking boards up a slot. Sell something to make room first.');
-    G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view)});
+    const from=(app.querySelector(`.fitgood[data-w="${i}"] .o-icon`)||b).getBoundingClientRect(),old=fitIn(f.spot);
+    G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view);fitFly(k,from,old)});
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
     if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
     G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();toast(`Repaired ${n} hull`);port(id,view)});
@@ -164,6 +165,29 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
       <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
+/* a fitting goes on: your ship appears big, the fitting flies off the bench onto its part of the ship (knocking the old one
+   off if there was one), three hammer blows ring out in ink sparks, and "Fitted!" rises. Tap to hurry it. */
+function fitFly(k,from,old){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const F=FITTINGS[k],fx=document.createElement('div');fx.className='fitfx';
+  fx.innerHTML=`<div class="ff-ship">${shipArt(G.ship,'ff-art')}</div><p class="ff-cap"><b>${F.n}</b> fitted to the ${SPOTS[F.spot].toLowerCase()}</p>`;
+  document.body.appendChild(fx);
+  const close=()=>{if(!fx.isConnected)return;fx.classList.add('gone');setTimeout(()=>fx.remove(),450)};
+  fx.addEventListener('click',close);
+  // once the ship has settled in, measure where the fitting goes and send it
+  setTimeout(()=>{if(!fx.isConnected)return;
+  const art=fx.querySelector('.ff-art'),A=art.getBoundingClientRect(),P=(SHIPSPOTS[G.ship]||SHIPSPOTS.sloop)[F.spot],px=A.left+P[0]/120*A.width,py=A.top+P[1]/110*A.height;
+  const glyph=(key,x,y,sz)=>{const g=document.createElement('div');g.className='ff-glyph';g.innerHTML=fitGlyph(key);g.style.cssText=`left:${x-sz/2}px;top:${y-sz/2}px;width:${sz}px;height:${sz}px`;fx.appendChild(g);return g};
+  if(old)glyph(old,px,py,46).animate([{transform:'none',opacity:1},{transform:'translate(0,-30px) rotate(-30deg)',opacity:1,offset:.3},{transform:'translate(-40px,160px) rotate(-160deg)',opacity:0}],{duration:800,delay:60,easing:'cubic-bezier(.5,0,.8,.6)',fill:'both'});
+  const sz=46,g=glyph(k,from.left+from.width/2,from.top+from.height/2,sz),dx=px-(from.left+from.width/2),dy=py-(from.top+from.height/2);
+  g.animate([{transform:'translate(0,0) scale(1.3)',opacity:0},{transform:'translate(0,0) scale(1.3)',opacity:1,offset:.1},{transform:`translate(${dx*.5}px,${dy*.5-120}px) scale(1.5) rotate(200deg)`,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(1) rotate(360deg)`}],
+    {duration:900,delay:old?400:60,easing:'cubic-bezier(.45,0,.35,1)',fill:'both'}).onfinish=()=>{
+    // three hammer blows: the ship jolts and ink sparks fly off the fitting each time
+    [0,170,340].forEach((t,n)=>setTimeout(()=>{if(!fx.isConnected)return;squish(fx.querySelector('.ff-ship'),'jolt');
+      const b=document.createElement('div');b.className='inkburst'+(n===2?' big':'');b.style.left=px+'px';b.style.top=py+'px';b.style.zIndex=76;
+      b.innerHTML=`<svg viewBox="-50 -50 100 100" aria-hidden="true">${Array.from({length:7},(_,m)=>{const a=-Math.PI/2+(m-3)*.45;return`<path d="M${Math.cos(a)*22} ${Math.sin(a)*22}L${Math.cos(a)*(m%2?34:42)} ${Math.sin(a)*(m%2?34:42)}"/>`}).join('')}</svg>`;
+      document.body.appendChild(b);setTimeout(()=>b.remove(),800)},t));
+    setTimeout(()=>{if(!fx.isConnected)return;const l=document.createElement('div');l.className='floatlbl up';l.style.zIndex=77;l.textContent='Fitted!';l.style.left=px+'px';l.style.top=(py-26)+'px';document.body.appendChild(l);setTimeout(()=>l.remove(),1300);fx.classList.add('done')},420);
+    setTimeout(close,1600)}},480)}
 /* a new hand joins: they leap off their bar stool and fly down into their berth in the crew strip, landing with a squash,
    an ink burst and "Aboard!" rising off them */
 function hireFly(k,from){const strip=app.querySelectorAll('#crewbar .cb-c:not(.empty)'),to=strip[strip.length-1];
