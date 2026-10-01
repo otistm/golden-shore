@@ -308,9 +308,36 @@ function checkOrders(){const P=B.P,E=B.E;(B.orders||[]).forEach(o=>{if(o.done)re
 function eliteFit(n){const r=RNG(G.seed,'elitefit',n.id),pool=Object.keys(FITTINGS).filter(k=>!hasF(k));return pool.length?pool[ri(r,pool.length)]:null}
 function nextSea(){
   G.sea++;G.map=genMap(G.seed,G.sea);G.at=G.map.start;G.path=[G.at];G.full=false;G.extra=0;updateReveal();
-  lore(LORE[G.sea]);save();port(G.at);
-  const ov=overlay(`<h2>${SEAS[G.sea]}</h2><p class="log">${LORE[G.sea]}</p><button class="primary">Open the market</button>`,true);
-  const b=ov.querySelector('button');b.onclick=()=>ov.remove();b.focus();
+  lore(LORE[G.sea]);save();
+  seaCrossing(G.sea,()=>{port(G.at);
+    const ov=overlay(`<h2>${SEAS[G.sea]}</h2><p class="log">${LORE[G.sea]}</p><button class="primary">Open the market</button>`,true);
+    const b=ov.querySelector('button');b.onclick=()=>ov.remove();b.focus()});
+}
+/* crossing into a new sea, told like a film: black bars close in, your ship drives through heavy swell under slanting rain
+   (fog banks rolling over it into the Fog Sea, lightning splitting the sky into the Deep), the sea's name slams onto the
+   screen, and the bars close to black before you make port. A tap skips it; reduced motion shows just the title. */
+function seaCrossing(sea,then){
+  const fx=document.createElement('div'),still=matchMedia('(prefers-reduced-motion:reduce)').matches,deep=sea>=2;
+  const wave=(y,amp,len)=>{let d=`M${-len*2} ${y}`;for(let x=-len*2;x<1200;x+=len)d+=`q${len/4} ${-amp} ${len/2} 0t${len/2} 0`;return`<path class="w" d="${d}V400H${-len*2}z"/>`};
+  const rain=Array.from({length:deep?60:40},(_,i)=>`<i style="--x:${(i*53)%100}%;--d:${((i*37)%20)/20}s;--s:${.45+((i*29)%10)/40}s"></i>`).join('');
+  const fog=sea===1?`<div class="sx-fog">${Array.from({length:5},(_,i)=>`<span style="--i:${i}"></span>`).join('')}</div>`:'';
+  fx.className='seacross'+(deep?' deep':'')+(still?' still':'');
+  fx.innerHTML=`<div class="sx-rain">${rain}</div>
+    <svg class="sx-sea" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      ${deep?'<path class="sx-bolt" d="M286 0l-18 52 14 4-26 58 10 3-30 70 44-80-12-4 26-50-14-4 18-49z"/>':''}
+      <path class="sx-horizon" d="M-20 150H420"/>
+      <g class="sx-w1">${wave(170,8,80)}</g>
+      <g class="sx-ship"><g transform="translate(140 98) scale(1.05)"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
+      <g class="sx-w2">${wave(206,deep?22:14,deep?120:100)}</g>
+      <g class="sx-w3">${wave(240,deep?30:18,deep?150:120)}</g>
+    </svg>${fog}
+    <div class="sx-title"><p class="sx-kicker">Sea ${sea+1} of 3</p><h2 class="sx-name">${SEAS[sea]}</h2></div>
+    <div class="sx-bar top"></div><div class="sx-bar bot"></div>`;
+  document.body.appendChild(fx);
+  let gone=false;
+  const end=()=>{if(gone)return;gone=true;clearTimeout(t1);then();fx.classList.add('out');setTimeout(()=>fx.remove(),500)};
+  const t1=setTimeout(()=>{fx.classList.add('close');setTimeout(end,550)},still?1600:4600);
+  setTimeout(()=>fx.addEventListener('click',end),still?0:400);
 }
 function sink(){ending(false)}
 function ending(win){

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.24.0
+- Sailing into a new sea plays like a film. Black letterbox bars close in, your ship drives across the screen through rolling swell and slanting rain, pitching and climbing every wave. Into the Fog Sea, banks of fog roll across it; into the Deep, the waves tower, the ship heaves harder and lightning splits the sky twice with the whole screen flashing. "Sea 2 of 3" and the sea's name slam onto the screen, then the bars close to black and you make port. Tap to skip; reduced motion shows just the title.
+
 ## 0.23.8
 - Selling pays out where you can see it: the cargo goes up in a puff of ink, and a little spray of coins springs out and flies up into your purse in the top bar, which counts up as each coin lands. It plays when you drag cargo onto Set sail or Sail on, sell from an item's card, or sell fish at the docks.
 
