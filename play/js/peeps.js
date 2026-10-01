@@ -9,12 +9,77 @@ const PEEP_PARTS={
   beard:{},
   acc:{eyepatch:{t:[88.521127,88.978474],bg:'',ink:'M70.8584266,-12.5992383 C72.0795533,-13.0179232 73.053497,-11.7474966 72.81899,-10.6402324 C72.5422294,-9.3362011 71.181666,-8.28959445 70.2795533,-7.37043202 C69.3330745,-6.40244768 68.3675815,-5.45348486 67.3661731,-4.54045159 C65.4542012,-2.79448682 63.4725111,-1.15039288 61.3830745,0.381896745 L60.7441885,0.850227861 C58.8287857,2.25211436 56.9192012,3.62147404 54.8675815,4.83504743 C53.7563139,5.49023334 52.6344829,6.12428422 51.4978632,6.73508657 C51.0924407,6.95277737 50.5978632,7.28861299 50.0889195,7.53821768 C51.9499759,8.97539968 53.3823702,11.1692157 53.6929336,13.2129731 C54.4619477,18.2896071 51.1915252,22.9942647 46.5772294,24.8647147 C44.2767364,25.7967695 41.7161731,26.0672979 39.2570181,25.786202 C36.7556097,25.5006678 34.2203984,24.7609418 32.5957505,22.7110553 C31.1527928,20.8913292 30.6330745,18.5688009 30.5295533,16.2881198 C30.4809618,15.2060063 30.4915252,14.1405895 30.7196942,13.183384 C29.7246238,13.191838 28.7295533,13.187611 27.7429336,13.1981785 C25.3049054,13.2214271 22.8624407,13.2322059 20.4225111,13.1643625 C17.9063139,13.0925034 15.4027928,12.9804877 12.8950463,12.7566678 C11.7943421,12.6571218 10.6999759,12.4943821 9.6053984,12.3379829 C8.54293361,12.1879241 7.3703984,12.1308596 6.37744066,11.695478 C6.30983502,11.6680024 6.33809938,11.5707813 6.39645474,11.5515484 C7.45490545,11.2093723 8.65701812,11.2704525 9.75983502,11.2030318 L10.8347005,11.1378102 C11.7299701,11.0843133 12.6246238,11.0350989 13.5225111,11.0062647 C15.5966308,10.9380249 17.669133,10.9212424 19.7428483,10.8856893 L20.631666,10.8690983 C23.0718069,10.8204877 25.5119477,10.7930122 27.9520885,10.7148126 C28.9640604,10.6831101 29.9781449,10.623932 30.9943421,10.5689809 C31.1126519,10.3003547 31.2861026,10.0551883 31.4527928,9.81657385 C31.9513843,9.10220986 32.5851871,8.47238598 33.2422294,7.90174019 C34.5877928,6.72642121 36.1027928,5.85375585 37.7929336,5.26831553 C39.4677857,4.69013158 41.9174308,4.40330514 43.6893335,4.44062785 C45.4612362,4.47795057 47.9864195,4.72796328 48.7978632,6.17712179 C48.8823702,6.3271805 50.4267364,6.0376306 50.8851871,5.68657776 C51.9563139,4.86886348 53.0084266,4.02768931 54.0413139,3.16538011 C55.959835,1.56123138 57.9328632,-0.0175553093 59.7499759,-1.73371969 C61.6239195,-3.50483515 63.4830745,-5.30553965 65.2661731,-7.16542224 C66.1619477,-8.09747703 67.0556097,-9.03164533 67.9239195,-9.98694866 C68.8112435,-10.9612735 69.5739195,-12.1617432 70.8584266,-12.5992383 Z'}}
 };
-const PEEP_ORDER=['body','head','face','beard','acc'];
-const PEEP_BASE={body:'whatever',head:'shaved2',face:'eyesClosed',beard:null,acc:'eyepatch'};
+/* hand-inked parts drawn to sit on the same bust: stroked ink drawings instead of filled outlines. W is a paper fill, K an ink fill.
+   hair sits behind the head (long locks), wear is clipped to the shirt, hat goes over the head, hold sits on the open left hand. */
+const PK_W='fill="#fff"',PK_K='fill="#000"',PK_NOSE='<path d="M146 106q8 3 4 9q-2 1-6 0"/>';
+const PEEP_INK={
+  hair:{
+    long:`<path ${PK_K} stroke-width="2" d="M93 62q-9 30-6 62q2 22-6 38q14 4 22-6q-6-30-6-60zM166 64q8 30 4 60q-1 18 6 30q-12 4-16-6q4-28 2-56z"/>`,
+    tail:`<path ${PK_K} stroke-width="2" d="M96 60q-18 6-20 30q-1 16-10 26q14 2 20-10q6-14 10-22z"/>`},
+  wear:{
+    stripes:`<g stroke="#fff" stroke-width="6">${[176,192,208,224,240,256,272].map(y=>`<path d="M60 ${y}H178"/>`).join('')}</g>`,
+    bandolier:`<path ${PK_W} stroke-width="2.6" d="M70 160l12-6 100 118-14 6z"/><g ${PK_K} stroke="none">${[0,1,2,3,4].map(i=>`<rect x="${92+i*16}" y="${178+i*19}" width="6" height="9" rx="1.5" transform="rotate(-40 ${95+i*16} ${182+i*19})"/>`).join('')}</g>`,
+    vest:`<g stroke="#fff" stroke-width="2.6"><path d="M84 168q10 34 44 46v68M174 168q-10 34-46 46"/><path d="M96 252h20M142 252h20"/></g><g ${PK_W} stroke="none"><circle cx="136" cy="230" r="3"/><circle cx="136" cy="248" r="3"/><circle cx="136" cy="266" r="3"/></g>`,
+    coat:`<path ${PK_W} stroke-width="2.6" d="M98 156l20 52-10 74H70q2-70 10-118zM162 158l-14 50 8 74h22q0-70-6-116z"/><path stroke="#fff" stroke-width="2.6" d="M128 214v62"/><g ${PK_W} stroke-width="2"><circle cx="122" cy="226" r="3"/><circle cx="122" cy="250" r="3"/><circle cx="136" cy="226" r="3"/><circle cx="136" cy="250" r="3"/></g>`,
+    apron:`<path ${PK_W} stroke-width="2.6" d="M108 182h44l6 100h-56z"/><path stroke-width="2" d="M108 186q-20-8-36 4M152 186q16-8 30 2M118 226h24v16h-24z"/>`,
+    robe:`<path ${PK_W} stroke-width="2.6" d="M60 168q30-14 70-12q36 0 62 14l-8 112H70z"/><path stroke-width="2" d="M104 160q26 40 52 0M96 200q-4 40 0 80M164 200q4 40 0 80M128 196v86"/>`},
+  face:{
+    open:`<path d="M126 94q6-3 12-1M150 92q6-2 10 1"/><g ${PK_K} stroke="none"><ellipse cx="132" cy="103" rx="2.4" ry="3.2"/><ellipse cx="155" cy="102" rx="2.2" ry="3"/></g>${PK_NOSE}<path d="M140 124q8 5 16-2"/>`,
+    grin:`<path d="M126 92q6-4 12-2M150 90q6-3 10 0"/><g ${PK_K} stroke="none"><ellipse cx="132" cy="102" rx="2.4" ry="3.2"/><ellipse cx="155" cy="101" rx="2.2" ry="3"/></g>${PK_NOSE}<path ${PK_K} stroke-width="2.4" d="M137 121q11 2 21-3q-2 12-11 12q-8 0-10-9z"/><path stroke="#fff" stroke-width="2" d="M140 123q8 1 15-2"/>`,
+    stern:`<path stroke-width="3.4" d="M125 93l13 4M149 96l11-4"/><g ${PK_K} stroke="none"><ellipse cx="132" cy="103" rx="2.4" ry="2.8"/><ellipse cx="155" cy="102" rx="2.2" ry="2.6"/></g>${PK_NOSE}<path d="M141 127h14"/>`,
+    smug:`<path d="M126 96q6-1 12 0M150 88q6-3 11 1M127 102h10M150 101h9"/><g ${PK_K} stroke="none"><path d="M128 102h8q0 4-4 4t-4-4z"/><path d="M151 101h7q0 4-3.5 4t-3.5-4z"/></g>${PK_NOSE}<path d="M141 127q9 0 15-6"/>`,
+    wide:`<path d="M126 90q6-4 12-2M150 88q6-3 10 0"/><g ${PK_W} stroke-width="2"><circle cx="132" cy="102" r="5"/><circle cx="155" cy="101" r="4.5"/></g><g ${PK_K} stroke="none"><circle cx="133" cy="102" r="2"/><circle cx="156" cy="101" r="2"/></g>${PK_NOSE}<ellipse ${PK_K} stroke="none" cx="148" cy="127" rx="3.5" ry="4.5"/>`,
+    kind:`<path d="M126 94q6-3 12-1M150 92q6-2 10 1M127 104q5-5 10 0M150 103q4-4 9 0"/>${PK_NOSE}<path d="M139 123q9 7 18-1"/>`,
+    kid:`<path d="M126 92q6-4 12-2M150 90q6-3 10 0"/><g ${PK_K} stroke="none"><ellipse cx="132" cy="103" rx="3" ry="3.8"/><ellipse cx="155" cy="102" rx="2.8" ry="3.6"/></g><g ${PK_K} stroke="none" opacity=".8"><circle cx="124" cy="113" r="1"/><circle cx="128" cy="116" r="1"/><circle cx="121" cy="117" r="1"/><circle cx="158" cy="113" r="1"/><circle cx="161" cy="117" r="1"/></g>${PK_NOSE}<path ${PK_K} stroke-width="2.4" d="M138 121h19q-2 10-10 10t-9-10z"/>`},
+  beard:{
+    full:`<path ${PK_K} stroke-width="2" d="M98 110q2 22 14 32q18 14 38 8q14-6 16-34l-1-10q-3 14-9 15q-8-5-16-4q-8-1-14 4q-6 0-10-6q-8-6-10-12z"/><path ${PK_W} stroke="none" d="M140 125q8 4 15-1q-2 5-8 5t-7-4z"/>`,
+    stubble:`<g ${PK_K} stroke="none" opacity=".75">${[[106,128],[111,133],[117,137],[124,139],[131,140],[138,140],[145,139],[152,137],[158,133],[114,128],[121,132],[128,134],[136,135],[144,134],[151,132],[157,128],[160,121]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1"/>`).join('')}</g>`,
+    mustache:`<path ${PK_K} stroke-width="1.6" d="M135 120q7-6 13-2q6-4 13 2q2 3-1 5q-4-4-12-1q-8-3-12 1q-3-2-1-5z"/>`,
+    goatee:`<path stroke-width="2.6" d="M138 119q5-3 10-1q5-2 10 1"/><path ${PK_K} stroke-width="2" d="M142 132q5 2 11 0l-4 12h-3z"/>`,
+    walrus:`<path ${PK_K} stroke-width="1.6" d="M134 124q6-9 13-4q7-5 14 3q-1 6-5 6q-3-4-9-3q-6-1-9 3q-4 0-4-5z"/>`},
+  acc:{
+    glasses:`<g stroke-width="2.4"><circle cx="132" cy="103" r="7"/><circle cx="156" cy="102" r="6"/><path d="M139 103q4-3 11-1M125 102l-30-4"/></g>`,
+    earring:`<circle cx="94" cy="125" r="3.6" stroke-width="2.4"/>`,
+    scar:`<path stroke-width="2.4" d="M150 108l12 14M152 116l4-3M156 121l4-3"/>`,
+    soot:`<path stroke-width="1.8" d="M119 113l7-2M121 117l7-2M157 112l5-2M158 116l4-1"/>`,
+    kerchief:`<path ${PK_W} stroke-width="2.6" d="M104 156q26 12 52 0l-6 10-20 26-20-26z"/><path stroke-width="2" d="M128 168l-6 14M132 168l8 12"/>`,
+    parrot:`<g transform="translate(46 96)"><path ${PK_W} stroke-width="2.6" d="M14 64q-14-6-12-30q2-26 22-30q16 0 18 14q0 10-6 14q10 8 8 24q-2 12-16 14z"/><path ${PK_K} stroke-width="2" d="M38 18q12 0 12 10q-4-4-10-2z"/><circle ${PK_K} stroke="none" cx="30" cy="16" r="2.4"/><path stroke-width="2.2" d="M16 30q8 6 6 20M20 70l-4 26M26 70l0 24"/><path ${PK_K} stroke-width="2" d="M8 60q-6 14-2 30q6-12 8-26z"/></g>`,
+    cormorant:`<g transform="translate(166 60)"><path ${PK_K} stroke-width="2.4" d="M20 96q-14-4-12-22q2-16 14-22q-4-16 2-30q6-12 18-10q8 2 8 10q-8-2-12 6q-4 10 0 24q12 8 10 26q-2 14-14 20z"/><path stroke-width="2.4" d="M46 12q14 2 22 8q-8 2-20-2"/><circle ${PK_W} stroke="none" cx="40" cy="12" r="2"/><path stroke="#fff" stroke-width="2" d="M16 62q8 10 6 26M22 66q8 8 8 20"/></g>`},
+  hat:{
+    tricorn:`<path ${PK_K} stroke-width="2.6" d="M74 72q14-16 30-10q10-30 30-30q20 0 26 26q14-4 26 10q-30 12-56 8q-30 4-56-4z"/><path stroke="#fff" stroke-width="2.4" d="M86 70q42 10 88-4"/><g transform="translate(130 50)" stroke="#fff" stroke-width="1.6"><circle ${PK_W} cx="0" cy="0" r="4"/><path d="M-6 5l12 6M6 5l-12 6"/></g>`,
+    bandana:`<path ${PK_W} stroke-width="2.8" d="M90 72q-2-36 38-40q46-2 46 34q-4 2-6 4q-40-8-78 2z"/><path ${PK_K} stroke="none" d="M100 50h3v3h-3zM118 42h3v3h-3zM138 40h3v3h-3zM156 46h3v3h-3zM110 60h3v3h-3zM130 54h3v3h-3zM150 56h3v3h-3z"/><path ${PK_W} stroke-width="2.6" d="M92 66q-12 0-18 10q10 4 18-2zM92 66q-8 10-6 22q8-6 8-16z"/>`,
+    beanie:`<path ${PK_W} stroke-width="2.8" d="M88 74q-4-44 42-44q44 0 40 42z"/><path ${PK_W} stroke-width="2.8" d="M85 62q44-10 88 0l1 14q-44-10-90 0z"/><path stroke-width="1.8" d="M100 64v10M112 62v10M124 61v10M136 61v10M148 62v10M160 63v10"/><path stroke-width="1.6" d="M110 40q-4 10-6 18M126 34v24M144 36q4 10 4 22"/>`,
+    cap:`<path ${PK_W} stroke-width="2.8" d="M90 62q-2-30 40-30q40 0 42 30z"/><path ${PK_K} stroke-width="2.6" d="M88 60q42-8 86 0v8q-42-6-86 0z"/><path ${PK_K} stroke-width="2.6" d="M150 66q20 0 32 8q-14 4-36-2z"/><circle ${PK_W} stroke-width="2" cx="130" cy="48" r="4"/>`,
+    helmet:`<path ${PK_W} stroke-width="2.8" d="M90 70q-4-40 40-40q42 0 42 40z"/><path ${PK_W} stroke-width="2.8" d="M76 72q54-8 108 0q-4 6-10 6q-44-6-88 0q-8 0-10-6z"/><path stroke-width="2" d="M130 32v38M110 40q-6 14-6 30M150 40q6 14 6 30"/>`,
+    hood:`<path ${PK_W} stroke="none" d="M90 80q-4-48 40-48q42 0 40 48z"/><path ${PK_W} stroke-width="2.8" d="M128 22q48 0 50 50q2 40-6 70q-14 10-22 12q14-30 14-62q-2-40-36-40q-32 0-38 34q-6 34 8 68q-14 0-24-10q-10-36-4-70q10-52 58-52z"/><path stroke-width="2.6" d="M94 82q4-20 36-22q30 0 34 22"/><path stroke-width="2" d="M100 50q14-16 34-16M168 70q4 30-2 60"/>`,
+    witch:`<path ${PK_K} stroke-width="2.6" d="M70 70q60-14 120 0q-8 8-20 8q-40-6-80 0q-14 0-20-8zM98 66q14-30 26-46q8-10 20-14q6 2 2 8q-8 6-8 18q-2 18 10 34z"/><path stroke="#fff" stroke-width="2.4" d="M103 62q28-6 54 0"/>`,
+    bald:`<path ${PK_W} stroke="none" d="M89 86q-4-58 42-58q48 0 46 58z"/><path stroke-width="3" d="M93 96q-8-54 37-54q38 0 33 54"/><path stroke-width="1.6" opacity=".6" d="M108 50q8-6 16-6"/>`,
+    goggles:`<path ${PK_K} stroke="none" d="M88 66q42-12 86 0v6q-42-12-86 0z"/><g ${PK_W} stroke-width="2.6"><rect x="106" y="52" width="22" height="18" rx="7"/><rect x="134" y="52" width="22" height="18" rx="7"/></g><path stroke-width="2" d="M128 61h6"/><path stroke-width="1.6" d="M112 58l6-3M140 58l6-3"/>`,
+    wild:`<path ${PK_K} stroke-width="2" d="M88 70q-12-6-8-18q-10-8 2-18q0-14 16-12q6-12 22-6q12-10 26 0q16-4 20 10q14 4 10 18q8 10-2 18q2 8-4 12l-10-4q-36-14-72 0z"/>`,
+    topknot:`<path ${PK_K} stroke-width="2" d="M118 38q-6-20 12-22q18 2 12 22z"/><path ${PK_W} stroke-width="2.4" d="M118 38q12 4 24 0"/>`,
+    leaf:`<path ${PK_W} stroke-width="2.4" d="M104 58q-6-22 14-30q4 22-14 30z"/><path stroke-width="1.6" d="M105 56l10-22"/>`},
+  hold:{
+    sword:`<path stroke-width="3" d="M34 176L70 70"/><path ${PK_W} stroke-width="2.6" d="M22 168l22 8M28 172l-6 14"/><path stroke-width="1.4" d="M38 164L66 82"/>`,
+    flame:`<path ${PK_W} stroke-width="2.6" d="M34 172q-16-6-12-26q4-14 12-22q0 12 8 16q4-10 0-20q20 12 16 34q-4 16-24 18z"/><path ${PK_K} stroke-width="2" d="M36 168q-8-4-6-14q2-6 6-10q2 10 8 12q0 10-8 12z"/>`,
+    bottle:`<path ${PK_W} stroke-width="2.6" d="M28 172v-24q0-8 6-12v-12h8v12q6 4 6 12v24z"/><path ${PK_K} stroke="none" d="M30 156h16v14H30z"/><path stroke-width="2.4" d="M32 120h12"/>`,
+    flask:`<path ${PK_W} stroke-width="2.6" d="M22 172q-4-2 0-8l12-22v-18h10v18l12 22q4 6 0 8z"/><path ${PK_K} stroke="none" d="M24 166l8-14h14l8 14z"/><circle ${PK_W} stroke-width="1.6" cx="40" cy="160" r="2"/><path stroke-width="1.6" d="M42 116q-4-6 2-10M38 110q-4-6 0-10"/>`,
+    ball:`<circle ${PK_K} stroke="none" cx="36" cy="160" r="13"/><path stroke="#fff" stroke-width="2" d="M30 154q3-4 8-4"/>`,
+    herbs:`<path stroke-width="2.4" d="M36 174q-2-30 4-50M36 160q-12-6-14-20M38 150q10-6 12-20"/><g ${PK_W} stroke-width="2"><path d="M40 124q-8-8 0-16q8 8 0 16z"/><path d="M22 140q-10-2-10-10q10 0 10 10z"/><path d="M50 130q8-4 12 2q-8 6-12-2z"/></g>`,
+    needle:`<path stroke-width="2.6" d="M30 172L56 110"/><ellipse ${PK_W} stroke-width="1.6" cx="55" cy="113" rx="1.6" ry="3.6" transform="rotate(22 55 113)"/><path stroke-width="1.6" d="M55 112q14 6 6 22q-8 14 6 26"/>`,
+    rope:`<g ${PK_W} stroke-width="2.6"><ellipse cx="36" cy="164" rx="20" ry="8"/><ellipse cx="36" cy="156" rx="18" ry="7"/><ellipse cx="36" cy="149" rx="15" ry="6"/></g><path stroke-width="2" d="M54 164q8 6 2 12"/>`,
+    keg:`<path ${PK_W} stroke-width="2.6" d="M20 172q-4-18 0-36h32q4 18 0 36z"/><path stroke-width="2" d="M19 144h34M19 164h34"/><path stroke-width="2" d="M36 136q4-10 12-12"/><path ${PK_K} stroke="none" d="M48 120l3 4 4-2-2 4 4 2-5 1z"/>`,
+    spyglass:`<path ${PK_W} stroke-width="2.6" d="M24 176l8 4 30-58-8-4z"/><path stroke-width="2" d="M30 166l8 4M42 144l8 4"/>`}};
+const PEEP_ORDER=['hair','body','wear','head','face','beard','acc','hat','hold'];
+const PEEP_BASE={body:'whatever',head:'shaved2',face:'eyesClosed'};
 const PEEP_BUST='0 0 240 324',PEEP_HEAD='64 22 130 130';   // the whole bust, and a crop to head and shoulders for round portraits
-/* a portrait from a look (any missing layer uses the base); view picks the frame */
+/* a portrait from a look (missing body, head and face use the base); view picks the frame. Filled parts come from PEEP_PARTS, inked ones from PEEP_INK. */
 function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{});
-  return PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];if(!p)return'';
+  return PEEP_ORDER.map(s=>{const v=L[s];if(!v)return'';
+    const ink=PEEP_INK[s]&&PEEP_INK[s][v];
+    if(ink){const g=`<g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ink}</g>`;
+      if(s!=='wear')return g;const b=PEEP_PARTS.body[L.body];   // clothes only show on the shirt
+      return`<clipPath id="pk-shirt-${L.body}"><path transform="translate(${b.t[0]} ${b.t[1]})" d="${b.ink}"/></clipPath><g clip-path="url(#pk-shirt-${L.body})">${g}</g>`}
+    const p=PEEP_PARTS[s]&&PEEP_PARTS[s][v];if(!p)return'';
     return`<g transform="translate(${p.t[0]} ${p.t[1]})" fill-rule="evenodd">${p.bg?`<path d="${p.bg}" fill="#fff"/>`:''}${p.ink?`<path d="${p.ink}" fill="#000"/>`:''}</g>`}).join('')}
 function peep(look,view){return`<svg class="peep" viewBox="${view||PEEP_BUST}" aria-hidden="true">${peepLayers(look)}</svg>`}
 /* a crew member's face for the round portraits in the tavern, the crew strip, the ship card and the desk */

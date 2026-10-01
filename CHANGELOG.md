@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.18.0
+- Every crew member has their own look: hats (beanie, bandana, tricorn, peaked cap, helmet, hood, witch's hat, goggles), hair, faces, beards, clothes (stripes, waistcoat, coat, apron, robe, bandolier) and something in hand that says what they do, like the Fire-eater's flame, the Gunner's cannonball and the Sailmaker's needle. The Parrot and the Cormorant perch on their sailor's shoulder.
+
 ## 0.17.4
 - Crew portraits in circles are cropped closer, so each face fills its circle.
 - The Harbour button is the same height as the other place buttons, with a proper ink arrow.
