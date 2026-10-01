@@ -25,6 +25,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | config.js | Version and online settings |
 | core.js | Seeded randomness (`RNG`, `pick`, `ri`) |
 | glyphs.js | Ink glyph library, item icons, ship emblems, upgrade chevrons |
+| peeps.js | Crew portraits: Open Peeps-style busts from layered parts (`PEEP_PARTS`, `peep()`, `crewFace()`) |
 | items.js | All cargo as `I(...)` rows (a shared set plus about 48 per ship), tier scaling, stats in context (auras), generated item text |
 | world.js | Ships, traits, enemies, seas, landmarks (`CHARTS`), story (`LORE`), events |
 | fish.js | Fish species, drawings, creel helpers |
@@ -80,6 +81,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Every ability belongs to a craft (`CRAFTS` in items.js). `KEYCRAFT` and `AURACRAFT` map effect and aura fields to crafts; damage is Gunnery on cannons and Steel otherwise.
 - `statsOf(list,i,cr)` drops abilities whose craft isn't in `cr` (a Set from `crewCrafts()`), so fights need no gating of their own. Pass `cr` for the player's cargo only. Enemy lists carry `list.enemy=true` and are never gated.
 - `describe()` shows every ability with its craft and greys out missing ones (`abl()`). `itemUse(k,cr)` says 'all', 'some' or 'none' for the faded look in the hold.
+- Crew portraits come from peeps.js: a bust of layers (body, head, face, beard, acc) in a 240×324 frame, from Open Peeps (CC0). A crew member's `look` in `CREW` picks a part per layer; missing layers use `PEEP_BASE`. New parts go in `PEEP_PARTS`.
 - Crew are `CREW` in world.js (crafts, fee, wage). Their portraits are item rows tagged K, which are never drawn as cargo. `G.crew` is a list of `{k,xp,m}`; rank comes from `RANKXP`, rules from `RANKS`, and `B.cr` holds each craft's rank in a fight.
 - A new item ability field needs a craft in `KEYCRAFT` (or `AURACRAFT`) and words in `fxWords()`, or it will slip past the gate.
 - Old saves get crew from `crewFromOldSave()` in state.js. Don't remove it.

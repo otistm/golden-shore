@@ -93,7 +93,7 @@ function port(id,view){
 function tavernHTML(S){const full=(G.crew||[]).length>=berths();
   return`<section class="tavern"><div class="m-head"><h2 style="font-size:20px">Tavern <span class="soft">deck ${(G.crew||[]).length}/${berths()}</span></h2><button class="ghost" id="yourcrew">Your crew</button></div>
     <div class="offers hires">${S.tavern.map((k,i)=>{if(!k)return`<div class="offer sold">Hired</div>`;const C=CREW[k];
-      return`<div class="offer hire"><div class="o-top"><span class="o-icon crewic">${icon(k)}</span><div><h3>${C.n}</h3><p class="o-meta">${crewCrafts1(k)}</p></div></div>
+      return`<div class="offer hire"><div class="o-top"><span class="o-icon crewic">${crewFace(k)}</span><div><h3>${C.n}</h3><p class="o-meta">${crewCrafts1(k)}</p></div></div>
         <p class="o-desc">Lets your cargo use ${C.crafts.map(c=>`<b>${CRAFTS[c]}</b>: ${CRAFTD[c]}`).join('. ')}. Wage ${wageOf(k)} gold at each port.</p>
         <button class="buy" data-hire="${i}" ${full||G.gold<feeOf(k)?'aria-disabled="true"':''}>${full?'Deck full':`Hire for ${feeOf(k)} gold`}</button></div>`}).join('')}</div></section>`}
 const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));

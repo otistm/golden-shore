@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.17.0
+- New crew portraits, drawn like Open Peeps: a hand-inked bust built from layers (body, hair, face, facial hair, accessory). Every crew member uses the same base figure for now, ready to be given their own hair, expressions, clothes and accessories. They show in the tavern, the crew strip, your ship card and the captain's desk.
+
 ## 0.16.0
 - The harbour is a side-on scene now, like a 2D platformer drawn in ink: sky, gulls and the Gullhaven light on the horizon, a cobbled quay, and the water below. Swipe along it, or tap the arrows at its edges, to walk from the docks to the market, the tavern and the shipwright.
 - Each place shows what it has in the drawing itself: goods laid out on the market counter, faces at the tavern windows for every hand looking for work, a chalk notice at the shipwright with your hull, and someone waiting on the pier with a "!" when they want a word. Fish to sell sit in a crate on the dock.

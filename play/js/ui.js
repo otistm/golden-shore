@@ -56,7 +56,7 @@ const crewCrafts1=k=>CREW[k].crafts.map(c=>`<span class="chipc">${craftIcon(c)}$
 const pips=(n,max,cls)=>`<span class="${cls}" aria-label="${n} of ${max}">${Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
 function crewRows(edit){const cs=G.crew||[];
   return cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx=rankXP()[rk];
-    return`<div class="crewrow"><span class="o-icon crewic">${icon(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
+    return`<div class="crewrow"><span class="o-icon crewic">${crewFace(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
       <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${wageOf(c.k)}. Morale ${pips(c.m,3,'mor')}</span></div>
       ${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')+
     Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="crewrow empty"><span class="fitnone"></span><div><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('')}
@@ -169,7 +169,7 @@ function holdDock(extra,ups,lups,hint){
     <p class="hint${G.moving?' on':''}">${hint}</p>
     ${boardHTML(G.board,'p',ups)}
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}
-    ${G.crew?`<button class="crewbar" id="crewbar" type="button" aria-label="Your crew"><span class="cb-l">Crew</span>${G.crew.map(c=>`<span class="cb-c" title="${CREW[c.k].n}">${icon(c.k)}</span>`).join('')}${Array.from({length:Math.max(0,berths()-G.crew.length)},()=>'<span class="cb-c empty"></span>').join('')}<span class="cb-cr">${[...crewCrafts()].map(craftIcon).join('')}</span></button>`:''}
+    ${G.crew?`<button class="crewbar" id="crewbar" type="button" aria-label="Your crew"><span class="cb-l">Crew</span>${G.crew.map(c=>`<span class="cb-c" title="${CREW[c.k].n}">${crewFace(c.k)}</span>`).join('')}${Array.from({length:Math.max(0,berths()-G.crew.length)},()=>'<span class="cb-c empty"></span>').join('')}<span class="cb-cr">${[...crewCrafts()].map(craftIcon).join('')}</span></button>`:''}
     ${extra}</div></footer>`;
 }
 function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
