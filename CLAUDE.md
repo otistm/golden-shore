@@ -74,6 +74,14 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
   - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
+## Crafts and crew
+- Every ability belongs to a craft (`CRAFTS` in items.js). `KEYCRAFT` and `AURACRAFT` map effect and aura fields to crafts; damage is Gunnery on cannons and Steel otherwise.
+- `statsOf(list,i,cr)` drops abilities whose craft isn't in `cr` (a Set from `crewCrafts()`), so fights need no gating of their own. Pass `cr` for the player's cargo only. Enemy lists carry `list.enemy=true` and are never gated.
+- `describe()` shows every ability with its craft and greys out missing ones (`abl()`). `itemUse(k,cr)` says 'all', 'some' or 'none' for the faded look in the hold.
+- Crew are `CREW` in world.js (crafts, fee, wage). Their portraits are item rows tagged K, which are never drawn as cargo. `G.crew` is a list of `{k,xp,m}`; rank comes from `RANKXP`, rules from `RANKS`, and `B.cr` holds each craft's rank in a fight.
+- A new item ability field needs a craft in `KEYCRAFT` (or `AURACRAFT`) and words in `fxWords()`, or it will slip past the gate.
+- Old saves get crew from `crewFromOldSave()` in state.js. Don't remove it.
+
 ## Fittings
 - A fitting is one row in `FITTINGS` (world.js): name, spot, price, optional `hp` (health in fights), text and a 30×30 glyph. Its effect is written where it applies, checked with `hasF(key)`, like landmarks with `hasC`.
 - Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks) or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
@@ -138,6 +146,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Start a voyage: pick a ship, Gullhaven's intro appears, and Hock is on the dock.
 - Buy, drag items in the hold, sell by dragging onto Set sail, and check the upgrade chevrons.
 - Win a fight with a full hold: sell onto Sail on, drag a spoil into the hold, drag it back onto its card, then take one and sail on.
+- Buy an item whose craft nobody has: its ability is crossed out and it looks faded. Hire someone with that craft at the tavern and it comes alive.
 - Sail to a threat, fight at 1× and with Skip, take spoils, and see the log update.
 - Try a fishing spot, an NPC and an event.
 - Refresh on the chart, then Continue voyage resumes where you were.

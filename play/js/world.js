@@ -2,10 +2,10 @@
 "use strict";
 /* ---------- ships ---------- */
 const SHIPS={
-  sloop:{n:'The Wren',type:'Sloop',theme:'Speed, haste and crits.',hp:110,trait:'swift',start:[{k:'rapier',t:0},{k:'jib',t:0}]},
-  galleon:{n:'The Bulwark',type:'Galleon',theme:'Shields, health and heavy hits.',hp:110,trait:'bulwark',start:[{k:'shieldbash',t:0},{k:'bulkhead',t:0}],lock:'Beat a sea boss to unlock.',ok:a=>a.bosses>0},
-  privateer:{n:'The Ember',type:'Privateer',theme:'Cannons, powder and burn.',hp:100,trait:'kindle',start:[{k:'swivel',t:0},{k:'flare',t:0}],lock:'Beat 3 elites to unlock.',ok:a=>a.elites>=3},
-  junk:{n:'The Lotus',type:'Junk',theme:'Healing, poison and calm.',hp:105,trait:'lotus',start:[{k:'fugu',t:0},{k:'teapot',t:0}],lock:'Finish a voyage to unlock.',ok:a=>a.wins>0}
+  sloop:{n:'The Wren',type:'Sloop',theme:'Speed, haste and crits.',hp:110,trait:'swift',start:[{k:'rapier',t:0},{k:'jib',t:0}],crew:['fencer','bosun'],berths:3},
+  galleon:{n:'The Bulwark',type:'Galleon',theme:'Shields, health and heavy hits.',hp:110,trait:'bulwark',start:[{k:'shieldbash',t:0},{k:'bulkhead',t:0}],crew:['marines','quartermaster'],berths:4,lock:'Beat a sea boss to unlock.',ok:a=>a.bosses>0},
+  privateer:{n:'The Ember',type:'Privateer',theme:'Cannons, powder and burn.',hp:100,trait:'kindle',start:[{k:'swivel',t:0},{k:'flare',t:0}],crew:['guncrew','monkey'],berths:3,lock:'Beat 3 elites to unlock.',ok:a=>a.elites>=3},
+  junk:{n:'The Lotus',type:'Junk',theme:'Healing, poison and calm.',hp:105,trait:'lotus',start:[{k:'fugu',t:0},{k:'teapot',t:0}],crew:['apothecary','cormorant'],berths:3,lock:'Finish a voyage to unlock.',ok:a=>a.wins>0}
 };
 
 /* ---------- traits: enemy abilities and ship abilities ---------- */
@@ -97,6 +97,43 @@ const FITTINGS={
   kraken:{n:'Kraken',spot:'head',p:12,d:'Enemy cargo starts every fight slowed for 3s. Enemies have 10% more health.',g:'<path d="M5 27c0-9 7-11 11-15s3-9-2-9-4 6 1 6" stroke-width="2.4"/><path d="M13 27c2-6 9-7 12-10M20 27c1-3 4-4 6-5"/>'},
   lion:{n:'Golden Lion',spot:'head',p:12,d:'+4 gold for every fight you win. Rerolls cost 1 more.',g:'<circle class="w" cx="15" cy="15" r="11"/><circle class="w" cx="15" cy="16" r="6"/><circle class="k" cx="13" cy="15" r="1"/><circle class="k" cx="17" cy="15" r="1"/><path d="M14 19h2" stroke-width="1.4"/>'}
 };
+/* ---------- crew: hired at a port tavern, they live on deck and let your cargo use their crafts.
+   Rank grows with fights won and opens new rules in their crafts (RANKS). Wages are paid at every new port. ---------- */
+const CREW={
+  bosun:{n:'Bosun',crafts:['sea'],fee:6,wage:1},
+  deckhand:{n:'Deckhand',crafts:['sea'],fee:5,wage:1},
+  rigger:{n:'Rigger',crafts:['sea'],fee:5,wage:1},
+  sailmaker:{n:'Sailmaker',crafts:['carp','sea'],fee:9,wage:2},
+  fencer:{n:'Fencing Master',crafts:['steel'],fee:7,wage:2},
+  parrot:{n:'Parrot',crafts:['steel','sea'],fee:9,wage:2},
+  marines:{n:'Marines',crafts:['steel','carp'],fee:10,wage:2},
+  steadfast:{n:'Steadfast Hand',crafts:['carp','med'],fee:9,wage:2},
+  quartermaster:{n:'Quartermaster',crafts:['carp'],fee:6,wage:1},
+  stoic:{n:'Stoic Helmsman',crafts:['carp','sea'],fee:9,wage:2},
+  guncrew:{n:'Gun Crew',crafts:['gun'],fee:6,wage:1},
+  gunner:{n:'Master Gunner',crafts:['gun','steel'],fee:10,wage:2},
+  cannoneers:{n:'Cannon Crew',crafts:['gun','fire'],fee:10,wage:2},
+  monkey:{n:'Powder Monkey',crafts:['fire'],fee:5,wage:1},
+  fireeater:{n:'Fire-eater',crafts:['fire','med'],fee:9,wage:2},
+  herbalist:{n:'Herbalist',crafts:['med'],fee:6,wage:1},
+  monk:{n:'Tide Monk',crafts:['med','carp'],fee:9,wage:2},
+  cormorant:{n:'Cormorant',crafts:['steel','med'],fee:8,wage:2},
+  witch:{n:'Sea Witch',crafts:['alch'],fee:7,wage:2},
+  apothecary:{n:'Apothecary',crafts:['alch','med'],fee:10,wage:2},
+  chemist:{n:'Powder Chemist',crafts:['alch','fire'],fee:10,wage:2}
+};
+/* what rank 2 and rank 3 open in each craft. The best-ranked crew member with a craft sets its rank. */
+const RANKS={
+  steel:['The first weapon to fire each fight always crits.','Weapon crits ignore shield.'],
+  gun:['Cannons get 10% crit chance.','Cannon hits ignore shield.'],
+  fire:['Burn on the enemy fades half as fast.','Burning enemies can\'t gain shield.'],
+  alch:['Poisoned enemies can\'t heal.','While the enemy has 8 or more poison, its cargo charges 20% slower.'],
+  med:['Healing past full health turns into shield.','Once a fight, a blow that would sink you leaves you on 1 health.'],
+  carp:['Your shield also blocks poison.','A hit that breaks your shield stops there.'],
+  sea:['Your cargo starts every fight 15% charged.','Slows on your cargo last half as long.']
+};
+const RANKXP=[0,3,7];   // fights won to reach rank 1, 2 and 3
+
 /* ---------- renown perks: each ship has its own list. You earn renown by winning fights and pick 1 of 3 perks at each level.
    fx fields: hp, startShield, startHaste (s), enemySlow (s), startBurn, tagRate [tag, +rate], tagDmg [tag, +dmg], sizeRate (size-1 items),
    lowRate (below half health), crit, critMult, bigDmg (size 3+ items), shieldPlus, healPlus, hasteLong (s), burnPlus, poisonPlus,

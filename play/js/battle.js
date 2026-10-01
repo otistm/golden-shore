@@ -1,17 +1,17 @@
 /* Ink Crossing: Fights: setup, effects engine (applyFx, emit), the step loop, HP bars and results, next sea and endings. */
 "use strict";
 /* ---------- battle ---------- */
-function mkSide(name,max,list,traits,sea){const b=sideOf(list);
+function mkSide(name,max,list,traits,sea,cr){const b=sideOf(list,cr);
   return{name,max:max+b.hp,hp:max+b.hp,shield:0,burn:0,poison:0,list,regen:b.regen,gold:b.gold,sea,lowDone:false,risen:false,traits:traits.map(k=>({k,t:0})),
-    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i),c:0,h:0,sl:0,g:{},lt:{},el:null}))}}
+    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i,cr),c:0,h:0,sl:0,g:{},lt:{},el:null}))}}
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
 function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
 /* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
 function setupFight(n,f,board){
   const depth=f.depth,sh=SHIPS[G.ship];
   const pk=perkSum(),pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+fitHP()+(pk.hp||0)+(G.tut?120:0);
-  B={t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),pk,
-     P:mkSide(sh.n,pMax,board.map(x=>({...x})),[sh.trait],G.sea),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
+  B={t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),pk,cr:craftRanks(),
+     P:mkSide(sh.n,pMax,board.map(x=>({...x})),[sh.trait],G.sea,crewCrafts()),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
   const P=B.P,E=B.E;
   for(const S of [P,E])S.items.forEach(it=>{if(it.s.cd)it.c=it.s.cd*it.s.pre});
   if(hasT(P,'bulwark'))P.shield+=15;if(hasC('light'))P.shield+=20;
@@ -28,6 +28,7 @@ function setupFight(n,f,board){
   if(hasF('chase'))P.items.forEach(it=>{const t=DEFS[it.k].tags;if(!it.s.cd)return;if(t.includes('C'))it.c=Math.max(it.c,it.s.cd*.5);if(t.includes('W'))it.sl=Math.max(it.sl,2)});
   if(hasF('studding'))P.items.forEach(it=>it.sl=Math.max(it.sl,1));
   // renown perks at the start of a fight
+  if((B.cr.sea||0)>=2)P.items.forEach(it=>{if(it.s.cd)it.c=Math.max(it.c,it.s.cd*.15)});
   if(pk.startShield)P.shield+=pk.startShield;
   if(pk.startHaste)P.items.forEach(it=>{if(it.s.cd)it.h=Math.max(it.h,pk.startHaste)});
   if(pk.enemySlow)E.items.forEach(it=>it.sl=Math.max(it.sl,pk.enemySlow));
@@ -63,7 +64,7 @@ function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last
   while(dt>1e-6&&!B.over){const s=Math.min(.05,dt);step(s);dt-=s}draw();if(!B.over)raf=requestAnimationFrame(loop)}
 function hit(T,d,type,src,o){o=o||{};
   if(o.weapon&&hasT(T,'thick'))d*=.75;d=Math.round(d);if(d<=0)return;
-  const pierce=o.pierce||(src&&hasT(src,'pierce'));const a=pierce?0:Math.min(T.shield,d);T.shield-=a;T.hp-=d-a;
+  const pierce=o.pierce||(src&&hasT(src,'pierce'));let a=pierce?0:Math.min(T.shield,d);if(T===B.P&&a>0&&a<d&&(B.cr.carp||0)>=3)a=d;T.shield=Math.max(0,T.shield-a);T.hp-=d-a;
   pop(T.fel,(type==='crit'?'Crit! ':'')+'−'+d,type==='burn'||type==='storm'?'soft':type);
   if(type==='dmg'||type==='crit'){squish(T.fel,'hit');if(o.weapon&&src)emit(T,src,'hurt',null,(o.depth||0))}
   if(!T.lowDone&&T.hp>0&&T.hp<T.max/2){T.lowDone=true;emit(T,src||(T===B.P?B.E:B.P),'lowhp',null,0)}
@@ -86,20 +87,23 @@ function applyFx(S,F,it,i,f,depth){
     let base=(f.dmg||0)+(g.dmg||0)+xVal(S,F,f.dmgX);
     const pk=me?B.pk:null;
     if(me){DEFS[it.k].tags.forEach(t=>base+=pk.tagDmg[t]||0);if(pk.bigDmg&&DEFS[it.k].s>=3)base*=1+pk.bigDmg;if(W&&hasF('swivel'))base+=2;if(C&&hasF('grapeshot'))base=Math.max(1,base-2);if(C&&hasF('magazine'))base*=1.25}
-    const cc=(f.crit||0)+(me&&hasF('gull')?.1:0)+(me&&pk.crit||0);
-    for(let k=0;k<(f.multi||1);k++){let d=base;const c=cc&&Math.random()<cc;if(c)d*=me&&pk.critMult?pk.critMult:2;
-      hit(F,d,c?'crit':'dmg',S,{pierce:f.pierce,weapon:W,depth});
+    const cr=me?B.cr:{},cc=(f.crit||0)+(me&&hasF('gull')?.1:0)+(me&&pk.crit||0)+(me&&C&&(cr.gun||0)>=2?.1:0);
+    for(let k=0;k<(f.multi||1);k++){let d=base;let c=cc&&Math.random()<cc;if(me&&W&&!C&&(cr.steel||0)>=2&&!B.firstCrit){B.firstCrit=true;c=true}if(c)d*=me&&pk.critMult?pk.critMult:2;
+      const pr=f.pierce||(me&&C&&(cr.gun||0)>=3)||(me&&c&&W&&!C&&(cr.steel||0)>=3);
+      hit(F,d,c?'crit':'dmg',S,{pierce:pr,weapon:W,depth});
       if(f.burnPerHit)burnOn(S,F,f.burnPerHit,it,depth);if(me&&C&&hasF('grapeshot'))burnOn(S,F,1,it,depth);if(f.poisonPerHit)poisonOn(S,F,f.poisonPerHit,it,depth);
       if(hasT(S,'coil')&&W)F.poison+=1;if(c)emit(S,F,'crit',it,depth)}}
   const sh=(f.shield||0)+(g.shield||0)+Math.round(xVal(S,F,f.shieldX))+(S===B.P&&(f.shield!=null||f.shieldX)&&B.pk.shieldPlus||0);
-  if((f.shield!=null||f.shieldX)&&sh>0){S.shield+=sh;pop(el||S.fel,'+'+sh+' shield','shield');emit(S,F,'shield',it,depth)}
+  const noSh=S===B.E&&S.burn>0&&(B.cr.fire||0)>=3;
+  if((f.shield!=null||f.shieldX)&&sh>0&&!noSh){S.shield+=sh;pop(el||S.fel,'+'+sh+' shield','shield');emit(S,F,'shield',it,depth)}
   const hl=(f.heal||0)+(g.heal||0)+Math.round(xVal(S,F,f.healX))-(S===B.P&&hasF('mermaid')?2:0)+(S===B.P&&(f.heal!=null||f.healX)&&B.pk.healPlus||0);
-  if((f.heal!=null||f.healX)&&hl>0){S.hp=Math.min(S.max,S.hp+hl);if(S.burn)S.burn--;if(hasT(S,'lotus'))S.shield+=Math.round(hl/3);pop(el||S.fel,'+'+hl,'heal');emit(S,F,'heal',it,depth)}
+  const noHl=S===B.E&&S.poison>0&&(B.cr.alch||0)>=2;
+  if((f.heal!=null||f.healX)&&hl>0&&!noHl){if(S===B.P&&(B.cr.med||0)>=2&&S.hp+hl>S.max)S.shield+=Math.round(S.hp+hl-S.max);S.hp=Math.min(S.max,S.hp+hl);if(S.burn)S.burn--;if(hasT(S,'lotus'))S.shield+=Math.round(hl/3);pop(el||S.fel,'+'+hl,'heal');emit(S,F,'heal',it,depth)}
   if(f.cleanse)S.poison=0;
   if(f.douse){S.burn=Math.max(0,S.burn-f.douse);S.poison=Math.max(0,S.poison-Math.ceil(f.douse/2))}
   if(f.burn)burnOn(S,F,f.burn+(g.burn||0),it,depth);
   if(f.poison)poisonOn(S,F,f.poison+(g.poison||0),it,depth);
-  if(f.slow){rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,f.slow[1]);if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
+  if(f.slow){const sd=F===B.P&&(B.cr.sea||0)>=3?f.slow[1]/2:f.slow[1];rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,sd);if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
   if(f.haste){const ts=targets(S,i,f.haste[0]).filter(x=>x.s.cd),hd=f.haste[1]+(S===B.P&&B.pk.hasteLong||0);ts.forEach(x=>x.h=Math.max(x.h,hd));if(ts.length){pop(el||S.fel,'Haste','haste');emit(S,F,'haste',it,depth)}}
   if(f.charge){targets(S,i,f.charge[0]).filter(x=>x.s.cd).forEach(x=>{x.c=Math.min(x.s.cd,x.c+f.charge[1]);if(x.el&&!B.quiet)squish(x.el,'proc')})}
   if(f.selfDmg){S.hp-=f.selfDmg;pop(S.fel,'−'+f.selfDmg,'soft')}
@@ -121,8 +125,8 @@ function emit(S,F,ev,src,depth){
 function act(k,S,F){const T=TRAITS[k],x=T.x?T.x(S.sea):0;
   if(k==='peck')hit(F,x,'dmg',S);
   if(k==='volley'){pop(S.fel,'Broadside!');hit(F,x,'dmg',S)}
-  if(k==='haunt')S.hp=Math.min(S.max,S.hp+S.max*.01);
-  if(k==='armor'){S.shield+=x;pop(S.fel,'+'+x+' shield','shield')}
+  if(k==='haunt'&&!(S===B.E&&S.poison>0&&(B.cr.alch||0)>=2))S.hp=Math.min(S.max,S.hp+S.max*.01);
+  if(k==='armor'&&!(S===B.E&&S.burn>0&&(B.cr.fire||0)>=3)){S.shield+=x;pop(S.fel,'+'+x+' shield','shield')}
   if(k==='song'){rnd(F.items,2).forEach(i=>i.sl=Math.max(i.sl,2));pop(S.fel,'Siren song','shield')}
   if(k==='flock')rnd(S.items,1).forEach(i=>i.h=Math.max(i.h,2));
   if(k==='captain'){rnd(S.items,2).forEach(i=>i.h=Math.max(i.h,2));pop(S.fel,"Captain's orders",'haste')}
@@ -141,19 +145,20 @@ function step(dt){
   for(const[S,F]of[[B.P,B.E],[B.E,B.P]]){
     S.items.forEach((it,i)=>{if(!it.s.cd)return;let r=1;
       if(it.h>0){r*=2;it.h-=dt}if(it.sl>0){r*=.5;it.sl-=dt}
-      if(hasT(S,'swift'))r*=1.15;if(hasT(S,'frenzy')&&S.hp<S.max/2)r*=1.5;
+      if(hasT(S,'swift'))r*=1.15;if(S===B.E&&S.poison>=8&&(B.cr.alch||0)>=3)r*=.8;if(hasT(S,'frenzy')&&S.hp<S.max/2)r*=1.5;
       if(S===B.P){const pk=B.pk;let add=0;DEFS[it.k].tags.forEach(t=>add+=pk.tagRate[t]||0);
         if(pk.sizeRate&&DEFS[it.k].s===1)add+=pk.sizeRate;if(pk.lowRate&&S.hp<S.max/2)add+=pk.lowRate;r*=1+add;
         if(hasF('topsail'))r*=1.1;if(hasF('ballast'))r*=.95;if(hasF('swivel')&&DEFS[it.k].tags.includes('C'))r*=.9}
       it.c+=dt*r;if(it.c>=it.s.cd){it.c-=it.s.cd;fire(S,F,it,i)}});
     S.traits.forEach(tr=>{const T=TRAITS[tr.k];if(!T.every)return;tr.t+=dt;if(tr.t>=T.every){tr.t-=T.every;act(tr.k,S,F)}});
   }
-  B.bt+=dt;if(B.bt>=.5){B.bt-=.5;for(const S of[B.P,B.E])if(S.burn>0){hit(S,S.burn,'burn');S.burn--;tick(S,'bu')}}
-  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0){S.hp-=S.poison;pop(S.fel,'−'+S.poison,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}
+  B.bt+=dt;if(B.bt>=.5){B.bt-=.5;B.bodd=!B.bodd;for(const S of[B.P,B.E])if(S.burn>0){hit(S,S.burn,'burn');if(!(S===B.E&&(B.cr.fire||0)>=2&&B.bodd))S.burn--;tick(S,'bu')}}
+  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0){let p=S.poison;if(S===B.P&&(B.cr.carp||0)>=2&&S.shield>0){const a=Math.min(S.shield,p);S.shield-=a;p-=a}S.hp-=p;if(p)pop(S.fel,'−'+p,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}
     if(B.pk.regen&&B.P.hp>0){B.P.hp=Math.min(B.P.max,B.P.hp+B.pk.regen)}
     if(hasF('mermaid')&&B.P.hp>0&&B.P.hp<B.P.max/2){const h=Math.max(1,Math.round(B.P.max*.02));B.P.hp=Math.min(B.P.max,B.P.hp+h);pop(B.P.fel,'+'+h,'heal')}}
   if(B.t>=B.bell){B.st+=dt;if(B.st>=.5){B.st-=.5;B.storm++;hit(B.P,Math.max(0,(hasF('stormsail')?Math.ceil(B.storm/2):B.storm)-(B.pk.stormLess||0)),'storm');hit(B.E,B.storm,'storm')}}
   for(const S of[B.P,B.E])if(S.hp<=0&&hasT(S,'undying')&&!S.risen){S.risen=true;S.hp=S.max*.3;S.burn=0;S.poison=0;pop(S.fel,'It rises!')}
+  if(B.P.hp<=0&&(B.cr.med||0)>=3&&!B.saved&&B.E.hp>0){B.saved=true;B.P.hp=1;pop(B.P.fel,'The surgeon saves you!','heal')}
   if(B.P.hp<=0||B.E.hp<=0)end(B.E.hp<=0&&B.P.hp>0);
 }
 function draw(){
@@ -208,6 +213,8 @@ function end(win){
       lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>{port(G.at);hullLoss(G.hull+loss,G.hull)}}
     else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=()=>{chart();hullLoss(G.hull+loss,G.hull)}}
   }
+  if(win&&G.crew){G.crew.forEach(c=>{const was=crewRank(c);c.xp++;const now=crewRank(c);
+    if(now>was){const C=CREW[c.k];lines.push(`${C.n} is now rank ${now}: ${C.crafts.map(x=>RANKS[x][now-2]).join(' ')}`);logL(`${C.n} made rank ${now}.`)}})}
   if(win&&!G.tut&&!(k==='b'&&G.sea>=2)){const gain=k==='b'?3:k==='e'?2:1,was=renownLvl();G.renown=(G.renown||0)+gain;
     lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Pick a perk.`:''}`);
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}

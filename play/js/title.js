@@ -50,7 +50,7 @@ function shipPick(seed){
 function shipIcon(k){return`<span class="shipemb"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[k]}</svg></span>`}
 function startVoyage(seed,ship){
   const map=genMap(seed,0);
-  G={seed,ship,sea:0,map,at:map.start,path:[map.start],day:1,gold:10,hull:20,board:SHIPS[ship].start.map(x=>({...x})),charts:[],log:[],creel:[],rod:0,tip:0,far:0,quest:null,hock:null,locker:null,shops:{},freeRoll:true,full:false,extra:0,reveal:2};
+  G={seed,ship,sea:0,map,at:map.start,path:[map.start],day:1,gold:10,hull:20,board:SHIPS[ship].start.map(x=>({...x})),charts:[],log:[],creel:[],rod:0,tip:0,far:0,quest:null,hock:null,locker:null,shops:{},freeRoll:true,full:false,extra:0,reveal:2,crew:(SHIPS[ship].crew||[]).map(k=>({k,xp:0,m:3}))};
   G.board.forEach(b=>seen(b.k));updateReveal();
   A.voyages++;saveA();lore(LORE.start);logL(`Set out from Gullhaven aboard ${SHIPS[ship].n}.`);save();
   port(map.start);

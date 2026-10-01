@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+- Crafts: every ability on every item belongs to one of 7 crafts: Steel, Gunnery, Fire, Alchemy, Medicine, Carpentry and Seamanship. An ability only works if someone in your crew has its craft. Item cards show each ability's craft, and cross out the ones nobody aboard can work. Cargo nobody can use looks faded in your hold.
+- Crew live on their own deck now, not in the hold: 3 berths, or 4 on the Bulwark. Each ship starts with 2 crew who can work its starting cargo. The crew strip under your hold shows who's aboard; tap it to see their crafts, rank and morale.
+- Every port has a tavern with 3 people for hire. Hiring costs a fee, and crew draw wages at every new port. Unpaid crew grumble, and quit if it keeps happening.
+- Crew rank up as you win fights. Rank 2 and 3 open new rules in their crafts, like cannons that crit, poison that stops enemy healing, or a surgeon who saves you from one sinking blow.
+- Crew are no longer sold as cargo. Voyages in progress move their crew from the hold to the deck, and get their ship's starting crew in any free berths.
+
 ## 0.7.0
 - Renown: winning fights earns renown, 1 for a threat, 2 for an elite and 3 for a boss. At 3, 7, 12, 18 and 25 renown your ship levels up and you pick 1 of 3 perks for the rest of the voyage. Renown starts at zero every voyage.
 - Each ship has its own 10 perks that lean into its style: speed and crits for the Wren, shields and health for the Bulwark, cannons and burn for the Ember, healing and poison for the Lotus. Everyone on the same voyage is offered the same perks.
