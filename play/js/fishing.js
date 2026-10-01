@@ -36,13 +36,34 @@ function fishing(key,casts,done){
     $('reel').hidden=false;$('zone').style.width=zoneW()*100+'%';F.msg='Hold to pull the bracket right. Keep the fish inside it.';setBtn('Hold to reel','hold');bang.setAttribute('opacity',0);ui()}
   function miss(){F.left--;F.phase='done1';F.msg='Too slow. It spat the hook.';bang.setAttribute('opacity',0);after()}
   function after(){$('reel').hidden=true;F.tx=62;F.ty=34;F.phase=F.phase==='done1'?'rest':'rest';setBtn(F.left>0?'Cast again':'Head back');ui();save()}
-  function caught(){F.left--;const k=F.fish;A.fish=A.fish||{};A.fish[k]=1;saveA();
+  /* the catch leaps out of the water in a splash, arcs over the waves and lands in the boat; then the card shows it off */
+  function leap(k,then){const svg=$('pond').querySelector('svg'),NS='http://www.w3.org/2000/svg';
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches)return then();
+    const x0=F.bx,y0=88,x2=22,y2=60,x1=(x0+x2)/2+20,y1=-50,g=document.createElementNS(NS,'g');
+    g.innerHTML=fishSVG(k).replace('<svg ','<svg x="-20" y="-10" width="40" height="20" ');svg.appendChild(g);
+    const drops=Array.from({length:10},(_,i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',1.6+Math.random()*1.6);c.setAttribute('fill','#fff');c.setAttribute('stroke','#000');c.setAttribute('stroke-width','1.3');svg.appendChild(c);
+      const a=-Math.PI/2+(Math.random()-.5)*2.2,v=55+Math.random()*60;return{c,x:x0,y:y0,vx:Math.cos(a)*v,vy:Math.sin(a)*v}});
+    const ring=document.createElementNS(NS,'ellipse');ring.setAttribute('cx',x0);ring.setAttribute('cy',y0+2);ring.setAttribute('fill','none');ring.setAttribute('stroke','#000');ring.setAttribute('stroke-width','1.6');svg.insertBefore(ring,svg.firstChild);
+    const t0=now(),T=.95;let tl=t0;
+    const step=()=>{const t=now(),dt=Math.min(.05,t-tl);tl=t;const k2=Math.min(1,(t-t0)/T),e=k2<.5?2*k2*k2:1-Math.pow(-2*k2+2,2)/2,u=1-e;
+      const x=u*u*x0+2*u*e*x1+e*e*x2,y=u*u*y0+2*u*e*y1+e*e*y2,dx=2*u*(x1-x0)+2*e*(x2-x1),dy=2*u*(y1-y0)+2*e*(y2-y1);
+      const ang=Math.atan2(dy,dx)*180/Math.PI+180+Math.sin(k2*Math.PI*3)*18,sc=1+Math.sin(k2*Math.PI)*.45-k2*.3;
+      g.setAttribute('transform',`translate(${x} ${y}) rotate(${ang}) scale(${sc})`);
+      ring.setAttribute('rx',4+k2*42);ring.setAttribute('ry',1.5+k2*8);ring.setAttribute('opacity',Math.max(0,1-k2*1.4));
+      drops.forEach(d=>{d.vy+=260*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.c.setAttribute('cx',d.x);d.c.setAttribute('cy',d.y);if(d.y>y0+6)d.c.setAttribute('opacity',0)});
+      if(k2<1)requestAnimationFrame(step);else{g.remove();ring.remove();drops.forEach(d=>d.c.remove());then()}};
+    requestAnimationFrame(step)}
+  function caught(){F.left--;const k=F.fish;A.fish=A.fish||{};const first=!A.fish[k];A.fish[k]=1;saveA();
     let note='';
     if(G.creel.length<CREEL){G.creel.push(k)}else{let j=0;G.creel.forEach((f,i)=>{if(FISH[f].v<FISH[G.creel[j]].v)j=i});
       if(FISH[G.creel[j]].v<FISH[k].v){note=` Released ${an(FISH[G.creel[j]].n)} to make room.`;G.creel[j]=k}else note=' Your creel is full, so you let it go.'}
     logL(`Caught ${an(FISH[k].n)}.`);F.msg=`Caught ${an(FISH[k].n)}!${note}`;F.phase='rest';after();
-    const ov=overlay(`<div class="catch">${fishSVG(k,'bigfish')}</div><h2 style="text-align:center">${FISH[k].n}</h2><p class="soft" style="text-align:center">${RAR[FISH[k].rar]}. Worth ${FISH[k].v} gold at port.${note}</p><button class="primary" data-a="c">Nice</button>`,true);
-    ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus()}
+    // the card: the fish flops in with a splash, wiggles, gets its rarity stamped on (and "New" the first time); rare ones shine
+    const rar=FISH[k].rar,splash=Array.from({length:8},(_,i)=>`<i style="--a:${i*45+20}deg;--d:${(i%3)*40}ms"></i>`).join('');
+    leap(k,()=>{const ov=overlay(`<div class="catch r${rar}">${rar>=2?`<svg class="catch-rays" viewBox="-100 -60 200 120" aria-hidden="true">${Array.from({length:14},(_,i)=>{const a=i/14*Math.PI*2;return`<path d="M${(Math.cos(a)*58).toFixed(1)} ${(Math.sin(a)*34).toFixed(1)}L${(Math.cos(a)*(i%2?78:94)).toFixed(1)} ${(Math.sin(a)*(i%2?46:56)).toFixed(1)}"/>`}).join('')}</svg>`:''}
+        <span class="catch-splash" aria-hidden="true">${splash}</span>${fishSVG(k,'bigfish')}<span class="rarstamp">${RAR[rar]}</span>${first?'<span class="newtag">New!</span>':''}</div>
+      <h2 class="catch-name">${FISH[k].n}</h2><p class="soft catch-note">Worth ${FISH[k].v} gold at port.${note}</p><button class="primary catch-btn" data-a="c">Nice</button>`,true,'catchcard');
+      ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus()})}
   function escaped(){F.left--;F.msg=`It got away. It felt like a ${FISH[F.fish].rar>=2?'big one':'decent one'}.`;F.phase='rest';after()}
   const press=e=>{e.preventDefault();
     if(F.phase==='idle'||F.phase==='rest'){if(F.left<=0)return leave();cast()}

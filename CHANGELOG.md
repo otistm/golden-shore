@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.4
+- Catching a fish is a moment: it bursts out of the water in a splash of droplets with a ripple spreading behind it, arcs over the waves twisting as it flies, and lands in your boat. Then its card shows it flopping in with a splash and wiggling, its rarity stamped on (Common, Uncommon in a double line, Rare in solid ink with rays spinning behind it), and a "New!" tag the first time you catch that kind.
+
 ## 0.23.3
 - Fights open with a flourish: the enemy sails in from above and your ship from below, both holds' cargo drops in tile by tile, the screen jolts and a black "Fight!" stamps down between the two sides before the clock starts. Tap anywhere (or Skip) to start straight away. The tutorial and reduced motion skip it.
 
