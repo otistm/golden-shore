@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.7
+- When you choose Sail here, your little boat sails along the route on the chart to the next stop, inking its wake behind it, turning to face the way it's heading, and settling above the stop before the next screen opens. With reduced motion it goes straight there.
+
 ## 0.22.6
 - The fog looks like fog: a cloud bank with a billowing inked edge and a fainter row of billows in front, soft stipple inside, and curling wisps drifting slowly through it. When you sail on and more of the sea is revealed, the fog rolls back up to its new edge instead of just jumping.
 
