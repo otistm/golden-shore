@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.22.5
+- In the market, tapping the good the seller is already talking about no longer opens its item card. The speech bubble has everything.
+
 ## 0.22.3
 - The ship card no longer has the "What your crew can work" section, on phones or big screens.
 
