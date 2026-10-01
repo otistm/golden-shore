@@ -895,7 +895,8 @@ button.stat:active{transform:scale(1.06,.9)}
 .stall .talk.quiet{transform:none;text-align:left}
 .table{position:relative;z-index:2;flex:1;border-top:3px solid var(--ink);padding:16px 10px 10px;background:var(--paper) repeating-linear-gradient(180deg,transparent 0 27px,rgba(0,0,0,.14) 27px 28px)}
 .goods{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:640px;margin:0 auto}
-.good{position:relative;background:none;border:0;padding:0 0 12px;display:flex;flex-direction:column;align-items:stretch;cursor:pointer;min-width:0}
+.good{position:relative;background:none;border:0;padding:0 0 12px;display:flex;flex-direction:column;align-items:stretch;cursor:grab;min-width:0;touch-action:none;-webkit-user-select:none;user-select:none}
+.good.dragging{opacity:.35}
 .good .o-icon{width:100%;height:auto;aspect-ratio:1;padding:16%;border-radius:14px;background:var(--paper);transition:transform .35s var(--spring),translate .35s var(--spring)}
 .good .ptag{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);padding:0 8px 0 5px;font-weight:800;font-size:13px;line-height:22px;transition:translate .35s var(--spring)}
 .good .ptag .sic{width:13px;height:13px}

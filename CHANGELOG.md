@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.20.3
+- Drag goods straight off the market table into your hold (or locker) to buy them. They land where you drop them and you pay as they land. Dropping one onto a matching item upgrades it, and if you can't afford it the seller's price stays on the table.
+
 ## 0.20.2
 - The market follows Otis's sketch: the seller stands behind the table in the top half with their speech bubble beside them, and the four goods sit large on the table in the bottom half. Tap a good to hear about it, tap it again to look closer.
 
