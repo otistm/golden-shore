@@ -130,7 +130,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage.
 
 ## Celebrations
-- Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses keep the plain result card.
+- Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses show `defeatCard()`: the swinging, cracked sign with rain, or "Sunk" with bubbles when the hull is gone. The hull card still plays back on the chart.
 - Anything that puts an item in the hold or locker sets `flash={ref,kind}` (`addItem()` does it for you; direct inserts set it themselves). `bindHold()` calls `holdFlash()`, which plays the drop or upgrade on that tile with an ink burst and a rising label.
 
 ## The spoils chest
