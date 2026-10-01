@@ -82,7 +82,7 @@ function codeSheet(done){
 }
 function shipPick(seed){
   const ov=overlay(`<h2>Choose your ship</h2><div class="ships">${Object.entries(SHIPS).map(([k,s])=>{const ok=!s.ok||s.ok(A);
-    return`<button class="shipcard art" data-s="${k}" ${ok?'':'disabled'}>${shipArt(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} ${s.berths||3} crew berths. Gullhaven stocks her gear: ${s.start.map(x=>DEFS[x.k].n).join(' and ')}, and hands like the ${(s.crew||[]).map(k=>CREW[k].n).join(' and the ')}.`:s.lock}</span></div></button>`}).join('')}</div>
+    return`<button class="shipcard art" data-s="${k}" ${ok?'':'disabled'}>${shipArt(k)}<div><b>${s.n}</b><span class="d">${ok?`${s.type}. ${s.theme} ${TRAITS[s.trait].d()} ${s.berths||3} crew berths.`:s.lock}</span></div></button>`}).join('')}</div>
     <p class="seed">Voyage: ${codeOf(seed)}</p><button class="ghost" data-a="close">Back</button>`,false,'journal');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]')){ov.remove();return}
     const b=e.target.closest('[data-s]');if(!b||b.disabled)return;ov.remove();startVoyage(seed,b.dataset.s)});
