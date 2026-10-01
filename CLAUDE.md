@@ -59,7 +59,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - `npm run voyage`: a bot plays full voyages at phone size and fails on any error.
    - `npm run sim`: win rates per ship against every enemy. Run it after any item, enemy or balance change.
    - `npm run sim:fits`: the same, once per fitting, compared with no fitting.
-   - `npm run sim:perks`: the same for each renown perk, on its own ship.
+   - `npm run sim:perks`: the same for each captain's order, on every ship.
    - `voyage` and `sim` share `tools/browser.mjs`. They use `CHROMIUM_PATH` if set, then Playwright's own Chromium, then the installed Chrome or Edge, so they run on Windows and Mac with no browser download.
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
@@ -84,15 +84,17 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 ## Fittings
 - A fitting is one row in `FITTINGS` (world.js): name, spot, price, optional `hp` (health in fights), text and a 30×30 glyph. Its effect is written where it applies, checked with `hasF(key)`, like landmarks with `hasC`.
-- Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks) or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
+- Fittings change rules or the ship's shape (berths, hold size, positions, the storm), not plain numbers. Fight effects go in `setupFight()` (start of fight), `step()` (charge speed, storm, ticks), `fire()` or `applyFx()`/`burnOn()`/`poisonOn()` (damage, crits, healing). `setupFight()` is shared with `tools/sim.mjs`, so new effects show up in the balance numbers.
 - The player's hold size is `holdCap()`, never a literal 10.
 - Losing a fight you survive removes one fitting (`loseFit()` in battle.js, seeded by voyage, stop and day).
 - After adding or changing a fitting, run `npm run sim:fits`. It prints each fitting's win rate against having none. Differences under about 3 points are noise.
 
-## Renown and perks
-- `PERKS` in world.js: 10 per ship, each with text and an `fx` object. `perkSum()` (state.js) adds them up into `B.pk` when a fight is set up, and the fight reads `B.pk` (the field list is at the top of `PERKS`). A new kind of perk effect needs a hook in battle.js like the others.
-- Renown per win: threat 1, elite 2, boss 3 (`end()` in battle.js). Levels at `RENOWN` in state.js. `perkPick()` runs before spoils or the next sea while `perksOwed()` is above 0. Offers are seeded by voyage, ship and level.
-- After changing a perk, run `npm run sim:perks`. Differences under about 4 points are noise. Gold and hull perks show about 0 there, which is expected.
+## Renown and captain's picks
+- The four systems each have a job, so don't let them overlap: items are what happens, crew are who can make it happen (crafts), fittings are the ship's shape and rules, and renown is the captain's decisions. Avoid plain "+damage" or "+speed" on fittings and renown.
+- `PERKS` in world.js is one list for every ship. Orders have `order:1` and a suggested `when`. They fire once a fight from `checkOrders()` in battle.js on the trigger in `G.orders` (choices in `WHEN`). The rest are read by name with `hasP()`: berths, `feeOf`, `wageOf`, `rankXP`, `repairCost` and `buyP`, and the loyal and prize checks.
+- Renown per win: threat 1, elite 2, boss 3 (`end()` in battle.js), levels at `RENOWN` in state.js. `perkPick()` runs before spoils or the next sea while `perksOwed()` is above 0. Offers are seeded by voyage and level.
+- `migrateVoyage()` clears picks that no longer exist, so those players re-pick. Keep that.
+- After changing an order, run `npm run sim:perks`. Orders are measured on every ship; differences under about 5 points are noise.
 
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.

@@ -19,17 +19,17 @@ function port(id){
   const ups=new Set();S.offers.forEach(o=>{if(!o)return;const j=matchIdx(o);if(j>=0)ups.add(j)});
   // the shipwright's two fittings for this visit, seeded like the first market offers
   if(!G.tut&&!S.fits){const r=RNG(G.seed,'wright',id,G.shopVisit||0),pool=Object.keys(FITTINGS).filter(k=>!hasF(k));S.fits=[];
-    while(S.fits.length<2&&pool.length)S.fits.push(pool.splice(ri(r,pool.length),1)[0])}
+    while(S.fits.length<(hasP('wright')?3:2)&&pool.length)S.fits.push(pool.splice(ri(r,pool.length),1)[0])}
   const rr=S.reroll+(hasF('lion')?1:0);
   // the tavern's hires for this visit, seeded like the market
   if(!G.tut&&!S.tavern){const r=RNG(G.seed,'tavern',id,G.shopVisit||0),pool=Object.keys(CREW).filter(k=>!(G.crew||[]).some(c=>c.k===k));S.tavern=[];
-    while(S.tavern.length<3&&pool.length)S.tavern.push(pool.splice(ri(r,pool.length),1)[0])}
+    while(S.tavern.length<(hasP('recruiter')?4:3)&&pool.length)S.tavern.push(pool.splice(ri(r,pool.length),1)[0])}
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   <section>
     <div class="m-head"><h2 style="font-size:20px">Port market</h2><button class="ghost" id="reroll">${hasC('route')&&G.freeRoll?'Free reroll':`Reroll for ${rr}`}</button></div>
     <div class="offers">${S.offers.map((o,i)=>{
       if(!o)return`<div class="offer sold">Sold</div>`;
-      const d=DEFS[o.k],p=price(o.k,o.t),up=!!findMatch(o);
+      const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o);
       return`<div class="offer${anim?' in':''}" style="animation-delay:${i*70}ms"><button class="o-top" data-v="${i}" style="background:none;border:0;padding:0;text-align:left"><span class="o-icon t${o.t}">${emb(o.k)}${icon(o.k)}${up?CHEV:''}</span><div><h3>${d.n}</h3><p class="o-meta"><span class="tierword">${TIER[o.t]}</span>, size ${d.s}${d.cd?`, ${d.cd}s`:''}</p></div></button><p class="o-desc">${describe([o],0).L.join(' ')}</p><button class="buy${up?' up':''}" data-b="${i}" ${G.gold<p?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}).join('')}</div>
   </section>
   ${G.tut?'':tavernHTML(S)}
@@ -46,7 +46,7 @@ function port(id){
     else{if(G.gold<rr)return toast(`Need ${rr-G.gold} more gold`);G.gold-=rr;S.reroll++;bump='gold'}
     S.offers=Array.from({length:4},()=>randItem(Math.random,depthOf(n)));fresh=true;save();port(id)};
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>itemSheet([S.offers[+b.dataset.v]],0,'view',()=>{}));
-  app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,o=S.offers[i],p=price(o.k,o.t);
+  app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,o=S.offers[i],p=buyP(o);
     if(G.gold<p)return toast(`Need ${p-G.gold} more gold`);
     const m=findMatch(o),r=addItem(o);if(!r)return toast(`No room for size ${DEFS[o.k].s}${G.locker?' in your hold or locker':''}. Sell something first.`);
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
@@ -62,28 +62,29 @@ function port(id){
     if(!canEquip(k))return toast('Double Planking boards up a slot. Sell something to make room first.');
     G.gold-=f.p;const back=equip(k);S.fits[i]=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id)});
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
-    if(n<1||G.gold<n*REPAIR)return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*REPAIR-G.gold} more gold`);
-    G.gold-=n*REPAIR;G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*REPAIR} gold to repair ${n} hull.`);save();toast(`Repaired ${n} hull`);port(id)});
+    if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
+    G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();toast(`Repaired ${n} hull`);port(id)});
   const yb=document.getElementById('yourship');if(yb)yb.onclick=shipSheet;const yc=document.getElementById('yourcrew');if(yc)yc.onclick=shipSheet;
   app.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>{const i=+b.dataset.hire,k=S.tavern[i],C=CREW[k];
     if((G.crew||[]).length>=berths())return toast('Your deck is full. Dismiss someone on the ship card first.');
-    if(G.gold<C.fee)return toast(`Need ${C.fee-G.gold} more gold`);
-    G.gold-=C.fee;hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id)});
+    if(G.gold<feeOf(k))return toast(`Need ${feeOf(k)-G.gold} more gold`);
+    G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id)});
   save();coach('port');tip('port');tip('crew');tip('wright');
 }
 function tavernHTML(S){const full=(G.crew||[]).length>=berths();
   return`<section class="tavern"><div class="m-head"><h2 style="font-size:20px">Tavern <span class="soft">deck ${(G.crew||[]).length}/${berths()}</span></h2><button class="ghost" id="yourcrew">Your crew</button></div>
     <div class="offers hires">${S.tavern.map((k,i)=>{if(!k)return`<div class="offer sold">Hired</div>`;const C=CREW[k];
       return`<div class="offer hire"><div class="o-top"><span class="o-icon crewic">${icon(k)}</span><div><h3>${C.n}</h3><p class="o-meta">${crewCrafts1(k)}</p></div></div>
-        <p class="o-desc">Lets your cargo use ${C.crafts.map(c=>`<b>${CRAFTS[c]}</b>: ${CRAFTD[c]}`).join('. ')}. Wage ${C.wage} gold at each port.</p>
-        <button class="buy" data-hire="${i}" ${full||G.gold<C.fee?'aria-disabled="true"':''}>${full?'Deck full':`Hire for ${C.fee} gold`}</button></div>`}).join('')}</div></section>`}
+        <p class="o-desc">Lets your cargo use ${C.crafts.map(c=>`<b>${CRAFTS[c]}</b>: ${CRAFTD[c]}`).join('. ')}. Wage ${wageOf(k)} gold at each port.</p>
+        <button class="buy" data-hire="${i}" ${full||G.gold<feeOf(k)?'aria-disabled="true"':''}>${full?'Deck full':`Hire for ${feeOf(k)} gold`}</button></div>`}).join('')}</div></section>`}
+const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));
 /* how much hull you can afford to repair, up to the most the shipwright will fix */
-const repairable=()=>Math.max(0,Math.min(HULL_MAX-G.hull,Math.floor(G.gold/REPAIR)));
+const repairable=()=>Math.max(0,Math.min(HULL_MAX-G.hull,Math.floor(G.gold/repairCost())));
 function wrightHTML(S){
   const all=repairable();
   return`<section class="wright"><div class="m-head"><h2 style="font-size:20px">Shipwright</h2><button class="ghost" id="yourship">Your ship</button></div>
-    <div class="repair"><div><b>Hull ${G.hull}/${HULL_MAX}</b><span class="soft">Repairs cost ${REPAIR} gold a point.</span></div>
-      ${G.hull<HULL_MAX?`<button class="buy" data-r="1" ${G.gold<REPAIR?'aria-disabled="true"':''}>Repair 1 for ${REPAIR}</button>${all>1?`<button class="buy" data-r="all">Repair ${all} for ${all*REPAIR}</button>`:''}`:'<span class="soft">Fully repaired</span>'}</div>
+    <div class="repair"><div><b>Hull ${G.hull}/${HULL_MAX}</b><span class="soft">Repairs cost ${repairCost()} gold a point.</span></div>
+      ${G.hull<HULL_MAX?`<button class="buy" data-r="1" ${G.gold<repairCost()?'aria-disabled="true"':''}>Repair 1 for ${repairCost()}</button>${all>1?`<button class="buy" data-r="all">Repair ${all} for ${all*repairCost()}</button>`:''}`:'<span class="soft">Fully repaired</span>'}</div>
     <div class="offers fits">${S.fits.map((k,i)=>{if(!k)return`<div class="offer sold">Fitted</div>`;
       const f=FITTINGS[k],old=fitIn(f.spot),ok=canEquip(k);
       return`<div class="offer fit"><div class="o-top"><span class="o-icon plain">${fitGlyph(k)}</span><div><h3>${f.n}</h3><p class="o-meta">${SPOTS[f.spot]} fitting</p></div></div>

@@ -83,16 +83,16 @@ const FITTINGS={
   planks:{n:'Double Planking',spot:'hull',p:10,hp:40,d:'+40 health in fights. Your hold has 9 slots.',g:'<path class="w" d="M3 7h24v7H3zM3 16h24v7H3z"/><circle class="k" cx="7" cy="10.5" r="1.1"/><circle class="k" cx="23" cy="10.5" r="1.1"/><circle class="k" cx="7" cy="19.5" r="1.1"/><circle class="k" cx="23" cy="19.5" r="1.1"/>'},
   copper:{n:'Copper Sheathing',spot:'hull',p:10,hp:-20,d:'Burn and poison put on you are halved. −20 health in fights.',g:'<path class="w" d="M3 9h24c-2 10-7 15-12 17C10 24 5 19 3 9z"/><path d="M7 14h16M10 19h10" stroke-width="1.4"/>'},
   ram:{n:'Iron Ram',spot:'hull',p:10,d:'Every fight opens with a ram: 10 damage, +5 per sea. You take 3.',g:'<path class="w" d="M3 11h15l9 4-9 4H3z"/><path d="M18 11v8M8 11v8" stroke-width="1.4"/>'},
-  ballast:{n:'Heavy Ballast',spot:'hull',p:9,d:'Start every fight with 25 shield. Your cargo charges 5% slower.',g:'<path d="M11 9c0-5 8-5 8 0"/><path class="w" d="M7 9h16l3 16H4z"/><path class="k" d="M12 18h6v3h-6z"/>'},
+  ballast:{n:'Crew Quarters',spot:'hull',p:10,hp:-15,berth:1,d:'+1 crew berth. −15 health in fights.',g:'<path d="M3 8v6M27 8v6"/><path class="w" d="M3 10c5 8 19 8 24 0z"/><circle class="w" cx="15" cy="8" r="3"/>'},
   lateen:{n:'Lateen Rig',spot:'sails',p:10,d:'Your leftmost item starts every fight charged. Your rightmost starts slowed for 3s.',g:'<path d="M15 3v24"/><path class="w" d="M5 23L25 4l-2 19z"/>'},
   stormsail:{n:'Storm Canvas',spot:'sails',p:9,d:'The storm hurts you half as much. It arrives 5s sooner.',g:'<path d="M8 3v24"/><path class="w" d="M9 5h14l-3 16H9z"/><path d="M17 8l-4 5h4l-3 5" stroke-width="1.4"/>'},
-  topsail:{n:'Topgallants',spot:'sails',p:11,hp:-20,d:'Your cargo charges 10% faster. −20 health in fights.',g:'<path d="M15 2v26"/><path class="w" d="M9 5h12v6H9zM6 13h18v9H6z"/>'},
+  topsail:{n:'Topgallants',spot:'sails',p:11,d:'Your rightmost item charges twice as fast. Your leftmost charges half as fast.',g:'<path d="M15 2v26"/><path class="w" d="M9 5h12v6H9zM6 13h18v9H6z"/>'},
   studding:{n:'Studding Sails',spot:'sails',p:9,d:'See 1 more row through the fog. Your cargo starts every fight slowed for 1s.',g:'<path d="M15 3v24"/><path class="w" d="M10 6h10v15H10zM3 8h7v11H3zM20 8h7v11h-7z"/>'},
-  magazine:{n:'Powder Magazine',spot:'guns',p:11,d:'Your cannons deal 25% more damage. Burn put on you is 1 higher.',g:'<path class="w" d="M8 5h14c2 7 2 13 0 20H8c-2-7-2-13 0-20z"/><path d="M6 11h18M6 19h18" stroke-width="1.4"/>'},
+  magazine:{n:'Powder Magazine',spot:'guns',p:11,d:'The first cannon you fire each fight fires twice. Burn put on you is 1 higher.',g:'<path class="w" d="M8 5h14c2 7 2 13 0 20H8c-2-7-2-13 0-20z"/><path d="M6 11h18M6 19h18" stroke-width="1.4"/>'},
   chase:{n:'Chase Guns',spot:'guns',p:10,d:'Your cannons start every fight half charged. Your weapons start slowed for 2s.',g:'<path class="w" d="M3 12h16l7-2v9l-7-2H3z"/><circle class="w" cx="9" cy="22" r="4"/>'},
-  swivel:{n:'Swivel Mounts',spot:'guns',p:10,d:'Your weapons deal 2 more damage. Your cannons charge 10% slower.',g:'<path d="M15 15v12M10 27h10"/><path class="w" d="M4 9h15l6-2v8l-6-2H4z"/>'},
+  swivel:{n:'Swivel Mounts',spot:'guns',p:10,d:'Weapons in your leftmost and rightmost slots ignore shield. Your cannons charge 10% slower.',g:'<path d="M15 15v12M10 27h10"/><path class="w" d="M4 9h15l6-2v8l-6-2H4z"/>'},
   grapeshot:{n:'Grapeshot',spot:'guns',p:10,d:'Your cannons also burn for 1. They deal 2 less damage.',g:'<circle class="k" cx="10" cy="10" r="3.2"/><circle class="k" cx="20" cy="10" r="3.2"/><circle class="k" cx="15" cy="17" r="3.2"/><circle class="k" cx="8" cy="22" r="2.6"/><circle class="k" cx="22" cy="22" r="2.6"/>'},
-  gull:{n:'Gull',spot:'head',p:12,hp:-10,d:'All your damage has +10% crit chance. −10 health in fights.',g:'<path d="M3 13c4-5 8-5 12 2 4-7 8-7 12-2"/><path class="w" d="M12 15c1 4 5 4 6 0"/>'},
+  gull:{n:'Gull',spot:'head',p:12,hp:-10,d:'Your first crit each fight hastes all your cargo for 2s. −10 health in fights.',g:'<path d="M3 13c4-5 8-5 12 2 4-7 8-7 12-2"/><path class="w" d="M12 15c1 4 5 4 6 0"/>'},
   mermaid:{n:'Mermaid',spot:'head',p:12,d:'Below half health, heal 2% of your health every second. Your healing items heal 2 less.',g:'<path class="w" d="M15 3c4 0 5 5 3 9l-2 6c3 1 7 3 8 8-4-1-6-1-9-3-3 2-5 2-9 3 1-5 5-7 8-8l-2-6c-2-4-1-9 3-9z"/>'},
   kraken:{n:'Kraken',spot:'head',p:12,d:'Enemy cargo starts every fight slowed for 3s. Enemies have 10% more health.',g:'<path d="M5 27c0-9 7-11 11-15s3-9-2-9-4 6 1 6" stroke-width="2.4"/><path d="M13 27c2-6 9-7 12-10M20 27c1-3 4-4 6-5"/>'},
   lion:{n:'Golden Lion',spot:'head',p:12,d:'+4 gold for every fight you win. Rerolls cost 1 more.',g:'<circle class="w" cx="15" cy="15" r="11"/><circle class="w" cx="15" cy="16" r="6"/><circle class="k" cx="13" cy="15" r="1"/><circle class="k" cx="17" cy="15" r="1"/><path d="M14 19h2" stroke-width="1.4"/>'}
@@ -134,55 +134,23 @@ const RANKS={
 };
 const RANKXP=[0,3,7];   // fights won to reach rank 1, 2 and 3
 
-/* ---------- renown perks: each ship has its own list. You earn renown by winning fights and pick 1 of 3 perks at each level.
-   fx fields: hp, startShield, startHaste (s), enemySlow (s), startBurn, tagRate [tag, +rate], tagDmg [tag, +dmg], sizeRate (size-1 items),
-   lowRate (below half health), crit, critMult, bigDmg (size 3+ items), shieldPlus, healPlus, hasteLong (s), burnPlus, poisonPlus,
-   regen (per second), stormLess, goldWin, hullNow (repair once, when picked) ---------- */
+/* ---------- renown: the captain's picks. Every ship draws from the same list. Orders fire once a fight on a trigger you choose
+   (WHEN in battle.js, default in when). The rest change how you run the ship and are read by name with hasP(). ---------- */
 const PERKS={
-  // The Wren: speed, haste and crits
-  keen:{ship:'sloop',n:'Keen Edge',d:'Your crits deal triple damage instead of double.',fx:{critMult:3}},
-  tailwind:{ship:'sloop',n:'Tailwind',d:'Haste you give lasts 1s longer.',fx:{hasteLong:1}},
-  light:{ship:'sloop',n:'Light Cargo',d:'Your size 1 items charge 10% faster.',fx:{sizeRate:.1}},
-  fleet:{ship:'sloop',n:'Fleet Start',d:'Your cargo starts every fight hasted for 1.5s.',fx:{startHaste:1.5}},
-  duelist:{ship:'sloop',n:'Duelist',d:'Your weapons deal 2 more damage.',fx:{tagDmg:['W',2]}},
-  hawkeye:{ship:'sloop',n:'Hawk Eye',d:'+8% crit chance on all your damage.',fx:{crit:.08}},
-  rigging:{ship:'sloop',n:'Taut Rigging',d:'Your rigging items charge 20% faster.',fx:{tagRate:['R',.2]}},
-  nimble:{ship:'sloop',n:'Nimble Hull',d:'+15 health in fights.',fx:{hp:15}},
-  prize:{ship:'sloop',n:'Prize Crew',d:'+3 gold for every fight you win.',fx:{goldWin:3}},
-  slip:{ship:'sloop',n:'Slip Away',d:'Below half health, your cargo charges 15% faster.',fx:{lowRate:.15}},
-  // The Bulwark: shields, health and heavy hits
-  oak:{ship:'galleon',n:'Heart of Oak',d:'+40 health in fights.',fx:{hp:40}},
-  wall:{ship:'galleon',n:'Shield Wall',d:'Start every fight with 30 shield.',fx:{startShield:30}},
-  plate:{ship:'galleon',n:'Plated',d:'Your shield items give 4 more shield.',fx:{shieldPlus:4}},
-  broadaxe:{ship:'galleon',n:'Heavy Hitters',d:'Your size 3 and bigger items deal 35% more damage.',fx:{bigDmg:.35}},
-  brace:{ship:'galleon',n:'Brace',d:'Your armor items charge 20% faster.',fx:{tagRate:['A',.2]}},
-  mend:{ship:'galleon',n:'Carpenters',d:'Heal 2 health every second in fights.',fx:{regen:2}},
-  anchor:{ship:'galleon',n:'Deep Keel',d:'The storm hurts you 2 less each time.',fx:{stormLess:2}},
-  boarders:{ship:'galleon',n:'Boarders',d:'Your weapons deal 3 more damage.',fx:{tagDmg:['W',3]}},
-  bounty:{ship:'galleon',n:'Bounty',d:'+3 gold for every fight you win.',fx:{goldWin:3}},
-  drydock:{ship:'galleon',n:'Dry Dock',d:'Repair 4 hull now.',fx:{hullNow:4}},
-  // The Ember: cannons, powder and burn
-  powder:{ship:'privateer',n:'Fine Powder',d:'Your cannons deal 4 more damage.',fx:{tagDmg:['C',4]}},
-  kindling:{ship:'privateer',n:'Kindling',d:'Burn you put on enemies is 1 higher, once a second.',fx:{burnPlus:1}},
-  gunnery:{ship:'privateer',n:'Gunnery Drill',d:'Your cannons charge 15% faster.',fx:{tagRate:['C',.15]}},
-  firebrand:{ship:'privateer',n:'Firebrands',d:'Your fire items charge 12% faster.',fx:{tagRate:['X',.12]}},
-  opening:{ship:'privateer',n:'Opening Shot',d:'Every fight starts with the enemy burning for 3.',fx:{startBurn:3}},
-  sights:{ship:'privateer',n:'Gun Sights',d:'+6% crit chance on all your damage.',fx:{crit:.06}},
-  hardy:{ship:'privateer',n:'Hardy Crew',d:'+15 health in fights.',fx:{hp:15}},
-  desperate:{ship:'privateer',n:'Desperate Measures',d:'Below half health, your cargo charges 15% faster.',fx:{lowRate:.15}},
-  plunder:{ship:'privateer',n:'Plunder',d:'+3 gold for every fight you win.',fx:{goldWin:3}},
-  fuse:{ship:'privateer',n:'Long Fuse',d:'Haste you give lasts 1s longer.',fx:{hasteLong:1}},
-  // The Lotus: healing, poison and calm
-  remedy:{ship:'junk',n:'Remedies',d:'Your healing is 3 higher.',fx:{healPlus:3}},
-  venom:{ship:'junk',n:'Strong Venom',d:'Poison you put on enemies is 1 higher.',fx:{poisonPlus:1}},
-  apothecary:{ship:'junk',n:'Apothecary',d:'Your venom items charge 20% faster.',fx:{tagRate:['V',.2]}},
-  galley:{ship:'junk',n:'Good Galley',d:'Your food items charge 20% faster.',fx:{tagRate:['F',.2]}},
-  calm:{ship:'junk',n:'Calm Waters',d:'Enemy cargo starts every fight slowed for 2s.',fx:{enemySlow:2}},
-  tea:{ship:'junk',n:'Tea Ceremony',d:'Heal 2 health every second in fights.',fx:{regen:2}},
-  balance:{ship:'junk',n:'Balance',d:'+20 health in fights.',fx:{hp:20}},
-  lanterns:{ship:'junk',n:'Paper Lanterns',d:'Start every fight with 15 shield.',fx:{startShield:15}},
-  trade:{ship:'junk',n:'River Trade',d:'+3 gold for every fight you win.',fx:{goldWin:3}},
-  shrine:{ship:'junk',n:'Hull Shrine',d:'Repair 4 hull now.',fx:{hullNow:4}}
+  brace:{n:'Brace!',order:1,when:'half',d:'Block all damage for 2s.'},
+  allhands:{n:'All hands!',order:1,when:'start',d:'Haste all your cargo for 2s.'},
+  fire:{n:'Fire at will!',order:1,when:'ehalf',d:'Charge every weapon and cannon you carry halfway.'},
+  douse:{n:'Douse the fires!',order:1,when:'half',d:'Remove all your burn and poison.'},
+  rigging:{n:'Cut their rigging!',order:1,when:'start',d:'Slow all enemy cargo for 3s.'},
+  patch:{n:'Patch the hull!',order:1,when:'half',d:'Heal 15% of your health.'},
+  berth:{n:'Extra Berth',d:'+1 crew berth.'},
+  recruiter:{n:'Recruiter',d:'Hires cost 3 less, and taverns have 4 people for hire.'},
+  drill:{n:'Drillmaster',d:'Your crew rank up 1 win sooner.'},
+  paymaster:{n:'Paymaster',d:'Each crew member\'s wage is 1 less.'},
+  loyal:{n:'Loyal Crew',d:'Unpaid crew grumble but never quit.'},
+  wright:{n:'Shipwright\'s Friend',d:'Repairs cost 1 gold a point, and the shipwright stocks 3 fittings.'},
+  haggler:{n:'Haggler',d:'Market cargo costs 1 less.'},
+  prize:{n:'Prize Court',d:'Spoils offer 4 pieces of cargo instead of 3.'}
 };
 const STAR='<svg viewBox="0 0 30 30" class="gl" aria-hidden="true"><path class="w" d="M15 3l3.6 7.4 8.1 1.1-5.9 5.7 1.4 8L15 21.4l-7.2 3.8 1.4-8-5.9-5.7 8.1-1.1z"/></svg>';
 const fitGlyph=(k,cls)=>`<svg viewBox="0 0 30 30" class="${cls||'gl'}" aria-hidden="true">${FITTINGS[k].g}</svg>`;
