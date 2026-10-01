@@ -628,3 +628,48 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .perks b{font-weight:800}
 .mark>.gl,.pick .pi .gl{stroke:var(--ink);stroke-width:1.8;stroke-linejoin:round;fill:none}
 .mark>.gl .w{fill:var(--paper)}
+
+/* crafts and crew */
+.cri{width:13px;height:13px;flex:none;display:inline-block;vertical-align:-2px;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.cri .w{fill:var(--paper)}.cri .k{fill:currentColor;stroke:none}
+.ab .crt{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:800;white-space:nowrap}
+.ab.off{color:var(--soft);text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(0,0,0,.35)}
+.ab.off .crt{text-decoration:none;border:1.5px dashed var(--soft);border-radius:999px;padding:0 5px 0 3px;margin-left:2px}
+.chipc{display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--ink);border-radius:999px;padding:0 6px 0 4px;font-size:11px;font-weight:800;margin:2px 4px 0 0;white-space:nowrap}
+.item.use-none .ico{opacity:.28}
+.item.use-none{border-style:dashed}
+.item.use-some::after{content:"";position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper);z-index:2}
+.crewic{display:grid;place-items:center;overflow:hidden;border-radius:50%!important;border:2px solid var(--ink)}
+.crewic svg{width:100%;height:100%}
+.offers.hires .offer{min-height:0}
+.tavern h2 .soft{font:800 12.5px var(--ui);margin-left:6px}
+.shead{font:italic 900 18px var(--display);display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+.shead .soft{font:800 12px var(--ui)}
+.crewlist{display:grid;gap:8px}
+.crewrow{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:8px 10px}
+.crewrow .o-icon{width:44px;height:44px;padding:2px}
+.crewrow b{display:block;font-weight:800}
+.crewrow .soft{display:block;font-size:12px;margin-top:2px}
+.crewrow.empty{border-style:dashed;color:var(--soft);grid-template-columns:44px 1fr}
+.crewrow .fitnone{width:44px;height:44px;border-radius:50%}
+.mor{display:inline-flex;gap:2px;vertical-align:-1px}.mor i{width:7px;height:7px;border:1.5px solid var(--ink);border-radius:50%}.mor i.on{background:var(--ink)}
+details.crafts{border:2px solid var(--ink);border-radius:14px;padding:8px 12px}
+details.crafts summary{font-weight:800;cursor:pointer}
+.craftline{display:grid;grid-template-columns:16px auto 1fr;gap:6px;align-items:baseline;font-size:12.5px;padding-top:6px}
+.craftline b{font-weight:800}
+.craftline.off{color:var(--soft)}
+.crewbar{display:flex;align-items:center;gap:5px;width:100%;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:4px 8px;margin-bottom:10px;text-align:left}
+.cb-l{font:italic 900 15px var(--display);margin-right:2px}
+.cb-c{width:28px;height:28px;border:2px solid var(--ink);border-radius:50%;overflow:hidden;display:grid;place-items:center;flex:none}
+.cb-c svg{width:100%;height:100%}
+.cb-c.empty{border-style:dashed;border-color:var(--soft)}
+.cb-cr{margin-left:auto;display:flex;gap:3px}
+.crewmark .crewic{width:34px;height:34px}
+@media (min-width:1180px) and (min-height:640px){body.desk .dock .crewbar{margin:0}}
+@media (min-width:1180px) and (min-height:640px){
+  body.desk #app>.tavern{grid-column:1}
+  body.desk #app>.wright{grid-column:2}
+  body.desk .offers.hires,body.desk .offers.fits{grid-template-columns:repeat(2,1fr);gap:14px}
+  body.desk .offers.hires .offer,body.desk .offers.fits .offer{min-height:0}
+  body.desk .offers.hires .o-icon,body.desk .offers.fits .o-icon{width:56px;height:56px}
+}

@@ -6,7 +6,7 @@ let G=null,B=null,raf=0,last=0,bump=null,fresh=false;
    RULES FOR CHANGES: never rename or remove a field; give new fields a default in migrateAtlas / VOYAGE_DEFAULTS;
    if a field's meaning changes, bump the schema number and convert old data in the migrate function. */
 const ATLAS_SCHEMA=1,VOYAGE_SCHEMA=1;
-const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null,renown:0,perks:null};
+const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null,renown:0,perks:null,crew:null};
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
@@ -15,7 +15,19 @@ function migrateAtlas(m){
   ['voyages','wins','bosses','elites','best'].forEach(k=>{if(typeof out[k]!=='number'||!isFinite(out[k]))out[k]=0});
   // for the future: if(out.sv<2){ ...convert...; out.sv=2; }
   out.sv=ATLAS_SCHEMA;return out}
-function migrateVoyage(v){if(!v||!v.map||!v.board)return null;const out=Object.assign({},VOYAGE_DEFAULTS,v);out.sv=VOYAGE_SCHEMA;return out}
+function migrateVoyage(v){if(!v||!v.map||!v.board)return null;const out=Object.assign({},VOYAGE_DEFAULTS,v);out.sv=VOYAGE_SCHEMA;if(!out.crew)crewFromOldSave(out);return out}
+/* voyages from before crafts: crew items leave the hold for the deck, the ship gets its starting crew, and free berths go to whoever covers the crafts the hold needs most */
+function crewFromOldSave(g){
+  const b=SHIPS[g.ship].berths||3,crew=[],has=k=>crew.some(c=>c.k===k),addC=k=>{if(!has(k)&&CREW[k]&&crew.length<b)crew.push({k,xp:0,m:3})};
+  for(const list of [g.board,g.locker||[]])for(let i=list.length-1;i>=0;i--)if(DEFS[list[i].k]&&DEFS[list[i].k].tags.includes('K')){const k=list.splice(i,1)[0].k;if(CREW[k]&&!has(k)&&crew.length<b)crew.push({k,xp:0,m:3});else g.gold+=price(k,0)}
+  (SHIPS[g.ship].crew||[]).forEach(addC);
+  const need={};g.board.forEach(it=>itemCrafts(it.k).forEach(c=>need[c]=(need[c]||0)+1));
+  while(crew.length<b){const cov=new Set(crew.flatMap(c=>CREW[c.k].crafts));let best=null,bv=0;
+    for(const k in CREW){if(has(k))continue;const v=CREW[k].crafts.filter(c=>!cov.has(c)).reduce((a,c)=>a+(need[c]||0),0);if(v>bv){bv=v;best=k}}
+    if(!best)break;crew.push({k:best,xp:0,m:3})}
+  g.crew=crew;
+  for(const id in g.shops||{}){const S=g.shops[id];if(S.offers)S.offers=S.offers.map(o=>o&&DEFS[o.k]&&DEFS[o.k].tags.includes('K')?null:o)}
+}
 function loadA(){const{raw,val}=readKey('crossing-atlas'),out=migrateAtlas(val);
   if(raw&&val&&val.lastVersion!==VERSION){try{localStorage.setItem('crossing-atlas-backup',raw)}catch(e){}}   // one safety copy per update
   out.lastVersion=VERSION;return out}
@@ -25,6 +37,23 @@ function save(){if(G&&G.tut)return;try{const{sel,moving,...r}=G;localStorage.set
 function load(){return migrateVoyage(readKey('crossing-voyage').val)}
 function clearSave(){try{localStorage.removeItem('crossing-voyage')}catch(e){}}
 const hasC=k=>!!(G&&G.charts&&G.charts.some(c=>c.k===k));
+/* ---------- crew ---------- */
+const berths=()=>(SHIPS[G.ship].berths||3);
+const crewRank=c=>RANKXP.filter(x=>c.xp>=x).length;
+/* the crafts your crew cover, or null (everything works) when there's no voyage */
+function crewCrafts(){if(!G||!G.crew)return null;return new Set(G.crew.flatMap(c=>CREW[c.k].crafts))}
+/* the rank of each craft aboard: the best crew member with it */
+function craftRanks(){const r={};((G&&G.crew)||[]).forEach(c=>CREW[c.k].crafts.forEach(k=>r[k]=Math.max(r[k]||0,crewRank(c))));return r}
+function hire(k){G.crew=G.crew||[];G.crew.push({k,xp:0,m:3});logL(`Hired ${an(CREW[k].n)} for ${CREW[k].fee} gold.`)}
+/* wages at every new port: paid in order while the gold lasts. Unpaid crew lose heart, and leave when it runs out. */
+function payWages(){if(!G.crew||!G.crew.length||G.tut||G.path.length<2)return'';   // nothing is owed in the port you set out from
+  let paid=0,left=[],sad=[];
+  G.crew=G.crew.filter(c=>{const w=CREW[c.k].wage;if(G.gold>=w){G.gold-=w;paid+=w;c.m=Math.min(3,c.m+1);return true}
+    c.m--;if(c.m<=0){left.push(CREW[c.k].n);return false}sad.push(CREW[c.k].n);return true});
+  if(paid)logL(`Paid ${paid} gold in wages.`);
+  if(sad.length)logL(`Couldn't pay ${sad.join(' and ')}. They're grumbling.`);
+  if(left.length)logL(`${left.join(' and ')} left the ship over unpaid wages.`);
+  return[paid?`Paid ${paid} gold in wages`:'',sad.length?`${sad.join(' and ')} went unpaid`:'',left.length?`${left.join(' and ')} quit`:''].filter(Boolean).join('. ')}
 /* fittings: G.fit is {hull,sails,guns,head}, or null until the first one */
 const hasF=k=>!!(G&&G.fit&&Object.values(G.fit).includes(k));
 const fitIn=spot=>G&&G.fit&&G.fit[spot]||null;
@@ -91,7 +120,7 @@ function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extr
 
 /* ---------- enemy boards (seeded: every captain on this sea meets the same crew) ---------- */
 function enemyOf(n){
-  if(n.fixed)return{e:ENEMIES[n.enemy],list:n.fixed.list.map(x=>({...x})),hp:n.fixed.hp,depth:depthOf(n)};
+  if(n.fixed){const list=n.fixed.list.map(x=>({...x}));list.enemy=true;return{e:ENEMIES[n.enemy],list,hp:n.fixed.hp,depth:depthOf(n)}}
   const e=ENEMIES[n.enemy],depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
   let budget=(6+depth*6)*mult;const list=[];
   e.sig.forEach(k=>{const t=rollTier(depth,r);if(used(list)+DEFS[k].s<=10){list.push({k,t});budget-=price(k,t)*.5}});
@@ -99,6 +128,7 @@ function enemyOf(n){
   let tries=0;while(tries++<90&&used(list)<10&&budget>2){const k=drawKey(r,theme),d=DEFS[k];if(k==='chest')continue;
     const t=rollTier(depth,r),p=price(k,t);if(used(list)+d.s>10||p>budget)continue;list.splice(ri(r,list.length+1),0,{k,t});budget-=p}
   const hp=Math.round((70+depth*12)*(e.kind==='e'?1.15:e.kind==='b'?1.3:1));
+  list.enemy=true;   // enemy cargo needs no crew
   return{e,list,hp,depth};
 }
 const randItem=(r,depth,ship)=>{let k;do{k=drawKey(r,ship)}while(k==='chest'&&r()<.5);return{k,t:rollTier(depth,r)}};

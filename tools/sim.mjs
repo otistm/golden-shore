@@ -11,8 +11,16 @@ const res = await page.evaluate(([N, FITS, PERK]) => {
   const realEnd = end; let res = null; end = w => { B.over = true; res = w; };
   const errs = [];
   const board = (budget, depth, ship) => { const list = []; let t = 0; while (t++ < 150 && used(list) < 10 && budget > 2) { const k = drawKey(Math.random, ship), d = DEFS[k]; if (k === 'chest') continue; const tier = rollTier(depth), p = price(k, tier); if (used(list) + d.s > 10 || p > budget) continue; list.push({ k, t: tier }); budget -= p; } return list; };
+  // crew like a sensible captain: the ship's starting crew, then whoever covers the crafts this hold needs most. Rank 1, full morale.
+  const NOCREW = false;
+  const crewFor = (pb, ship) => { const b = SHIPS[ship].berths || 3, crew = (SHIPS[ship].crew || []).map(k => ({ k, xp: 0, m: 3 })), need = {};
+    pb.forEach(it => itemCrafts(it.k).forEach(c => need[c] = (need[c] || 0) + 1));
+    while (crew.length < b) { const cov = new Set(crew.flatMap(c => CREW[c.k].crafts)); let best = null, bv = 0;
+      for (const k in CREW) { if (crew.some(c => c.k === k)) continue; const v = CREW[k].crafts.filter(c => !cov.has(c)).reduce((a, c) => a + (need[c] || 0), 0); if (v > bv) { bv = v; best = k; } }
+      if (!best) break; crew.push({ k: best, xp: 0, m: 3 }); }
+    return crew; };
   const run = (pb, ek, sea, row, ship) => {
-    G.sea = sea; G.ship = ship; const nd = { id: Math.floor(Math.random() * 1e6), row, enemy: ek }, f = enemyOf(nd);
+    G.sea = sea; G.ship = ship; if (!NOCREW) G.crew = crewFor(pb, ship); const nd = { id: Math.floor(Math.random() * 1e6), row, enemy: ek }, f = enemyOf(nd);
     setupFight(nd, f, pb); B.wait = 0; B.quiet = true;   // the game's own fight setup, so fittings and landmarks count
     startFx(); res = null; let k = 0; while (!B.over && k++ < 4000) step(.05); return res;
   };

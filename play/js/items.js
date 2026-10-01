@@ -215,6 +215,10 @@ I('jade','Jade Talisman',1,0,'','junk','jade',{hpBonus:25,regen:1});
 I('nettle','Nettle Poultice',1,0,'','junk','herb',{on:[{ev:'hurt',poison:1,icd:.5}]});
 I('lotusflower','Lotus Blossom',1,0,'','junk','lotus',{on:[{ev:'heal',charge:['rand1',.4],icd:.3}]});
 I('moongate','Moon Gate',2,0,'','junk','gate',{on:[{ev:'lowhp',heal:40,cleanse:1}]});
+/* crew portraits for hires who were never cargo (see CREW in world.js) */
+I('witch','Sea Witch',1,0,'K','any',{hat:'hood',hair:1},{});
+I('apothecary','Apothecary',1,0,'K','any',{hat:'hood'},{});
+I('chemist','Powder Chemist',1,0,'K','any',{hat:'bandana',patch:1},{});
 
 const DEFS={};CI.forEach(([k,n,s,cd,tags,ship,g,f])=>{DEFS[k]=Object.assign({n,s,cd,tags:tags?tags.split(','):[],ship},f,typeof g==='string'?{i:g}:{look:g})});
 const KEYS=Object.keys(DEFS);
@@ -228,9 +232,34 @@ const sellP=(k,t)=>hasC('cove')?price(k,t):Math.max(1,Math.floor(price(k,t)/2));
 const used=l=>l.reduce((a,b)=>a+DEFS[b.k].s,0);
 const isPassive=k=>!DEFS[k].cd;
 function rollTier(depth,r){r=r||Math.random;const x=r();if(depth>=16&&x<.15)return 3;if(depth>=11&&x<.38)return 2;if(depth>=5&&x<.68)return 1;return 0}
-function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship)}
-const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any');
+const isCrewKey=k=>DEFS[k].tags.includes('K');
+function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship&&!isCrewKey(k))}
+const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any'&&!isCrewKey(k));
 function drawKey(r,ship){ship=ship||(G&&G.ship)||pick(r,SHIPKEYS);return r()<.2?pick(r,NEUTRAL):pick(r,poolFor(ship))}
+
+/* ---------- crafts: every ability belongs to one. On your ship an ability only works if someone on deck has its craft. Enemies need no crew. ---------- */
+const CRAFTS={steel:'Steel',gun:'Gunnery',fire:'Fire',alch:'Alchemy',med:'Medicine',carp:'Carpentry',sea:'Seamanship'};
+const CRAFTD={steel:'weapon damage and crits',gun:'cannon damage',fire:'burn',alch:'poison',med:'healing',carp:'shield',sea:'haste, charge and slow'};
+const KEYCRAFT={dmg:'dmg',dmgX:'dmg',multi:'dmg',crit:'dmg',pierce:'dmg',burn:'fire',burnPerHit:'fire',poison:'alch',poisonPerHit:'alch',
+  heal:'med',healX:'med',cleanse:'med',douse:'med',shield:'carp',shieldX:'carp',haste:'sea',charge:'sea',slow:'sea'};
+const AURACRAFT={adjDmg:'steel',adjCrit:'steel',adjCd:'sea',adjPre:'sea',edgeCd:'sea',emptyCd:'sea',tagCd:'sea',tagPre:'sea',adjShield:'carp',tagShield:'carp',
+  adjHeal:'med',tagHeal:'med',adjBurn:'fire',tagBurn:'fire',adjPoison:'alch',tagPoison:'alch',hpBonus:'carp',regen:'med'};
+const dmgCraft=d=>d.tags.includes('C')?'gun':'steel';
+const keyCraft=(key,d)=>{const c=KEYCRAFT[key];return c==='dmg'?dmgCraft(d):c||null};
+const auraCraft=(key,a)=>{if(key==='tagDmg'||key==='tagCrit')return a[key][0]==='C'?'gun':'steel';return AURACRAFT[key]||null};
+const GROWCRAFT={dmg:'dmg',shield:'carp',heal:'med',burn:'fire',poison:'alch'};
+/* drop the abilities nobody aboard can work. ok(craft) says if a craft is covered. */
+function gateFx(f,d,ok){if(!f)return f;const o={};let n=0;
+  for(const key in f){if(key==='ev'||key==='tag'||key==='icd'){o[key]=f[key];continue}
+    if(key==='grow'){const g={};for(const s in f.grow){const c=GROWCRAFT[s]==='dmg'?dmgCraft(d):GROWCRAFT[s];if(ok(c))g[s]=f.grow[s]}if(Object.keys(g).length){o.grow=g;n++}continue}
+    const c=keyCraft(key,d);if(c&&!ok(c))continue;o[key]=f[key];if(FXKEYS.includes(key))n++}
+  return n?o:null}
+/* every craft an item's abilities use */
+function itemCrafts(k){const d=DEFS[k],s=new Set(),add=f=>{if(!f)return;for(const key in f){if(key==='grow'){for(const g in f.grow)s.add(GROWCRAFT[g]==='dmg'?dmgCraft(d):GROWCRAFT[g]);continue}const c=keyCraft(key,d);if(c)s.add(c)}};
+  add(pickFx(d));add(d.start);(d.on||[]).forEach(add);for(const key in AURACRAFT)if(d[key]!=null)s.add(auraCraft(key,d));if(d.tagDmg)s.add(auraCraft('tagDmg',d));if(d.tagCrit)s.add(auraCraft('tagCrit',d));
+  return s}
+/* how much of an item your crew can use: 'all', 'some' or 'none' */
+function itemUse(k,cr){if(!cr)return'all';const c=[...itemCrafts(k)];if(!c.length)return'all';const n=c.filter(x=>cr.has(x)).length;return n===c.length?'all':n?'some':'none'}
 
 /* ---------- scaling by tier ---------- */
 const AMT=['dmg','shield','heal','selfDmg','douse'],DOT=['burn','poison','burnPerHit','poisonPerHit'],DM=[1,1.6,2.2,2.8];
@@ -248,22 +277,22 @@ function scaleFx(f,t){if(!f)return null;const m=M[t],q=1+.25*t,o={};
 const auraV=(v,t,ratio,dot)=>ratio?+(v*(1+.25*t)).toFixed(3):Math.round(v*(dot?DM[t]:M[t]));
 
 /* item stats in context: its own effect, scaled, plus every aura from the rest of the hold */
-function statsOf(list,i){
-  const it=list[i],d=DEFS[it.k],t=it.t,tags=d.tags;
-  const fx=scaleFx(pickFx(d),t)||{},s={cd:d.cd||0,fx,start:scaleFx(d.start,t),on:(d.on||[]).map(h=>Object.assign(scaleFx(h,t),{ev:h.ev,tag:h.tag,icd:h.icd})),pre:0,boost:[],W:tags.includes('W')};
-  const last=list.length-1,empty=10-used(list);
+function statsOf(list,i,cr){
+  const it=list[i],d=DEFS[it.k],t=it.t,tags=d.tags,ok=c=>!cr||!c||cr.has(c);
+  const fx=gateFx(scaleFx(pickFx(d),t),d,ok)||{},s={cd:d.cd||0,fx,start:gateFx(scaleFx(d.start,t),d,ok),on:(d.on||[]).map(h=>gateFx(Object.assign(scaleFx(h,t),{ev:h.ev,tag:h.tag,icd:h.icd}),d,ok)).filter(Boolean),pre:0,boost:[],W:tags.includes('W')};
+  const last=list.length-1,empty=(cr&&typeof holdCap==='function'&&G?holdCap():10)-used(list);
   list.forEach((o,j)=>{if(j===i)return;const a=DEFS[o.k],tj=o.t,adj=Math.abs(j-i)===1,nm=a.n;
-    const add=(cond,apply)=>{if(cond){apply();if(!s.boost.includes(nm))s.boost.push(nm)}};
+    let key0='';const add=(cond,apply)=>{if(cond&&ok(auraCraft(key0,a))){apply();if(!s.boost.includes(nm))s.boost.push(nm)}};
     if(adj){
-      if(a.adjDmg)add(s.W&&fx.dmg!=null,()=>fx.dmg+=auraV(a.adjDmg,tj));
-      if(a.adjCd)add(s.cd>0,()=>s.cd*=1-auraV(a.adjCd,tj,1));
-      if(a.adjCrit)add(s.W,()=>fx.crit=(fx.crit||0)+auraV(a.adjCrit,tj,1));
-      if(a.adjPre)add(s.cd>0,()=>s.pre+=auraV(a.adjPre,tj,1));
-      if(a.adjShield)add(fx.shield!=null,()=>fx.shield+=auraV(a.adjShield,tj));
-      if(a.adjHeal)add(fx.heal!=null,()=>fx.heal+=auraV(a.adjHeal,tj));
-      if(a.adjBurn)add(fx.burn!=null||fx.burnPerHit!=null,()=>{if(fx.burn!=null)fx.burn+=auraV(a.adjBurn,tj,0,1);else fx.burnPerHit+=auraV(a.adjBurn,tj,0,1)});
-      if(a.adjPoison)add(fx.poison!=null,()=>fx.poison+=auraV(a.adjPoison,tj,0,1))}
-    const tg=(key,f)=>{const v=a[key];if(v&&tags.includes(v[0]))f(v[1])};
+      if(a.adjDmg&&(key0='adjDmg'))add(s.W&&fx.dmg!=null,()=>fx.dmg+=auraV(a.adjDmg,tj));
+      if(a.adjCd&&(key0='adjCd'))add(s.cd>0,()=>s.cd*=1-auraV(a.adjCd,tj,1));
+      if(a.adjCrit&&(key0='adjCrit'))add(s.W,()=>fx.crit=(fx.crit||0)+auraV(a.adjCrit,tj,1));
+      if(a.adjPre&&(key0='adjPre'))add(s.cd>0,()=>s.pre+=auraV(a.adjPre,tj,1));
+      if(a.adjShield&&(key0='adjShield'))add(fx.shield!=null,()=>fx.shield+=auraV(a.adjShield,tj));
+      if(a.adjHeal&&(key0='adjHeal'))add(fx.heal!=null,()=>fx.heal+=auraV(a.adjHeal,tj));
+      if(a.adjBurn&&(key0='adjBurn'))add(fx.burn!=null||fx.burnPerHit!=null,()=>{if(fx.burn!=null)fx.burn+=auraV(a.adjBurn,tj,0,1);else fx.burnPerHit+=auraV(a.adjBurn,tj,0,1)});
+      if(a.adjPoison&&(key0='adjPoison'))add(fx.poison!=null,()=>fx.poison+=auraV(a.adjPoison,tj,0,1))}
+    const tg=(key,f)=>{const v=a[key];if(v&&tags.includes(v[0])){key0=key;f(v[1])}};
     tg('tagDmg',v=>add(fx.dmg!=null,()=>fx.dmg+=auraV(v,tj)));
     tg('tagCd',v=>add(s.cd>0,()=>s.cd*=1-auraV(v,tj,1)));
     tg('tagCrit',v=>add(fx.dmg!=null,()=>fx.crit=(fx.crit||0)+auraV(v,tj,1)));
@@ -272,8 +301,8 @@ function statsOf(list,i){
     tg('tagBurn',v=>add(fx.burn!=null,()=>fx.burn+=auraV(v,tj,0,1)));
     tg('tagPoison',v=>add(fx.poison!=null,()=>fx.poison+=auraV(v,tj,0,1)));
     tg('tagPre',v=>add(s.cd>0,()=>s.pre+=auraV(v,tj,1)));
-    if(a.edgeCd)add(s.cd>0&&(i===0||i===last),()=>s.cd*=1-auraV(a.edgeCd,tj,1));
-    if(a.emptyCd)add(s.cd>0&&empty>0,()=>s.cd*=1-Math.min(.5,auraV(a.emptyCd,tj,1)*empty));
+    if(a.edgeCd&&(key0='edgeCd'))add(s.cd>0&&(i===0||i===last),()=>s.cd*=1-auraV(a.edgeCd,tj,1));
+    if(a.emptyCd&&(key0='emptyCd'))add(s.cd>0&&empty>0,()=>s.cd*=1-Math.min(.5,auraV(a.emptyCd,tj,1)*empty));
   });
   if(fx.dmg==null&&fx.dmgX)fx.dmg=0;
   s.cd=Math.round(s.cd*10)/10;if(fx.crit)fx.crit=Math.min(.9,fx.crit);s.pre=Math.min(.9,s.pre);
@@ -281,7 +310,7 @@ function statsOf(list,i){
 }
 const FXKEYS=['dmg','multi','crit','pierce','burnPerHit','poisonPerHit','dmgX','shield','shieldX','heal','healX','burn','poison','slow','haste','charge','cleanse','douse','selfDmg','grow'];
 function pickFx(d){const o={};let any=false;FXKEYS.forEach(k=>{if(d[k]!=null){o[k]=d[k];any=true}});return any?o:null}
-function sideOf(list){const o={hp:0,regen:0,gold:0};list.forEach(it=>{const d=DEFS[it.k];if(d.hpBonus)o.hp+=auraV(d.hpBonus,it.t);if(d.regen)o.regen+=auraV(d.regen,it.t);if(d.gold)o.gold+=auraV(d.gold,it.t)});return o}
+function sideOf(list,cr){const o={hp:0,regen:0,gold:0},ok=c=>!cr||cr.has(c);list.forEach(it=>{const d=DEFS[it.k];if(d.hpBonus&&ok('carp'))o.hp+=auraV(d.hpBonus,it.t);if(d.regen&&ok('med'))o.regen+=auraV(d.regen,it.t);if(d.gold)o.gold+=auraV(d.gold,it.t)});return o}
 
 /* ---------- words for effects ---------- */
 const pc=v=>Math.round(v*100)+'%';
@@ -290,26 +319,32 @@ const tgtName=t=>t.startsWith('tag:')?`your ${TAGN[t.slice(4)]} items`:TGT[t];
 function xName(x){const[from,r]=x;
   if(from==='shield')return`${pc(r)} of your shield`;if(from==='enemyBurn')return`${pc(r)} of the enemy's burn`;if(from==='enemyPoison')return`${pc(r)} of the enemy's poison`;
   if(from==='missing')return`${pc(r)} of your missing health`;if(from==='empty')return`${r} for each empty hold slot`;return`${r} for each ${TAGN[from.slice(4)]} item you carry`}
-function fxWords(f){const L=[];if(!f)return L;
+/* the words for an effect, as [text, craft] pairs. dc is the item's damage craft (Steel or Gunnery). */
+function fxWords(f,dc){const L=[],P=(t,c)=>L.push([t,c]);if(!f)return L;dc=dc||'steel';
   if(f.dmg!=null||f.dmgX){let t=f.dmgX?(f.dmg?`Deal ${f.dmg} damage plus ${xName(f.dmgX)}`:`Deal damage equal to ${xName(f.dmgX)}`):`Deal ${f.dmg} damage`;
-    if(f.multi>1)t+=`, ${f.multi} times`;t+='.';if(f.pierce)t+=' Ignores shield.';if(f.burnPerHit)t+=` Each hit burns for ${f.burnPerHit}.`;if(f.poisonPerHit)t+=` Each hit poisons for ${f.poisonPerHit}.`;L.push(t)}
-  if(f.crit)L.push(`${pc(f.crit)} crit chance.`);
-  if(f.shield!=null||f.shieldX)L.push(f.shieldX?(f.shield?`Gain ${f.shield} shield plus ${xName(f.shieldX)}.`:`Gain shield equal to ${xName(f.shieldX)}.`):`Gain ${f.shield} shield.`);
-  if(f.heal!=null||f.healX)L.push((f.healX?(f.heal?`Heal ${f.heal} plus ${xName(f.healX)}`:`Heal ${xName(f.healX)}`):`Heal ${f.heal}`)+'.');
-  if(f.burn)L.push(`Burn the enemy for ${f.burn}.`);
-  if(f.poison)L.push(`Poison the enemy for ${f.poison}.`);
-  if(f.slow)L.push(`Slow ${f.slow[0]===1?'an enemy item':f.slow[0]+' enemy items'} for ${f.slow[1]}s.`);
-  if(f.haste)L.push(`Haste ${tgtName(f.haste[0])} for ${f.haste[1]}s.`);
-  if(f.charge)L.push(`Charge ${tgtName(f.charge[0])} by ${f.charge[1]}s.`);
-  if(f.cleanse)L.push('Remove all your poison.');
-  if(f.douse)L.push(`Remove ${f.douse} of your burn.`);
-  if(f.selfDmg)L.push(`Costs you ${f.selfDmg} health.`);
-  if(f.grow)for(const k in f.grow)L.push(`Gains +${f.grow[k]} ${k==='dmg'?'damage':k} each use this fight.`);
+    if(f.multi>1)t+=`, ${f.multi} times`;t+='.';if(f.pierce)t+=' Ignores shield.';P(t,dc);
+    if(f.burnPerHit)P(`Each hit burns for ${f.burnPerHit}.`,'fire');if(f.poisonPerHit)P(`Each hit poisons for ${f.poisonPerHit}.`,'alch')}
+  if(f.crit)P(`${pc(f.crit)} crit chance.`,dc);
+  if(f.shield!=null||f.shieldX)P(f.shieldX?(f.shield?`Gain ${f.shield} shield plus ${xName(f.shieldX)}.`:`Gain shield equal to ${xName(f.shieldX)}.`):`Gain ${f.shield} shield.`,'carp');
+  if(f.heal!=null||f.healX)P((f.healX?(f.heal?`Heal ${f.heal} plus ${xName(f.healX)}`:`Heal ${xName(f.healX)}`):`Heal ${f.heal}`)+'.','med');
+  if(f.burn)P(`Burn the enemy for ${f.burn}.`,'fire');
+  if(f.poison)P(`Poison the enemy for ${f.poison}.`,'alch');
+  if(f.slow)P(`Slow ${f.slow[0]===1?'an enemy item':f.slow[0]+' enemy items'} for ${f.slow[1]}s.`,'sea');
+  if(f.haste)P(`Haste ${tgtName(f.haste[0])} for ${f.haste[1]}s.`,'sea');
+  if(f.charge)P(`Charge ${tgtName(f.charge[0])} by ${f.charge[1]}s.`,'sea');
+  if(f.cleanse)P('Remove all your poison.','med');
+  if(f.douse)P(`Remove ${f.douse} of your burn.`,'med');
+  if(f.selfDmg)P(`Costs you ${f.selfDmg} health.`,null);
+  if(f.grow)for(const k in f.grow)P(`Gains +${f.grow[k]} ${k==='dmg'?'damage':k} each use this fight.`,GROWCRAFT[k]==='dmg'?dc:GROWCRAFT[k]);
   return L}
+/* one ability, marked with its craft, greyed out if nobody aboard has the craft */
+function abl(t,c,cr){if(!c)return t;const off=cr&&!cr.has(c);return`<span class="ab${off?' off':''}">${t} <span class="crt" title="${off?'Needs':'Uses'} ${CRAFTS[c]}">${craftIcon(c)}${off?CRAFTS[c]:''}</span></span>`}
 const EVN={crit:'When you crit',burn:'When you apply burn',poison:'When you apply poison',shield:'When you gain shield',heal:'When you heal',hurt:'When a weapon hits you',lowhp:'The first time you drop below half health',haste:'When you haste an item',adjUse:'When an adjacent item is used'};
-function describe(list,i){
-  const it=list[i],d=DEFS[it.k],t=it.t,s=statsOf(list,i),L=[],g=new Set();
-  const A=(key,f)=>{if(d[key]!=null)L.push(f(d[key]))};
+/* the item's text. Enemy lists are marked .enemy and never greyed out; everything else is read against your crew. */
+function describe(list,i,cr){
+  if(cr===undefined)cr=list.enemy?null:crewCrafts();
+  const it=list[i],d=DEFS[it.k],t=it.t,s=statsOf(list,i,cr),full=statsOf(list,i),L=[],g=new Set(),dc=dmgCraft(d);
+  const A=(key,f)=>{if(d[key]!=null)L.push(abl(f(d[key]),auraCraft(key,d),cr))};
   A('adjDmg',v=>`Adjacent weapons deal +${auraV(v,t)} damage.`);
   A('adjCd',v=>`Adjacent items charge ${pc(auraV(v,t,1))} faster.`);
   A('adjCrit',v=>`Adjacent weapons get +${pc(auraV(v,t,1))} crit chance.`);
@@ -331,12 +366,13 @@ function describe(list,i){
   A('hpBonus',v=>`+${auraV(v,t)} max health.`);
   A('regen',v=>`Heal ${auraV(v,t)} every second.`);
   A('gold',v=>`Earn +${auraV(v,t)} gold for every fight you win.`);
-  L.push(...fxWords(s.fx));
-  if(s.start)L.push('When a fight starts: '+fxWords(s.start).map(x=>x[0].toLowerCase()+x.slice(1)).join(' '));
-  s.on.forEach(h=>L.push(`${h.ev==='use'?`When you use a ${TAGN[h.tag]} item`:EVN[h.ev]}: `+fxWords(h).map(x=>x[0].toLowerCase()+x.slice(1)).join(' ')));
+  const low=([x,c])=>abl(x[0].toLowerCase()+x.slice(1),c,cr);
+  fxWords(full.fx,dc).forEach(([x,c])=>L.push(abl(x,c,cr)));
+  if(full.start)L.push('When a fight starts: '+fxWords(full.start,dc).map(low).join(' '));
+  full.on.forEach(h=>L.push(`${h.ev==='use'?`When you use a ${TAGN[h.tag]} item`:EVN[h.ev]}: `+fxWords(h,dc).map(low).join(' ')));
   if(s.pre&&d.cd)L.push(`Starts fights ${pc(s.pre)} charged.`);
   if(s.boost.length)L.push(`Boosted by your ${s.boost.join(', ')}.`);
-  const all=[s.fx,s.start,...s.on];
+  const all=[full.fx,full.start,...full.on];
   all.forEach(f=>{if(!f)return;if(f.burn||f.burnPerHit)g.add('Burn hits every half second, then drops by 1.');if(f.poison||f.poisonPerHit)g.add('Poison hits every second and ignores shield.');
     if(f.slow)g.add('Slowed items charge at half speed.');if(f.haste)g.add('Hasted items charge at double speed.');if(f.charge)g.add('Charging moves an item\'s cooldown forward.')});
   return{s,L,g:[...g],tags:d.tags.map(x=>TAGN[x])};

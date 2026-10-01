@@ -29,7 +29,7 @@ function startTutorial(){
     {id:904,row:3,col:1.5,x:170,type:'port',name:'Saltmere'}],
     edges:[[900,901],[901,902],[901,903],[902,904],[903,904]]};
   G=Object.assign({},VOYAGE_DEFAULTS,{seed:'TUTORIAL',ship:'sloop',sea:0,map,at:900,path:[900],day:1,gold:12,hull:20,
-    board:SHIPS.sloop.start.map(x=>({...x})),charts:[],log:[],creel:[],hock:'tutorial',tut:{i:0,on:false},
+    board:SHIPS.sloop.start.map(x=>({...x})),charts:[],log:[],creel:[],hock:'tutorial',tut:{i:0,on:false},crew:['fencer','bosun','herbalist'].map(k=>({k,xp:0,m:3})),
     shops:{900:{offers:[{k:'swordcane',t:0},{k:'sail',t:0},{k:'pork',t:0},{k:'duelglove',t:0}],reroll:1,demand:'mackerel'}}});
   updateReveal();lore(LORE.start);port(900);
 }
@@ -97,6 +97,7 @@ const TIPS={
   elite:"Elites hit harder, but they carry a landmark as well as cargo.",
   boss:"Bosses guard the way to the next sea. Lose and you fall back to port to refit, then try again.",
   people:"People can trade, help, or give you a quest. Choices can cost gold, hull or fish.",
+  crew:"Your crew make your cargo work. Each item ability needs someone aboard with its craft, like Steel for weapon damage or Alchemy for poison. Greyed abilities need a new hire from the tavern.",
   wright:"The shipwright fits parts to your ship. Each one changes how you fight, with a trade-off. Tap your hull to see your ship.",
   locker:"Your new locker holds spare cargo. It stays out of fights. Drag items between it and your hold."
 };

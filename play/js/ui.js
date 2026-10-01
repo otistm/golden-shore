@@ -8,10 +8,10 @@ function squish(el,cls){if(!el||(B&&B.quiet))return;el.classList.remove(cls);voi
 function overlay(html,center,cls){const ov=document.createElement('div');ov.className='overlay'+(center?' center':'');ov.innerHTML=`<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(ov);return ov}
 function barHTML(){const b=k=>bump===k?' bump':'';const h=`<header class="bar"><span class="pill day">Day ${G.day}</span><span class="pill${b('gold')}">${G.gold} gold</span><button class="pill shippill${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull"><svg viewBox="0 0 12 12" aria-hidden="true">${EMB[G.ship]}</svg>${G.hull} hull</button>${G.creel&&G.creel.length?`<button class="pill" id="creelbtn">${G.creel.length} fish</button>`:''}<button class="linkbtn" id="logbtn" style="margin-left:auto">Log</button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
-function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():10);
+function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():10);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
-  list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
+  list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i,cr),use=itemUse(it.k,cr),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
+    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   if(side==='p'&&cap<10)for(let k=cap;k<10;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
@@ -23,6 +23,7 @@ function itemSheet(list,i,mode,after){
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
     <ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>
     ${g.length?`<div class="gloss">${g.map(x=>`<span>${x}</span>`).join('')}</div>`:''}
+    ${!list.enemy&&itemUse(it.k,crewCrafts())!=='all'?'<p class="gloss">Greyed abilities need someone aboard with that craft. Hire crew at a port tavern.</p>':''}
     ${mode!=='view'&&it.t<3?`<p class="gloss">Get another ${d.n}, ${TIER[it.t]} or better, to upgrade it to ${TIER[it.t+1]}.</p>`:''}
     <div class="sh-actions">${mode!=='view'&&!inL?`<button class="ghost" data-a="move">Move</button>`:''}${canSwap?`<button class="ghost" data-a="swap" ${swapOk?'':'disabled'}>${inL?'Move to hold':'Stow in locker'}</button>`:''}${mode==='port'||mode==='spoils'?`<button class="ghost" data-a="sell">Sell for ${sellP(it.k,it.t)} gold</button>`:''}<button class="primary" data-a="close">Close</button></div>`);
   ov.addEventListener('click',e=>{
@@ -35,13 +36,30 @@ function itemSheet(list,i,mode,after){
   ov.querySelector('[data-a="close"]').focus();
 }
 function bindHold(mode,rerender,ext){
-  dragHold(mode,rerender,ext);
+  dragHold(mode,rerender,ext);const cb=document.getElementById('crewbar');if(cb)cb.onclick=shipSheet;
   app.querySelectorAll('.dock .board[data-side="p"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.i;
     if(G.moving){if(i!==G.sel){const[it]=G.board.splice(G.sel,1);G.board.splice(i,0,it)}G.moving=false;G.sel=null;save();rerender();coach('moved')}
     else itemSheet(G.board,i,mode,rerender)});
   app.querySelectorAll('.dock .board[data-side="p"] .slot').forEach(b=>b.onclick=()=>{if(!G.moving)return;const[it]=G.board.splice(G.sel,1);G.board.push(it);G.moving=false;G.sel=null;save();rerender()});
   app.querySelectorAll('.dock .board[data-side="l"] .item').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;if(G.moving){G.moving=false;G.sel=null;return rerender()}itemSheet(G.locker,+b.dataset.i,mode,rerender)});
 }
+/* ---------- crafts and crew ---------- */
+const CRAFTG={steel:'<path d="M3 13L12 4"/><path d="M10 3h3v3"/><path d="M4 10l2 2"/>',gun:'<circle class="k" cx="7.5" cy="9" r="4.2"/><path d="M10.5 5.5L13 3"/>',
+  fire:'<path class="w" d="M8 14c-3 0-4.5-2-4.5-4.5C3.5 6.5 7 5.5 7 2c3 2 5.5 4.5 5.5 7.5S11 14 8 14z"/>',alch:'<path class="w" d="M6 2h4M7 2v4l-4 7.5h10L9 6V2"/>',
+  med:'<path class="w" d="M6 2.5h4v3.5h3.5v4H10v3.5H6V10H2.5V6H6z"/>',carp:'<path class="w" d="M5 2.5h8v4H5z"/><path d="M7.5 6.5L3 14"/>',
+  sea:'<circle cx="8" cy="3.5" r="1.6"/><path d="M8 5v9M5 8h6M3 10.5c1 2.5 3 3.5 5 3.5s4-1 5-3.5"/>'};
+const craftIcon=c=>`<svg class="cri" viewBox="0 0 16 16" aria-hidden="true">${CRAFTG[c]}</svg>`;
+const crewCrafts1=k=>CREW[k].crafts.map(c=>`<span class="chipc">${craftIcon(c)}${CRAFTS[c]}</span>`).join('');
+const pips=(n,max,cls)=>`<span class="${cls}" aria-label="${n} of ${max}">${Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+function crewRows(edit){const cs=G.crew||[];
+  return cs.map((c,i)=>{const C=CREW[c.k],rk=crewRank(c),nx=RANKXP[rk];
+    return`<div class="crewrow"><span class="o-icon crewic">${icon(c.k)}</span><div><b>${C.n}</b>${crewCrafts1(c.k)}
+      <span class="soft">Rank ${rk}${nx!=null?`, ${nx-c.xp} more win${nx-c.xp===1?'':'s'} to rank ${rk+1}`:''}. Wage ${C.wage}. Morale ${pips(c.m,3,'mor')}</span></div>
+      ${edit?`<button class="linkbtn" data-dis="${i}">Dismiss</button>`:''}</div>`}).join('')+
+    Array.from({length:Math.max(0,berths()-cs.length)},()=>`<div class="crewrow empty"><span class="fitnone"></span><div><b>Empty berth</b><span class="soft">Hire crew at a port tavern.</span></div></div>`).join('')}
+/* the crafts your crew cover, and rank rules they've opened */
+function craftSummary(){const r=craftRanks();return Object.keys(CRAFTS).map(c=>{const n=r[c]||0;
+  return`<div class="craftline${n?'':' off'}">${craftIcon(c)}<b>${CRAFTS[c]}</b><span>${n?`${CRAFTD[c]}${n>=2?`. ${RANKS[c].slice(0,n-1).join(' ')}`:''}`:`No one aboard. ${CRAFTD[c][0].toUpperCase()+CRAFTD[c].slice(1)} won't work.`}</span></div>`}).join('')}
 /* ---------- your ship: trait and fittings ---------- */
 function fitRows(){return Object.keys(SPOTS).map(s=>{const k=fitIn(s);
   return`<div class="fitrow${k?'':' empty'}">${k?fitGlyph(k):'<span class="fitnone" aria-hidden="true"></span>'}<div><span class="soft">${SPOTS[s]}</span><b>${k?FITTINGS[k].n:'Empty'}</b>${k?`<span class="d">${FITTINGS[k].d}</span>`:''}</div></div>`}).join('')}
@@ -52,11 +70,18 @@ function renownHTML(){const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv
 function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const ov=overlay(`<div class="sh-top">${shipIcon(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
+    <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
+    <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
+    <details class="crafts"><summary>What your crew can work</summary>${craftSummary()}</details>
     ${renownHTML()}
+    <h3 class="shead">Fittings</h3>
     <div class="fitlist">${fitRows()}</div>
     <p class="gloss">${G.fit&&Object.values(G.fit).some(Boolean)?'Fitting a new part in a spot sells the old one for half. Losing a fight tears one away.':'The shipwright in any port sells fittings, and elites sometimes carry one.'}</p>
     <button class="primary" data-a="c">Close</button>`);
-  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
+  ov.addEventListener('click',e=>{const d=e.target.closest('[data-dis]');if(d){const c=G.crew[+d.dataset.dis];
+      if(d.dataset.sure){G.crew.splice(+d.dataset.dis,1);logL(`Let ${CREW[c.k].n} go.`);save();ov.remove();toast(`${CREW[c.k].n} leaves the ship`);if(app.querySelector('#leave'))port(G.at);else chart();return}
+      d.dataset.sure=1;d.textContent='Tap again to dismiss';return}
+    if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});ov.querySelector('[data-a]').focus()}
 /* ---------- drag and drop: hold and locker ---------- */
 let dragJustEnded=false;
 /* ext (the spoils screen): from, things outside the hold that can be dragged in, each {el,it,drop(tgt,dst)};
@@ -139,6 +164,7 @@ function holdDock(extra,ups,lups,hint){
     <p class="hint${G.moving?' on':''}">${hint}</p>
     ${boardHTML(G.board,'p',ups)}
     ${G.locker?`<div class="stall-head locker-head"><h3>Locker <span class="soft">stays out of fights</span></h3><span class="soft">${used(G.locker)}/${LOCK}</span></div>${boardHTML(G.locker,'l',lups,LOCK)}`:''}
+    ${G.crew?`<button class="crewbar" id="crewbar" type="button" aria-label="Your crew"><span class="cb-l">Crew</span>${G.crew.map(c=>`<span class="cb-c" title="${CREW[c.k].n}">${icon(c.k)}</span>`).join('')}${Array.from({length:Math.max(0,berths()-G.crew.length)},()=>'<span class="cb-c empty"></span>').join('')}<span class="cb-cr">${[...crewCrafts()].map(craftIcon).join('')}</span></button>`:''}
     ${extra}</div></footer>`;
 }
 function fitDock(){const d=app.querySelector('.dock');if(d){app.style.paddingBottom=(d.offsetHeight+18)+'px';document.documentElement.style.setProperty('--dock',d.offsetHeight+'px')}}
