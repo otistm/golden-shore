@@ -987,3 +987,13 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .sc-crafts .chipc{margin:0}
 .sc-hand .linkbtn{grid-column:2;justify-self:start;font-size:12px;padding:0}
 .sc-picks .perks{padding-left:16px}
+/* the chart's water: bobbing wave marks, and ripples lapping the islands' shores */
+.map .wv{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;opacity:.45;animation:wvbob 5s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes wvbob{0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-2px)}}
+.map .shore{fill:none;stroke:var(--ink);stroke-width:1.4;stroke-dasharray:3 5;opacity:.55;animation:lap 3.5s linear infinite}
+@keyframes lap{to{stroke-dashoffset:-16}}
+.map .ripple{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round;opacity:.5;animation:wvbob 4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@media (prefers-reduced-motion:reduce){.map .wv,.map .shore,.map .ripple{animation:none}}
+.map .isles .edge path{fill:none;stroke:var(--ink);stroke-width:4.4}
+.map .isles .land path{fill:var(--paper);stroke:none}
+.map .isles .land .hatch{fill:none;stroke:var(--ink);stroke-width:1.2;opacity:.5}
