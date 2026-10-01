@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.19.1
+- The tavern speech bubble lines up the same way for everyone: one left edge, even spacing between the quote, name, terms and Hire button, and the craft chips sit right after the name instead of spreading across the bubble.
+
 ## 0.19.0
 - Every character is now built from the Open Peeps set: all 21 crew, every person you meet at sea and on the docks, and Ansel the coach. Each one has their own hair or hat, face, clothes, facial hair and glasses or eyepatch, so the tavern, your crew strip and every conversation show real, different people. Ghosts (Wet Jack, the Second Cartographer) get a dashed ring. This replaces the hand-drawn hats, props and animals from 0.18.0.
 
