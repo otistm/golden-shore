@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.16.0
+- The harbour is a side-on scene now, like a 2D platformer drawn in ink: sky, gulls and the Gullhaven light on the horizon, a cobbled quay, and the water below. Swipe along it, or tap the arrows at its edges, to walk from the docks to the market, the tavern and the shipwright.
+- Each place shows what it has in the drawing itself: goods laid out on the market counter, faces at the tavern windows for every hand looking for work, a chalk notice at the shipwright with your hull, and someone waiting on the pier with a "!" when they want a word. Fish to sell sit in a crate on the dock.
+- Tap any place to go in. Coming back, you're where you left off on the quay.
+
 ## 0.15.1
 - The ship picker no longer lists the gear and hands Gullhaven stocks for each ship. It shows the ship's style, trait and berths.
 
