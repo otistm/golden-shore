@@ -19,7 +19,7 @@ function port(id,view){
     const wg=payWages();if(wg)msg.push(wg);
     if(msg.length)setTimeout(()=>toast(msg.join('. ')),250)}
   const S=G.shops[id];
-  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null,wsel:PV.id===id?PV.wsel:null};
+  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null,wsel:PV.id===id?PV.wsel:null,dsel:PV.id===id?PV.dsel:null};
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;
   const vis=!G.hock&&n.row===0&&G.sea<=1?'hock':n.visitor;
@@ -35,16 +35,10 @@ function port(id,view){
   if(!G.tut&&!S.tavern){const r=RNG(G.seed,'tavern',id,G.shopVisit||0),pool=Object.keys(CREW).filter(k=>!(G.crew||[]).some(c=>c.k===k));S.tavern=[];
     while(S.tavern.length<(hasP('recruiter')?4:3)&&pool.length)S.tavern.push(pool.splice(ri(r,pool.length),1)[0])}
   const marketH=stallHTML(S,id,anim);
-  const docksH=`  ${vis&&!S.talked?`<button class="visitor" id="visitor">${portrait(NPCS[vis].look)}<div><span class="soft">On the dock: ${NPCS[vis].role.toLowerCase()}</span><b>${NPCS[vis].n}</b></div><span class="talk">Talk</span></button>`:''}
-  ${G.hock==='active'?`<button class="visitor quest" id="hockin">${portrait(NPCS.hock.look)}<div><span class="soft">Quest: three fish for Hock</span><b>Hock is on the dock</b></div><span class="talk">Talk</span></button>`:''}
-  ${G.creel.length?`<section class="market"><div class="m-head"><h2 style="font-size:20px">Fish market</h2><button class="ghost" id="sellall">Sell all for ${G.creel.reduce((a,f)=>a+fishVal(f,f===S.demand?2:1),0)}</button></div>
-    ${S.demand?`<p class="soft" style="margin:-4px 0 8px">Paying double for ${FISH[S.demand].n} today.</p>`:''}
-    <div class="fishlist">${G.creel.map((f,i)=>`<div class="fishrow">${fishSVG(f)}<div><b>${FISH[f].n}</b><span class="soft">${RAR[FISH[f].rar]}${f===S.demand?', in demand':''}</span></div><button class="buy" data-f="${i}">Sell ${fishVal(f,f===S.demand?2:1)}</button></div>`).join('')}</div></section>`:''}
-`;
   const info=harbourInfo(S,vis);
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
-      ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S,id,anim)):(docksH.trim()?docksH:'<p class="soft dockempty">Nobody is on the dock today, and you have no fish to sell.</p>')}`;
+      ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S,id,anim)):docksHTML(S,id,vis,anim)}`;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
@@ -88,7 +82,9 @@ function port(id,view){
     G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view)});
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
-  if(view==='market'||view==='wright'){layStall();requestAnimationFrame(layStall)}
+  if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
+  app.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{PV.dsel=b.dataset.ds;port(id,view)});
+  app.querySelectorAll('[data-df]').forEach(b=>b.onclick=()=>{PV.dsel=+b.dataset.df;port(id,view)});
   app.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const v=b.dataset.w;PV.wsel=v==='r'?'r':+v;port(id,view)});
   app.querySelectorAll('[data-sel]').forEach(b=>{const go=()=>{PV.tsel=+b.dataset.sel;port(id,view)};b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
@@ -136,6 +132,37 @@ function layStall(){const room=document.getElementById('stall');if(!room)return;
   const sel=room.querySelector('.seller');if(!matchMedia('(min-width:900px) and (min-height:560px)').matches){sel.style.cssText='';return}
   const h=Math.round(Math.min(280,Math.max(140,room.clientHeight-room.querySelector('.goods').offsetHeight-44-54)));
   sel.style.height=h+'px';sel.style.width=Math.round(h*172/150)+'px'}
+/* the docks: laid out like the market. The fishmonger stands at their crates with a speech bubble beside them; your catch is
+   laid out on the crates below. Anyone else on the dock (a visitor, Hock with his quest) waits in the corner: tap them and
+   they step up to talk instead. PV.dsel is who's talking ('m' or a person) or which fish you picked. */
+function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fishVal(f,f===S.demand?2:1),tot=G.creel.reduce((a,f)=>a+pay(f),0);
+  const people=[];if(vis&&!S.talked)people.push({k:'vis',npc:vis,btn:'visitor'});if(G.hock==='active')people.push({k:'hock',npc:'hock2',btn:'hockin'});
+  let sel=PV.dsel;if(sel==null||(typeof sel==='number'&&!G.creel[sel])||(typeof sel==='string'&&sel!=='m'&&!people.some(p=>p.k===sel)))sel=people.length?people[0].k:G.creel.length?0:'m';
+  if(sel==='m'&&G.creel.length)sel=0;
+  const who=people.find(p=>p.k===sel),N=who&&NPCS[who.npc];
+  const goods=G.creel.length?G.creel.map((f,i)=>`<button class="good fishgood${i===sel?' sel':''}${anim?' in':''}" data-df="${i}" style="animation-delay:${Math.min(i,6)*50}ms" aria-label="${FISH[f].n}, ${pay(f)} gold${f===S.demand?', in demand':''}${i===sel?', selected':''}"><span class="o-icon plain">${fishSVG(f)}${f===S.demand?'<span class="want">2×</span>':''}</span><span class="ptag">${sicon('gold')}${pay(f)}</span></button>`).join('')
+    :'<p class="soft cratenote">Your creel is empty. Fish at a fishing ground and sell your catch here.</p>';
+  let talk;
+  if(who)talk=`<div class="talk" id="talk"><p class="say">“${N.x}”</p><p class="who"><b>${N.n}</b><span class="chipc">${who.k==='hock'?'Quest':N.role}</span></p>
+      <button class="buy" id="${who.btn}">Talk to ${N.n.split(' ')[0]==='The'?'them':N.n}</button></div>`;
+  else if(typeof sel==='number'){const f=G.creel[sel],F=FISH[f],dem=f===S.demand;
+    talk=`<div class="talk" id="talk"><p class="say">“${dem?M.demand:M.say[F.rar]||M.say[0]}”</p><p class="who"><b>${F.n}</b><span class="chipc">${RAR[F.rar]}</span>${dem?'<span class="chipc">in demand</span>':''}</p>
+      <div class="acts"><button class="buy" data-f="${sel}">Sell for ${pay(f)} gold</button>${G.creel.length>1?`<button class="linkbtn" id="sellall">Sell all ${G.creel.length} for ${tot}</button>`:''}</div></div>`}
+  else talk=`<div class="talk" id="talk"><p class="say">“${M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
+  const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(look,PEEP_HEAD,'peep')}</button>`;
+  const speaker=who?N.look:M.look;
+  return`<section class="stallsec docksec">
+    <div class="stall pier" id="stall">
+      <svg class="stallwall" aria-hidden="true"><defs><pattern id="swell" width="60" height="16" patternUnits="userSpaceOnUse"><path d="M0 8q15-8 30 0t30 0" fill="none" stroke="#000" stroke-width="1.6"/></pattern></defs>
+        <path d="M0 96H4000" stroke="#000" stroke-width="2.4"/><rect x="0" y="104" width="100%" height="100" fill="url(#swell)" opacity=".5"/>
+        <g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"><path d="M60 92l14-30v30zM74 62l10 30H74"/><path d="M52 92h40l-6 6H58z"/></g>
+        <path d="M150 50q6-5 12 0q6-5 12 0M210 38q5-4 10 0q5-4 10 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+      <h2 class="stallsign">${M.short}'s fish</h2>
+      <div class="pchips">${face('m',M.look,`${M.n}, the fishmonger`,!who)}${people.map(p=>face(p.k,NPCS[p.npc].look,`${NPCS[p.npc].n}, on the dock`,p===who)).join('')}</div>
+      <div class="stalltop"><div class="seller" aria-label="${who?N.n:M.n}">${peep(speaker,'40 22 172 150')}</div>${talk}</div>
+      <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
+    </div>
+  </section>`}
 /* the tavern: everyone looking for work sits at the bar. Tap one to have a word; they make their pitch below. */
 /* the tavern: the bar scene fills the room. Everyone looking for work sits at the counter; tap one and a speech bubble
    floats over the scene just under them, pointing up, with their pitch and a Hire button. layBar() fits it all to the space. */

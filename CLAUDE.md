@@ -111,6 +111,10 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - `wrightHTML(S,id,anim)` in port.js uses the market stall's layout and classes (`.stall.yard`, `.stalltop`, `.seller`, `.talk`, `.table.bench`, `.good`): the fittings in `S.fits` and a repair mallet (`data-w="r"`) sit on the bench, and `PV.wsel` is the chosen one.
 - Shipwrights are `WRIGHTS` in people.js (`short`, `n`, `look`, `spot`, a line per fitting spot in `say`, and `repair`, `full`, `broke`, `out`, `slot`). `wrightOf(id)` picks one per port (Hock at Gullhaven) and stores it as `S.wright`; the first fitting on the bench is from their `spot` when one is left. The bot taps each `[data-w]` and then `.talk .buy`.
 
+## The docks
+- `docksHTML(S,id,vis,anim)` in port.js uses the stall layout (`.stall.pier`): the fishmonger (or whoever you tapped) with their bubble, people waiting as round faces in the corner (`.pchip`, `data-ds`: 'm', 'vis' or 'hock'), and your creel on the crates (`data-df`, scrolling sideways past 4). `PV.dsel` is who's talking or which fish. The bubble's Talk button keeps the ids `visitor` and `hockin`; selling keeps `data-f` and `sellall`.
+- Fishmongers are `MONGERS` in people.js (a line per fish rarity in `say`, and `demand`, `empty`, `all`); `mongerOf(id)` picks one per port (Sal at Gullhaven) and stores it as `S.monger`. Don't give the stall the class `dock`: that's the hold's footer.
+
 ## The harbour
 - A port opens on the harbour scene in harbour.js: one wide ink panorama (`harbourWorld()`, `HW`×`HH` units) you scroll along, with places at `HSTOPS` positions and arrows that walk between them (`bindHarbour()`, which remembers the spot in `PV.hx`). Each place shows its state in the drawing (goods, faces at windows, chalk notices, a figure on the pier), not with badges. `port(id,view)` draws the harbour or one building; `PV` remembers the view while you stay, and `chart()` resets it. Re-renders inside a port must call `port(id,view)` so you stay put.
 - Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
