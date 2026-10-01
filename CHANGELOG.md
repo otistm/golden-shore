@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.3
+- Fights open with a flourish: the enemy sails in from above and your ship from below, both holds' cargo drops in tile by tile, the screen jolts and a black "Fight!" stamps down between the two sides before the clock starts. Tap anywhere (or Skip) to start straight away. The tutorial and reduced motion skip it.
+
 ## 0.23.2
 - Losing a fight gets its own card: a "Defeat" sign drops in, swings from a single nail and settles crooked, a crack inks across it, and rain falls behind it. If your ship goes down the sign reads "Sunk" and bubbles rise instead. The details and the button follow it in.
 
