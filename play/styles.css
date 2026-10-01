@@ -924,3 +924,20 @@ button.stat:active{transform:scale(1.06,.9)}
 .fitgood .o-icon .gl .w{fill:var(--paper)}.fitgood .o-icon .gl .k{fill:var(--ink);stroke:none}
 .yard .table{background:var(--paper) repeating-linear-gradient(180deg,transparent 0 21px,rgba(0,0,0,.14) 21px 22px)}
 @media (min-width:900px) and (min-height:560px){.bench .goods{gap:28px}.bench .good{flex-basis:calc((100% - 84px) / 4)}}
+/* the docks: the fishmonger at their crates, people waiting in the corner, your catch on the crates */
+.pchips{position:absolute;z-index:3;right:10px;top:6px;display:flex;gap:6px}
+.pchip{width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);padding:0;overflow:hidden;cursor:pointer}
+.pchip svg{display:block;width:100%;height:100%}
+.pchip.on{border-width:3px;box-shadow:2px 2px 0 var(--ink)}
+.docksec .stalltop{padding-top:52px}
+.crates{background:var(--paper) repeating-linear-gradient(90deg,transparent 0 58px,rgba(0,0,0,.16) 58px 60px)}
+.fishgood .o-icon{padding:10%}
+.fishgood .o-icon svg{width:100%;height:100%;display:block}
+.fishgood .want{position:absolute;top:-7px;right:-7px;background:var(--ink);color:var(--paper);border-radius:999px;font-size:11px;font-weight:800;padding:1px 5px;line-height:15px}
+.cratenote{text-align:center;margin:8px 12px;font-size:14px}
+@media (min-width:900px) and (min-height:560px){.pchips{right:16px;top:8px}.pchip{width:44px;height:44px}.docksec .stalltop{padding-top:58px}}
+/* more than four fish: the crates scroll sideways instead of stacking, so the dock never grows past the hold */
+.crates .goods{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-top:10px;margin-top:-10px;max-width:none}
+.crates .goods::-webkit-scrollbar{display:none}
+.crates .good{flex:0 0 calc((100% - 30px) / 4)}
+@media (min-width:900px) and (min-height:560px){.crates .goods{gap:28px;max-width:600px}.crates .good{flex-basis:calc((100% - 84px) / 4)}}
