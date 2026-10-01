@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.17.4
+- Crew portraits in circles are cropped closer, so each face fills its circle.
+- The Harbour button is the same height as the other place buttons, with a proper ink arrow.
+
 ## 0.17.3
 - The tavern bar fills the whole tavern space, edge to edge and down to the hold. The speech bubble now floats over the scene just under whoever you're talking to, sized like a speech bubble, with its tail pointing up at them.
 

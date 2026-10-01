@@ -845,7 +845,7 @@ details.crafts summary{font-weight:800;cursor:pointer}
 .talk.quiet::before{display:none}
 @media (prefers-reduced-motion:reduce){.talk{animation:none}}
 .bldtab{min-height:32px}
-.bldtab.back::before{content:"‹";font:900 17px/1 var(--display);margin-right:1px}
+.bldtab .hic{width:13px;height:13px;margin:0 -1px 0 -3px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 
 /* the top strip: chips with small ink icons, the log and pause on the right */
 .bar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-bottom:14px}

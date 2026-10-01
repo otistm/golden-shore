@@ -11,7 +11,7 @@ const PEEP_PARTS={
 };
 const PEEP_ORDER=['body','head','face','beard','acc'];
 const PEEP_BASE={body:'whatever',head:'shaved2',face:'eyesClosed',beard:null,acc:'eyepatch'};
-const PEEP_BUST='0 0 240 324',PEEP_HEAD='44 22 172 172';   // the whole bust, and a crop to head and shoulders for round portraits
+const PEEP_BUST='0 0 240 324',PEEP_HEAD='64 22 130 130';   // the whole bust, and a crop to head and shoulders for round portraits
 /* a portrait from a look (any missing layer uses the base); view picks the frame */
 function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{});
   return PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];if(!p)return'';
