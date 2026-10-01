@@ -19,7 +19,7 @@ const TUT=[
   {when:'chart',until:'sail',target:'.node.reach',text:"Last stop today: Saltmere. Sail in."},
   {when:'port',until:'finish',text:"Ports sell cargo and buy fish. Out in the real seas there are people to meet, elites, events and a boss at the end of each sea. That's everything. Good luck, cartographer."}
 ];
-const ANSEL={hat:'cap',beard:1};
+const ANSEL=NPCS.ansel.look;
 function startTutorial(){
   const map={sea:0,start:900,boss:null,nodes:[
     {id:900,row:0,col:1.5,x:170,type:'port',name:'Gullhaven'},

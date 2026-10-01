@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.19.2
+- The tavern speech bubble grows a little wider when a long name and its crafts need it, so the craft chips always stay on one line next to the name and the bubble doesn't get taller.
+
+## 0.19.1
+- The tavern speech bubble lines up the same way for everyone: one left edge, even spacing between the quote, name, terms and Hire button, and the craft chips sit right after the name instead of spreading across the bubble.
+
+## 0.19.0
+- Every character is now built from the Open Peeps set: all 21 crew, every person you meet at sea and on the docks, and Ansel the coach. Each one has their own hair or hat, face, clothes, facial hair and glasses or eyepatch, so the tavern, your crew strip and every conversation show real, different people. Ghosts (Wet Jack, the Second Cartographer) get a dashed ring. This replaces the hand-drawn hats, props and animals from 0.18.0.
+
+## 0.18.0
+- Every crew member has their own look: hats (beanie, bandana, tricorn, peaked cap, helmet, hood, witch's hat, goggles), hair, faces, beards, clothes (stripes, waistcoat, coat, apron, robe, bandolier) and something in hand that says what they do, like the Fire-eater's flame, the Gunner's cannonball and the Sailmaker's needle. The Parrot and the Cormorant perch on their sailor's shoulder.
+
 ## 0.17.4
 - Crew portraits in circles are cropped closer, so each face fills its circle.
 - The Harbour button is the same height as the other place buttons, with a proper ink arrow.

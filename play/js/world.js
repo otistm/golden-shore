@@ -100,27 +100,27 @@ const FITTINGS={
 /* ---------- crew: hired at a port tavern, they live on deck and let your cargo use their crafts.
    Rank grows with fights won and opens new rules in their crafts (RANKS). Wages are paid at every new port. ---------- */
 const CREW={
-  bosun:{n:'Bosun',crafts:['sea'],fee:6,wage:1,say:'Ropes, sails and a lazy crew, I keep all three moving. Point me at your rigging.'},
-  deckhand:{n:'Deckhand',crafts:['sea'],fee:5,wage:1,say:"I'll haul, I'll heave, and I'll have your gear charged before the bell. Cheap, too."},
-  rigger:{n:'Rigger',crafts:['sea'],fee:5,wage:1,say:'Give me a mast and a breeze and your cargo will fire faster than you can blink.'},
-  sailmaker:{n:'Sailmaker',crafts:['carp','sea'],fee:9,wage:2,say:'I patch canvas and plank alike. Your shields hold and your sails fill.'},
-  fencer:{n:'Fencing Master',crafts:['steel'],fee:7,wage:2,say:'Steel is a conversation, captain. I always have the last word.'},
-  parrot:{n:'Parrot',crafts:['steel','sea'],fee:9,wage:2,say:'Squawk! Sharp beak, sharp blades! Crackers up front!'},
-  marines:{n:'Marines',crafts:['steel','carp'],fee:10,wage:2,say:"We fight in pairs and we don't break. Blades out, shields up."},
-  steadfast:{n:'Steadfast Hand',crafts:['carp','med'],fee:9,wage:2,say:"I've kept worse ships afloat. I'll mend the crew and the hull both."},
-  quartermaster:{n:'Quartermaster',crafts:['carp'],fee:6,wage:1,say:'Every board in its place and every shield where it should be.'},
-  stoic:{n:'Stoic Helmsman',crafts:['carp','sea'],fee:9,wage:2,say:"Storms don't trouble me. I'll keep her steady and her planking whole."},
-  guncrew:{n:'Gun Crew',crafts:['gun'],fee:6,wage:1,say:"Point us at the enemy and keep the powder dry. We'll do the rest."},
-  gunner:{n:'Master Gunner',crafts:['gun','steel'],fee:10,wage:2,say:'Twenty years behind a cannon. I still hit what I aim at. Mostly.'},
-  cannoneers:{n:'Cannon Crew',crafts:['gun','fire'],fee:10,wage:2,say:"Hot shot, loud guns, short fights. That's how we like them."},
-  monkey:{n:'Powder Monkey',crafts:['fire'],fee:5,wage:1,say:"I'm small, I'm quick, and I've only set myself on fire twice."},
-  fireeater:{n:'Fire-eater',crafts:['fire','med'],fee:9,wage:2,say:'Fire? I eat it for breakfast. Then I patch up whoever it touched.'},
-  herbalist:{n:'Herbalist',crafts:['med'],fee:6,wage:1,say:"Roots, leaves and a kind word. I'll keep your crew on their feet."},
-  monk:{n:'Tide Monk',crafts:['med','carp'],fee:9,wage:2,say:'The tide teaches patience. I heal, and I hold the line.'},
-  cormorant:{n:'Cormorant',crafts:['steel','med'],fee:8,wage:2,say:'The bird dives, fishes and bites. It decides who it likes. It likes you.'},
-  witch:{n:'Sea Witch',crafts:['alch'],fee:7,wage:2,say:"The sea tells me which fish are poison. I'll tell your enemies, the hard way."},
-  apothecary:{n:'Apothecary',crafts:['alch','med'],fee:10,wage:2,say:'One bottle heals, the next one kills. I never mix them up.'},
-  chemist:{n:'Powder Chemist',crafts:['alch','fire'],fee:10,wage:2,say:'Powder and venom, carefully measured. Mostly carefully.'}
+  bosun:{n:'Bosun',crafts:['sea'],fee:6,wage:1,look:{body:'Sweater',head:'Shaved 3',face:'Serious',beard:'Full'},say:'Ropes, sails and a lazy crew, I keep all three moving. Point me at your rigging.'},
+  deckhand:{n:'Deckhand',crafts:['sea'],fee:5,wage:1,look:{body:'Striped Tee',head:'Short 5',face:'Smile Big'},say:"I'll haul, I'll heave, and I'll have your gear charged before the bell. Cheap, too."},
+  rigger:{n:'Rigger',crafts:['sea'],fee:5,wage:1,look:{body:'Gym Shirt',head:'Mohawk',face:'Cheeky',beard:'Chin'},say:'Give me a mast and a breeze and your cargo will fire faster than you can blink.'},
+  sailmaker:{n:'Sailmaker',crafts:['carp','sea'],fee:9,wage:2,look:{body:'Button Shirt 1',head:'No Hair 3',face:'Calm',beard:'Moustache 2',acc:'Glasses 2'},say:'I patch canvas and plank alike. Your shields hold and your sails fill.'},
+  fencer:{n:'Fencing Master',crafts:['steel'],fee:7,wage:2,look:{body:'Blazer Black Tee',head:'Pomp',face:'Suspicious',beard:'Moustache 4'},say:'Steel is a conversation, captain. I always have the last word.'},
+  parrot:{n:'Parrot',crafts:['steel','sea'],fee:9,wage:2,look:{body:'Fur Jacket',head:'hat-hip',face:'Smile LOL',beard:'Full 3',acc:'Eyepatch'},say:'Squawk! Sharp beak, sharp blades! Crackers up front!'},
+  marines:{n:'Marines',crafts:['steel','carp'],fee:10,wage:2,look:{body:'Tee Arms Crossed',head:'Flat Top',face:'Driven',beard:'Moustache 6'},say:"We fight in pairs and we don't break. Blades out, shields up."},
+  steadfast:{n:'Steadfast Hand',crafts:['carp','med'],fee:9,wage:2,look:{body:'Shirt and Coat',head:'No Hair 1',face:'Old',beard:'Full 2'},say:"I've kept worse ships afloat. I'll mend the crew and the hull both."},
+  quartermaster:{n:'Quartermaster',crafts:['carp'],fee:6,wage:1,look:{body:'Button Shirt 2',head:'Short 3',face:'Serious',beard:'Moustache 7',acc:'Glasses 4'},say:'Every board in its place and every shield where it should be.'},
+  stoic:{n:'Stoic Helmsman',crafts:['carp','sea'],fee:9,wage:2,look:{body:'Turtleneck',head:'Shaved 2',face:'Eyes Closed',beard:'Goatee 2'},say:"Storms don't trouble me. I'll keep her steady and her planking whole."},
+  guncrew:{n:'Gun Crew',crafts:['gun'],fee:6,wage:1,look:{body:'Sporty Tee',head:'Twists',face:'Explaining',beard:'Chin'},say:"Point us at the enemy and keep the powder dry. We'll do the rest."},
+  gunner:{n:'Master Gunner',crafts:['gun','steel'],fee:10,wage:2,look:{body:'Tee 2',head:'Shaved 1',face:'Rage',beard:'Moustache 3',acc:'Eyepatch'},say:'Twenty years behind a cannon. I still hit what I aim at. Mostly.'},
+  cannoneers:{n:'Cannon Crew',crafts:['gun','fire'],fee:10,wage:2,look:{body:'Thunder T-Shirt',head:'Short 2',face:'Hectic'},say:"Hot shot, loud guns, short fights. That's how we like them."},
+  monkey:{n:'Powder Monkey',crafts:['fire'],fee:5,wage:1,look:{body:'Striped Pocket Tee',head:'Short 4',face:'Cute'},say:"I'm small, I'm quick, and I've only set myself on fire twice."},
+  fireeater:{n:'Fire-eater',crafts:['fire','med'],fee:9,wage:2,look:{body:'Pointing Up',head:'Mohawk 2',face:'Smile Teeth Gap',beard:'Goatee 1'},say:'Fire? I eat it for breakfast. Then I patch up whoever it touched.'},
+  herbalist:{n:'Herbalist',crafts:['med'],fee:6,wage:1,look:{body:'Sweater Dots',head:'Long Curly',face:'Smile'},say:"Roots, leaves and a kind word. I'll keep your crew on their feet."},
+  monk:{n:'Tide Monk',crafts:['med','carp'],fee:9,wage:2,look:{body:'Hoodie',head:'Turban',face:'Eyes Closed'},say:'The tide teaches patience. I heal, and I hold the line.'},
+  cormorant:{n:'Cormorant',crafts:['steel','med'],fee:8,wage:2,look:{body:'Coffee',head:'Afro',face:'Calm',beard:'Moustache 5'},say:'The bird dives, fishes and bites. It decides who it likes. It likes you.'},
+  witch:{n:'Sea Witch',crafts:['alch'],fee:7,wage:2,look:{body:'Polka Dot Jacket',head:'Long',face:'Contempt'},say:"The sea tells me which fish are poison. I'll tell your enemies, the hard way."},
+  apothecary:{n:'Apothecary',crafts:['alch','med'],fee:10,wage:2,look:{body:'Paper',head:'Gray Bun',face:'Concerned',acc:'Glasses 5'},say:'One bottle heals, the next one kills. I never mix them up.'},
+  chemist:{n:'Powder Chemist',crafts:['alch','fire'],fee:10,wage:2,look:{body:'Explaining',head:'Flat Top Long',face:'Awe',acc:'Glasses 3'},say:'Powder and venom, carefully measured. Mostly carefully.'}
 };
 /* what rank 2 and rank 3 open in each craft. The best-ranked crew member with a craft sets its rank. */
 const RANKS={
