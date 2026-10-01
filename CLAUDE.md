@@ -132,6 +132,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## Celebrations
 - Fights open with an intro in `fight()`: `.battle.intro` animations and a `.fightcall` stamp, with the clock held by `B.intro` (checked in `loop()`); a tap, Skip or 1.65s ends it.
 - A catch plays `leap()` in fishing.js (the fish jumps from the bobber to the boat, on the pause-aware clock) and then the animated catch card (`.catchcard`).
+- `perkPick()` opens with the renown medal, ribbon and dealt picks (`.perkpick`); the chosen pick is marked `.chosen`, the rest `.dropped`, and the choice goes through after the animation.
 - Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses show `defeatCard()`: the swinging, cracked sign with rain, or "Sunk" with bubbles when the hull is gone. The hull card still plays back on the chart.
 - Anything that puts an item in the hold or locker sets `flash={ref,kind}` (`addItem()` does it for you; direct inserts set it themselves). `bindHold()` calls `holdFlash()`, which plays the drop or upgrade on that tile with an ink burst and a rising label.
 

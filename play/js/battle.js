@@ -273,15 +273,23 @@ function perkPick(done){
   while(opts.length<3&&pool.length)opts.push(pool.splice(ri(r,pool.length),1)[0]);
   if(!opts.length)return done();
   const lvl=taken.length+1,sh=SHIPS[G.ship];
-  const ov=overlay(`<h2>Renown ${lvl}</h2><p class="soft">Word of ${sh.n} spreads along the coast. Make a captain's pick for the rest of the voyage.</p>
-    <div class="picks">${opts.map(k=>`<button class="pick" data-pk="${k}"><span class="pi plain">${STAR}</span><div><b>${PERKS[k].n}${PERKS[k].order?' <span class="soft">order</span>':''}</b><span class="d">${PERKS[k].d}${PERKS[k].order?' Once a fight.':''}</span></div></button>`).join('')}</div>`,true,'perkpick');
+  // the level-up: a star medal spins in with the new level on it, little stars burst off it, and the three picks are dealt in
+  const ov=overlay(`<div class="rn-up" aria-hidden="true"><span class="rn-bits">${Array.from({length:10},(_,i)=>`<i style="--a:${i*36}deg;--d:${(i%3)*50}ms"><svg viewBox="-6 -6 12 12"><path d="M0-5l1.5 3.2 3.5.4-2.6 2.4.7 3.5L0 3.6l-3.1 1.9.7-3.5L-5-.4l3.5-.4z"/></svg></i>`).join('')}</span>
+      <svg class="rn-medal" viewBox="0 0 100 100"><path d="M50 4l13 27 29 4-21 20 5 29-26-14-26 14 5-29L8 35l29-4z"/><text x="50" y="66" text-anchor="middle">${lvl}</text></svg></div>
+    <p class="rn-ribbon">Renown up!</p>
+    <h2 class="rn-title">Renown ${lvl}</h2><p class="soft rn-sub">Word of ${sh.n} spreads along the coast. Make a captain's pick for the rest of the voyage.</p>
+    <div class="picks">${opts.map((k,i)=>`<button class="pick" data-pk="${k}" style="--i:${i}"><span class="pi plain">${STAR}</span><div><b>${PERKS[k].n}${PERKS[k].order?' <span class="soft">order</span>':''}</b><span class="d">${PERKS[k].d}${PERKS[k].order?' Once a fight.':''}</span></div></button>`).join('')}</div>`,true,'perkpick');
   const fin=k=>{G.perks=taken.concat(k);logL(`Renown ${lvl}: ${PERKS[k].n}${PERKS[k].order?`, ${WHEN[orderWhen(k)]}`:''}.`);save();if(perksOwed()>0)perkPick(done);else done()};
-  ov.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const k=b.dataset.pk;
+  // choosing: the pick you tap jumps forward and gets stamped, the others drop away, then the voyage carries on
+  let chosen=false;
+  ov.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{if(chosen)return;chosen=true;const k=b.dataset.pk,still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    ov.querySelectorAll('.pick').forEach(x=>x.classList.add(x===b?'chosen':'dropped'));
+    setTimeout(()=>{
     if(!PERKS[k].order){ov.remove();toast(PERKS[k].n);return fin(k)}
     ov.querySelector('.sheet').innerHTML=`<h2>${PERKS[k].n}</h2><p class="soft">${PERKS[k].d} When should the crew do it? You can change this on your ship card.</p>
       <div class="picks">${Object.entries(WHEN).map(([w,t])=>`<button class="opt" data-w="${w}"><b>${t[0].toUpperCase()+t.slice(1)}</b>${w===PERKS[k].when?'<span>Suggested</span>':''}</button>`).join('')}</div>`;
     ov.querySelectorAll('[data-w]').forEach(x=>x.onclick=()=>{G.orders=Object.assign({},G.orders,{[k]:x.dataset.w});ov.remove();toast(`${PERKS[k].n} ${WHEN[x.dataset.w]}`);fin(k)});
-    ov.querySelector('[data-w]').focus()});
+    ov.querySelector('[data-w]').focus()},still?0:650)});
   ov.querySelector('.pick').focus();
 }
 /* ---------- captain's orders: picked with renown, each fires once a fight on the trigger you chose ---------- */

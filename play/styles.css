@@ -1103,3 +1103,29 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .catch-note{animation:vline .4s .75s both}
 .catch-btn{animation:vbtn .45s .95s var(--spring) both}
 @media (prefers-reduced-motion:reduce){.catch .bigfish,.catch-splash i,.catch-rays,.rarstamp,.newtag,.catch-name,.catch-note,.catch-btn{animation:none}.catch-splash{display:none}}
+/* renown up: a star medal spins in with the level on it, stars burst off it, the picks are dealt in; the chosen one is stamped */
+.perkpick{overflow:hidden}
+.rn-up{position:relative;display:grid;place-items:center;height:96px;margin-top:4px}
+.rn-medal{width:92px;height:92px;fill:var(--ink);stroke:var(--ink);stroke-width:3;stroke-linejoin:round;filter:drop-shadow(4px 4px 0 var(--paper)) drop-shadow(2px 2px 0 var(--ink));animation:medal .8s .05s cubic-bezier(.2,1.5,.4,1) both}
+.rn-medal text{fill:var(--paper);stroke:none;font:italic 900 34px var(--display)}
+@keyframes medal{0%{transform:scale(0) rotate(-200deg)}70%{transform:scale(1.15) rotate(12deg)}100%{transform:scale(1) rotate(0)}}
+.rn-bits{position:absolute;left:50%;top:50%;width:0;height:0}
+.rn-bits i{position:absolute;left:-8px;top:-8px;width:16px;height:16px;opacity:0;transform:rotate(var(--a)) translateY(0);animation:bitout .8s calc(.45s + var(--d)) ease-out both}
+.rn-bits svg{width:100%;height:100%;fill:var(--paper);stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round}
+.rn-bits i:nth-child(even) svg{fill:var(--ink)}
+@keyframes bitout{0%{transform:rotate(var(--a)) translateY(0) scale(.3);opacity:0}25%{opacity:1}100%{transform:rotate(var(--a)) translateY(-78px) scale(1) rotate(180deg);opacity:0}}
+.rn-ribbon{justify-self:center;align-self:center;background:var(--ink);color:var(--paper);font:800 12px var(--ui);letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 12px;animation:stamp .45s .6s cubic-bezier(.2,1.6,.4,1) both}
+.perkpick{text-align:left}
+.perkpick .rn-ribbon,.perkpick .rn-title{text-align:center}
+.rn-title{animation:vline .4s .7s both}
+.rn-sub{animation:vline .4s .8s both}
+.perkpick .pick{animation:deal .55s calc(.95s + var(--i) * 140ms) cubic-bezier(.3,1.4,.5,1) both;transition:transform .35s var(--spring),opacity .3s}
+@keyframes deal{0%{transform:translateY(60px) rotate(calc((var(--i) - 1) * 9deg)) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+.perkpick .pick.chosen{animation:chosen .6s cubic-bezier(.2,1.5,.4,1) both;position:relative;z-index:1}
+@keyframes chosen{0%{transform:none}35%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1.03)}}
+.perkpick .pick.chosen{background:var(--ink);color:var(--paper)}
+.perkpick .pick.chosen .soft{color:var(--paper)}
+.perkpick .pick.chosen .gl{stroke:var(--paper)}.perkpick .pick.chosen .gl .w{fill:var(--ink)}
+.perkpick .pick.dropped{animation:dropaway .45s ease-in both}
+@keyframes dropaway{to{transform:translateY(40px) rotate(4deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.rn-medal,.rn-bits i,.rn-ribbon,.rn-title,.rn-sub,.perkpick .pick,.perkpick .pick.chosen,.perkpick .pick.dropped{animation:none}.rn-bits{display:none}}
