@@ -13,8 +13,9 @@ const PEEP_ORDER=['body','head','face','beard','acc'];
 const PEEP_BASE={body:'whatever',head:'shaved2',face:'eyesClosed',beard:null,acc:'eyepatch'};
 const PEEP_BUST='0 0 240 324',PEEP_HEAD='44 22 172 172';   // the whole bust, and a crop to head and shoulders for round portraits
 /* a portrait from a look (any missing layer uses the base); view picks the frame */
-function peep(look,view){const L=Object.assign({},PEEP_BASE,look||{});
-  return`<svg class="peep" viewBox="${view||PEEP_BUST}" aria-hidden="true">${PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];if(!p)return'';
-    return`<g transform="translate(${p.t[0]} ${p.t[1]})" fill-rule="evenodd">${p.bg?`<path d="${p.bg}" fill="#fff"/>`:''}${p.ink?`<path d="${p.ink}" fill="#000"/>`:''}</g>`}).join('')}</svg>`}
+function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{});
+  return PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];if(!p)return'';
+    return`<g transform="translate(${p.t[0]} ${p.t[1]})" fill-rule="evenodd">${p.bg?`<path d="${p.bg}" fill="#fff"/>`:''}${p.ink?`<path d="${p.ink}" fill="#000"/>`:''}</g>`}).join('')}
+function peep(look,view){return`<svg class="peep" viewBox="${view||PEEP_BUST}" aria-hidden="true">${peepLayers(look)}</svg>`}
 /* a crew member's face for the round portraits in the tavern, the crew strip, the ship card and the desk */
 const crewFace=k=>peep(CREW[k]&&CREW[k].look,PEEP_HEAD);

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.17.1
+- The tavern is a bar now. Everyone looking for work sits at the counter, shown in full, with a mug in front of them. Tap someone to have a word: they lean in and make their pitch in a speech bubble, with their crafts, wage and a Hire button below. Hired hands leave an empty stool and a tipped-over mug.
+- Every hire has their own line, from the Fencing Master's "Steel is a conversation" to the Powder Monkey who has only set himself on fire twice.
+
 ## 0.17.0
 - New crew portraits, drawn like Open Peeps: a hand-inked bust built from layers (body, hair, face, facial hair, accessory). Every crew member uses the same base figure for now, ready to be given their own hair, expressions, clothes and accessories. They show in the tavern, the crew strip, your ship card and the captain's desk.
 
