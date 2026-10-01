@@ -1129,3 +1129,8 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .perkpick .pick.dropped{animation:dropaway .45s ease-in both}
 @keyframes dropaway{to{transform:translateY(40px) rotate(4deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.rn-medal,.rn-bits i,.rn-ribbon,.rn-title,.rn-sub,.perkpick .pick,.perkpick .pick.chosen,.perkpick .pick.dropped{animation:none}.rn-bits{display:none}}
+/* a new hand flying from the bar into the crew strip */
+.hirefly{position:fixed;z-index:72;border:2.5px solid var(--ink);border-radius:50%;background:var(--paper);overflow:hidden;pointer-events:none;box-shadow:3px 3px 0 var(--ink)}
+.hirefly svg{display:block;width:100%;height:100%}
+.cb-c.land{animation:land2 .45s var(--spring)}
+.cb-cr.bump{animation:bump .45s var(--spring)}

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.6
+- Hiring is a moment: the new hand's face leaps up off their bar stool, arcs down into their berth in the crew strip under your hold and lands with a squash, an ink burst and "Aboard!" rising off them, while the craft icons beside the strip bounce.
+
 ## 0.23.5
 - Renown levels are celebrated: a solid ink star medal spins in with your new level on it, little stars burst off it, a "Renown up!" ribbon stamps on, and the three captain's picks are dealt in like cards. Tap one and it jumps forward inked black while the others drop away, then the voyage carries on (orders still ask when the crew should carry them out).
 
