@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.30.0
+- Each ship's cargo is trimmed to about 30 items (from 41 to 45), with a steady mix of damage, support and defence. Near-duplicates and passives that rarely mattered are retired, so the items you want come back often enough to upgrade and build around.
+- Retired items no longer appear in markets, spoils or enemy holds. If you're carrying one, it still works. The Atlas counts only items still in play, and any retired item you already found stays there as a keepsake.
+- Shops and spoils on voyages already under way will differ from the next stop on.
+
 ## 0.29.1
 - The Deep's ordinary fights come down a step: its threats and the Leviathan have less health and carry a little less cargo, so you reach the Kraken with a ship left to fight it. The Kraken is unchanged.
 

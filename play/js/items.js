@@ -235,8 +235,21 @@ const used=l=>l.reduce((a,b)=>a+DEFS[b.k].s,0);
 const isPassive=k=>!DEFS[k].cd;
 function rollTier(depth,r){r=r||Math.random;const x=r();if(depth>=16&&x<.15)return 3;if(depth>=11&&x<.38)return 2;if(depth>=5&&x<.68)return 1;return 0}
 const isCrewKey=k=>DEFS[k].tags.includes('K');
-function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship&&!isCrewKey(k))}
-const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any'&&!isCrewKey(k));
+/* items retired from the draw: they never turn up in markets, spoils, gifts or enemy holds any more, but they stay defined so
+   saved voyages that carry one keep working, and an Atlas that found one still shows it. Each ship keeps about 30 of its own,
+   a steady mix of damage, support and defence, so items come back often enough to upgrade and build around. */
+const RETIRED=new Set([
+  // the Wren: near-duplicate blades, overlapping charge tools, and passives that rarely mattered
+  'riposte','monkeyfist','marlinspike','tackle','bell','gale','oar','logline','lightrig','pennant',
+  // the Bulwark: weaker copies of its armor and hammers, small heals and niche passives
+  'anchorchain','ballista','ironclad','sandbags','watertight','mooring','hullpatch','resolve','beacon','barnacles','buttress','bulwarkwall','dropanchor',
+  // the Ember: the tiniest guns and fire pieces, and passives that doubled up
+  'incendiary','pepperbox','fireworks','firearrows','barshot','scorch','fuse','sparks','smokepot','slowmatch','wildfire','blackflag',
+  // the Lotus: small snacks, doubled cures and calm pieces, and passives that doubled up
+  'jasmine','dumplings','serpentwine','bamboo','whisper','fan','pearlpowder','antidote','acupuncture','tidebell','tortoiseshell','lotuslamp','incense','lanternrow','lotusflower'
+]);
+function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship&&!isCrewKey(k)&&!RETIRED.has(k))}
+const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any'&&!isCrewKey(k)&&!RETIRED.has(k));
 function drawKey(r,ship){ship=ship||(G&&G.ship)||pick(r,SHIPKEYS);return r()<.2?pick(r,NEUTRAL):pick(r,poolFor(ship))}
 
 /* ---------- crafts: every ability belongs to one. On your ship an ability only works if someone on deck has its craft. Enemies need no crew. ---------- */
