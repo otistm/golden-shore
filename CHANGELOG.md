@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.30.1
+- The Deep's ordinary fights sit halfway between their old toughness and last week's softer version, and the Kraken has more health and carries more cargo, so the Deep stays the hardest sea now that holds reach diamond.
+
 ## 0.30.0
 - Each ship's cargo is trimmed to about 30 items (from 41 to 45), with a steady mix of damage, support and defence. Near-duplicates and passives that rarely mattered are retired, so the items you want come back often enough to upgrade and build around.
 - Retired items no longer appear in markets, spoils or enemy holds. If you're carrying one, it still works. The Atlas counts only items still in play, and any retired item you already found stays there as a keepsake.
