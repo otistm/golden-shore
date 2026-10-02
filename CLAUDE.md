@@ -80,9 +80,8 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - A tip fires only where it applies: port tips when you open that place (`port` in the market, `crew` in the tavern, `wright` in the yard), and `crew` also when you buy cargo nobody aboard can work (`deadTip()`). Every tip has an End tutorial link that sets `A.tipsOff`, after which `tip()` shows nothing.
 - Keep every step and tip to one short line (about 15 words); testers found longer ones too much.
 - `bubble()` also dims the screen behind it (`dimFor()`, `.coachdim`): a dark layer that takes no taps, with a clear window over the step's `target` (or the open pop-up), following it every frame. Steps that point at something near the top use `pos:'bottom'` so the bubble doesn't cover it.
-- Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
-  - Maiden voyage steps show which stop you're on. Closing an explanation advances, closing the last one finishes, and closing an action step only hides it.
-  - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
+- Every tip uses `bubble()`, which shows a button straight away (no reading timer): Next for tips and explanations, Hide on a maiden voyage step that waits for the player to do something, Finish on the last step. Tips also carry the End tutorial link.
+  - The bubble lets taps through; only its buttons are tappable.
 
 ## Crafts and crew
 - Voyages start bare (no cargo, no crew, 30 gold). The first port of sea 1 stocks the ship's `start` items and `crew` hires (port.js), so `SHIPS[k].start` and `.crew` mean "what Gullhaven stocks for her", not what she carries.

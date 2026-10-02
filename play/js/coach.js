@@ -67,24 +67,16 @@ function finishTutorial(){
 /* the coach bubble */
 function hideCoach(){const c=document.getElementById('coach');if(c){clearTimeout(c._t);c.remove()}const dm=document.getElementById('coachdim');if(dm)dm.remove();document.querySelectorAll('.coach-hi').forEach(e=>e.classList.remove('coach-hi'));if(B)B.coachHold=false}
 /* How long a tip stays up before its ring resolves into the close button: longer tips get more reading time. */
-const readMs=text=>Math.max(3000,Math.min(8000,1800+text.split(/\s+/).length*220));
-const XSVG='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>';
 /* The coach bubble. A ring in the corner fills while you read, then pops into an x that closes the tip.
    The bubble itself lets taps through, so it never blocks the screen underneath; only its buttons take taps. */
 function bubble(text,o){o=o||{};
   hideCoach();
-  const dur=readMs(text);
   const c=document.createElement('div');c.id='coach';c.className='coach '+(o.pos||'top');c.setAttribute('role','status');c.setAttribute('aria-live','polite');
-  c.innerHTML=`${portrait(ANSEL)}<div class="coach-body">${o.label?`<small>${o.label}</small>`:''}<p>${text}</p>${o.links?`<div class="coach-btns">${o.links}</div>`:''}</div>
-    <span class="ctimer" style="--dur:${dur}ms" aria-hidden="true"><svg viewBox="0 0 28 28"><circle class="track" cx="14" cy="14" r="11"/><circle class="prog" cx="14" cy="14" r="11" pathLength="100"/></svg></span>`;
+  c.innerHTML=`${portrait(ANSEL)}<div class="coach-body">${o.label?`<small>${o.label}</small>`:''}<p>${text}</p><div class="coach-btns"><button class="cnext" data-c="next">${o.btn||'Next'}</button>${o.links||''}</div></div>`;
   document.body.appendChild(c);dimFor(c,o.target);
   if(o.pos==='bottom'){const d=document.querySelector('.dock');c.style.bottom=`calc(${d?d.offsetHeight+10:14}px + env(safe-area-inset-bottom,0px))`}
   highlight(o.target);
-  c._t=setTimeout(()=>{if(!c.isConnected)return;
-    const t=c.querySelector('.ctimer');
-    const x=document.createElement('button');x.className='cx';x.setAttribute('aria-label','Close tip');x.innerHTML=XSVG;
-    x.onclick=()=>{if(o.onClose)o.onClose();else hideCoach()};
-    t.classList.add('out');setTimeout(()=>{t.replaceWith(x)},180)},dur);
+  c.querySelector('.cnext').onclick=()=>{if(o.onClose)o.onClose();else hideCoach()};
   return c;
 }
 /* the dimmer behind the coach bubble. It takes no taps, so you can still do what Ansel asks. It keeps a clear window over
@@ -107,7 +99,7 @@ function showStep(ev){
   const text=st.textFor?st.textFor[ev]:st.text,u=[].concat(st.until);
   // closing a step: explanations move on, the last one finishes, and action steps just tuck the tip away until you do the thing
   const onClose=u.includes('finish')?finishTutorial:(u.includes('next')||st.skip)?()=>advance():()=>{const c=document.getElementById('coach');if(c){clearTimeout(c._t);c.remove()}};
-  const c=bubble(text,{pos:st.pos,target:st.target,label:`Maiden voyage, stop ${Math.min(G.path.length,G.map.nodes.length)} of ${G.map.nodes.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
+  const c=bubble(text,{btn:u.includes('finish')?'Finish':(u.includes('next')||st.skip)?'Next':'Hide',pos:st.pos,target:st.target,label:`Maiden voyage, stop ${Math.min(G.path.length,G.map.nodes.length)} of ${G.map.nodes.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
   if(st.pause&&B)B.coachHold=true;
   c.querySelector('[data-c=skip]').onclick=finishTutorial;
 }

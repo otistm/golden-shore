@@ -284,7 +284,7 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea')))return;
   const ovs=document.querySelectorAll('.overlay'),top=ovs[ovs.length-1];
   if(e.key==='p'||e.key==='P'){if(PAUSE.on)resumePause();else if(!top)showPause();return}
-  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click();else showPause()}return}
+  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cnext');if(x)x.click();else showPause()}return}
   if(B&&!B.over&&!top){const b=app.querySelector(`[data-sp="${e.key}"]`);if(b)b.click()}
 });
 /* ---------- pause (like Ink Nine and Ink Rally) ----------

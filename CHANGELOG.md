@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.32.2
+- Tips and maiden voyage steps no longer make you wait for a timer: a Next button is there straight away. Steps that wait for you to do something show Hide instead, and the last step shows Finish.
+
 ## 0.32.1
 - Every maiden voyage step and tip is now one short line.
 - When Ansel speaks, the screen dims behind him with a clear window over whatever he's pointing at, so tips stand apart from the game. You can still tap through to do what he asks.
