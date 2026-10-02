@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.32.0
+- Fight recap: after every fight, tap Fight recap on the result card to see what each of your items did (damage, shield, healing, burn, poison, hastes, charges, slows, and how often it fired), biggest first. Items that did nothing say why, like "nobody aboard can work it". The enemy's three busiest pieces and what burn, poison and the storm did are listed too.
+- On a computer, hovering a piece of cargo shows its card beside it and outlines the items it works on (the ones it hastes, charges or boosts). On a phone, tap as before; the card now lists what the item works on.
+- In the tavern, "How they grow" shows what a hand learns at rank 2 and rank 3, and after how many wins.
+- In port, the Chart button (a telescope) shows the chart, so you can plan your route while you shop.
+
 ## 0.31.0
 - Learn to sail is now the maiden voyage: the Guild's six-stop trial run, where each stop teaches one part of the game by playing it. Gullhaven teaches items and the crew who make them work (buy a Rapier, see it faded, sign on the Fencing Master, watch it come alive). A training hulk teaches fighting, then renown and your first captain's pick. An uncharted isle teaches landmarks, Saltmere's shipwright teaches fittings, and the Guild's examiner puts it all together before the Guild hall signs your papers.
 - Ansel's bubble shows which stop of the trial you're on. Places that aren't part of a stop's lesson stay closed.

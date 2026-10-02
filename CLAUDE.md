@@ -143,6 +143,12 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage and previews of other stops, and `go()` only sails to a stop in `reachable()`.
 
+## Fight recap, hover cards, crew growth, the telescope
+- Every fight item keeps a tally in `it.rec` (damage, shield, heal, burn, poison, hastes, charges, slows, uses). `applyFx()` sets `recIt` so `hit()` can credit damage to the item. `B.dot` totals burn, poison and storm damage per side. `fightRecap()` (battle.js) shows it from the result card's Fight recap link.
+- `affects(list,i)` (ui.js) is which items an item works on: its haste and charge targets and the items its auras boost (from `statsOf().boost`). On desktop (`HOVERS`), hovering a `.board .item` shows `showItemTip()` and outlines those items (`.src`, `.aff`); the item sheet lists them on phones.
+- The tavern bubble's "How they grow" lists `RANKS` for rank 2 and 3 with `rankXP()`.
+- The port header's Chart button opens `chartPeek()` (port.js): `mapSVG()` in a sheet, nothing tappable.
+
 ## Celebrations
 - Fights open with an intro in `fight()`: `.battle.intro` animations and a `.fightcall` stamp, with the clock held by `B.intro` (checked in `loop()`); a tap, Skip or 1.65s ends it.
 - A catch plays `leap()` in fishing.js (the fish jumps from the bobber to the boat, on the pause-aware clock) and then the animated catch card (`.catchcard`).

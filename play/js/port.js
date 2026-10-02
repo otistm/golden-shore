@@ -39,7 +39,7 @@ function port(id,view){
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
       ${view==='market'?marketH:view==='tavern'?(tutOpen('tavern')?tavernHTML(S):'<p class="soft">The tavern is closed for the trial.</p>'):view==='wright'?(tutOpen('wright')?wrightHTML(S,id,anim):'<p class="soft">The shipwright is closed for the trial.</p>'):docksHTML(S,id,vis,anim)}`;
-  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
+  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><button class="scope" id="scope" aria-label="Look at the chart"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 9.5l13-5 1.6 4.2-13 5z"/><path d="M16.4 4l4.2-1.6 1.6 4.2-4.2 1.6"/><path d="M8 12.5l-2 3M10 11.7l2 3.8"/></svg>Chart</button><span>${SEAS[G.sea]}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
   // the market's goods drag straight off the table into the hold or locker, paying as they land
@@ -79,6 +79,7 @@ function port(id,view){
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
     if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
     const was=G.hull;G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();port(id,view);repairFx(was,G.hull)});
+  const sc=document.getElementById('scope');if(sc)sc.onclick=chartPeek;
   const yb=document.getElementById('yourship');if(yb)yb.onclick=shipSheet;const yc=document.getElementById('yourcrew');if(yc)yc.onclick=shipSheet;
   app.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>{const i=+b.dataset.hire,k=S.tavern[i],C=CREW[k];
     if((G.crew||[]).length>=berths())return toast('Your deck is full. Dismiss someone on the ship card first.');
@@ -267,6 +268,7 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
     ${C?`<div class="talk" id="talk"><p class="say">“${C.say||'Looking for a berth, captain.'}”</p>
       <p class="who"><b>${C.n}</b> ${crewCrafts1(k)}</p>
       <p class="terms">Lets your cargo use ${C.crafts.map(c=>`<b>${CRAFTS[c]}</b>`).join(' and ')}. Wage ${wageOf(k)} gold a port.</p>
+      <details class="ranks"><summary>How they grow</summary>${[2,3].map(r=>`<p><b>Rank ${r}</b>, after ${rankXP()[r-1]} wins: ${C.crafts.map(c=>RANKS[c][r-2]).join(' ')}</p>`).join('')}</details>
       <button class="buy" data-hire="${sel}" ${full||G.gold<feeOf(k)?'aria-disabled="true"':''}>${full?'Your deck is full':feeOf(k)?`Hire for ${feeOf(k)} gold`:'Sign on, the Guild pays'}</button></div>`
       :'<p class="talk quiet">Everyone here has signed on. The bar is quiet.</p>'}
     </div>
@@ -287,6 +289,10 @@ function layBar(){const room=document.getElementById('barroom');if(!room)return;
   talk.style.left=left+'px';talk.style.top=topY+'px';talk.style.setProperty('--ax',(px-left)+'px')}
 const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));
 /* what each building has for you right now: a badge and a few words for screen readers */
+/* the telescope: the chart from the quay, to look ahead while you shop. Nothing on it can be tapped. */
+function chartPeek(){const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});
+  const cur=ov.querySelector('.boatbob'),sh=ov.querySelector('#peekwrap');if(cur&&sh){const r=cur.getBoundingClientRect(),s=sh.getBoundingClientRect();sh.scrollTop=Math.max(0,r.top-s.top-s.height*.45)}}
 function harbourInfo(S,vis){const n=S.offers.filter(Boolean).length,h=(S.tavern||[]).filter(Boolean).length,f=(S.fits||[]).filter(Boolean).length,hurt=G.hull<HULL_MAX,
   who=(vis&&!S.talked)||G.hock==='active';
   return{market:{badge:n||'',say:`${n} for sale`,n},tavern:{badge:!tutOpen('tavern')?'':h||'',say:!tutOpen('tavern')?'closed':`${h} for hire`,h:!tutOpen('tavern')?0:h},

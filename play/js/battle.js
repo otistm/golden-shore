@@ -3,14 +3,16 @@
 /* ---------- battle ---------- */
 function mkSide(name,max,list,traits,sea,cr){const b=sideOf(list,cr);
   return{name,max:max+b.hp,hp:max+b.hp,shield:0,burn:0,poison:0,list,regen:b.regen,gold:b.gold,sea,lowDone:false,risen:false,traits:traits.map(k=>({k,t:0})),
-    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i,cr),c:0,h:0,sl:0,g:{},lt:{},el:null}))}}
+    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i,cr),c:0,h:0,sl:0,g:{},lt:{},el:null,rec:{dmg:0,shield:0,heal:0,burn:0,poison:0,haste:0,charge:0,slow:0,uses:0}}))}}
+/* the item whose effect is being applied right now, so hits can be credited to it in the fight recap */
+let recIt=null;
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
 function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
 /* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
 function setupFight(n,f,board){
   const depth=f.depth,sh=SHIPS[G.ship];
   const pMax=shipHP(depth);
-  B={t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),cr:craftRanks(),orders:ordersAboard(),
+  B={dot:{p:{burn:0,poison:0,storm:0},e:{burn:0,poison:0,storm:0}},t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),cr:craftRanks(),orders:ordersAboard(),
      P:mkSide(sh.n,pMax,board.map(x=>({...x})),[sh.trait],G.sea,crewCrafts()),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
   const P=B.P,E=B.E;
   for(const S of [P,E])S.items.forEach(it=>{if(it.s.cd)it.c=it.s.cd*it.s.pre});
@@ -69,7 +71,7 @@ function loop(now){if(!B)return;let dt=Math.min(.1,(now-last)/1000)*B.speed;last
 function hit(T,d,type,src,o){o=o||{};
   if(o.weapon&&hasT(T,'thick'))d*=.75;d=Math.round(d);if(d<=0)return;
   if(T===B.P&&B.braceT>B.t){pop(T.fel,'Braced','shield');return}
-  const pierce=o.pierce||(src&&hasT(src,'pierce'));let a=pierce?0:Math.min(T.shield,d);if(T===B.P&&a>0&&a<d&&(B.cr.carp||0)>=3)a=d;T.shield=Math.max(0,T.shield-a);T.hp-=d-a;
+  const pierce=o.pierce||(src&&hasT(src,'pierce'));let a=pierce?0:Math.min(T.shield,d);if(T===B.P&&a>0&&a<d&&(B.cr.carp||0)>=3)a=d;T.shield=Math.max(0,T.shield-a);T.hp-=d-a;if(recIt&&recIt.rec&&(type==='dmg'||type==='crit'))recIt.rec.dmg+=d;
   pop(T.fel,(type==='crit'?'Crit! ':'')+'−'+d,type==='burn'||type==='storm'?'soft':type);
   if(type==='dmg'||type==='crit'){squish(T.fel,'hit');if(o.weapon&&src)emit(T,src,'hurt',null,(o.depth||0))}
   if(!T.lowDone&&T.hp>0&&T.hp<T.max/2){T.lowDone=true;emit(T,src||(T===B.P?B.E:B.P),'lowhp',null,0)}
@@ -87,7 +89,7 @@ function xVal(S,F,x){if(!x)return 0;const[from,r]=x;
   if(from==='missing')return(S.max-S.hp)*r;if(from==='empty')return((S===B.P?holdCap():HOLD)-used(S.list))*r;
   if(from.startsWith('tag:'))return S.list.filter(o=>DEFS[o.k].tags.includes(from.slice(4))).length*r;return 0}
 function applyFx(S,F,it,i,f,depth){
-  const g=it.g,el=it.el;
+  const g=it.g,el=it.el,prevRec=recIt;recIt=it;
   if(f.dmg!=null||f.dmgX){const W=DEFS[it.k].tags.includes('W'),C=DEFS[it.k].tags.includes('C'),me=S===B.P;
     let base=(f.dmg||0)+(g.dmg||0)+xVal(S,F,f.dmgX);
     if(me&&C&&hasF('grapeshot'))base=Math.max(1,base-2);
@@ -100,22 +102,23 @@ function applyFx(S,F,it,i,f,depth){
       if(hasT(S,'coil')&&W)F.poison+=1;if(c)emit(S,F,'crit',it,depth)}}
   const sh=(f.shield||0)+(g.shield||0)+Math.round(xVal(S,F,f.shieldX));
   const noSh=S===B.E&&S.burn>0&&(B.cr.fire||0)>=3;
-  if((f.shield!=null||f.shieldX)&&sh>0&&!noSh){S.shield+=sh;pop(el||S.fel,'+'+sh+' shield','shield');emit(S,F,'shield',it,depth)}
+  if((f.shield!=null||f.shieldX)&&sh>0&&!noSh){S.shield+=sh;if(it.rec)it.rec.shield+=sh;pop(el||S.fel,'+'+sh+' shield','shield');emit(S,F,'shield',it,depth)}
   const hl=(f.heal||0)+(g.heal||0)+Math.round(xVal(S,F,f.healX))-(S===B.P&&hasF('mermaid')?2:0);
   const noHl=S===B.E&&S.poison>0&&(B.cr.alch||0)>=2;
-  if((f.heal!=null||f.healX)&&hl>0&&!noHl){if(S===B.P&&(B.cr.med||0)>=2&&S.hp+hl>S.max)S.shield+=Math.round(S.hp+hl-S.max);S.hp=Math.min(S.max,S.hp+hl);if(S.burn)S.burn--;if(hasT(S,'lotus'))S.shield+=Math.round(hl/3);pop(el||S.fel,'+'+hl,'heal');emit(S,F,'heal',it,depth)}
+  if((f.heal!=null||f.healX)&&hl>0&&!noHl){if(S===B.P&&(B.cr.med||0)>=2&&S.hp+hl>S.max)S.shield+=Math.round(S.hp+hl-S.max);{const h0=S.hp;S.hp=Math.min(S.max,S.hp+hl);if(it.rec)it.rec.heal+=S.hp-h0}if(S.burn)S.burn--;if(hasT(S,'lotus'))S.shield+=Math.round(hl/3);pop(el||S.fel,'+'+hl,'heal');emit(S,F,'heal',it,depth)}
   if(f.cleanse)S.poison=0;
   if(f.douse){S.burn=Math.max(0,S.burn-f.douse);S.poison=Math.max(0,S.poison-Math.ceil(f.douse/2))}
   if(f.burn)burnOn(S,F,f.burn+(g.burn||0),it,depth);
   if(f.poison)poisonOn(S,F,f.poison+(g.poison||0),it,depth);
-  if(f.slow){const sd=F===B.P&&(B.cr.sea||0)>=3?f.slow[1]/2:f.slow[1];rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,sd);if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
-  if(f.haste){const ts=targets(S,i,f.haste[0]).filter(x=>x.s.cd),hd=f.haste[1];ts.forEach(x=>x.h=Math.max(x.h,hd));if(ts.length){pop(el||S.fel,'Haste','haste');emit(S,F,'haste',it,depth)}}
-  if(f.charge){targets(S,i,f.charge[0]).filter(x=>x.s.cd).forEach(x=>{x.c=Math.min(x.s.cd,x.c+f.charge[1]);if(x.el&&!B.quiet)squish(x.el,'proc')})}
+  if(f.slow){const sd=F===B.P&&(B.cr.sea||0)>=3?f.slow[1]/2:f.slow[1];rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,sd);if(it.rec)it.rec.slow++;if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
+  if(f.haste){const ts=targets(S,i,f.haste[0]).filter(x=>x.s.cd),hd=f.haste[1];ts.forEach(x=>x.h=Math.max(x.h,hd));if(it.rec)it.rec.haste+=ts.length;if(ts.length){pop(el||S.fel,'Haste','haste');emit(S,F,'haste',it,depth)}}
+  if(f.charge){targets(S,i,f.charge[0]).filter(x=>x.s.cd).forEach(x=>{x.c=Math.min(x.s.cd,x.c+f.charge[1]);if(it.rec)it.rec.charge++;if(x.el&&!B.quiet)squish(x.el,'proc')})}
   if(f.selfDmg){S.hp-=f.selfDmg;pop(S.fel,'−'+f.selfDmg,'soft')}
   if(f.grow)for(const k in f.grow)g[k]=(g[k]||0)+f.grow[k];
+  recIt=prevRec;
 }
-function burnOn(S,F,n,it,depth){let b=n+(hasT(S,'kindle')?1:0);if(F===B.P){if(hasF('magazine'))b++;if(hasF('copper'))b=Math.ceil(b/2)}F.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
-function poisonOn(S,F,n,it,depth){if(F===B.P&&hasF('copper'))n=Math.ceil(n/2);F.poison+=n;pop(it&&it.el||S.fel,'Poison '+n);emit(S,F,'poison',it,depth)}
+function burnOn(S,F,n,it,depth){let b=n+(hasT(S,'kindle')?1:0);if(F===B.P){if(hasF('magazine'))b++;if(hasF('copper'))b=Math.ceil(b/2)}F.burn+=b;if(it&&it.rec)it.rec.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
+function poisonOn(S,F,n,it,depth){if(F===B.P&&hasF('copper'))n=Math.ceil(n/2);F.poison+=n;if(it&&it.rec)it.rec.poison+=n;pop(it&&it.el||S.fel,'Poison '+n);emit(S,F,'poison',it,depth)}
 /* reactions: items listening for things that happen on their own side */
 function emit(S,F,ev,src,depth){
   if(depth>3||!S.items)return;
@@ -139,7 +142,7 @@ function act(k,S,F){const T=TRAITS[k],x=T.x?T.x(S.sea):0;
   if(k==='tentacles'){pop(S.fel,'Tentacles!');hit(F,x,'dmg',S);rnd(F.items,2).forEach(i=>i.sl=Math.max(i.sl,2))}
 }
 function fire(S,F,it,i){
-  squish(it.el,'fire');
+  squish(it.el,'fire');it.rec.uses++;
   applyFx(S,F,it,i,it.s.fx,0);
   if(S===B.P&&hasF('magazine')&&!B.magDone&&DEFS[it.k].tags.includes('C')){B.magDone=true;pop(it.el||S.fel,'Again!','haste');applyFx(S,F,it,i,it.s.fx,0)}
   emit(S,F,'use',it,0);emit(S,F,'adjUse',it,0);
@@ -157,10 +160,10 @@ function step(dt){
       it.c+=dt*r;if(it.c>=it.s.cd){it.c-=it.s.cd;fire(S,F,it,i)}});
     S.traits.forEach(tr=>{const T=TRAITS[tr.k];if(!T.every)return;tr.t+=dt;if(tr.t>=T.every){tr.t-=T.every;act(tr.k,S,F)}});
   }
-  B.bt+=dt;if(B.bt>=.5){B.bt-=.5;B.bodd=!B.bodd;for(const S of[B.P,B.E])if(S.burn>0){hit(S,S.burn,'burn');if(!(S===B.E&&(B.cr.fire||0)>=2&&B.bodd))S.burn--;tick(S,'bu')}}
-  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0&&!(S===B.P&&B.braceT>B.t)){let p=S.poison;if(S===B.P&&(B.cr.carp||0)>=2&&S.shield>0){const a=Math.min(S.shield,p);S.shield-=a;p-=a}S.hp-=p;if(p)pop(S.fel,'−'+p,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}
+  B.bt+=dt;if(B.bt>=.5){B.bt-=.5;B.bodd=!B.bodd;for(const S of[B.P,B.E])if(S.burn>0){B.dot[S===B.P?'p':'e'].burn+=S.burn;hit(S,S.burn,'burn');if(!(S===B.E&&(B.cr.fire||0)>=2&&B.bodd))S.burn--;tick(S,'bu')}}
+  B.pt+=dt;if(B.pt>=1){B.pt-=1;for(const S of[B.P,B.E]){if(S.poison>0&&!(S===B.P&&B.braceT>B.t)){let p=S.poison;if(S===B.P&&(B.cr.carp||0)>=2&&S.shield>0){const a=Math.min(S.shield,p);S.shield-=a;p-=a}S.hp-=p;B.dot[S===B.P?'p':'e'].poison+=p;if(p)pop(S.fel,'−'+p,'soft');tick(S,'po')}if(S.regen&&S.hp>0){S.hp=Math.min(S.max,S.hp+S.regen)}}
     if(hasF('mermaid')&&B.P.hp>0&&B.P.hp<B.P.max/2){const h=Math.max(1,Math.round(B.P.max*.02));B.P.hp=Math.min(B.P.max,B.P.hp+h);pop(B.P.fel,'+'+h,'heal')}}
-  if(B.t>=B.bell){B.st+=dt;if(B.st>=.5){B.st-=.5;B.storm++;hit(B.P,Math.max(0,(hasF('stormsail')?Math.ceil(B.storm/2):B.storm)),'storm');hit(B.E,B.storm,'storm')}}
+  if(B.t>=B.bell){B.st+=dt;if(B.st>=.5){B.st-=.5;B.storm++;const ps=Math.max(0,(hasF('stormsail')?Math.ceil(B.storm/2):B.storm));B.dot.p.storm+=ps;B.dot.e.storm+=B.storm;hit(B.P,ps,'storm');hit(B.E,B.storm,'storm')}}
   for(const S of[B.P,B.E])if(S.hp<=0&&hasT(S,'undying')&&!S.risen){S.risen=true;S.hp=S.max*.3;S.burn=0;S.poison=0;pop(S.fel,'It rises!')}
   if(B.P.hp<=0&&(B.cr.med||0)>=3&&!B.saved&&B.E.hp>0){B.saved=true;B.P.hp=1;pop(B.P.fel,'The surgeon saves you!','heal')}
   if(B.P.hp<=0||B.E.hp<=0)end(B.E.hp<=0&&B.P.hp>0);
@@ -224,8 +227,24 @@ function end(win){
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}
   save();
   setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):defeatCard(head,lines,btn,G.hull<=0);
-    const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()}},B.quiet?50:750);
+    const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()};
+    b.insertAdjacentHTML('afterend','<button class="linkbtn rcbtn" id="recapbtn">Fight recap</button>');document.getElementById('recapbtn').onclick=fightRecap},B.quiet?50:750);
 }
+/* the fight recap: what each of your items did this fight, biggest first, with a bar for its share; items that never fired
+   say why (nobody aboard to work them). Then the enemy's three busiest pieces, and what burn, poison and the storm did. */
+function fightRecap(){if(!B)return;
+  const part=r=>[r.dmg&&`${Math.round(r.dmg)} damage`,r.shield&&`${Math.round(r.shield)} shield`,r.heal&&`${Math.round(r.heal)} healed`,r.burn&&`${r.burn} burn`,r.poison&&`${r.poison} poison`,r.haste&&`hasted cargo ${r.haste}×`,r.charge&&`charged cargo ${r.charge}×`,r.slow&&`slowed theirs ${r.slow}×`].filter(Boolean);
+  const val=r=>r.dmg+r.shield+r.heal+(r.burn+r.poison)*3+(r.haste+r.charge+r.slow)*4;
+  const rows=(S,mine,n)=>{const its=S.items.map((it,i)=>({it,i,v:val(it.rec)})).sort((a,b)=>b.v-a.v).slice(0,n),top=Math.max(1,...its.map(x=>x.v));
+    return its.map(({it,i,v})=>{const d=DEFS[it.k],r=it.rec,p=part(r),use=mine?itemUse(it.k,crewCrafts()):'all';
+      const dead=use==='none',why=dead?'Did nothing: nobody aboard can work it.':p.length?p[0][0].toUpperCase()+p.join(', ').slice(1)+'.':!d.cd?'Passive: it boosts other cargo.':r.uses?'Fired, but did nothing this fight.':'Never got to fire.';
+      return`<div class="rc-row"><span class="o-icon t${it.t}">${icon(it.k)}</span><div class="rc-txt"><b>${d.n}</b><span class="soft">${why}${r.uses&&!dead?` Fired ${r.uses}×.`:''}</span><i class="rc-bar"><i style="width:${Math.round(v/top*100)}%"></i></i></div></div>`}).join('')};
+  const sum=S=>S.items.reduce((a,it)=>a+it.rec.dmg,0),dot=k=>{const d=B.dot[k];return[d.burn&&`burn ${d.burn}`,d.poison&&`poison ${d.poison}`,d.storm&&`the storm ${d.storm}`].filter(Boolean).join(', ')};
+  const ov=overlay(`<h2>Fight recap</h2><p class="soft">${Math.round(B.t)} seconds. Your cargo dealt ${Math.round(sum(B.P))} damage${dot('e')?`, plus ${dot('e')}`:''}. Theirs dealt ${Math.round(sum(B.E))}${dot('p')?`, plus ${dot('p')}`:''}.</p>
+    <h3 class="rc-h">${B.P.name}</h3><div class="rc-list">${rows(B.P,true,9)}</div>
+    <h3 class="rc-h">${B.E.name}, busiest cargo</h3><div class="rc-list">${rows(B.E,false,3)}</div>
+    <button class="primary" data-a="close">Close</button>`,false,'recap');
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()})}
 /* the victory card: a "Victory!" banner stamps down in a burst of ink, stars pop around it, the gold counts up, and each line
    (renown, rank-ups, the way on) drops in after it before the button arrives */
 function victoryCard(head,lines,btn){const g=lines[0].match(/^\+(\d+) gold\.$/),rest=g?lines.slice(1):lines;

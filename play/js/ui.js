@@ -30,6 +30,32 @@ function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdC
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
 }
+/* which other items in the same list an item works on: the ones it hastes or charges, and the ones its aura boosts */
+function affects(list,i){const d=DEFS[list[i].k],out=new Set(),add=j=>{if(j>=0&&j<list.length&&j!==i)out.add(j)};
+  const tgt=t=>{if(typeof t!=='string')return;if(t==='adj'){add(i-1);add(i+1)}else if(t==='left')add(i-1);else if(t==='right')add(i+1);
+    else if(t==='all'||t==='rand1'||t==='rand2')list.forEach((x,j)=>add(j));else if(t.startsWith('tag:'))list.forEach((x,j)=>{if(DEFS[x.k].tags.includes(t.slice(4)))add(j)})};
+  const scan=f=>{if(f)for(const k of['haste','charge'])if(Array.isArray(f[k]))tgt(f[k][0])};
+  scan(d);scan(d.start);(d.on||[]).forEach(scan);
+  const cr=list.enemy?null:crewCrafts();list.forEach((x,j)=>{if(j!==i&&statsOf(list,j,cr).boost.includes(d.n))out.add(j)});
+  return out}
+/* the list a tile on screen belongs to */
+function listOf(el){const bd=el.closest('.board');if(!bd)return null;const sd=bd.dataset.side;
+  if(B&&bd.closest('.battle'))return sd==='e'?B.E.list:B.P.list;return sd==='l'?G&&G.locker:sd==='p'?G&&G.board:null}
+/* desktop: hovering a tile shows its card beside it and marks the items it works on; phones keep tap for the full sheet */
+const HOVERS=matchMedia('(hover:hover) and (pointer:fine)');
+let tipEl=null;
+function hideItemTip(){if(tipEl){tipEl.remove();tipEl=null}document.querySelectorAll('.item.src,.item.aff').forEach(x=>x.classList.remove('src','aff'))}
+function showItemTip(el){hideItemTip();if(!G||document.querySelector('.dragging'))return;const list=listOf(el),i=[...el.parentNode.querySelectorAll('.item')].indexOf(el);if(!list||!list[i])return;
+  const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affects(list,i);
+  el.classList.add('src');aff.forEach(j=>tiles[j]&&tiles[j].classList.add('aff'));
+  tipEl=document.createElement('div');tipEl.className='itip';tipEl.setAttribute('role','tooltip');
+  tipEl.innerHTML=`<b>${d.n}</b><p class="soft"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}</p><ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>${aff.size?`<p class="itip-aff">Works on ${aff.size} of your other items.</p>`:''}`;
+  document.body.appendChild(tipEl);const r=el.getBoundingClientRect(),t=tipEl.getBoundingClientRect();
+  let x=Math.min(innerWidth-t.width-8,Math.max(8,r.left+r.width/2-t.width/2)),y=r.top-t.height-10;if(y<8)y=r.bottom+10;
+  tipEl.style.left=x+'px';tipEl.style.top=y+'px'}
+document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse')return;const el=e.target.closest&&e.target.closest('.board .item');if(el)showItemTip(el)});
+document.addEventListener('pointerout',e=>{const el=e.target.closest&&e.target.closest('.board .item');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hideItemTip()});
+document.addEventListener('pointerdown',hideItemTip,true);
 function itemSheet(list,i,mode,after){
   const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;
@@ -37,6 +63,7 @@ function itemSheet(list,i,mode,after){
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
     <ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>
     ${g.length?`<div class="gloss">${g.map(x=>`<span>${x}</span>`).join('')}</div>`:''}
+    ${(()=>{const a=[...affects(list,i)].map(j=>DEFS[list[j].k].n);return a.length?`<p class="gloss">Works on: ${[...new Set(a)].join(', ')}.</p>`:''})()}
     ${!list.enemy&&itemUse(it.k,crewCrafts())!=='all'?'<p class="gloss">Unticked abilities need someone aboard with that craft. Hire crew at a port tavern.</p>':''}
     ${mode!=='view'&&it.t<3?`<p class="gloss">Get another ${d.n}, ${TIER[it.t]} or better, to upgrade it to ${TIER[it.t+1]}.</p>`:''}
     <div class="sh-actions">${mode!=='view'&&!inL?`<button class="ghost" data-a="move">Move</button>`:''}${canSwap?`<button class="ghost" data-a="swap" ${swapOk?'':'disabled'}>${inL?'Move to hold':'Stow in locker'}</button>`:''}${mode==='port'||mode==='spoils'?`<button class="ghost" data-a="sell">Sell for ${sellP(it.k,it.t)} gold</button>`:''}<button class="primary" data-a="close">Close</button></div>`);
