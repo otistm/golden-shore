@@ -67,6 +67,10 @@ const hasF=k=>!!(G&&G.fit&&Object.values(G.fit).includes(k));
 const fitIn=spot=>G&&G.fit&&G.fit[spot]||null;
 const fitHP=()=>G&&G.fit?Object.values(G.fit).reduce((a,k)=>a+(k&&FITTINGS[k].hp||0),0):0;
 /* your hold's size: HOLD slots, one fewer with Double Planking. Never more than HOLD. */
+/* your ship's health in a fight at this depth: it grows as the seas get deeper, plus the Bulwark's trait, Coral Reef and fittings */
+function shipHP(depth){const sh=SHIPS[G.ship];return sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+fitHP()+(G.tut?120:0)}
+/* the health you'd fight with next: in a fight, that fight's; on the way, at the next row's depth */
+function nextHP(){if(B&&B.P)return B.P.max;const n=G.map&&node(G.at);if(!n)return shipHP(0);return shipHP(depthOf({row:Math.min(n.row+1,mapRows())}))}
 const holdCap=()=>hasF('planks')?HOLD-1:HOLD;
 const HULL_MAX=20;   // the shipwright repairs hull up to 20
 const repairCost=()=>hasP('wright')?1:2;

@@ -9,7 +9,7 @@ function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?
 /* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
 function setupFight(n,f,board){
   const depth=f.depth,sh=SHIPS[G.ship];
-  const pMax=sh.hp+depth*10+(sh.trait==='bulwark'?40:0)+(hasC('coral')?25:0)+fitHP()+(G.tut?120:0);
+  const pMax=shipHP(depth);
   B={t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),cr:craftRanks(),orders:ordersAboard(),
      P:mkSide(sh.n,pMax,board.map(x=>({...x})),[sh.trait],G.sea,crewCrafts()),E:mkSide('The '+f.e.n,f.hp,f.list,f.e.traits,G.sea)};
   const P=B.P,E=B.E;
