@@ -20,9 +20,9 @@ function mapSVG(fit){
   let g=chartWater(m,X,y,W,H,RH,vis,rev);
   if(rev<R-1)g+=chartFog(W,y(rev)-RH/2);
   m.edges.forEach(([a,b])=>{const A2=node(a),B2=node(b);if(!(trav.has(a+'>'+b)||(A2.row<=rev&&(B2.row<=rev||B2.type==='boss'))))return;
-    const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
+    const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2,down=B2.row<A2.row;   // a side stop's way back runs down the chart
     const t=trav.has(a+'>'+b),r=a===G.at;
-    g+=`<path data-e="${a}>${b}" d="M${X(A2)} ${ya-18}Q${mx} ${my} ${X(B2)} ${yb+(B2.type==='boss'?25:18)}" fill="none" stroke="#000" stroke-linecap="round" ${t?'stroke-width="2.8"':r?'stroke-width="2" stroke-dasharray="1 6"':'stroke-width="1.4" stroke-dasharray="1 6" opacity=".45"'}/>`});
+    g+=`<path data-e="${a}>${b}" d="M${X(A2)} ${ya+(down?18:-18)}Q${mx+(down?14:0)} ${my} ${X(B2)} ${yb+(down?-18:B2.type==='boss'?25:18)}" fill="none" stroke="#000" stroke-linecap="round" ${t?'stroke-width="2.8"':r?'stroke-width="2" stroke-dasharray="1 6"':'stroke-width="1.4" stroke-dasharray="1 6" opacity=".45"'}/>`});
   m.nodes.forEach(n=>{if(!vis(n))return;
     const big=n.type==='boss',rr=big?24:18,known=n.row<=rev||G.path.includes(n.id),isR=reach.has(n.id),v=G.path.includes(n.id)&&n.id!==G.at;
     const gl=known?NG[n.type]:NG.event;
