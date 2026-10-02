@@ -54,6 +54,7 @@ function bandits(n,done,resumed){
       <div class="bd-score"><div><span class="sc-lbl">Their score</span><b>${T}</b></div><div class="bd-mine"><span class="sc-lbl">Your score</span><b id="bdscore">${score}</b></div><div><span class="sc-lbl">Plays</span><b>${plays}</b></div><div><span class="sc-lbl">Discards</span><b>${discs}</b></div></div>
       <div class="bd-bar"><i style="width:${Math.min(100,score/T*100)}%"></i></div>
       <p class="bd-now" id="bdnow">${last?`<b>${last.name}</b> (${last.chips} × ${last.mult}) = <b>${last.score}</b>`:ev?`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult = ${ev.score}`:'Pick up to 5 cards to play, or to discard.'}</p>
+      <div class="bd-felt" id="bdfelt" aria-hidden="true"><span>The table</span></div>
       <div class="bd-hand" id="bdhand">${hand.map(card).join('')}</div>
       <div class="bd-acts"><button class="primary" id="bplay" ${picked.length&&!busy?'':'disabled'}>Play hand</button><button class="ghost" id="bdisc" ${picked.length&&discs&&!busy?'':'disabled'}>Discard (${discs})</button></div>
       <details class="bd-help"><summary>How hands score</summary><div class="bd-table">${Object.values(BHANDS).map(([nm,c,m])=>`<span>${nm}</span><span>${c} × ${m}</span>`).join('')}</div><p class="soft">Each scoring card adds its chips: number cards their number, J, Q and K 10, aces 11.</p></details>
@@ -64,14 +65,33 @@ function bandits(n,done,resumed){
     pb.onclick=play;db.onclick=discard}
   function draw(k){const nw=deck.splice(0,k);nw.forEach(c=>dealt.add(c.id));hand=hand.concat(nw);sortHand()}
   function discard(){if(!sel.size||!discs||busy)return;discs--;hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();last=null;draw(k);render()}
+  /* playing a hand, Balatro style: the cards fly up onto the table, each scoring card pops and adds its chips one by one, the
+     mult stamps on, the total slams down and flies into your score, then the cards are swept away and new ones dealt */
   function play(){if(!sel.size||busy)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);busy=true;
-    // the played cards lift, the scoring ones flash, the score counts up
-    app.querySelectorAll('.bcard.on').forEach(el=>{el.classList.add('played');if(ev.cards.some(c=>c.id===el.dataset.c))el.classList.add('scores')});
-    const now=document.getElementById('bdnow');now.innerHTML=`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult`;
     const from=score;score+=ev.score;plays--;last=ev;
-    const el=document.getElementById('bdscore'),t0=performance.now(),D=still?0:700;
-    const tick=t=>{const k=D?Math.min(1,(t-t0-350)/D):1;if(k>0){el.textContent=Math.round(from+ev.score*k);}if(k<1)requestAnimationFrame(tick);else setTimeout(next,still?0:450)};
-    setTimeout(()=>{now.innerHTML=`<b>${ev.name}</b> (${ev.chips} × ${ev.mult}) = <b>${ev.score}</b>`;squish(el,'bump');requestAnimationFrame(tick)},still?0:300);
+    const scoreEl=document.getElementById('bdscore');
+    const countScore=then=>{const t0=performance.now(),D=still?0:600;const tick=t=>{const k=D?Math.min(1,(t-t0)/D):1;scoreEl.textContent=Math.round(from+ev.score*k);if(k<1)requestAnimationFrame(tick);else{squish(scoreEl,'bump');then()}};requestAnimationFrame(tick)};
+    if(still){countScore(()=>setTimeout(next,200));return}
+    const felt=document.getElementById('bdfelt'),hb=document.getElementById('bdhand'),stage=document.createElement('div');stage.className='bd-stage';felt.appendChild(stage);felt.classList.add('busy');
+    // the table: the played cards in a row, and the sum underneath
+    stage.innerHTML=`<div class="bds-cards"></div><div class="bds-sum"><b class="bds-name">${ev.name}</b><span class="bds-chips"><b id="bdchips">${ev.chips-ev.cards.reduce((a,c)=>a+cardChips(c),0)}</b><small>chips</small></span><i>×</i><span class="bds-mult"><b>${ev.mult}</b><small>mult</small></span></div>`;
+    const row=stage.querySelector('.bds-cards'),els=[...hb.querySelectorAll('.bcard.on')];
+    els.forEach((el,k)=>{const c=hand.find(x=>x.id===el.dataset.c),r0=el.getBoundingClientRect(),cl=el.cloneNode(true);cl.classList.remove('on','deal');cl.classList.toggle('scores',ev.cards.some(x=>x.id===c.id));cl.dataset.chips=cardChips(c);
+      row.appendChild(cl);const r1=cl.getBoundingClientRect();el.style.visibility='hidden';
+      cl.animate([{transform:`translate(${r0.left-r1.left}px,${r0.top-r1.top}px)`},{transform:'none'}],{duration:380,delay:k*50,easing:'cubic-bezier(.3,1.3,.5,1)',fill:'backwards'})});
+    // each scoring card in turn: it pops, "+chips" floats off it, and the chips count climbs
+    const scoring=[...row.querySelectorAll('.bcard.scores')],chipsEl=stage.querySelector('#bdchips');let chips=+chipsEl.textContent;
+    scoring.forEach((cl,k)=>setTimeout(()=>{if(!stage.isConnected)return;squish(cl,'pop');chips+=+cl.dataset.chips;chipsEl.textContent=chips;squish(chipsEl.parentElement,'bump');
+      const f=document.createElement('span');f.className='bds-plus';f.textContent='+'+cl.dataset.chips;cl.appendChild(f)},600+k*240));
+    const tm=600+scoring.length*240+120;
+    setTimeout(()=>{if(!stage.isConnected)return;stage.querySelector('.bds-mult').classList.add('stamp')},tm);
+    // the total slams down, then flies up into your score
+    setTimeout(()=>{if(!stage.isConnected)return;const tot=document.createElement('div');tot.className='bds-total';tot.textContent=ev.score;stage.appendChild(tot);
+      setTimeout(()=>{const a=tot.getBoundingClientRect(),b=scoreEl.getBoundingClientRect();
+        tot.animate([{transform:'none',opacity:1},{transform:`translate(${b.left+b.width/2-(a.left+a.width/2)}px,${b.top+b.height/2-(a.top+a.height/2)}px) scale(.45)`,opacity:.9}],{duration:450,easing:'cubic-bezier(.5,0,.6,1)',fill:'forwards'}).onfinish=()=>{tot.remove();
+          // sweep the played cards off the table
+          row.querySelectorAll('.bcard').forEach((cl,k)=>cl.animate([{transform:'none',opacity:1},{transform:`translate(${160+k*20}px,-40px) rotate(30deg)`,opacity:0}],{duration:380,delay:k*40,easing:'ease-in',fill:'forwards'}));
+          countScore(()=>setTimeout(()=>{stage.remove();next()},300))}},520)},tm+380);
     function next(){hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();busy=false;
       if(score>=T)return finish(true);if(!plays)return finish(false);draw(k);render()}}
   function finish(won){G.boarded=null;

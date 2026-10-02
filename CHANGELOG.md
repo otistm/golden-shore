@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.6
+- Playing a hand in the bandits' card game is a little show, Balatro style: the cards fly up onto a table, the hand's name appears with its chips and mult, each scoring card pops in turn with "+10" floating off it while the chips climb, the mult stamps on, the total slams down and flies into your score, and the played cards are swept off the table before new ones are dealt. Cards that don't score sit dimmed.
+
 ## 0.25.5
 - The bandits' verdict is animated: the captain laughs (or grumbles if you beat him), the verdict stamps down, your score and theirs are set side by side, then each piece of cargo they take is snatched away one by one. If you lost, the hull number is smashed down point by point while planks crack off, and the card jolts. The button arrives last.
 
