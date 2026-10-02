@@ -78,7 +78,7 @@ function port(id,view){
     G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view);fitFly(k,from,old)});
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
     if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
-    G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();toast(`Repaired ${n} hull`);port(id,view)});
+    const was=G.hull;G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();port(id,view);repairFx(was,G.hull)});
   const yb=document.getElementById('yourship');if(yb)yb.onclick=shipSheet;const yc=document.getElementById('yourcrew');if(yc)yc.onclick=shipSheet;
   app.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>{const i=+b.dataset.hire,k=S.tavern[i],C=CREW[k];
     if((G.crew||[]).length>=berths())return toast('Your deck is full. Dismiss someone on the ship card first.');
@@ -171,6 +171,19 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
       <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
+/* hull repairs: a card like the one for hull damage, run backwards. The ship steadies while a mallet knocks each new plank
+   into place with an ink spark, and the number counts up with it. Tap to dismiss. */
+function repairFx(before,after){document.querySelectorAll('.hullcard').forEach(c=>c.remove());
+  const n=Math.min(after,40),add=after-before,still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const c=document.createElement('div');c.className='hullcard repair';c.setAttribute('role','status');c.setAttribute('aria-label',`Hull repaired. +${add}, ${after} now.`);
+  c.innerHTML=`<svg class="hc-ship" viewBox="-2 -2 28 28" aria-hidden="true"><g stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></svg>
+    <div><p class="hc-head">Hull repaired</p><p class="hc-num"><b>${still?after:before}</b> hull <span class="hc-loss">+${add}</span></p>
+    <div class="planks" aria-hidden="true">${Array.from({length:n},(_,i)=>`<i${i>=n-add?` class="come" style="--d:${(i-(n-add))*160}ms"`:''}></i>`).join('')}</div></div>
+    <svg class="hc-mallet" viewBox="0 0 30 30" aria-hidden="true"><path class="w" d="M15 4h10v6H15z"/><path d="M20 10l-8 14" stroke-width="2.6"/></svg>`;
+  document.body.appendChild(c);c.addEventListener('click',()=>c.classList.add('out'));
+  const b=c.querySelector('.hc-num b');
+  if(!still)for(let k=1;k<=add;k++)setTimeout(()=>{if(!c.isConnected)return;b.textContent=before+k;squish(b,'bump');squish(c.querySelector('.hc-mallet'),'knock')},550+(k-1)*160);
+  const t=still?1600:900+add*160+900;setTimeout(()=>c.classList.add('out'),t);setTimeout(()=>c.remove(),t+400)}
 /* a fitting goes on: your ship appears big, the fitting flies off the bench onto its part of the ship (knocking the old one
    off if there was one), three hammer blows ring out in ink sparks, and "Fitted!" rises. Tap to hurry it. */
 function fitFly(k,from,old){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;

@@ -138,6 +138,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Buying a fitting plays `fitFly()` (port.js) over the yard, using `SHIPSPOTS` to find where the fitting goes on the ship.
 - Sales call `sellFx(x,y,gold)` (ui.js) after redrawing: a puff where the cargo was and coins flying into the purse (`#goldst`), which counts up from the old total.
 - Beating a sea's boss plays `seaCrossing(sea,then)` (battle.js) before the new sea's first port: letterbox bars, swell, rain, fog (sea 2) or lightning (sea 3), and the sea's name.
+- Hull repairs at the yard play `repairFx(before,after)` (port.js), a `.hullcard.repair` with planks knocked in one by one.
 - Wins show `victoryCard()` (battle.js): the stamped banner, counting gold, lines dropping in. Losses show `defeatCard()`: the swinging, cracked sign with rain, or "Sunk" with bubbles when the hull is gone. The hull card still plays back on the chart.
 - Anything that puts an item in the hold or locker sets `flash={ref,kind}` (`addItem()` does it for you; direct inserts set it themselves). `bindHold()` calls `holdFlash()`, which plays the drop or upgrade on that tile with an ink burst and a rising label.
 
