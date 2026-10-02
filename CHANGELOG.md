@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.26.0
+- Beating the bandits at cards now pays you instead of costing you cargo: they hand over 15 gold (20 in the Fog Sea, 25 in the Deep) and row away, and the coins fly into your purse. Losing still costs the whole hold and half the hull.
+
 ## 0.25.10
 - An enemy's preview on the chart now shows the health they really start the fight with, including what their cargo adds. Before, it could say 82 when the fight began at 107.
 

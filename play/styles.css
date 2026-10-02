@@ -1266,6 +1266,8 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .bd-lost .o-icon{width:42px;height:42px;animation:snatch .7s calc(.75s + var(--i) * .18s) cubic-bezier(.5,0,.7,.4) both}
 @keyframes snatch{0%{transform:none;opacity:1}30%{transform:translateY(6px) scale(1.08,.92);opacity:1}100%{transform:translate(40px,-120px) rotate(-35deg) scale(.6);opacity:0}}
 .bd-gone{animation:vline .4s var(--d) both}
+.bd-purse{display:flex;align-items:center;gap:8px;font:italic 900 34px/1 var(--display);animation:stamp .5s .8s cubic-bezier(.2,1.6,.4,1) both}
+.bd-purse .sic{width:30px;height:30px}
 .bd-hull{display:grid;justify-items:center;gap:4px;animation:vline .4s var(--d) both}
 .bd-hull span{font:800 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
 .bd-hull b{display:inline-block;font:italic 900 34px/1 var(--display)}
