@@ -10,7 +10,7 @@ function overlay(html,center,cls){const ov=document.createElement('div');ov.clas
 let hullSeen=null;
 function noteHull(){if(!G)return;if(hullSeen!=null&&G.hull<hullSeen&&G.hull>0){const a=hullSeen,b=G.hull;setTimeout(()=>hullLoss(a,b),80)}hullSeen=G.hull}
 /* the top strip: day, gold, hull and catch as chips with small ink icons, then the log and pause */
-const SI={gold:'<circle class="w" cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="3.4"/>',fish:'<path class="w" d="M1.5 8c3-4 8-4 10.5 0-2.5 4-7.5 4-10.5 0z"/><path class="w" d="M12 8l3-2.5v5z"/><circle class="k" cx="5" cy="7.4" r=".8"/>',
+const SI={hp:'<path class="w" d="M8 13.6C3.4 10.4 1.6 8.2 1.6 5.8a3.2 3.2 0 0 1 6.4-.9 3.2 3.2 0 0 1 6.4.9c0 2.4-1.8 4.6-6.4 7.8z"/>',gold:'<circle class="w" cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="3.4"/>',fish:'<path class="w" d="M1.5 8c3-4 8-4 10.5 0-2.5 4-7.5 4-10.5 0z"/><path class="w" d="M12 8l3-2.5v5z"/><circle class="k" cx="5" cy="7.4" r=".8"/>',
   log:'<path class="w" d="M1.5 3.5c2.2-1 4.4-.9 6.5.6v9.4c-2.1-1.5-4.3-1.6-6.5-.6zM14.5 3.5c-2.2-1-4.4-.9-6.5.6v9.4c2.1-1.5 4.3-1.6 6.5-.6z"/>'};
 const sicon=(k,inner)=>`<svg class="sic" viewBox="0 0 ${inner?12:16} ${inner?12:16}" aria-hidden="true">${inner||SI[k]}</svg>`;
 function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.min(1,G.hull/HULL_MAX));
@@ -18,6 +18,7 @@ function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.
     <span class="stat day">Day <b>${G.day}</b></span>
     <span class="stat${b('gold')}" id="goldst" aria-label="${G.gold} gold">${sicon('gold')}<b>${G.gold}</b><small>gold</small></span>
     <button class="stat hullst${b('hull')}" id="shipbtn" aria-label="Your ship: ${G.hull} hull">${sicon(0,EMB[G.ship])}<b>${G.hull}</b><small>hull</small><span class="hmeter" aria-hidden="true"><i style="width:${Math.round(hp*100)}%"></i></span></button>
+    <span class="stat hpst" aria-label="${nextHP()} health in fights">${sicon('hp')}<b>${nextHP()}</b><small>health</small></span>
     ${G.creel&&G.creel.length?`<button class="stat" id="creelbtn" aria-label="${G.creel.length} fish">${sicon('fish')}<b>${G.creel.length}</b><small>fish</small></button>`:''}
   </div><div class="acts"><button class="logbtn" id="logbtn" aria-label="Cartographer's log">${sicon('log')}<span>Log</span></button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></div></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}

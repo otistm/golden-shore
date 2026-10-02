@@ -159,7 +159,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
 
 ## Pause
-- The pause button is in the top bar (`barHTML`), so every voyage screen has it. `showPause()`, `resumePause()` and `leaveToTitle()` live in ui.js.
+- The pause button is in the top bar (`barHTML`), so every voyage screen has it. Next to the hull, the health pill (`.hpst`) shows `nextHP()`: in a fight, that fight's starting health; elsewhere, `shipHP()` at the next row's depth. `shipHP(depth)` in state.js is the one formula for the player's fight health (`setupFight()` uses it). `showPause()`, `resumePause()` and `leaveToTitle()` live in ui.js.
 - Anything that runs on a clock must stand still while `PAUSE.on`: fights set `dt=0` in `loop()`, and fishing reads time through `pauseClock()`. A new timed screen needs the same.
 - `G.fightAt` marks a fight that hasn't finished. `resume()` replays it, so leaving or refreshing never skips a fight.
 

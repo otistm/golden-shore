@@ -865,6 +865,8 @@ button.stat:active{transform:scale(1.06,.9)}
 .bar .pausebtn{margin-left:0}
 /* phones: icons and numbers only, so the strip fits on one line */
 @media (max-width:520px){.stat small,.hmeter,.logbtn span{display:none}.stat{padding:0 8px}.logbtn{width:34px;padding:0;justify-content:center}}
+/* small phones, with health and a creel aboard: tighter pills so the strip still fits on one line */
+@media (max-width:430px){.bar{gap:4px}.bar .stats,.bar .acts{gap:3px}.stat{padding:0 5px;gap:2px}.stat b{font-size:16px}.stat.day{padding:0 7px}.stat.day b{font-size:16px}.sic{width:14px;height:14px}.bar .logbtn,.bar .pausebtn{width:32px;height:32px}}
 @media (hover:hover) and (pointer:fine){button.stat:hover,.logbtn:hover{transform:translateY(-2px)}}
 /* phones: a tighter word at the bar so the hands stay in view above the hold */
 @media (max-width:520px){.talk{padding:12px;gap:8px}.talk .who{gap:4px 5px}.talk .who b{font-size:16px}.talk .who .chipc{padding:0 5px 0 3px}.talk .say{font-size:15px}.talk .terms{display:none}.tavern .m-head{margin-bottom:8px}}
