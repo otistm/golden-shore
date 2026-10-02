@@ -15,7 +15,29 @@ function bandEval(cs){if(!cs.length)return null;const n=cs.length,by={};cs.forEa
   const t=straight&&flush?['SF',cs]:g[0].length===4?['FK',g[0]]:g[0].length===3&&g[1]&&g[1].length>=2?['FH',[...g[0],...g[1]]]:flush?['F',cs]:straight?['S',cs]
     :g[0].length===3?['TK',g[0]]:g[0].length===2&&g[1]&&g[1].length===2?['TP',[...g[0],...g[1]]]:g[0].length===2?['P',g[0]]:['HC',[cs.slice().sort((a,b)=>b.r-a.r)[0]]];
   const[,ch,mu]=BHANDS[t[0]],chips=ch+t[1].reduce((a,c)=>a+cardChips(c),0);return{k:t[0],name:BHANDS[t[0]][0],cards:t[1],chips,mult:mu,score:chips*mu}}
-function bandits(n,done){
+/* the boarding: a black-sailed ship runs up alongside yours, grappling hooks fly across and bite, the bandits swing over on
+   ropes and land on your deck, and "Boarded!" slams on. A tap skips it; reduced motion goes straight to the cards. */
+function boardingFx(then){
+  // clear the chart first, so nothing behind the show can be tapped (and no voyage carries on) before the cards are dealt
+  cancelAnimationFrame(raf);B=null;app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>`;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return then();
+  const fx=document.createElement('div');fx.className='boardfx';
+  const wave=(y,amp,len)=>{let d=`M${-len*2} ${y}`;for(let x=-len*2;x<900;x+=len)d+=`q${len/4} ${-amp} ${len/2} 0t${len/2} 0`;return`<path class="w" d="${d}V1400H${-len*2}z"/>`};
+  const hooks=[[262,96,148,104],[270,120,150,124],[258,72,132,88]];
+  fx.innerHTML=`<svg class="bf-sea" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g class="bf-w1">${wave(178,6,80)}</g>
+      <g class="bf-mine"><g transform="translate(30 70)"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
+      <g class="bf-pirate"><g transform="translate(372 62) scale(-1 1)"><g stroke="#fff" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#000" class="bf-black">${SHIPDRAW.galleon}</g></g></g>
+      ${hooks.map(([x1,y1,x2,y2],i)=>`<g class="bf-hook" style="--i:${i}"><path class="bf-rope" d="M${x1} ${y1}Q${(x1+x2)/2} ${Math.min(y1,y2)-26} ${x2} ${y2}"/><path class="bf-claw" d="M${x2} ${y2}m-6 -4q2 8 6 4q4 4 6-4M${x2} ${y2}v-6"/></g>`).join('')}
+      ${[0,1,2].map(i=>`<g class="bf-bandit" style="--i:${i}"><g transform="translate(${262+i*14} ${26+i*6}) scale(.17)">${peepLayers(BANDIT_LOOK)}</g></g>`).join('')}
+      <g class="bf-w2">${wave(200,12,100)}</g><g class="bf-w3">${wave(226,16,120)}</g>
+    </svg>
+    <div class="bf-call"><span>Boarded!</span></div>`;
+  document.body.appendChild(fx);
+  let gone=false;const end=()=>{if(gone)return;gone=true;clearTimeout(t);then();fx.classList.add('out');setTimeout(()=>fx.remove(),400)};
+  const t=setTimeout(end,3600);setTimeout(()=>fx.addEventListener('click',end),300)}
+function bandits(n,done,resumed){
+  if(!resumed&&G.boarded==null){G.boarded=n.id;save();return boardingFx(()=>bandits(n,done,true))}
   cancelAnimationFrame(raf);B=null;G.inPort=false;G.boarded=n.id;save();
   // the deck is shuffled by the voyage code, so every captain on this voyage is dealt the same cards
   const r=RNG(G.seed,'bandits',n.id),deck=[];for(const s of 'SHDC')for(let k=2;k<=14;k++)deck.push({r:k,s,id:s+k});

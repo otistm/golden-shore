@@ -126,7 +126,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 ## Sea length and the bandits
 - `genMap()` builds `ROWS` (12) rows to the boss, with ports at row 0, halfway and the row before the boss, and stores `rows` on the map. Old saved maps have no `rows`: `mapRows()` reads them as 6, and `depthOf()` scales any row to the same 0 to 6 range per sea, so difficulty, tiers and rewards don't depend on chart length. Use `mapRows()`, never a literal row count. Long charts keep rows at least 88 (phones) or 150 (big screens) apart and scroll rather than squeeze.
-- Each sea hides one `bandits` event in unknown water (row 3 or later). `eventAt()` hands it to `bandits(n,done)` in bandits.js: a seeded deck, 8 cards, 3 plays and 2 discards against `bandTarget()` (360, +60 per sea). Win: they take the most valuable half of the hold. Lose: the whole hold and half the hull (never below 1). `G.boarded` marks a boarding in progress, and `resume()` goes back to the cards.
+- Each sea hides one `bandits` event in unknown water (row 3 or later). `eventAt()` hands it to `bandits(n,done)` in bandits.js: a seeded deck, 8 cards, 3 plays and 2 discards against `bandTarget()` (360, +60 per sea). Win: they take the most valuable half of the hold. Lose: the whole hold and half the hull (never below 1). `G.boarded` marks a boarding in progress, and `resume()` goes back to the cards. A fresh boarding first plays `boardingFx()` (their ship alongside, grappling hooks, bandits swinging across); resuming skips it.
 - Event option text (`d`) may be a function, for costs that depend on the sea (`tollOf()`).
 
 ## Chart water
@@ -134,7 +134,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - The fog is `chartFog()`: a bank with billowing edges and drifting wisps, clipped to the chart. `fogLift()` runs after each chart draw: if the fog edge moved up since the last draw (`fogSeen`), it rolls the bank back from the old edge.
 
-- Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage.
+- Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage and previews of other stops, and `go()` only sails to a stop in `reachable()`.
 
 ## Celebrations
 - Fights open with an intro in `fight()`: `.battle.intro` animations and a `.fightcall` stamp, with the clock held by `B.intro` (checked in `loop()`); a tap, Skip or 1.65s ends it.

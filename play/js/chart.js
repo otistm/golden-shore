@@ -85,7 +85,7 @@ function chart(){
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
   save();coach('chart');tip('chart');
 }
-function bindNodes(){app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>preview(node(+el.dataset.id));el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
+function bindNodes(){app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>{if(!sailing)preview(node(+el.dataset.id))};el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
 /* big screens: redraw the chart to fill the stage above the hold */
 function fitMap(){
   const m=app.querySelector('.map');if(!m||!G)return;
@@ -141,7 +141,7 @@ function sailAnim(from,to,done){const svg=app.querySelector('.map svg'),boat=svg
     if(k<1)requestAnimationFrame(step);else setTimeout(()=>{sailing=false;done()},120)};
   requestAnimationFrame(step)}
 function go(id){
-  if(sailing||G.at===id)return;
+  if(sailing||G.at===id||!reachable().includes(id))return;   // only ever to a stop you can reach from where you are
   const from=G.at;
   if(G.map.edges.some(([a,b])=>a===from&&b===id))return sailAnim(from,id,()=>goNow(id));
   goNow(id)}
