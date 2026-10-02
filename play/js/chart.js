@@ -13,7 +13,7 @@ const NG={
 };
 /* The map is laid out 340 wide. fit (big screens only) redraws it at the size of the space it has: stops spread sideways, rows spread down. */
 function mapSVG(fit){
-  const R=mapRows(),W=fit?fit.W:340,RH=fit?fit.RH:R>6?74:84,X=n=>n.x*W/340;
+  const R=mapRows(),W=fit?fit.W:340,RH=fit?fit.RH:R>6?88:84,X=n=>n.x*W/340;
   const m=G.map,H=R*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
   const trav=new Set();for(let i=1;i<G.path.length;i++)trav.add(G.path[i-1]+'>'+G.path[i]);
   const vis=n=>n.row<=rev||n.type==='boss'||G.path.includes(n.id);
@@ -93,7 +93,7 @@ function fitMap(){
   let fit=null;
   if(on){const cs=getComputedStyle(m),r=m.getBoundingClientRect(),d=app.querySelector('.dock');
     const w=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=innerHeight-r.top-(d?d.offsetHeight:0)-24-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
-    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(mapRows()>6?50:62,Math.min(120,Math.round((h-84)/mapRows())))}}
+    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(mapRows()>6?150:62,Math.min(120,Math.round((h-84)/mapRows())))}}   // long seas keep their rows roomy and scroll rather than squeeze
   m.dataset.fit=on?'1':'';m.innerHTML=mapSVG(fit);bindNodes();
   if(m.classList.contains('unroll'))addRoll(m);
 }
