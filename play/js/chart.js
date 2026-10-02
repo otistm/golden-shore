@@ -13,12 +13,12 @@ const NG={
 };
 /* The map is laid out 340 wide. fit (big screens only) redraws it at the size of the space it has: stops spread sideways, rows spread down. */
 function mapSVG(fit){
-  const W=fit?fit.W:340,RH=fit?fit.RH:84,X=n=>n.x*W/340;
-  const m=G.map,H=6*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
+  const R=mapRows(),W=fit?fit.W:340,RH=fit?fit.RH:R>6?74:84,X=n=>n.x*W/340;
+  const m=G.map,H=R*RH+84,y=row=>H-40-row*RH,cur=node(G.at),reach=new Set(reachable()),rev=G.reveal;
   const trav=new Set();for(let i=1;i<G.path.length;i++)trav.add(G.path[i-1]+'>'+G.path[i]);
   const vis=n=>n.row<=rev||n.type==='boss'||G.path.includes(n.id);
   let g=chartWater(m,X,y,W,H,RH,vis,rev);
-  if(rev<5)g+=chartFog(W,y(rev)-RH/2);
+  if(rev<R-1)g+=chartFog(W,y(rev)-RH/2);
   m.edges.forEach(([a,b])=>{const A2=node(a),B2=node(b);if(!(trav.has(a+'>'+b)||(A2.row<=rev&&(B2.row<=rev||B2.type==='boss'))))return;
     const ya=y(A2.row),yb=y(B2.row),mx=(X(A2)+X(B2))/2+((a*7+b*3)%9-4),my=(ya+yb)/2;
     const t=trav.has(a+'>'+b),r=a===G.at;
@@ -37,7 +37,7 @@ function mapSVG(fit){
 }
 /* the water under the chart: little wave marks bobbing on open sea, and islands under the ports and isles with ripples lapping
    their shores. Placed from the voyage seed, so a chart always looks the same; nothing is drawn in the fog. */
-function chartWater(m,X,y,W,H,RH,vis,rev){const r=RNG(G.seed,'water',G.sea),top=rev<5?y(rev)-RH/2:0;let g='',shore='',edge='',land='';
+function chartWater(m,X,y,W,H,RH,vis,rev){const r=RNG(G.seed,'water',G.sea),top=rev<mapRows()-1?y(rev)-RH/2:0;let g='',shore='',edge='',land='';
   const pts=m.nodes.filter(vis).map(n=>[X(n),y(n.row)]);
   // islands: a wobbly blob with a dashed shoreline around it, under each port and uncharted isle
   m.nodes.forEach(n=>{if(!vis(n))return;
@@ -93,7 +93,7 @@ function fitMap(){
   let fit=null;
   if(on){const cs=getComputedStyle(m),r=m.getBoundingClientRect(),d=app.querySelector('.dock');
     const w=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=innerHeight-r.top-(d?d.offsetHeight:0)-24-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
-    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(62,Math.min(120,Math.round((h-84)/6)))}}
+    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(mapRows()>6?50:62,Math.min(120,Math.round((h-84)/mapRows())))}}
   m.dataset.fit=on?'1':'';m.innerHTML=mapSVG(fit);bindNodes();
   if(m.classList.contains('unroll'))addRoll(m);
 }
@@ -141,11 +141,12 @@ function sailAnim(from,to,done){const svg=app.querySelector('.map svg'),boat=svg
     if(k<1)requestAnimationFrame(step);else setTimeout(()=>{sailing=false;done()},120)};
   requestAnimationFrame(step)}
 function go(id){
-  if(sailing)return;
+  if(sailing||G.at===id)return;
   const from=G.at;
   if(G.map.edges.some(([a,b])=>a===from&&b===id))return sailAnim(from,id,()=>goNow(id));
   goNow(id)}
 function goNow(id){
+  if(G.at===id)return;   // already there: a second tap on Sail here must never sail the same leg twice
   coach('sail');
   G.at=id;G.path.push(id);G.day++;G.moving=false;G.sel=null;updateReveal();save();
   const n=node(id);

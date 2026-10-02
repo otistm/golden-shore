@@ -213,7 +213,7 @@ function end(win){
     head=`The ${foe} beat you.`;lines.push(`−${loss} hull, ${Math.max(0,G.hull)} left.`);
     if(G.hull>0){const lf=loseFit(n);if(lf)lines.push(`They tore away your ${FITTINGS[lf].n}.`)}
     if(G.hull<=0){btn='Abandon ship';next=sink}
-    else if(k==='b'){G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
+    else if(k==='b'){while(G.path.length>1&&G.path[G.path.length-1]===n.id)G.path.pop();G.at=G.path[G.path.length-1];delete G.shops[G.at];G.shopVisit=(G.shopVisit||0)+1;updateReveal();
       lines.push(`You limp back to ${node(G.at).name} to refit.`);btn=`Return to ${node(G.at).name}`;next=()=>port(G.at)}
     else{lines.push('You slip past and sail on, empty-handed.');btn='Back to the chart';next=chart}
   }
@@ -343,7 +343,7 @@ function sink(){ending(false)}
 function ending(win){
   cancelAnimationFrame(raf);
   lore(win?LORE.end:LORE.sink);
-  const reached=win?3:G.sea+1,score=win?100+G.hull:G.sea*10+node(G.at).row;
+  const reached=win?3:G.sea+1,score=win?100+G.hull:G.sea*10+Math.round(node(G.at).row*6/mapRows());
   if(win)A.wins++;A.best=Math.max(A.best,reached);
   if(G.seed.startsWith('D')){const txt=win?`reached the Far Shore with ${G.hull} hull`:`sank in ${SEAS[G.sea]}`;const prev=A.daily[G.seed+'#s']||-1;if(score>prev){A.daily[G.seed+'#s']=score;A.daily[G.seed]=txt}}
   saveA();const done=G;clearSave();

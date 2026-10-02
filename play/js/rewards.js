@@ -2,8 +2,9 @@
 "use strict";
 /* ---------- events, loot, landmarks ---------- */
 function eventAt(n){
+  if(n.ev==='bandits')return bandits(n,()=>{if(G.hull<=0)return sink();save();chart()});
   chart();const ev=EVENTS[n.ev];
-  const ov=overlay(`<h2>${ev.t}</h2><p class="log">${ev.x}</p><div class="picks">${ev.o.map((o,i)=>{const ok=!o.need||o.need();return`<button class="opt" data-o="${i}" ${ok?'':'disabled'}><b>${o.l}</b><span>${o.d}</span></button>`}).join('')}</div>`,true);
+  const ov=overlay(`<h2>${ev.t}</h2><p class="log">${ev.x}</p><div class="picks">${ev.o.map((o,i)=>{const ok=!o.need||o.need();return`<button class="opt" data-o="${i}" ${ok?'':'disabled'}><b>${o.l}</b><span>${typeof o.d==='function'?o.d():o.d}</span></button>`}).join('')}</div>`,true);
   ov.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{if(b.disabled)return;ov.remove();
     const res=ev.o[+b.dataset.o].f(RNG(G.seed,'ev',n.id,b.dataset.o));
     if(res&&res.chart){logL(res.msg);chartPick(RNG(G.seed,'cache',n.id),res.msg,after);return}
