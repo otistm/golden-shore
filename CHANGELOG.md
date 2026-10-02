@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.27.1
+- On the chart, the top bar (day, gold, hull, log, pause) and the sea's name stay pinned to the top while the chart scrolls underneath, so they're always in reach.
+
 ## 0.27.0
 - Seas are shorter: 9 rows to the boss instead of 12. Ports now only appear where you set out, on part of the halfway row and just before the boss, so you never get ports two rows in a row.
 - Charts branch more, so most stops give you a real choice of where to go, and a fork always offers different kinds of stop.

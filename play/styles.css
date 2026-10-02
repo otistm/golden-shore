@@ -1326,3 +1326,9 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .bds-mult.stamp{animation:mstamp .4s cubic-bezier(.2,1.6,.4,1)}
 @keyframes mstamp{0%{transform:scale(1.9) rotate(-12deg)}100%{transform:none}}
 .bds-total{font:italic 900 46px/1 var(--display);background:var(--ink);color:var(--paper);border-radius:14px;padding:2px 16px 6px;box-shadow:4px 4px 0 var(--paper),6px 6px 0 var(--ink);animation:stamp .4s cubic-bezier(.2,1.6,.4,1) both}
+/* the chart's header (stats bar and the sea's name) is pinned to the top; the chart scrolls under it */
+.charthead{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);margin:-14px -14px 0;padding:14px 14px 4px;transition:box-shadow .2s}
+.charthead .seahead{margin-bottom:4px}
+.charthead+.map{margin-top:4px}
+.charthead.stuck{box-shadow:0 2.5px 0 var(--ink)}
+@media (min-width:900px) and (min-height:560px){.charthead{margin:-22px -24px 0;padding:22px 24px 4px}body.desk .charthead{margin:-22px 0 0;padding:22px 0 4px}}
