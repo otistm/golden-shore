@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.8
+- The hand's total now slams down on top of the bandits' table, with the cards and sum fading back behind it, instead of hiding underneath the cards.
+
 ## 0.25.7
 - Cards on the bandits' table stay white so their numbers and suits stay crisp while they animate; the scoring ones get a heavy border and shadow instead of turning black.
 

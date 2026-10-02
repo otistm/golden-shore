@@ -1304,7 +1304,8 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .bd-felt>span{font:italic 400 14px var(--display);color:var(--soft)}
 .bd-felt.busy>span{visibility:hidden}
 .bd-stage{position:absolute;inset:0;z-index:5;display:grid;align-content:center;justify-items:center;gap:10px;pointer-events:none}
-.bds-total{position:absolute;left:50%;top:50%;translate:-50% -50%}
+.bds-total{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:10}
+.bd-stage:has(.bds-total) .bds-cards,.bd-stage:has(.bds-total) .bds-sum{opacity:.35;transition:opacity .2s}
 .bds-cards{display:flex;gap:6px;justify-content:center}
 .bds-cards .bcard{width:46px;flex:none;translate:none;box-shadow:2px 3px 0 var(--ink)}
 .bds-cards .bcard:not(.scores){opacity:.45}
