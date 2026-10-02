@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.32.1
+- Every maiden voyage step and tip is now one short line.
+- When Ansel speaks, the screen dims behind him with a clear window over whatever he's pointing at, so tips stand apart from the game. You can still tap through to do what he asks.
+
 ## 0.32.0
 - Fight recap: after every fight, tap Fight recap on the result card to see what each of your items did (damage, shield, healing, burn, poison, hastes, charges, slows, and how often it fired), biggest first. Items that did nothing say why, like "nobody aboard can work it". The enemy's three busiest pieces and what burn, poison and the storm did are listed too.
 - On a computer, hovering a piece of cargo shows its card beside it and outlines the items it works on (the ones it hastes, charges or boosts). On a phone, tap as before; the card now lists what the item works on.

@@ -1364,3 +1364,7 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .peekhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .peekwrap{max-height:calc(100dvh - 190px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain;border-radius:18px}
 .map.peek .node{pointer-events:none}
+/* the dimmer behind a tip or tutorial step: the hole is a clear window, its huge shadow is the dim */
+.coachdim{position:fixed;inset:0;z-index:54;pointer-events:none;overflow:hidden;animation:fadein .25s both}
+.coachdim i{position:fixed;display:block;border-radius:16px;box-shadow:0 0 0 200vmax rgba(0,0,0,.45);transition:left .2s,top .2s,width .2s,height .2s}
+@media (prefers-reduced-motion:reduce){.coachdim{animation:none}.coachdim i{transition:none}}

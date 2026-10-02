@@ -78,6 +78,8 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - The maiden voyage uses `G.tut` and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone` and marks the port, chart, crew and shipwright tips as seen.
 - One-time tips live in `TIPS` and show once per player. `A.tips` remembers which ones they've seen.
 - A tip fires only where it applies: port tips when you open that place (`port` in the market, `crew` in the tavern, `wright` in the yard), and `crew` also when you buy cargo nobody aboard can work (`deadTip()`). Every tip has an End tutorial link that sets `A.tipsOff`, after which `tip()` shows nothing.
+- Keep every step and tip to one short line (about 15 words); testers found longer ones too much.
+- `bubble()` also dims the screen behind it (`dimFor()`, `.coachdim`): a dark layer that takes no taps, with a clear window over the step's `target` (or the open pop-up), following it every frame. Steps that point at something near the top use `pos:'bottom'` so the bubble doesn't cover it.
 - Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
   - Maiden voyage steps show which stop you're on. Closing an explanation advances, closing the last one finishes, and closing an action step only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
