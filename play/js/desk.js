@@ -11,7 +11,10 @@ function renderDesk(){
   // the stat pills (day, gold, hull, health, fish) live in the desk under the ship's name; the live element moves, so its
   // taps and animations keep working. Leaving desk mode puts it back in the top bar.
   const live=app.querySelector('.bar .stats')||deskEl.querySelector('.stats');
-  if(!on){const bar=app.querySelector('.bar');if(live&&bar&&!bar.contains(live))bar.prepend(live);deskEl.innerHTML='';return}
+  // Log and Pause join the title line (place or sea name, Chart button) when the screen has one; otherwise they stay in the bar
+  const acts=app.querySelector('.bar .acts')||app.querySelector('.seahead>.acts'),head=app.querySelector('.seahead'),bar0=app.querySelector('.bar');
+  if(!on){const bar=bar0;if(live&&bar&&!bar.contains(live))bar.prepend(live);if(acts&&bar&&!bar.contains(acts))bar.appendChild(acts);deskEl.innerHTML='';return}
+  if(acts&&head&&!head.contains(acts))head.appendChild(acts);
   const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const marks=G.charts.length?`<div class="marks">${G.charts.map(c=>`<div class="mark">${glyph(c.k)}<p><b>${CHARTS[c.k].n}.</b> ${CHARTS[c.k].d}</p></div>`).join('')}</div>`
     :`<p class="soft">None yet. Uncharted isles and elites give you landmarks that help for the whole voyage.</p>`;

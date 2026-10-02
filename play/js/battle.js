@@ -3,7 +3,7 @@
 /* ---------- battle ---------- */
 function mkSide(name,max,list,traits,sea,cr){const b=sideOf(list,cr);
   return{name,max:max+b.hp,hp:max+b.hp,shield:0,burn:0,poison:0,list,regen:b.regen,gold:b.gold,sea,lowDone:false,risen:false,traits:traits.map(k=>({k,t:0})),
-    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i,cr),c:0,h:0,sl:0,g:{},lt:{},el:null,rec:{dmg:0,shield:0,heal:0,burn:0,poison:0,haste:0,charge:0,slow:0,uses:0}}))}}
+    items:list.map((it,i)=>({k:it.k,t:it.t,s:statsOf(list,i,cr),c:0,h:0,sl:0,g:{},lt:{},el:null,rec:{dmg:0,shield:0,heal:0,burn:0,poison:0,haste:0,charge:0,slow:0,uses:0,crits:0,to:{},slowTo:{}}}))}}
 /* the item whose effect is being applied right now, so hits can be credited to it in the fight recap */
 let recIt=null;
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
@@ -94,7 +94,7 @@ function applyFx(S,F,it,i,f,depth){
     let base=(f.dmg||0)+(g.dmg||0)+xVal(S,F,f.dmgX);
     if(me&&C&&hasF('grapeshot'))base=Math.max(1,base-2);
     const cr=me?B.cr:{},cc=(f.crit||0)+(me&&C&&(cr.gun||0)>=2?.1:0);
-    for(let k=0;k<(f.multi||1);k++){let d=base;let c=cc&&Math.random()<cc;if(me&&W&&!C&&(cr.steel||0)>=2&&!B.firstCrit){B.firstCrit=true;c=true}if(c)d*=2;
+    for(let k=0;k<(f.multi||1);k++){let d=base;let c=cc&&Math.random()<cc;if(me&&W&&!C&&(cr.steel||0)>=2&&!B.firstCrit){B.firstCrit=true;c=true}if(c){d*=2;if(it.rec)it.rec.crits++}
       if(c&&me&&hasF('gull')&&!B.gullDone){B.gullDone=true;S.items.forEach(x=>{if(x.s.cd)x.h=Math.max(x.h,2)});pop(S.fel,'The gull cries!','haste')}
       const pr=f.pierce||(me&&C&&(cr.gun||0)>=3)||(me&&c&&W&&!C&&(cr.steel||0)>=3)||(me&&W&&hasF('swivel')&&B.ends.includes(it));
       hit(F,d,c?'crit':'dmg',S,{pierce:pr,weapon:W,depth});
@@ -110,9 +110,9 @@ function applyFx(S,F,it,i,f,depth){
   if(f.douse){S.burn=Math.max(0,S.burn-f.douse);S.poison=Math.max(0,S.poison-Math.ceil(f.douse/2))}
   if(f.burn)burnOn(S,F,f.burn+(g.burn||0),it,depth);
   if(f.poison)poisonOn(S,F,f.poison+(g.poison||0),it,depth);
-  if(f.slow){const sd=F===B.P&&(B.cr.sea||0)>=3?f.slow[1]/2:f.slow[1];rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,sd);if(it.rec)it.rec.slow++;if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
-  if(f.haste){const ts=targets(S,i,f.haste[0]).filter(x=>x.s.cd),hd=f.haste[1];ts.forEach(x=>x.h=Math.max(x.h,hd));if(it.rec)it.rec.haste+=ts.length;if(ts.length){pop(el||S.fel,'Haste','haste');emit(S,F,'haste',it,depth)}}
-  if(f.charge){targets(S,i,f.charge[0]).filter(x=>x.s.cd).forEach(x=>{x.c=Math.min(x.s.cd,x.c+f.charge[1]);if(it.rec)it.rec.charge++;if(x.el&&!B.quiet)squish(x.el,'proc')})}
+  if(f.slow){const sd=F===B.P&&(B.cr.sea||0)>=3?f.slow[1]/2:f.slow[1];rnd(F.items,f.slow[0]).forEach(x=>{x.sl=Math.max(x.sl,sd);if(it.rec){it.rec.slow++;const j=F.items.indexOf(x),t=it.rec.slowTo[j]=it.rec.slowTo[j]||{n:0,s:0};t.n++;t.s+=sd}if(x.el&&!B.quiet)squish(x.el,'hit')});pop(el||S.fel,'Slow','shield')}
+  if(f.haste){const ts=targets(S,i,f.haste[0]).filter(x=>x.s.cd),hd=f.haste[1];ts.forEach(x=>{x.h=Math.max(x.h,hd);if(it.rec&&x!==it){const j=S.items.indexOf(x),t=it.rec.to[j]=it.rec.to[j]||{haste:0,hasteS:0,charge:0,chargeS:0};t.haste++;t.hasteS+=hd}});if(it.rec)it.rec.haste+=ts.length;if(ts.length){pop(el||S.fel,'Haste','haste');emit(S,F,'haste',it,depth)}}
+  if(f.charge){targets(S,i,f.charge[0]).filter(x=>x.s.cd).forEach(x=>{const c0=x.c;x.c=Math.min(x.s.cd,x.c+f.charge[1]);if(it.rec&&x!==it){it.rec.charge++;const j=S.items.indexOf(x),t=it.rec.to[j]=it.rec.to[j]||{haste:0,hasteS:0,charge:0,chargeS:0};t.charge++;t.chargeS+=x.c-c0}if(x.el&&!B.quiet)squish(x.el,'proc')})}
   if(f.selfDmg){S.hp-=f.selfDmg;pop(S.fel,'−'+f.selfDmg,'soft')}
   if(f.grow)for(const k in f.grow)g[k]=(g[k]||0)+f.grow[k];
   recIt=prevRec;
@@ -181,7 +181,7 @@ function draw(){
   const c=document.getElementById('clock');
   if(B.wait>0){c.textContent='Setting sail…';c.className='clock'}
   else if(B.t<B.bell){c.textContent=`Storm in ${Math.ceil(B.bell-B.t)}s`;c.className='clock'}
-  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell';if(!B.quiet&&!B.over)tip('storm','bottom')}
+  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell'}
 }
 const CHIPI={
   sh:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h10v5c0 4-3 6-5 7-2-1-5-3-5-7z" fill="#fff" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/></svg>',
@@ -228,21 +228,41 @@ function end(win){
   save();
   setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):defeatCard(head,lines,btn,G.hull<=0);
     const b=document.getElementById('next');b.focus();b.onclick=()=>{ov.remove();next()};
-    b.insertAdjacentHTML('afterend','<button class="linkbtn rcbtn" id="recapbtn">Fight recap</button>');document.getElementById('recapbtn').onclick=fightRecap},B.quiet?50:750);
+    b.insertAdjacentHTML('afterend','<button class="linkbtn rcbtn" id="recapbtn">Fight report</button>');document.getElementById('recapbtn').onclick=fightRecap},B.quiet?50:750);
 }
-/* the fight recap: what each of your items did this fight, biggest first, with a bar for its share; items that never fired
-   say why (nobody aboard to work them). Then the enemy's three busiest pieces, and what burn, poison and the storm did. */
+/* the fight report: every item in hold order, numbered by position, with what it does, what it did and to whom: damage and
+   crits, shield, healing, burn and poison, which of your items it hasted or charged (how often, how long), which of theirs
+   it slowed, the items its aura boosted, and who helped it. Then the enemy's three busiest pieces the same way. */
+const rnum=x=>Math.round(x*10)/10;
 function fightRecap(){if(!B)return;
-  const part=r=>[r.dmg&&`${Math.round(r.dmg)} damage`,r.shield&&`${Math.round(r.shield)} shield`,r.heal&&`${Math.round(r.heal)} healed`,r.burn&&`${r.burn} burn`,r.poison&&`${r.poison} poison`,r.haste&&`hasted cargo ${r.haste}×`,r.charge&&`charged cargo ${r.charge}×`,r.slow&&`slowed theirs ${r.slow}×`].filter(Boolean);
-  const val=r=>r.dmg+r.shield+r.heal+(r.burn+r.poison)*3+(r.haste+r.charge+r.slow)*4;
-  const rows=(S,mine,n)=>{const its=S.items.map((it,i)=>({it,i,v:val(it.rec)})).sort((a,b)=>b.v-a.v).slice(0,n),top=Math.max(1,...its.map(x=>x.v));
-    return its.map(({it,i,v})=>{const d=DEFS[it.k],r=it.rec,p=part(r),use=mine?itemUse(it.k,crewCrafts()):'all';
-      const dead=use==='none',why=dead?'Did nothing: nobody aboard can work it.':p.length?p[0][0].toUpperCase()+p.join(', ').slice(1)+'.':!d.cd?'Passive: it boosts other cargo.':r.uses?'Fired, but did nothing this fight.':'Never got to fire.';
-      return`<div class="rc-row"><span class="o-icon t${it.t}">${icon(it.k)}</span><div class="rc-txt"><b>${d.n}</b><span class="soft">${why}${r.uses&&!dead?` Fired ${r.uses}×.`:''}</span><i class="rc-bar"><i style="width:${Math.round(v/top*100)}%"></i></i></div></div>`}).join('')};
+  const sideRows=(S,F,mine,only)=>{const cr=mine?crewCrafts():null,list=S.list,nm=(L,j)=>`${DEFS[L[j].k].n} <span class="rc-pos">#${j+1}</span>`;
+    const val=r=>r.dmg+r.shield+r.heal+(r.burn+r.poison)*3+(r.haste+r.charge+r.slow)*4;
+    const top=Math.max(1,...S.items.map(it=>val(it.rec)));
+    // auras: who boosts whom, read from each item's stats in this hold
+    const boosts=S.items.map(()=>[]),helped=S.items.map(()=>[]);
+    S.items.forEach((it,j)=>{statsOf(list,j,cr).boost.forEach(n=>{const ks=list.map((o,k)=>k).filter(k=>k!==j&&DEFS[list[k].k].n===n),src=ks.find(k=>Math.abs(k-j)===1)??ks[0];if(src!=null){boosts[src].push(j);helped[j].push(`${nm(list,src)} boosted it`)}})});
+    S.items.forEach((it,i)=>{for(const j in it.rec.to){const t=it.rec.to[j],w=[t.haste&&`hasted ${t.haste}×`,t.charge&&`charged ${rnum(t.chargeS)}s`].filter(Boolean).join(', ');if(w&&helped[j])helped[j].push(`${nm(list,i)} ${w}`)}});
+    const order=only?S.items.map((it,i)=>i).sort((a,b)=>val(S.items[b].rec)-val(S.items[a].rec)).slice(0,only):S.items.map((it,i)=>i);
+    return order.map(i=>{const it=S.items[i],d=DEFS[it.k],r=it.rec,use=mine?itemUse(it.k,cr):'all',dead=use==='none',L=[];
+      if(dead)L.push('Did nothing: nobody aboard can work it.');
+      else{
+        if(r.dmg)L.push(`Dealt <b>${Math.round(r.dmg)}</b> damage${r.crits?`, ${r.crits} crit${r.crits>1?'s':''}`:''}.`);
+        if(r.shield)L.push(`Gave <b>${Math.round(r.shield)}</b> shield.`);
+        if(r.heal)L.push(`Healed <b>${Math.round(r.heal)}</b>.`);
+        if(r.burn)L.push(`Burned ${mine?'them':'you'} for <b>${r.burn}</b>.`);
+        if(r.poison)L.push(`Poisoned ${mine?'them':'you'} for <b>${r.poison}</b>.`);
+        for(const j in r.to){const t=r.to[j];if(t.haste)L.push(`Hasted ${nm(list,+j)} <b>${t.haste}×</b>, ${rnum(t.hasteS)}s at double speed.`);if(t.charge)L.push(`Charged ${nm(list,+j)} <b>${t.charge}×</b>, ${rnum(t.chargeS)}s sooner.`)}
+        for(const j in r.slowTo){const t=r.slowTo[j];L.push(`Slowed ${mine?'their':'your'} ${nm(F.list,+j)} <b>${t.n}×</b>, ${rnum(t.s)}s at half speed.`)}
+        if(boosts[i].length)L.push(`Boosted ${[...new Set(boosts[i])].map(j=>nm(list,j)).join(', ')} all fight.`);
+        if(!L.length)L.push(!d.cd?'Passive, and nothing in this hold for it to boost.':r.uses?'Fired, but did nothing this fight.':'Never got to fire.')}
+      if(helped[i].length)L.push(`<span class="rc-help">Helped by ${helped[i].join('; ')}.</span>`);
+      const what=describe(list,i,cr).L.map(x=>x.replace(/<span class="crt">[\s\S]*?<\/span>/g,'').replace(/<[^>]+>/g,'').trim()).filter(Boolean).join(' ');
+      return`<div class="rc-row"><span class="o-icon t${it.t}">${icon(it.k)}</span><div class="rc-txt"><b>${d.n} <span class="rc-pos">#${i+1}</span></b><span class="rc-meta soft">${TIER[it.t]}${d.cd?`, ${statsOf(list,i,cr).cd}s`:', passive'}${r.uses&&!dead?`. Fired ${r.uses}×.`:'.'} ${what}</span>
+        <ul class="rc-did">${L.map(x=>`<li>${x}</li>`).join('')}</ul><i class="rc-bar"><i style="width:${Math.round(val(r)/top*100)}%"></i></i></div></div>`}).join('')};
   const sum=S=>S.items.reduce((a,it)=>a+it.rec.dmg,0),dot=k=>{const d=B.dot[k];return[d.burn&&`burn ${d.burn}`,d.poison&&`poison ${d.poison}`,d.storm&&`the storm ${d.storm}`].filter(Boolean).join(', ')};
-  const ov=overlay(`<h2>Fight recap</h2><p class="soft">${Math.round(B.t)} seconds. Your cargo dealt ${Math.round(sum(B.P))} damage${dot('e')?`, plus ${dot('e')}`:''}. Theirs dealt ${Math.round(sum(B.E))}${dot('p')?`, plus ${dot('p')}`:''}.</p>
-    <h3 class="rc-h">${B.P.name}</h3><div class="rc-list">${rows(B.P,true,9)}</div>
-    <h3 class="rc-h">${B.E.name}, busiest cargo</h3><div class="rc-list">${rows(B.E,false,3)}</div>
+  const ov=overlay(`<h2>Fight report</h2><p class="soft">${Math.round(B.t)} seconds. Your cargo dealt ${Math.round(sum(B.P))} damage${dot('e')?`, plus ${dot('e')}`:''}. Theirs dealt ${Math.round(sum(B.E))}${dot('p')?`, plus ${dot('p')}`:''}. Numbers are positions in each hold, left to right.</p>
+    <h3 class="rc-h">${B.P.name}</h3><div class="rc-list">${sideRows(B.P,B.E,true)}</div>
+    <h3 class="rc-h">${B.E.name}, busiest cargo</h3><div class="rc-list">${sideRows(B.E,B.P,false,3)}</div>
     <button class="primary" data-a="close">Close</button>`,false,'recap');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()})}
 /* the victory card: a "Victory!" banner stamps down in a burst of ink, stars pop around it, the gold counts up, and each line

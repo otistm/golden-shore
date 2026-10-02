@@ -357,6 +357,15 @@ function abl(t,c,cr){if(!c||!cr)return t;const on=cr.has(c);
   return`<span class="ab${on?'':' off'}"><span class="cbx" role="img" aria-label="${on?'Your crew can work this':'Needs '+CRAFTS[c]}">${on?'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5 4.5-6"/></svg>':''}</span><span class="abt">${t} <span class="crt">${craftIcon(c)}${CRAFTS[c]}</span></span></span>`}
 const EVN={crit:'When you crit',burn:'When you apply burn',poison:'When you apply poison',shield:'When you gain shield',heal:'When you heal',hurt:'When a weapon hits you',lowhp:'The first time you drop below half health',haste:'When you haste an item',adjUse:'When an adjacent item is used'};
 /* the item's text. Enemy lists are marked .enemy and never greyed out; everything else is read against your crew. */
+/* an upgrade, previewed: what your matching item says now and after, with changed numbers shown as "6 → 10" */
+function upgradeView(it){const m=findMatch(it);if(!m)return null;const b=m.list[m.i],to=Math.max(b.t+1,it.t),copy=m.list.slice();copy[m.i]={k:b.k,t:to};
+  const cr=crewCrafts(),A=describe(m.list,m.i,cr).L,Bl=describe(copy,m.i,cr).L,cd0=statsOf(m.list,m.i,cr).cd,cd1=statsOf(copy,m.i,cr).cd;
+  const diff=(x,y)=>{const sx=x.split(/(<[^>]+>)/),sy=y.split(/(<[^>]+>)/);if(sx.length!==sy.length)return y;
+    return sy.map((seg,k)=>{if(seg.startsWith('<'))return seg;const nx=sx[k].split(/(\d+(?:\.\d+)?%?)/),ny=seg.split(/(\d+(?:\.\d+)?%?)/);if(nx.length!==ny.length)return seg;
+      return ny.map((p,q)=>q%2&&p!==nx[q]?`<s class="was">${nx[q]}</s> → <b class="now">${p}</b>`:p).join('')}).join('')};
+  return{from:b.t,to,lines:Bl.map((y,k)=>A[k]!=null?diff(A[k],y):y),cd:cd0!==cd1?[cd0,cd1]:null}}
+function upgradeHTML(it){const u=upgradeView(it);if(!u)return null;
+  return`<p class="upgr">Upgrades your ${DEFS[it.k].n}: ${TIER[u.from]} → <b>${TIER[u.to]}</b></p>${u.cd?`<p class="upgr-cd">Cooldown <s class="was">${u.cd[0]}s</s> → <b class="now">${u.cd[1]}s</b></p>`:''}<p class="desc">${u.lines.join(' ')}</p>`}
 function describe(list,i,cr){
   if(cr===undefined)cr=list.enemy?null:crewCrafts();
   const it=list[i],d=DEFS[it.k],t=it.t,s=statsOf(list,i,cr),full=statsOf(list,i),L=[],g=new Set(),dc=dmgCraft(d);

@@ -84,11 +84,20 @@ function chart(){
   bindNodes();fitMap();fogLift();
   if(G.unrolled!==G.sea||unrollNext){G.unrolled=G.sea;unrollNext=false;unroll()}
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
-  stuckHead();save();coach('chart');tip('chart');
+  stuckHead();save();coach('chart');
 }
 /* the pinned header gets an ink rule along its bottom once the chart is scrolling under it */
 function stuckHead(){const h=app.querySelector('.charthead');if(h)h.classList.toggle('stuck',scrollY>4)}
 addEventListener('scroll',stuckHead,{passive:true});
+function nodeTip(el){const n=node(+el.dataset.id);if(!n||!G)return;hideItemTip();
+  const known=n.row<=G.reveal||G.path.includes(n.id)||n.type==='boss';
+  const{head,body}=known?nodeInfo(n,true):{head:'Uncharted water',body:'<p class="soft">Sail closer to see what waits here.</p>'};
+  tipEl=document.createElement('div');tipEl.className='itip ntip';tipEl.setAttribute('role','tooltip');tipEl.innerHTML=`<b>${head}</b>${body}${el.classList.contains('reach')?'<p class="itip-aff">Click to sail here.</p>':''}`;
+  document.body.appendChild(tipEl);const r=el.getBoundingClientRect(),t=tipEl.getBoundingClientRect();
+  let x=r.right+12,y=r.top+r.height/2-t.height/2;if(x+t.width>innerWidth-8)x=r.left-t.width-12;
+  tipEl.style.left=Math.max(8,x)+'px';tipEl.style.top=Math.max(8,Math.min(innerHeight-t.height-8,y))+'px'}
+document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse'||sailing)return;const el=e.target.closest&&e.target.closest('.map .node');if(el)nodeTip(el)});
+document.addEventListener('pointerout',e=>{const el=e.target.closest&&e.target.closest('.map .node');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hideItemTip()});
 function bindNodes(){app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>{if(!sailing)preview(node(+el.dataset.id))};el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
 /* big screens: redraw the chart to fill the stage above the hold */
 function fitMap(){
@@ -111,7 +120,9 @@ function addRoll(m){const r=document.createElement('div');r.className='roll';r.s
   const d=-(performance.now()-(+m.dataset.u0||performance.now()));r.style.setProperty('--ud',d+'ms');m.appendChild(r)}
 addEventListener('resize',()=>{if(app.querySelector('.map'))fitMap()});
 function traitsHTML(e,sea){return`<div class="traitlist">${e.traits.map(k=>`<p><b>${TRAITS[k].n}.</b> ${TRAITS[k].d(sea)}</p>`).join('')}</div>`}
-function preview(n){
+/* what a stop is: its title and a few lines, for the Sail here card and (on a computer) the hover card. hover skips the
+   enemy's cargo board and doesn't mark the enemy as met */
+function nodeInfo(n,hover){
   let body='',head=nodeTitle(n);head=head[0].toUpperCase()+head.slice(1);
   if(n.type==='port')body=`<p>A port market, a tavern and a shipwright. Buy and sell cargo, hire crew and repair your hull.</p>`;
   if(n.type==='event')body=`<p>Something is out there. It could help or hurt.</p>`;
@@ -119,16 +130,17 @@ function preview(n){
   if(n.type==='npc'){const N=NPCS[n.npc];body=`<div class="npc">${portrait(N.look)}<div><p><b>${N.role}.</b> Someone to talk to. They may trade, help, or ask for something.</p></div></div>`}
   if(n.type==='fish')body=`<p>The water boils with fish. ${3+G.tip} casts. Sell what you catch at port.</p>`;
   if(n.type==='port'&&n.visitor)body+=`<p class="soft">Someone is waiting on the dock.</p>`;
-  if(n.enemy){const f=enemyOf(n),e=f.e,k=e.kind;A.met[n.enemy]=1;saveA();
+  if(n.enemy){const f=enemyOf(n),e=f.e,k=e.kind;if(!hover){A.met[n.enemy]=1;saveA()}
     // the health they start the fight with: their own cargo adds to it (sideOf), and the Kraken fitting swells it (setupFight)
     let hp=f.hp+sideOf(f.list).hp;if(hasF('kraken'))hp=Math.round(hp*1.1);
     body=`<p class="soft">${k==='b'?'The guardian of this sea. Beat it to sail on.':k==='e'?'Elite. Tougher, with better spoils.':'A threat on the route.'} ${hp} health.</p>${traitsHTML(e,G.sea)}
-      ${hasC('sound')?`<div class="mini-board"><p class="label" style="margin:6px 0">Their cargo</p>${boardHTML(f.list,'e')}</div>`:''}
+      ${hasC('sound')&&!hover?`<div class="mini-board"><p class="label" style="margin:6px 0">Their cargo</p>${boardHTML(f.list,'e')}</div>`:''}
       <p class="soft">Win: ${k==='b'?`${15+G.sea*10} gold and passage to the next sea`:k==='e'?`${10+f.depth} gold, a pick of cargo and a landmark`:`${5+Math.floor(f.depth/2)} gold and a pick of cargo`}. Lose: ${lossOf(k)} hull${k==='b'?' and fall back to port':''}.</p>`}
+  return{head,body}}
+function preview(n){const{head,body}=nodeInfo(n);
   const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Not yet</button><button class="primary" data-a="go">Sail here</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')go(n.id)});
   ov.querySelector('[data-a="go"]').focus();
-  if(n.enemy&&ENEMIES[n.enemy].kind==='b')tip('boss');else if(n.enemy&&ENEMIES[n.enemy].kind==='e')tip('elite');
 }
 const lossOf=k=>k==='b'?4+G.sea*2:k==='e'?3+G.sea:2+G.sea;
 /* sail the boat along the route to the next stop, drawing its wake behind it, then carry on. Skipped with reduced motion. */
