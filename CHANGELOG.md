@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.3
+- On big screens each row of the longer charts keeps 150 pixels of space.
+
 ## 0.25.2
 - The longer charts are no longer squashed: on big screens each row keeps a roomy gap and the chart scrolls instead of cramming all 12 rows into the window, and on phones the rows are a little further apart too.
 

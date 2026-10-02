@@ -93,7 +93,7 @@ function fitMap(){
   let fit=null;
   if(on){const cs=getComputedStyle(m),r=m.getBoundingClientRect(),d=app.querySelector('.dock');
     const w=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=innerHeight-r.top-(d?d.offsetHeight:0)-24-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
-    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(mapRows()>6?92:62,Math.min(120,Math.round((h-84)/mapRows())))}}   // long seas keep their rows roomy and scroll rather than squeeze
+    fit={W:Math.max(340,Math.min(1400,Math.round(w-12))),RH:Math.max(mapRows()>6?150:62,Math.min(120,Math.round((h-84)/mapRows())))}}   // long seas keep their rows roomy and scroll rather than squeeze
   m.dataset.fit=on?'1':'';m.innerHTML=mapSVG(fit);bindNodes();
   if(m.classList.contains('unroll'))addRoll(m);
 }
