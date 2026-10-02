@@ -149,6 +149,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## Fight recap, hover cards, crew growth, the telescope
 - Every fight item keeps a tally in `it.rec` (damage, shield, heal, burn, poison, hastes, charges, slows, uses). `applyFx()` sets `recIt` so `hit()` can credit damage to the item. `B.dot` totals burn, poison and storm damage per side. `fightRecap()` (battle.js) shows it from the result card's Fight recap link.
 - `affects(list,i)` (ui.js) is which items an item works on: its haste and charge targets and the items its auras boost (from `statsOf().boost`). On desktop (`HOVERS`), hovering a `.board .item` shows `showItemTip()` and outlines those items (`.src`, `.aff`); the item sheet lists them on phones.
+- On desktop, hovering a chart stop shows `nodeTip()` (chart.js) built from `nodeInfo(n,true)`, the same text as the Sail here card; hovering a stall good or a hand at the bar clicks it after a short pause, so its bubble shows. Phones keep tap.
 - The tavern bubble's "How they grow" lists `RANKS` for rank 2 and 3 with `rankXP()`.
 - The port header's Chart button opens `chartPeek()` (port.js): `mapSVG()` in a sheet, nothing tappable.
 

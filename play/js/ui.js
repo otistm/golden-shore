@@ -56,6 +56,10 @@ function showItemTip(el){hideItemTip();if(!G||document.querySelector('.dragging'
 document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse')return;const el=e.target.closest&&e.target.closest('.board .item');if(el)showItemTip(el)});
 document.addEventListener('pointerout',e=>{const el=e.target.closest&&e.target.closest('.board .item');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hideItemTip()});
 document.addEventListener('pointerdown',hideItemTip,true);
+let pickT=null;
+document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse'||e.buttons||document.querySelector('.dragging'))return;
+  const el=e.target.closest&&e.target.closest('#stall .good:not(.sel):not(.gone),#barroom .patron:not(.sel)');clearTimeout(pickT);
+  if(el)pickT=setTimeout(()=>{if(el.isConnected&&!document.querySelector('.dragging'))el.dispatchEvent(new MouseEvent('click',{bubbles:true}))},140)});
 function itemSheet(list,i,mode,after){
   const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;

@@ -1369,3 +1369,9 @@ body.desk .seahead>.acts{display:flex;align-items:center;gap:6px;align-self:cent
 body.desk .bar:not(:has(*)){display:none}
 body.desk .seahead>span{margin-left:auto}
 body.desk .seahead>.scope+span{margin-left:12px}
+/* the fight recap keeps small icons on every screen size */
+body.desk .recap .rc-row .o-icon,.recap .rc-row .o-icon{width:40px;height:40px;padding:4px;border-radius:10px}
+/* a stop's hover card on the chart */
+.ntip{max-width:300px}
+.ntip .traits,.ntip .trait{font-size:13px}
+.ntip p{line-height:1.35}
