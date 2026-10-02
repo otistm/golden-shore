@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.10
+- An enemy's preview on the chart now shows the health they really start the fight with, including what their cargo adds. Before, it could say 82 when the fight began at 107.
+
 ## 0.25.9
 - After the bandits' card game, Sail on always takes you back to the chart. Once the hand is decided the card table can never redraw itself over the chart, and if returning ever fails the chart is drawn directly.
 
