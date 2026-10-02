@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.32.4
+- Ansel's bubble no longer covers what he's pointing at: it sits at whichever end of the screen hides less of it. Signing on the Bosun in the maiden voyage now lights up the Sign on button itself.
+
 ## 0.32.3
 - Maiden voyage fixes from playtesting:
   - The arrange lesson now uses two items: buy the Jib Sail, which speeds up the item on its right, and drag it to the left of the Rapier. Dragging an item back to where it was no longer counts as a move.

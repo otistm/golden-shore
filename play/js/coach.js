@@ -17,7 +17,8 @@ const TUT=[
   {until:'market',target:'[data-bld="market"]',pos:'bottom',skipIf:()=>G.board.length>1,text:"Back to the Market for one more piece."},
   {when:'market',until:'bought',target:'#stall',skipIf:()=>G.board.length>1,text:"The Jib Sail speeds up the item on its right. Buy it."},
   {until:'moved',target:'.dock .board',text:"Order matters. Drag the Jib Sail to the left of the Rapier."},
-  {until:'hired',target:'[data-bld="tavern"]',pos:'bottom',skipIf:()=>G.crew.some(c=>c.k==='bosun'),text:"The Jib Sail needs Seamanship. Sign on the Bosun in the Tavern."},
+  {until:'tavern',target:'[data-bld="tavern"]',pos:'bottom',skipIf:()=>G.crew.some(c=>c.k==='bosun'),text:"The Jib Sail needs Seamanship. Open the Tavern."},
+  {when:'tavern',until:'hired',target:'.talk .buy',skipIf:()=>G.crew.some(c=>c.k==='bosun'),text:"The Bosun has Seamanship. Sign them on."},
   {until:'chart',target:'#leave',text:"Now tap Set sail."},
   // the training hulk: fighting, then renown
   {when:'chart',until:'fight',target:'.node.reach',text:"Tap the training hulk, then Sail here."},
@@ -78,18 +79,24 @@ function bubble(text,o){o=o||{};
   const c=document.createElement('div');c.id='coach';c.className='coach '+(o.pos||'top');c.setAttribute('role','status');c.setAttribute('aria-live','polite');
   c.innerHTML=`${portrait(ANSEL)}<div class="coach-body">${o.label?`<small>${o.label}</small>`:''}<p>${text}</p><div class="coach-btns">${o.btn===null?'':`<button class="cnext" data-c="next">${o.btn||'Next'}</button>`}${o.links||''}</div></div>`;
   document.body.appendChild(c);dimFor(c,o.target);
-  if(o.pos==='bottom'){const d=document.querySelector('.dock');c.style.bottom=`calc(${d?d.offsetHeight+10:14}px + env(safe-area-inset-bottom,0px))`}
+  coachPos(c,o.pos||'top');
   highlight(o.target);
   const nb=c.querySelector('.cnext');if(nb)nb.onclick=()=>{if(o.onClose)o.onClose();else hideCoach()};
   return c;
 }
 /* the dimmer behind the coach bubble. It takes no taps, so you can still do what Ansel asks. It keeps a clear window over
    what he's pointing at (or the open pop-up), following it as the screen scrolls or redraws. */
+function coachPos(c,pos){c.classList.remove('top','bottom');c.classList.add(pos);
+  if(pos==='bottom'){const d=document.querySelector('.dock');c.style.bottom=`calc(${d?d.offsetHeight+10:14}px + env(safe-area-inset-bottom,0px))`}else c.style.bottom=''}
 function dimFor(c,target){let d=document.getElementById('coachdim');if(!d){d=document.createElement('div');d.id='coachdim';d.className='coachdim';d.setAttribute('aria-hidden','true');document.body.appendChild(d)}
   d.dataset.t=target||'';const hole=document.createElement('i');d.innerHTML='';d.appendChild(hole);
   const place=()=>{if(!c.isConnected||!d.isConnected)return;const t=d.dataset.t;let el=t&&document.querySelector(t);
     if(!el){const ovs=[...document.querySelectorAll('.overlay .sheet')];el=ovs[ovs.length-1]||null}
-    if(el){const r=el.getBoundingClientRect(),p=8;if(r.width&&r.height){hole.style.cssText=`left:${r.left-p}px;top:${r.top-p}px;width:${r.width+p*2}px;height:${r.height+p*2}px`;requestAnimationFrame(place);return}}
+    if(el){const r=el.getBoundingClientRect(),p=8;if(r.width&&r.height){
+      // keep whichever end of the screen covers less of what's being pointed at (checked again if the target changes)
+      if(t&&c._for!==t){c._for=t;const cover=()=>{const q=c.getBoundingClientRect();return Math.max(0,Math.min(q.right,r.right)-Math.max(q.left,r.left))*Math.max(0,Math.min(q.bottom,r.bottom)-Math.max(q.top,r.top))};
+        const was=c.classList.contains('bottom')?'bottom':'top',a=cover();if(a>0){coachPos(c,was==='top'?'bottom':'top');if(cover()>=a)coachPos(c,was)}}
+     hole.style.cssText=`left:${r.left-p}px;top:${r.top-p}px;width:${r.width+p*2}px;height:${r.height+p*2}px`;requestAnimationFrame(place);return}}
     hole.style.cssText='left:50%;top:50%;width:0;height:0';requestAnimationFrame(place)};
   place()}
 function highlight(target){
