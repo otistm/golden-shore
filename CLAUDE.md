@@ -152,6 +152,9 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## The spoils chest
 - `chestReveal(cards,done)` in rewards.js plays when the spoils screen first appears: the chest (`CHEST`) drops in and rattles (CSS), opens with rays and a canvas of coins and jewels, then flies each spoil card out of it (`.spoil.flying` lifts them above the veil). `lootPick()` waits for it before the tutorial's `spoils` step. Its layer is `.chestfx`, not `.overlay`, so the bot and Esc ignore it.
 
+## Chart header
+- On the chart, the bar and the sea's name sit in `.charthead`, pinned to the top (`position:sticky`) while the chart scrolls under it; `stuckHead()` adds an ink rule once it's scrolled. Code that looks for the bar must accept `:scope>.charthead>.bar` as well as `:scope>.bar` (desk.js and the pause key do).
+
 ## Chart unroll
 - `unroll()` in chart.js plays the scroll animation. `chart()` calls it when `G.unrolled` isn't the current sea (a voyage field, default -1) or right after `resume()`. `fitMap()` re-adds the roll if it redraws the chart mid-animation.
 

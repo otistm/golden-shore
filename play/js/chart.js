@@ -76,15 +76,19 @@ function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return 
 function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
-  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div>
+  // the bar and the sea's name stay pinned to the top while the chart scrolls under them
+  app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div></div>
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();
   bindNodes();fitMap();fogLift();
   if(G.unrolled!==G.sea||unrollNext){G.unrolled=G.sea;unrollNext=false;unroll()}
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
-  save();coach('chart');tip('chart');
+  stuckHead();save();coach('chart');tip('chart');
 }
+/* the pinned header gets an ink rule along its bottom once the chart is scrolling under it */
+function stuckHead(){const h=app.querySelector('.charthead');if(h)h.classList.toggle('stuck',scrollY>4)}
+addEventListener('scroll',stuckHead,{passive:true});
 function bindNodes(){app.querySelectorAll('.node.reach').forEach(el=>{const go=()=>{if(!sailing)preview(node(+el.dataset.id))};el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
 /* big screens: redraw the chart to fill the stage above the hold */
 function fitMap(){

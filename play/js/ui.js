@@ -264,7 +264,7 @@ document.addEventListener('keydown',e=>{
 const PAUSE={on:false,since:0,total:0,ov:null};
 const pauseClock=()=>(performance.now()-PAUSE.total-(PAUSE.on?performance.now()-PAUSE.since:0))/1000;
 function showPause(){
-  if(PAUSE.on||!G||!app.querySelector(':scope>.bar'))return;
+  if(PAUSE.on||!G||!app.querySelector(':scope>.bar,:scope>.charthead>.bar'))return;
   PAUSE.on=true;PAUSE.since=performance.now();
   const fighting=B&&!B.over,fishing=!!app.querySelector('#pond');
   const note=G.tut?'The tutorial is not saved, so leaving starts it over next time.'
