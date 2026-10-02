@@ -46,7 +46,8 @@ function bandits(n,done,resumed){
   let hand=deck.splice(0,8),sel=new Set(),score=0,plays=3,discs=2,busy=false,last=null,dealt=new Set(hand.map(c=>c.id));
   const sortHand=()=>hand.sort((a,b)=>b.r-a.r||a.s.localeCompare(b.s));sortHand();
   const card=c=>`<button class="bcard${'HD'.includes(c.s)?' red':''}${sel.has(c.id)?' on':''}${dealt.has(c.id)?' deal':''}" data-c="${c.id}" aria-pressed="${sel.has(c.id)}" aria-label="${BRANK[c.r]||c.r} of ${({S:'spades',H:'hearts',D:'diamonds',C:'clubs'})[c.s]}"><b>${BRANK[c.r]||c.r}</b><i>${BSUIT[c.s]}</i></button>`;
-  function render(){const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);
+  let finished=false;   // once the hand is decided the table never redraws, so nothing can put it back over the chart
+  function render(){if(finished||G.boarded!==n.id)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);
     app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>
     <section class="bandits">
       <div class="bd-top"><div class="bd-face">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
@@ -64,10 +65,10 @@ function bandits(n,done,resumed){
     const pb=document.getElementById('bplay'),db=document.getElementById('bdisc');
     pb.onclick=play;db.onclick=discard}
   function draw(k){const nw=deck.splice(0,k);nw.forEach(c=>dealt.add(c.id));hand=hand.concat(nw);sortHand()}
-  function discard(){if(!sel.size||!discs||busy)return;discs--;hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();last=null;draw(k);render()}
+  function discard(){if(finished||!sel.size||!discs||busy)return;discs--;hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();last=null;draw(k);render()}
   /* playing a hand, Balatro style: the cards fly up onto the table, each scoring card pops and adds its chips one by one, the
      mult stamps on, the total slams down and flies into your score, then the cards are swept away and new ones dealt */
-  function play(){if(!sel.size||busy)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);busy=true;
+  function play(){if(finished||!sel.size||busy)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);busy=true;
     const from=score;score+=ev.score;plays--;last=ev;
     const scoreEl=document.getElementById('bdscore');
     const countScore=then=>{const t0=performance.now(),D=still?0:600;const tick=t=>{const k=D?Math.min(1,(t-t0)/D):1;scoreEl.textContent=Math.round(from+ev.score*k);if(k<1)requestAnimationFrame(tick);else{squish(scoreEl,'bump');then()}};requestAnimationFrame(tick)};
@@ -94,7 +95,7 @@ function bandits(n,done,resumed){
           countScore(()=>setTimeout(()=>{stage.remove();next()},300))}},520)},tm+380);
     function next(){hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();busy=false;
       if(score>=T)return finish(true);if(!plays)return finish(false);draw(k);render()}}
-  function finish(won){G.boarded=null;
+  function finish(won){if(finished)return;finished=true;G.boarded=null;
     const lost=[],wasHull=G.hull;let msg;
     if(won){// they take the most valuable half of your hold
       const half=Math.ceil(used(G.board)/2);let took=0;const order=G.board.map((b,i)=>[price(b.k,b.t),i]).sort((a,b)=>b[0]-a[0]);
@@ -116,6 +117,9 @@ function bandits(n,done,resumed){
     if(!won&&!still){const hb=ov.querySelector('#bdhull'),n=wasHull-G.hull;
       for(let k=1;k<=n;k++)setTimeout(()=>{if(!ov.isConnected)return;hb.textContent=wasHull-k;squish(hb,'bump')},hullT*1000+600+(k-1)*60);
       setTimeout(()=>{if(ov.isConnected)squish(ov.querySelector('.sheet')||ov.firstElementChild,'jolt')},hullT*1000+500)}
-    const b=ov.querySelector('#bdgo');b.focus();b.onclick=()=>{ov.remove();done()}}
+    const b=ov.querySelector('#bdgo');b.focus();
+    // Sail on always gets you back to the chart: if the usual way fails, draw the chart directly
+    let left=false;b.onclick=()=>{if(left)return;left=true;ov.remove();try{done()}catch(e){console.error(e)}
+      if(app.querySelector('.bandits')){try{if(G.hull<=0)sink();else chart()}catch(e){console.error(e);app.innerHTML='';resume()}}}}
   render();
 }

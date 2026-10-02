@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.9
+- After the bandits' card game, Sail on always takes you back to the chart. Once the hand is decided the card table can never redraw itself over the chart, and if returning ever fails the chart is drawn directly.
+
 ## 0.25.8
 - The hand's total now slams down on top of the bandits' table, with the cards and sum fading back behind it, instead of hiding underneath the cards.
 
