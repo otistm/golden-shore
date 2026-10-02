@@ -1,12 +1,13 @@
 /* Ink Crossing: the bandits. Hidden in one stretch of unknown water per sea: pirates board you and make you play a hand of
    cards for your freedom. Poker hands score chips times mult, like Balatro: three plays and two discards to beat their score.
-   Win and they still take half your hold; lose and they take all of it and smash your hull to half. */
+   Win and they pay you to leave (bandPurse); lose and they take all of your hold and smash your hull to half. */
 "use strict";
 const BANDIT_LOOK={body:'Killer',head:'hat-hip',face:'Very Angry',beard:'Full 3',acc:'Eyepatch'};
 // each hand: [name, chips, mult]
 const BHANDS={HC:['High card',5,1],P:['Pair',10,2],TP:['Two pair',20,2],TK:['Three of a kind',30,3],S:['Straight',30,4],F:['Flush',35,4],FH:['Full house',40,4],FK:['Four of a kind',60,7],SF:['Straight flush',100,8]};
 const BSUIT={S:'♠',H:'♥',D:'♦',C:'♣'},BRANK={11:'J',12:'Q',13:'K',14:'A'};
 const bandTarget=()=>360+G.sea*60;
+const bandPurse=()=>15+G.sea*5;   // what they pay a captain who beats them: 15, 20, 25 by sea
 const cardChips=c=>c.r===14?11:c.r>10?10:c.r;
 /* what a set of cards makes: the hand and the cards in it that score */
 function bandEval(cs){if(!cs.length)return null;const n=cs.length,by={};cs.forEach(c=>(by[c.r]=by[c.r]||[]).push(c));
@@ -51,7 +52,7 @@ function bandits(n,done,resumed){
     app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>
     <section class="bandits">
       <div class="bd-top"><div class="bd-face">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
-        <div class="talk bd-talk"><p class="say">“${score>=T?'Fine. You play well. We still take our cut.':plays===3&&discs===2?`Cards, captain. Beat ${T} and we only take half your hold. Lose, and we take the lot.`:score?`${T-score} more, or you lose everything.`:'Play your cards, captain.'}”</p></div></div>
+        <div class="talk bd-talk"><p class="say">“${score>=T?'Fine. You play well. Take your winnings.':plays===3&&discs===2?`Cards, captain. Beat ${T} and we pay you ${bandPurse()} gold. Lose, and we take the lot.`:score?`${T-score} more, or you lose everything.`:'Play your cards, captain.'}”</p></div></div>
       <div class="bd-score"><div><span class="sc-lbl">Their score</span><b>${T}</b></div><div class="bd-mine"><span class="sc-lbl">Your score</span><b id="bdscore">${score}</b></div><div><span class="sc-lbl">Plays</span><b>${plays}</b></div><div><span class="sc-lbl">Discards</span><b>${discs}</b></div></div>
       <div class="bd-bar"><i style="width:${Math.min(100,score/T*100)}%"></i></div>
       <p class="bd-now" id="bdnow">${last?`<b>${last.name}</b> (${last.chips} × ${last.mult}) = <b>${last.score}</b>`:ev?`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult = ${ev.score}`:'Pick up to 5 cards to play, or to discard.'}</p>
@@ -96,12 +97,9 @@ function bandits(n,done,resumed){
     function next(){hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();busy=false;
       if(score>=T)return finish(true);if(!plays)return finish(false);draw(k);render()}}
   function finish(won){if(finished)return;finished=true;G.boarded=null;
-    const lost=[],wasHull=G.hull;let msg;
-    if(won){// they take the most valuable half of your hold
-      const half=Math.ceil(used(G.board)/2);let took=0;const order=G.board.map((b,i)=>[price(b.k,b.t),i]).sort((a,b)=>b[0]-a[0]);
-      const gone=new Set();for(const[,i]of order){if(took>=half)break;gone.add(i);took+=DEFS[G.board[i].k].s}
-      G.board.forEach((b,i)=>{if(gone.has(i))lost.push(b)});G.board=G.board.filter((b,i)=>!gone.has(i));
-      msg=lost.length?`Beat the bandits at cards. They took half the hold anyway: ${lost.map(b=>DEFS[b.k].n).join(', ')}.`:'Beat the bandits at cards. There was nothing in the hold for them to take.'}
+    const lost=[],wasHull=G.hull;let msg,gold=0;
+    if(won){// they pay up and row away
+      gold=bandPurse();G.gold+=gold;bump='gold';msg=`Beat the bandits at cards. They paid ${gold} gold to be rid of us.`}
     else{lost.push(...G.board);G.board=[];const was=G.hull;G.hull=Math.max(1,Math.floor(G.hull/2));
       msg=`Lost to the bandits at cards. They stripped the hold${lost.length?` (${lost.length} piece${lost.length===1?'':'s'} of cargo)`:''} and smashed the hull from ${was} to ${G.hull}.`}
     logL(msg);save();
@@ -111,15 +109,17 @@ function bandits(n,done,resumed){
     const ov=overlay(`<div class="bd-end ${won?'won':'lost'}"><div class="bd-face big">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
       <h2 class="bd-verdict">${won?'You keep your ship':'They take everything'}</h2>
       <div class="bd-vs"><span><small>You</small><b>${score}</b></span><i>${won?'beats':'against'}</i><span><small>Them</small><b>${T}</b></span></div>
-      ${nl?`<div class="bd-lost">${lost.map((b,k)=>`<span class="o-icon t${b.t}" style="--i:${k}">${icon(b.k)}</span>`).join('')}</div><p class="soft bd-gone" style="--d:${.9+nl*.18}s">${won?'They took':'Gone'}: ${lost.map(b=>DEFS[b.k].n).join(', ')}.</p>`:`<p class="soft bd-gone" style="--d:.9s">${won?'There was nothing in the hold for them to take.':'There was nothing in the hold to take.'}</p>`}
+      ${won?`<p class="bd-purse">${sicon('gold')}<b>+${gold} gold</b></p><p class="soft bd-gone" style="--d:1.1s">They pay up and row away.</p>`:nl?`<div class="bd-lost">${lost.map((b,k)=>`<span class="o-icon t${b.t}" style="--i:${k}">${icon(b.k)}</span>`).join('')}</div><p class="soft bd-gone" style="--d:${.9+nl*.18}s">${won?'They took':'Gone'}: ${lost.map(b=>DEFS[b.k].n).join(', ')}.</p>`:`<p class="soft bd-gone" style="--d:.9s">${won?'There was nothing in the hold for them to take.':'There was nothing in the hold to take.'}</p>`}
       ${won?'':`<div class="bd-hull" style="--d:${hullT}s;--hd:${hullT}s"><span>Hull</span><b id="bdhull">${still?G.hull:wasHull}</b><div class="planks" aria-hidden="true">${Array.from({length:Math.min(wasHull,40)},(_,k)=>`<i${k>=G.hull?` class="go" style="--d:${(k-G.hull)*60}ms"`:''}></i>`).join('')}</div></div>`}</div>
-      <button class="primary bd-go" id="bdgo" style="--d:${won?1.2+nl*.18:hullT+1}s">Sail on</button>`,true,'bdresult');
+      <button class="primary bd-go" id="bdgo" style="--d:${won?1.5:hullT+1}s">Sail on</button>`,true,'bdresult');
     if(!won&&!still){const hb=ov.querySelector('#bdhull'),n=wasHull-G.hull;
       for(let k=1;k<=n;k++)setTimeout(()=>{if(!ov.isConnected)return;hb.textContent=wasHull-k;squish(hb,'bump')},hullT*1000+600+(k-1)*60);
       setTimeout(()=>{if(ov.isConnected)squish(ov.querySelector('.sheet')||ov.firstElementChild,'jolt')},hullT*1000+500)}
     const b=ov.querySelector('#bdgo');b.focus();
     // Sail on always gets you back to the chart: if the usual way fails, draw the chart directly
-    let left=false;b.onclick=()=>{if(left)return;left=true;ov.remove();try{done()}catch(e){console.error(e)}
-      if(app.querySelector('.bandits')){try{if(G.hull<=0)sink();else chart()}catch(e){console.error(e);app.innerHTML='';resume()}}}}
+    let left=false;b.onclick=()=>{if(left)return;left=true;const p=ov.querySelector('.bd-purse'),r=p&&p.getBoundingClientRect();ov.remove();try{done()}catch(e){console.error(e)}
+      if(app.querySelector('.bandits')){try{if(G.hull<=0)sink();else chart()}catch(e){console.error(e);app.innerHTML='';resume()}}
+      // their purse flies into yours on the chart
+      if(gold&&r)setTimeout(()=>sellFx(r.left+r.width/2,r.top+r.height/2,gold),50)}}
   render();
 }
