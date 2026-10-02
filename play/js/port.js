@@ -267,7 +267,7 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
     ${C?`<div class="talk" id="talk"><p class="say">“${C.say||'Looking for a berth, captain.'}”</p>
       <p class="who"><b>${C.n}</b> ${crewCrafts1(k)}</p>
       <p class="terms">Lets your cargo use ${C.crafts.map(c=>`<b>${CRAFTS[c]}</b>`).join(' and ')}. Wage ${wageOf(k)} gold a port.</p>
-      <button class="buy" data-hire="${sel}" ${full||G.gold<feeOf(k)?'aria-disabled="true"':''}>${full?'Your deck is full':`Hire for ${feeOf(k)} gold`}</button></div>`
+      <button class="buy" data-hire="${sel}" ${full||G.gold<feeOf(k)?'aria-disabled="true"':''}>${full?'Your deck is full':feeOf(k)?`Hire for ${feeOf(k)} gold`:'Sign on, the Guild pays'}</button></div>`
       :'<p class="talk quiet">Everyone here has signed on. The bar is quiet.</p>'}
     </div>
   </section>`}
