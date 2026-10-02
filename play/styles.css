@@ -1364,3 +1364,8 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .desk-stats .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .desk-stats .stat{justify-content:flex-start}
 .desk-stats .stat small{display:inline}
+/* the desk: Log and Pause sit at the end of the title line; the emptied top bar folds away */
+body.desk .seahead>.acts{display:flex;align-items:center;gap:6px;align-self:center;margin-left:14px}
+body.desk .bar:not(:has(*)){display:none}
+body.desk .seahead>span{margin-left:auto}
+body.desk .seahead>.scope+span{margin-left:12px}

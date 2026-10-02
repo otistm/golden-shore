@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.32.6
+- On big screens, Log and Pause sit at the end of the title line (the port or sea name, the Chart button and the sea label), and the empty row above it is gone. Fights keep them in the top bar. Phones are unchanged.
+
 ## 0.32.5
 - On big screens, the day, gold, hull, health and fish pills move to the captain's desk on the right, under your ship's name and passive ability. The top bar keeps Log and Pause. Phones are unchanged.
 
