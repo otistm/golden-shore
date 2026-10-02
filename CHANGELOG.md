@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.24.4
+- Selling fish at the docks: each fish flops off the crates and arcs, spinning, into the fishmonger's arms (they bob as they catch it, one after another when you sell the lot), then the coins burst from them and fly up into your purse. Afterwards the fishmonger thanks you instead of asking where your fish are.
+
 ## 0.24.3
 - Repairing your hull at the shipwright shows the work: a "Hull repaired" card (the hull damage card run backwards) where a mallet knocks each new plank into the row with a thump, the hull number counts up with every plank, and a +N pops in beside it. Tap it to dismiss.
 

@@ -1210,3 +1210,9 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 @keyframes knock{0%{transform:rotate(18deg)}50%{transform:rotate(-26deg)}100%{transform:rotate(18deg)}}
 .hullcard.repair .hc-loss{animation:hcLoss .5s var(--spring) .35s both}
 @media (prefers-reduced-motion:reduce){.planks i.come{animation:none}.hc-mallet.knock{animation:none}}
+/* a fish sale: fish arcing from the crates into the fishmonger's arms */
+.flyfish{position:fixed;z-index:78;width:58px;height:29px;pointer-events:none}
+.flyfish svg{width:100%;height:100%;display:block;background:none}
+.flyfish .w{fill:var(--paper)}.flyfish .k{fill:var(--ink);stroke:none}
+.seller.catchit{animation:catchit .3s var(--spring)}
+@keyframes catchit{0%{transform:none}40%{transform:translateY(5px) scale(1.04,.95)}100%{transform:none}}
