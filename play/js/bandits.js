@@ -18,6 +18,8 @@ function bandEval(cs){if(!cs.length)return null;const n=cs.length,by={};cs.forEa
 /* the boarding: a black-sailed ship runs up alongside yours, grappling hooks fly across and bite, the bandits swing over on
    ropes and land on your deck, and "Boarded!" slams on. A tap skips it; reduced motion goes straight to the cards. */
 function boardingFx(then){
+  // clear the chart first, so nothing behind the show can be tapped (and no voyage carries on) before the cards are dealt
+  cancelAnimationFrame(raf);B=null;app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>`;
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return then();
   const fx=document.createElement('div');fx.className='boardfx';
   const wave=(y,amp,len)=>{let d=`M${-len*2} ${y}`;for(let x=-len*2;x<900;x+=len)d+=`q${len/4} ${-amp} ${len/2} 0t${len/2} 0`;return`<path class="w" d="${d}V1400H${-len*2}z"/>`};

@@ -2,6 +2,7 @@
 
 ## 0.25.4
 - The bandits board in style: their black-sailed ship runs up alongside yours, grappling hooks arc across and bite, your ship jolts as they haul in, three bandits swing over onto your deck and "Boarded!" slams onto the screen before the cards are dealt. Tap to skip; it doesn't replay if you come back mid-hand.
+- Fixed a bug where tapping another stop while your boat was still sailing could, after arriving, send you to a stop you couldn't actually reach, and tangle up the next fight.
 
 ## 0.25.3
 - On big screens each row of the longer charts keeps 150 pixels of space.

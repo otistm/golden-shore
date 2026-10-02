@@ -134,7 +134,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - The fog is `chartFog()`: a bank with billowing edges and drifting wisps, clipped to the chart. `fogLift()` runs after each chart draw: if the fog edge moved up since the last draw (`fogSeen`), it rolls the bank back from the old edge.
 
-- Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage.
+- Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage and previews of other stops, and `go()` only sails to a stop in `reachable()`.
 
 ## Celebrations
 - Fights open with an intro in `fight()`: `.battle.intro` animations and a `.fightcall` stamp, with the clock held by `B.intro` (checked in `loop()`); a tap, Skip or 1.65s ends it.

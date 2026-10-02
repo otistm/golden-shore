@@ -4,7 +4,7 @@ const runs = +(process.argv[2] || 3);
 const browser = await launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const errors = [];
-page.on('pageerror', e => errors.push(String(e)));
+page.on('pageerror', e => errors.push(String(e) + ' at ' + (e.stack || '').split('\n').slice(1, 5).map(l => l.trim()).join(' < ')));
 const q = s => page.$(s);
 // press elements directly rather than clicking a screen position: on desktop the port is taller than the window, and a click on a
 // button scrolled behind the fixed hold bar would land on cargo instead, opening its card again and again
