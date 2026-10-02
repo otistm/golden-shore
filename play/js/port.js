@@ -90,6 +90,7 @@ function port(id,view){
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
+  restoreFocusMarks();
   if(restock){restock=false;const sl=app.querySelector('#stall .seller');if(sl)sl.classList.add('popup')}
   app.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{PV.dsel=b.dataset.ds;port(id,view)});
   app.querySelectorAll('[data-df]').forEach(b=>b.onclick=()=>{PV.dsel=+b.dataset.df;port(id,view)});
@@ -113,7 +114,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
       <p class="who"><b>${d.n}</b><span class="chipc">${TIER[o.t]}</span><span class="chipc">size ${d.s}</span>${d.cd?`<span class="chipc">${d.cd}s</span>`:''}</p>
-      <p class="desc">${describe([o],0).L.join(' ')}</p>
+      ${up&&upgradeHTML(o)||`<p class="desc">${describe([o],0).L.join(' ')}</p>`}
       <button class="buy${up?' up':''}" data-b="${sel}" ${poor?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}
   else if(PV.mbought&&S.offers.some(Boolean))talk=`<div class="talk" id="talk"><p class="say">“Pleasure doing business.”</p><p class="desc">Tap anything on the table to hear about it.</p></div>`;
   else talk=`<p class="talk quiet" id="talk">“${P.out}”</p>`;
@@ -289,6 +290,10 @@ function layBar(){const room=document.getElementById('barroom');if(!room)return;
   talk.style.left=left+'px';talk.style.top=topY+'px';talk.style.setProperty('--ax',(px-left)+'px')}
 const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));
 /* what each building has for you right now: a badge and a few words for screen readers */
+/* in the market, the good you've chosen glows what it would touch in your hold */
+function restoreFocusMarks(){const S=G&&PV.id!=null&&G.shops[PV.id];if(!S||PV.view!=='market'||!app.querySelector('#stall'))return;
+  const i=PV.msel!=null&&S.offers[PV.msel]?PV.msel:PV.mbought?-1:S.offers.findIndex(Boolean),o=i>=0?S.offers[i]:null;if(!o)return clearMarks();
+  markHold(affectsFrom(o,G.board),null)}
 /* the telescope: the chart from the quay, to look ahead while you shop. Nothing on it can be tapped. */
 function chartPeek(){const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});

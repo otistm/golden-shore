@@ -30,24 +30,43 @@ function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdC
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
 }
-/* which other items in the same list an item works on: the ones it hastes or charges, and the ones its aura boosts */
-function affects(list,i){const d=DEFS[list[i].k],out=new Set(),add=j=>{if(j>=0&&j<list.length&&j!==i)out.add(j)};
-  const tgt=t=>{if(typeof t!=='string')return;if(t==='adj'){add(i-1);add(i+1)}else if(t==='left')add(i-1);else if(t==='right')add(i+1);
-    else if(t==='all'||t==='rand1'||t==='rand2')list.forEach((x,j)=>add(j));else if(t.startsWith('tag:'))list.forEach((x,j)=>{if(DEFS[x.k].tags.includes(t.slice(4)))add(j)})};
-  const scan=f=>{if(f)for(const k of['haste','charge'])if(Array.isArray(f[k]))tgt(f[k][0])};
+/* which other items in the same list an item works on, and how: the ones it hastes or charges, the ones its aura boosts */
+function affectMap(list,i){const d=DEFS[list[i].k],out=new Map(),add=(j,l)=>{if(j>=0&&j<list.length&&j!==i&&!out.has(j))out.set(j,l)};
+  const tgt=(t,l)=>{if(typeof t!=='string')return;if(t==='adj'){add(i-1,l);add(i+1,l)}else if(t==='left')add(i-1,l);else if(t==='right')add(i+1,l);
+    else if(t==='all'||t==='rand1'||t==='rand2')list.forEach((x,j)=>add(j,l));else if(t.startsWith('tag:'))list.forEach((x,j)=>{if(DEFS[x.k].tags.includes(t.slice(4)))add(j,l)})};
+  const scan=f=>{if(!f)return;if(Array.isArray(f.haste))tgt(f.haste[0],`Haste ${f.haste[1]}s`);if(Array.isArray(f.charge))tgt(f.charge[0],`Charge +${f.charge[1]}s`)};
   scan(d);scan(d.start);(d.on||[]).forEach(scan);
-  const cr=list.enemy?null:crewCrafts();list.forEach((x,j)=>{if(j!==i&&statsOf(list,j,cr).boost.includes(d.n))out.add(j)});
+  const cr=list.enemy?null:crewCrafts();list.forEach((x,j)=>{if(j!==i&&statsOf(list,j,cr).boost.includes(d.n))add(j,'Boosted')});
   return out}
+const affects=(list,i)=>new Set(affectMap(list,i).keys());
+/* what a piece of cargo you don't own yet would do to your hold: anything matching its tag-wide or hold-wide effects, and the
+   item it would upgrade. Where it would sit isn't known yet, so neighbour effects aren't shown. */
+function affectsFrom(it,list){const d=DEFS[it.k],out=new Map(),m=findMatch(it);
+  if(m&&m.list===list)out.set(m.i,`Upgrade to ${TIER[Math.max(list[m.i].t+1,it.t)]}`);
+  const tgt=(t,l)=>{if(typeof t!=='string')return;if(t==='all')list.forEach((x,j)=>{if(!out.has(j))out.set(j,l)});else if(t.startsWith('tag:'))list.forEach((x,j)=>{if(!out.has(j)&&DEFS[x.k].tags.includes(t.slice(4)))out.set(j,l)})};
+  const scan=f=>{if(!f)return;if(Array.isArray(f.haste))tgt(f.haste[0],`Haste ${f.haste[1]}s`);if(Array.isArray(f.charge))tgt(f.charge[0],`Charge +${f.charge[1]}s`)};
+  scan(d);scan(d.start);(d.on||[]).forEach(scan);
+  for(const key in d)if(/^tag[A-Z]/.test(key)&&Array.isArray(d[key]))tgt('tag:'+d[key][0],'Boosted');
+  return out}
+/* a mark's label, shortened to fit a narrow (phone) tile */
+function affTag(t,l){const b=document.createElement('span'),bd=t.parentNode;b.className='afflbl';
+  b.textContent=t.offsetWidth>=60?l:l.startsWith('Upgrade to ')?l.slice(11):l==='Boosted'?'Boost':l.startsWith('Haste')?'Haste':l.startsWith('Charge ')?l.slice(7):l;
+  // the label sits on the board just above its tile, so it can be wider than a phone-sized tile
+  b.style.left=(t.offsetLeft+t.offsetWidth/2)+'px';b.style.top=(t.offsetTop-9)+'px';bd.appendChild(b)}
+/* mark tiles in the docked hold: the source, and each affected tile glowing with its label */
+function markHold(map,srcEl){clearMarks();if(srcEl)srcEl.classList.add('src');const tiles=[...document.querySelectorAll('.dock .board[data-side="p"] .item, .battle .board[data-side="p"] .item')];
+  map.forEach((l,j)=>{const t=tiles[j];if(!t)return;t.classList.add('aff');affTag(t,l)})}
+function clearMarks(){document.querySelectorAll('.item.src,.item.aff').forEach(x=>x.classList.remove('src','aff'));document.querySelectorAll('.afflbl').forEach(x=>x.remove())}
 /* the list a tile on screen belongs to */
 function listOf(el){const bd=el.closest('.board');if(!bd)return null;const sd=bd.dataset.side;
   if(B&&bd.closest('.battle'))return sd==='e'?B.E.list:B.P.list;return sd==='l'?G&&G.locker:sd==='p'?G&&G.board:null}
 /* desktop: hovering a tile shows its card beside it and marks the items it works on; phones keep tap for the full sheet */
 const HOVERS=matchMedia('(hover:hover) and (pointer:fine)');
 let tipEl=null;
-function hideItemTip(){if(tipEl){tipEl.remove();tipEl=null}document.querySelectorAll('.item.src,.item.aff').forEach(x=>x.classList.remove('src','aff'))}
+function hideItemTip(){if(tipEl){tipEl.remove();tipEl=null}clearMarks();if(typeof restoreFocusMarks==='function')restoreFocusMarks()}
 function showItemTip(el){hideItemTip();if(!G||document.querySelector('.dragging'))return;const list=listOf(el),i=[...el.parentNode.querySelectorAll('.item')].indexOf(el);if(!list||!list[i])return;
-  const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affects(list,i);
-  el.classList.add('src');aff.forEach(j=>tiles[j]&&tiles[j].classList.add('aff'));
+  const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affectMap(list,i);
+  clearMarks();el.classList.add('src');aff.forEach((l,j)=>{const t=tiles[j];if(!t)return;t.classList.add('aff');affTag(t,l)});
   tipEl=document.createElement('div');tipEl.className='itip';tipEl.setAttribute('role','tooltip');
   tipEl.innerHTML=`<b>${d.n}</b><p class="soft"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}</p><ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>${aff.size?`<p class="itip-aff">Works on ${aff.size} of your other items.</p>`:''}`;
   document.body.appendChild(tipEl);const r=el.getBoundingClientRect(),t=tipEl.getBoundingClientRect();
@@ -217,7 +236,7 @@ function dragHold(mode,rerender,ext){
         if(xin){const t=tileSize(DEFS[it.k].s);w=t.w;h=t.h;ox=w/2;oy=h/2;ghost=document.createElement('div');ghost.className=`item t${it.t}${isPassive(it.k)?' passive':''}`;
           ghost.innerHTML=`<span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${DEFS[it.k].n}</span><span class="cdt">${isPassive(it.k)?'···':DEFS[it.k].cd+'s'}</span>`}
         else ghost=el.cloneNode(true);
-        ghost.classList.add('ghost');ghost.style.width=w+'px';ghost.style.height=h+'px';
+        ghost.classList.remove('aff','src');ghost.querySelectorAll('.afflbl').forEach(x=>x.remove());ghost.classList.add('ghost');ghost.style.width=w+'px';ghost.style.height=h+'px';
         document.body.appendChild(ghost);el.classList.add('dragging');
         const marks=conts.map(c=>{const m=document.createElement('div');m.className='dropmark';c.el.appendChild(m);return m});
         conts.forEach(c=>c.el.classList.add('droppable'));
