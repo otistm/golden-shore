@@ -1248,12 +1248,32 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .bd-acts button[disabled]{opacity:.45}
 .bd-help summary{font-weight:800;cursor:pointer;font-size:13.5px}
 .bd-table{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:13px;margin:6px 0}
-.bd-end{text-align:center;display:grid;gap:8px;justify-items:center}
-.bd-lost{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.bd-lost .o-icon{width:40px;height:40px;animation:lostitem .5s calc(.3s + var(--i,0) * 80ms) both}
-.bd-end.lost .bd-lost .o-icon{animation-name:lostfall}
-@keyframes lostitem{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
-@keyframes lostfall{0%{transform:none;opacity:1}100%{transform:translateY(20px) rotate(25deg);opacity:.35}}
+.bd-end{text-align:center;display:grid;gap:10px;justify-items:center}
+.bd-end .bd-face.big{animation:bdlaugh .5s .2s ease-in-out 3}
+.bd-end.won .bd-face.big{animation:bdgrumble .6s .2s ease-in-out 2}
+@keyframes bdlaugh{0%,100%{transform:none}30%{transform:translateY(-6px) rotate(-4deg)}60%{transform:translateY(-2px) rotate(4deg)}}
+@keyframes bdgrumble{0%,100%{transform:none}50%{transform:rotate(-6deg) translateX(-3px)}}
+.bd-verdict{font-size:30px;background:var(--ink);color:var(--paper);padding:4px 16px 8px;border-radius:12px;transform:rotate(-3deg);animation:stamp .5s .15s cubic-bezier(.2,1.6,.4,1) both}
+.bd-end.won .bd-verdict{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.bd-vs{display:flex;align-items:center;gap:12px;animation:vline .4s .45s both}
+.bd-vs span{display:grid;justify-items:center;border:2.5px solid var(--ink);border-radius:12px;padding:4px 14px}
+.bd-vs small{font:800 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.bd-vs b{font:italic 900 26px/1.1 var(--display)}
+.bd-vs i{font:italic 400 16px var(--display)}
+.bd-end.won .bd-vs span:first-child,.bd-end.lost .bd-vs span:last-child{background:var(--ink);color:var(--paper)}
+.bd-end.won .bd-vs span:first-child small,.bd-end.lost .bd-vs span:last-child small{color:var(--paper)}
+.bd-lost{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px}
+.bd-lost .o-icon{width:42px;height:42px;animation:snatch .7s calc(.75s + var(--i) * .18s) cubic-bezier(.5,0,.7,.4) both}
+@keyframes snatch{0%{transform:none;opacity:1}30%{transform:translateY(6px) scale(1.08,.92);opacity:1}100%{transform:translate(40px,-120px) rotate(-35deg) scale(.6);opacity:0}}
+.bd-gone{animation:vline .4s var(--d) both}
+.bd-hull{display:grid;justify-items:center;gap:4px;animation:vline .4s var(--d) both}
+.bd-hull span{font:800 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.bd-hull b{display:inline-block;font:italic 900 34px/1 var(--display)}
+.bd-hull b.bump{animation:bump .2s var(--spring)}
+.bd-hull .planks{justify-content:center;max-width:280px}
+.bd-hull .planks i.go{animation:plankOff .6s cubic-bezier(.5,0,.8,.4) calc(var(--hd) + .6s + var(--d)) forwards}
+.bd-go{animation:vbtn .45s var(--d) var(--spring) both}
+.bdresult.jolt,.bdresult .jolt{animation:jolt .3s}
 @media (prefers-reduced-motion:reduce){.bcard,.bcard.deal,.bd-lost .o-icon{animation:none;transition:none}}
 /* the bandits boarding: their black ship runs alongside, hooks fly and bite, the bandits swing across, "Boarded!" */
 .boardfx{position:fixed;inset:0;z-index:90;background:var(--paper);overflow:hidden;cursor:pointer;animation:fadein .3s both}
