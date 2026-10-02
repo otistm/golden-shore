@@ -46,7 +46,8 @@ function bandits(n,done,resumed){
   let hand=deck.splice(0,8),sel=new Set(),score=0,plays=3,discs=2,busy=false,last=null,dealt=new Set(hand.map(c=>c.id));
   const sortHand=()=>hand.sort((a,b)=>b.r-a.r||a.s.localeCompare(b.s));sortHand();
   const card=c=>`<button class="bcard${'HD'.includes(c.s)?' red':''}${sel.has(c.id)?' on':''}${dealt.has(c.id)?' deal':''}" data-c="${c.id}" aria-pressed="${sel.has(c.id)}" aria-label="${BRANK[c.r]||c.r} of ${({S:'spades',H:'hearts',D:'diamonds',C:'clubs'})[c.s]}"><b>${BRANK[c.r]||c.r}</b><i>${BSUIT[c.s]}</i></button>`;
-  function render(){const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);
+  let finished=false;   // once the hand is decided the table never redraws, so nothing can put it back over the chart
+  function render(){if(finished||G.boarded!==n.id)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);
     app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>
     <section class="bandits">
       <div class="bd-top"><div class="bd-face">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
@@ -54,6 +55,7 @@ function bandits(n,done,resumed){
       <div class="bd-score"><div><span class="sc-lbl">Their score</span><b>${T}</b></div><div class="bd-mine"><span class="sc-lbl">Your score</span><b id="bdscore">${score}</b></div><div><span class="sc-lbl">Plays</span><b>${plays}</b></div><div><span class="sc-lbl">Discards</span><b>${discs}</b></div></div>
       <div class="bd-bar"><i style="width:${Math.min(100,score/T*100)}%"></i></div>
       <p class="bd-now" id="bdnow">${last?`<b>${last.name}</b> (${last.chips} × ${last.mult}) = <b>${last.score}</b>`:ev?`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult = ${ev.score}`:'Pick up to 5 cards to play, or to discard.'}</p>
+      <div class="bd-felt" id="bdfelt" aria-hidden="true"><span>The table</span></div>
       <div class="bd-hand" id="bdhand">${hand.map(card).join('')}</div>
       <div class="bd-acts"><button class="primary" id="bplay" ${picked.length&&!busy?'':'disabled'}>Play hand</button><button class="ghost" id="bdisc" ${picked.length&&discs&&!busy?'':'disabled'}>Discard (${discs})</button></div>
       <details class="bd-help"><summary>How hands score</summary><div class="bd-table">${Object.values(BHANDS).map(([nm,c,m])=>`<span>${nm}</span><span>${c} × ${m}</span>`).join('')}</div><p class="soft">Each scoring card adds its chips: number cards their number, J, Q and K 10, aces 11.</p></details>
@@ -63,18 +65,37 @@ function bandits(n,done,resumed){
     const pb=document.getElementById('bplay'),db=document.getElementById('bdisc');
     pb.onclick=play;db.onclick=discard}
   function draw(k){const nw=deck.splice(0,k);nw.forEach(c=>dealt.add(c.id));hand=hand.concat(nw);sortHand()}
-  function discard(){if(!sel.size||!discs||busy)return;discs--;hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();last=null;draw(k);render()}
-  function play(){if(!sel.size||busy)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);busy=true;
-    // the played cards lift, the scoring ones flash, the score counts up
-    app.querySelectorAll('.bcard.on').forEach(el=>{el.classList.add('played');if(ev.cards.some(c=>c.id===el.dataset.c))el.classList.add('scores')});
-    const now=document.getElementById('bdnow');now.innerHTML=`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult`;
+  function discard(){if(finished||!sel.size||!discs||busy)return;discs--;hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();last=null;draw(k);render()}
+  /* playing a hand, Balatro style: the cards fly up onto the table, each scoring card pops and adds its chips one by one, the
+     mult stamps on, the total slams down and flies into your score, then the cards are swept away and new ones dealt */
+  function play(){if(finished||!sel.size||busy)return;const picked=hand.filter(c=>sel.has(c.id)),ev=bandEval(picked);busy=true;
     const from=score;score+=ev.score;plays--;last=ev;
-    const el=document.getElementById('bdscore'),t0=performance.now(),D=still?0:700;
-    const tick=t=>{const k=D?Math.min(1,(t-t0-350)/D):1;if(k>0){el.textContent=Math.round(from+ev.score*k);}if(k<1)requestAnimationFrame(tick);else setTimeout(next,still?0:450)};
-    setTimeout(()=>{now.innerHTML=`<b>${ev.name}</b> (${ev.chips} × ${ev.mult}) = <b>${ev.score}</b>`;squish(el,'bump');requestAnimationFrame(tick)},still?0:300);
+    const scoreEl=document.getElementById('bdscore');
+    const countScore=then=>{const t0=performance.now(),D=still?0:600;const tick=t=>{const k=D?Math.min(1,(t-t0)/D):1;scoreEl.textContent=Math.round(from+ev.score*k);if(k<1)requestAnimationFrame(tick);else{squish(scoreEl,'bump');then()}};requestAnimationFrame(tick)};
+    if(still){countScore(()=>setTimeout(next,200));return}
+    const felt=document.getElementById('bdfelt'),hb=document.getElementById('bdhand'),stage=document.createElement('div');stage.className='bd-stage';felt.appendChild(stage);felt.classList.add('busy');
+    // the table: the played cards in a row, and the sum underneath
+    stage.innerHTML=`<div class="bds-cards"></div><div class="bds-sum"><b class="bds-name">${ev.name}</b><span class="bds-chips"><b id="bdchips">${ev.chips-ev.cards.reduce((a,c)=>a+cardChips(c),0)}</b><small>chips</small></span><i>×</i><span class="bds-mult"><b>${ev.mult}</b><small>mult</small></span></div>`;
+    const row=stage.querySelector('.bds-cards'),els=[...hb.querySelectorAll('.bcard.on')];
+    els.forEach((el,k)=>{const c=hand.find(x=>x.id===el.dataset.c),r0=el.getBoundingClientRect(),cl=el.cloneNode(true);cl.classList.remove('on','deal');cl.classList.toggle('scores',ev.cards.some(x=>x.id===c.id));cl.dataset.chips=cardChips(c);
+      row.appendChild(cl);const r1=cl.getBoundingClientRect();el.style.visibility='hidden';
+      cl.animate([{transform:`translate(${r0.left-r1.left}px,${r0.top-r1.top}px)`},{transform:'none'}],{duration:380,delay:k*50,easing:'cubic-bezier(.3,1.3,.5,1)',fill:'backwards'})});
+    // each scoring card in turn: it pops, "+chips" floats off it, and the chips count climbs
+    const scoring=[...row.querySelectorAll('.bcard.scores')],chipsEl=stage.querySelector('#bdchips');let chips=+chipsEl.textContent;
+    scoring.forEach((cl,k)=>setTimeout(()=>{if(!stage.isConnected)return;squish(cl,'pop');chips+=+cl.dataset.chips;chipsEl.textContent=chips;squish(chipsEl.parentElement,'bump');
+      const f=document.createElement('span');f.className='bds-plus';f.textContent='+'+cl.dataset.chips;cl.appendChild(f)},600+k*240));
+    const tm=600+scoring.length*240+120;
+    setTimeout(()=>{if(!stage.isConnected)return;stage.querySelector('.bds-mult').classList.add('stamp')},tm);
+    // the total slams down, then flies up into your score
+    setTimeout(()=>{if(!stage.isConnected)return;const tot=document.createElement('div');tot.className='bds-total';tot.textContent=ev.score;stage.appendChild(tot);
+      setTimeout(()=>{const a=tot.getBoundingClientRect(),b=scoreEl.getBoundingClientRect();
+        tot.animate([{transform:'none',opacity:1},{transform:`translate(${b.left+b.width/2-(a.left+a.width/2)}px,${b.top+b.height/2-(a.top+a.height/2)}px) scale(.45)`,opacity:.9}],{duration:450,easing:'cubic-bezier(.5,0,.6,1)',fill:'forwards'}).onfinish=()=>{tot.remove();
+          // sweep the played cards off the table
+          row.querySelectorAll('.bcard').forEach((cl,k)=>cl.animate([{transform:'none',opacity:1},{transform:`translate(${160+k*20}px,-40px) rotate(30deg)`,opacity:0}],{duration:380,delay:k*40,easing:'ease-in',fill:'forwards'}));
+          countScore(()=>setTimeout(()=>{stage.remove();next()},300))}},520)},tm+380);
     function next(){hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();busy=false;
       if(score>=T)return finish(true);if(!plays)return finish(false);draw(k);render()}}
-  function finish(won){G.boarded=null;
+  function finish(won){if(finished)return;finished=true;G.boarded=null;
     const lost=[],wasHull=G.hull;let msg;
     if(won){// they take the most valuable half of your hold
       const half=Math.ceil(used(G.board)/2);let took=0;const order=G.board.map((b,i)=>[price(b.k,b.t),i]).sort((a,b)=>b[0]-a[0]);
@@ -96,6 +117,9 @@ function bandits(n,done,resumed){
     if(!won&&!still){const hb=ov.querySelector('#bdhull'),n=wasHull-G.hull;
       for(let k=1;k<=n;k++)setTimeout(()=>{if(!ov.isConnected)return;hb.textContent=wasHull-k;squish(hb,'bump')},hullT*1000+600+(k-1)*60);
       setTimeout(()=>{if(ov.isConnected)squish(ov.querySelector('.sheet')||ov.firstElementChild,'jolt')},hullT*1000+500)}
-    const b=ov.querySelector('#bdgo');b.focus();b.onclick=()=>{ov.remove();done()}}
+    const b=ov.querySelector('#bdgo');b.focus();
+    // Sail on always gets you back to the chart: if the usual way fails, draw the chart directly
+    let left=false;b.onclick=()=>{if(left)return;left=true;ov.remove();try{done()}catch(e){console.error(e)}
+      if(app.querySelector('.bandits')){try{if(G.hull<=0)sink();else chart()}catch(e){console.error(e);app.innerHTML='';resume()}}}}
   render();
 }

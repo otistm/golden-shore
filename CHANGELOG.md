@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.25.9
+- After the bandits' card game, Sail on always takes you back to the chart. Once the hand is decided the card table can never redraw itself over the chart, and if returning ever fails the chart is drawn directly.
+
+## 0.25.8
+- The hand's total now slams down on top of the bandits' table, with the cards and sum fading back behind it, instead of hiding underneath the cards.
+
+## 0.25.7
+- Cards on the bandits' table stay white so their numbers and suits stay crisp while they animate; the scoring ones get a heavy border and shadow instead of turning black.
+
+## 0.25.6
+- Playing a hand in the bandits' card game is a little show, Balatro style: the cards fly up onto a table, the hand's name appears with its chips and mult, each scoring card pops in turn with "+10" floating off it while the chips climb, the mult stamps on, the total slams down and flies into your score, and the played cards are swept off the table before new ones are dealt. Cards that don't score sit dimmed.
+
 ## 0.25.5
 - The bandits' verdict is animated: the captain laughs (or grumbles if you beat him), the verdict stamps down, your score and theirs are set side by side, then each piece of cargo they take is snatched away one by one. If you lost, the hull number is smashed down point by point while planks crack off, and the card jolts. The button arrives last.
 
