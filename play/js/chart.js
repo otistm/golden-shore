@@ -84,7 +84,7 @@ function chart(){
   bindNodes();fitMap();fogLift();
   if(G.unrolled!==G.sea||unrollNext){G.unrolled=G.sea;unrollNext=false;unroll()}
   const cur=app.querySelector('.boatbob');if(cur){const r=cur.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+scrollY-innerHeight*.35),behavior:'instant'})}
-  stuckHead();save();coach('chart');tip('chart');
+  stuckHead();save();coach('chart');
 }
 /* the pinned header gets an ink rule along its bottom once the chart is scrolling under it */
 function stuckHead(){const h=app.querySelector('.charthead');if(h)h.classList.toggle('stuck',scrollY>4)}
@@ -141,7 +141,6 @@ function preview(n){const{head,body}=nodeInfo(n);
   const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Not yet</button><button class="primary" data-a="go">Sail here</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')go(n.id)});
   ov.querySelector('[data-a="go"]').focus();
-  if(n.enemy&&ENEMIES[n.enemy].kind==='b')tip('boss');else if(n.enemy&&ENEMIES[n.enemy].kind==='e')tip('elite');
 }
 const lossOf=k=>k==='b'?4+G.sea*2:k==='e'?3+G.sea:2+G.sea;
 /* sail the boat along the route to the next stop, drawing its wake behind it, then carry on. Skipped with reduced motion. */

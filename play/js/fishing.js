@@ -24,7 +24,7 @@ function fishing(key,casts,done){
     <p class="fmsg" id="fmsg"></p>
     <div class="fbtns"><button class="primary" id="fbtn">Cast</button><button class="linkbtn" id="fstop">Stop fishing</button></div>
     <p class="seed" style="text-align:center;margin-top:10px">Creel ${G.creel.length}/${CREEL}. Rod ${['basic','good','fine','master'][G.rod]}.</p>`;
-  bindBar();scrollTo(0,0);setTimeout(()=>{coach('fishing');tip('fishing','bottom')},300);
+  bindBar();scrollTo(0,0);setTimeout(()=>coach('fishing'),300);
   const $=id=>document.getElementById(id),btn=$('fbtn'),bob=$('bob'),line=$('fline'),bang=$('bang');
   const ui=()=>{$('casts').textContent=`${F.left} cast${F.left===1?'':'s'} left`;$('fmsg').textContent=F.msg};
   const setBtn=(t,cls)=>{btn.textContent=t;btn.className='primary'+(cls?' '+cls:'')};
@@ -78,7 +78,7 @@ function fishing(key,casts,done){
   btn.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){if(F.phase==='reel')F.hold=true;else press(e)}});
   btn.addEventListener('keyup',release);
   $('fstop').onclick=leave;
-  function leave(){cancelAnimationFrame(FR);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',release);save();hideCoachIfTip();coach('fishDone');done()}
+  function leave(){cancelAnimationFrame(FR);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',release);save();coach('fishDone');done()}
   let lt=now();
   function frame(){if(PAUSE.on){FR=requestAnimationFrame(frame);return}const t=now(),dt=Math.min(.05,t-lt);lt=t;
     if(F.phase==='fly'){const k=Math.min(1,(t-F.at)/.6);F.bx=F.ax+(F.tx-F.ax)*k;F.by=F.ay+(F.ty-F.ay)*k-Math.sin(k*Math.PI)*60;

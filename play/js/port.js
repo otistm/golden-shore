@@ -45,7 +45,7 @@ function port(id,view){
   // the market's goods drag straight off the table into the hold or locker, paying as they land
   const buyInto=(i,tgt,dst)=>{const o=S.offers[i],p=buyP(o);if(G.gold<p){toast(`Need ${p-G.gold} more gold`);return null}
     let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{const b={k:o.k,t:o.t};tgt.list.splice(dst,0,b);seen(o.k);flash={ref:b,kind:'add'};at=dst}
-    G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();setTimeout(()=>{coach('bought');deadTip(o)});return at};
+    G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();setTimeout(()=>coach('bought'));return at};
   bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
     if(hasC('route')&&G.freeRoll){G.freeRoll=false}
@@ -60,7 +60,7 @@ function port(id,view){
     const m=findMatch(o),r=addItem(o);if(!r)return toast(`No room for size ${DEFS[o.k].s}${G.locker?' in your hold or locker':''}. Sell something first.`);
     if(r==='up')toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`);
     if(r==='locker')toast(`Hold full. Stowed the ${DEFS[o.k].n} in your locker.`);
-    G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();port(id,view);coach('bought');deadTip(o)});
+    G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();port(id,view);coach('bought')});
   app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{if(dragJustEnded)return;const i=+b.dataset.g;if(b.classList.contains('sel'))return;PV.msel=i;PV.mbought=false;port(id,view)});
   document.getElementById('leave').onclick=()=>{G.moving=false;G.sel=null;if(G.tut&&G.tut.i>=TUT.length-1)return finishTutorial();
     const bare=!G.tut&&(!G.board.length||!(G.crew||[]).length);if(!bare)return chart();
@@ -98,8 +98,6 @@ function port(id,view){
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
   save();coach('port');coach(view);
-  // each tip waits until you walk into the place it's about
-  if(view==='market')tip('port');else if(view==='tavern')tip('crew');else if(view==='wright')tip('wright');
 }
 /* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
    out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. */

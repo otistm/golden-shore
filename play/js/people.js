@@ -56,7 +56,7 @@ const NPCS={
     {l:'Take her notes',d:'Draw a landmark.',f:()=>{lore('The third cartographer is alive, rowing toward the Kraken in a dinghy. She gave me her notes.');return{chart:1,msg:'The third cartographer gave me her notes on the Deep.'}}},
     {l:'Give her a fish',d:'Your best fish, for her harpoon.',need:hasFish,f:r=>{takeBestFish();lore('The third cartographer is alive. I fed her, and she gave me her harpoon.');return addOrGold({k:'harpoon',t:rollTier(D()+4,r)},'The third cartographer traded me')}}]}
 };
-function unlockLocker(){setTimeout(()=>tip('locker','top'),900);G.hock='done';G.locker=[];lore('Hock built a locker below the waterline. Six slots for spare cargo. It smells of fresh pine and fish.')}
+function unlockLocker(){G.hock='done';G.locker=[];lore('Hock built a locker below the waterline. Six slots for spare cargo. It smells of fresh pine and fish.')}
 NPCS.hock={n:'Hock',role:'Shipwright',look:{body:'Polo and Sweater',head:'Short 3',face:'Cheeky',beard:'Full'},sea:0,quest:1,x:"That hold of yours is a shoebox. Bring me three fish, any kind, and I'll build you a locker below deck for spare cargo. Find me on any dock.",o:[
   {l:'Take the job',d:'Bring Hock 3 fish at any port. Reward: a 6-slot locker for extra cargo.',need:()=>!G.hock,f:()=>{G.hock='active';return'Hock the shipwright will build me a locker for three fish.'}},
   {l:'Hand over 3 fish now',d:'Your three cheapest fish. He starts building today.',need:()=>!G.hock&&G.creel.length>=3,f:()=>{takeCheapFish();takeCheapFish();takeCheapFish();unlockLocker();return'Gave Hock three fish on the spot. He built me a locker below deck.'}},
@@ -162,7 +162,7 @@ function mongerOf(id){const S=G.shops[id];if(S&&S.monger)return S.monger;
   if(S)S.monger=k;return k}
 const NPC_POOL=Object.keys(NPCS).filter(k=>!NPCS[k].lore&&!NPCS[k].quest);
 function talk(k,key,done,after){
-  const N=NPCS[k];A.people=A.people||{};A.people[k]=1;saveA();setTimeout(()=>tip('people'),400);
+  const N=NPCS[k];A.people=A.people||{};A.people[k]=1;saveA();
   const ov=overlay(`<div class="npc">${portrait(N.look)}<div><h2>${N.n}</h2><p class="soft">${N.role}</p></div></div><p class="log">“${N.x}”</p>
     <div class="picks">${N.o.map((o,i)=>{const ok=!o.need||o.need();return`<button class="opt" data-o="${i}" ${ok?'':'disabled'}><b>${o.l}</b>${o.d?`<span>${o.d}</span>`:''}</button>`}).join('')}</div>`,true);
   ov.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{if(b.disabled)return;ov.remove();

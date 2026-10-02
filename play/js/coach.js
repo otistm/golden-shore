@@ -64,7 +64,7 @@ function startTutorial(){
 /* is a place open? Everywhere in a real voyage; in the trial, only where that stop's lesson is */
 const tutOpen=view=>!G||!G.tut||((node(G.at)||{}).open||[]).includes(view);
 function finishTutorial(){
-  hideCoach();A.tutDone=true;A.tips=A.tips||{};['port','chart','crew','wright'].forEach(k=>A.tips[k]=1);saveA();
+  hideCoach();A.tutDone=true;saveA();
   cancelAnimationFrame(raf);cancelAnimationFrame(FR);B=null;G=null;
   document.querySelectorAll('.overlay').forEach(o=>o.remove());title();
   toast("Trial passed. Pick a voyage when you're ready.");
@@ -126,27 +126,4 @@ function coach(ev){
   const w=st.when?[].concat(st.when):null;
   if(!w||w.includes(ev))setTimeout(()=>{if(G&&G.tut&&!G.tut.on&&TUT[G.tut.i]===st)showStep(ev)},st.when?260:0);
 }
-/* one-time tips outside the tutorial */
-const TIPS={
-  port:"Buy cargo here. Drag items to arrange them; neighbours can boost each other.",
-  chart:"Tap a mark to see what's there. Fog hides what's far off.",
-  fishing:"Tap when the bobber shows !, then hold to keep the fish in the bracket.",
-  storm:"The storm hurts both ships more every second.",
-  elite:"Elites hit harder, but they carry a landmark.",
-  boss:"Lose to a boss and you fall back to port. A side route opens, up to twice.",
-  people:"People trade, help or give quests. Choices can cost gold, hull or fish.",
-  crew:"Faded cargo needs crew. Hire someone with the skill its lines show.",
-  wright:"Fittings change your ship's rules, each with a trade-off.",
-  locker:"Your locker holds spare cargo outside fights. Drag items in and out."
-};
-// fire a tip where it applies (the place it's about, the moment it explains); "End tutorial" on any tip stops the rest for good
-function tip(key,pos){
-  if(!G||G.tut||A.tipsOff)return;A.tips=A.tips||{};if(A.tips[key])return;
-  if(document.getElementById('coach'))return;
-  A.tips[key]=1;saveA();
-  const c=bubble(TIPS[key],{pos,label:'Tip',links:'<button class="linkbtn" data-c="end">End tutorial</button>'});
-  c.querySelector('[data-c=end]').onclick=()=>{A.tipsOff=true;saveA();hideCoach()};
-}
-// cargo nobody aboard can work: the crew tip is about exactly this, so it takes over from whatever tip is showing
-function deadTip(o){if(!G||G.tut||A.tipsOff||(A.tips&&A.tips.crew)||itemUse(o.k,crewCrafts())==='all')return;hideCoachIfTip();tip('crew')}
-function hideCoachIfTip(){if(!G||!G.tut)hideCoach()}
+/* Ansel only speaks during the maiden voyage: real voyages have no tips. (A.tips and A.tipsOff stay in old saves, unused.) */

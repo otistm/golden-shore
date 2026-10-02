@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.33.0
+- Ansel only teaches during the maiden voyage. Real voyages no longer show one-time tips (market, chart, crew, shipwright, fishing, storm, elites, bosses, people, locker), and the End tutorial link is gone with them.
+
 ## 0.32.7
 - The fight recap's icons no longer blow up and cover the names on big screens.
 - On a computer, hovering shows what things are without clicking: a stop on the chart shows its card (enemy health, traits, what a win or loss brings), and goods at the market, yard and docks, and hands at the bar, step up and tell you about themselves as you hover. Click to sail or buy as before. Phones keep tap.

@@ -69,7 +69,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
    - Then run `python3 -m http.server` in the repo folder and open http://localhost:8000/play/ at 390 × 844 to look at what you changed. Online features only work over https, so locally feedback says it isn't connected. That's expected.
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
 
-## Tutorial and tips
+## The maiden voyage (the only tutorial)
 - The tutorial is the maiden voyage (`startTutorial()` in coach.js): a fixed six-stop map, one lesson per stop. Gullhaven (items, then crew: the Rapier arrives faded and comes alive when the Fencing Master signs on), a training hulk (fighting, then renown: `G.renown` starts one short of level 1 so the win brings a captain's pick), an uncharted isle (landmarks), Saltmere (fittings, from a fixed bench), the examiner (everything together), the Guild hall (finish).
 - Each port node lists the places open for its lesson in `open`; `tutOpen(view)` closes the rest during the trial.
 - The game reports moments with `coach(event)`: `port`, the place opened (`market`, `tavern`, `wright`, `docks`, `harbour`), `bought`, `moved`, `hired`, `fitted`, `chart`, `sail`, `fight`, `renown`, `perkDone`, `spoils`, `spoilsTaken`, `fishing`, `fishDone`, `landmarkOpen`, `landmark`.
@@ -77,12 +77,10 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - The trial's Gullhaven teaches buying, the crew gate (the Rapier faded, then Ready), and order (the Jib Sail to the Rapier's left, then the Bosun for Seamanship); Saltmere stocks a second Rapier to show upgrading. Its captain's picks are rules only (`perkPick()` leaves orders out while `G.tut`).
 - Each step in `TUT` has `when` (the event that shows it), `until` (the event that moves on, or `next`/`finish`), an optional `target` to highlight, and `pause` to hold the fight. The bubble's label names the stop ("Maiden voyage, stop 2 of 6").
 - If you rename a screen element a step targets, or change when one of those events fires, update `TUT` and replay the maiden voyage.
-- The maiden voyage uses `G.tut` and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone` and marks the port, chart, crew and shipwright tips as seen.
-- One-time tips live in `TIPS` and show once per player. `A.tips` remembers which ones they've seen.
-- A tip fires only where it applies: port tips when you open that place (`port` in the market, `crew` in the tavern, `wright` in the yard), and `crew` also when you buy cargo nobody aboard can work (`deadTip()`). Every tip has an End tutorial link that sets `A.tipsOff`, after which `tip()` shows nothing.
-- Keep every step and tip to one short line (about 15 words); testers found longer ones too much.
+- The maiden voyage uses `G.tut` and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone`. (`A.tips` and `A.tipsOff` remain in old saves but nothing reads them.)
+- Keep every maiden voyage step to one short line (about 15 words); testers found longer ones too much.
 - `bubble()` also dims the screen behind it (`dimFor()`, `.coachdim`): a dark layer that takes no taps, with a clear window over the step's `target` (or the open pop-up), following it every frame. Steps that point at something near the top use `pos:'bottom'` so the bubble doesn't cover it.
-- Every tip uses `bubble()`, which shows a button straight away (no reading timer): Next for tips and explanations, Hide on a maiden voyage step that waits for the player to do something, Finish on the last step. Tips also carry the End tutorial link.
+- Real voyages have no tips: Ansel only speaks in the maiden voyage. Its steps use `bubble()`, which shows a button straight away (no reading timer): Next on explanations, none on a step that waits for the player to do something, Finish on the last step.
   - The bubble lets taps through; only its buttons are tappable.
 
 ## Crafts and crew

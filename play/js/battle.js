@@ -181,7 +181,7 @@ function draw(){
   const c=document.getElementById('clock');
   if(B.wait>0){c.textContent='Setting sail…';c.className='clock'}
   else if(B.t<B.bell){c.textContent=`Storm in ${Math.ceil(B.bell-B.t)}s`;c.className='clock'}
-  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell';if(!B.quiet&&!B.over)tip('storm','bottom')}
+  else{c.textContent=`Storm: ${B.storm} damage`;c.className='clock bell'}
 }
 const CHIPI={
   sh:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h10v5c0 4-3 6-5 7-2-1-5-3-5-7z" fill="#fff" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/></svg>',
