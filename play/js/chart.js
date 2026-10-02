@@ -89,7 +89,7 @@ function chart(){
 /* the pinned header gets an ink rule along its bottom once the chart is scrolling under it */
 function stuckHead(){const h=app.querySelector('.charthead');if(h)h.classList.toggle('stuck',scrollY>4)}
 addEventListener('scroll',stuckHead,{passive:true});
-function nodeTip(el){const n=node(+el.dataset.id);if(!n||!G)return;hideItemTip();
+function nodeTip(el){const n=node(+el.dataset.id);if(!n||!G)return;hideItemTip();tipSrc=el;
   const known=n.row<=G.reveal||G.path.includes(n.id)||n.type==='boss';
   const{head,body}=known?nodeInfo(n,true):{head:'Uncharted water',body:'<p class="soft">Sail closer to see what waits here.</p>'};
   tipEl=document.createElement('div');tipEl.className='itip ntip';tipEl.setAttribute('role','tooltip');tipEl.innerHTML=`<b>${head}</b>${body}${el.classList.contains('reach')?'<p class="itip-aff">Click to sail here.</p>':''}`;

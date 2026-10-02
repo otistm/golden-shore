@@ -203,7 +203,8 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Planned next: PvP ghosts, meaning snapshots of other captains' holds, replayed on the same stops of the same voyage code.
 
 ## Look and feel (keep it consistent)
-- Paper and ink only: white `#fff` and black `#000`, with grey only for secondary text. Show tiers and states with line style, never color:
+- Flat colour after Chris Ware: pure black (`--line`) only for lines; deep navy (`--ink`) for solid fills, shadows and text; cream paper (`--paper`, page `--page`); and a muted print palette (`--mustard`, `--brick`, `--slate`, `--sage`, `--peach`, with pale `-p` tints, `--sea`, `--land`, `--fog`). No gradients, soft light or glow; one flat colour per area. Cargo tiles take a pale wash by kind (`kindOf()`, `.c-X`). Bright colour only as a small accent (gold coins).
+- Tiers and states still show with line style, not colour:
   - Bronze: single line
   - Silver: double line
   - Gold: heavy line with an offset shadow

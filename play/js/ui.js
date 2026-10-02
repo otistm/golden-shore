@@ -22,10 +22,12 @@ function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.
     ${G.creel&&G.creel.length?`<button class="stat" id="creelbtn" aria-label="${G.creel.length} fish">${sicon('fish')}<b>${G.creel.length}</b><small>fish</small></button>`:''}
   </div><div class="acts"><button class="logbtn" id="logbtn" aria-label="Cartographer's log">${sicon('log')}<span>Log</span></button><button class="pausebtn" id="pausebtn" type="button" aria-label="Pause"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="8" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="18" y="8" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button></div></header>`;bump=null;return h}
 function bindBar(){const l=document.getElementById('logbtn');if(l)l.onclick=()=>journal();const pb=document.getElementById('pausebtn');if(pb)pb.onclick=showPause;const sb=document.getElementById('shipbtn');if(sb)sb.onclick=shipSheet;const c=document.getElementById('creelbtn');if(c)c.onclick=creelSheet}
+/* an item's kind for its colour wash: its first tag in this order */
+const kindOf=k=>{const t=DEFS[k].tags;for(const c of'XCWVFARTK')if(t.includes(c))return c;return'T'};
 function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i,cr),use=itemUse(it.k,cr),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
+    h+=`<button class="item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
@@ -62,9 +64,10 @@ function listOf(el){const bd=el.closest('.board');if(!bd)return null;const sd=bd
   if(B&&bd.closest('.battle'))return sd==='e'?B.E.list:B.P.list;return sd==='l'?G&&G.locker:sd==='p'?G&&G.board:null}
 /* desktop: hovering a tile shows its card beside it and marks the items it works on; phones keep tap for the full sheet */
 const HOVERS=matchMedia('(hover:hover) and (pointer:fine)');
-let tipEl=null;
+let tipEl=null,tipSrc=null;
+new MutationObserver(()=>{if(tipEl&&!(tipSrc&&tipSrc.isConnected))hideItemTip()}).observe(document.getElementById('app'),{childList:true});
 function hideItemTip(){if(tipEl){tipEl.remove();tipEl=null}clearMarks();if(typeof restoreFocusMarks==='function')restoreFocusMarks()}
-function showItemTip(el){hideItemTip();if(!G||document.querySelector('.dragging'))return;const list=listOf(el),i=[...el.parentNode.querySelectorAll('.item')].indexOf(el);if(!list||!list[i])return;
+function showItemTip(el){hideItemTip();tipSrc=el;if(!G||document.querySelector('.dragging'))return;const list=listOf(el),i=[...el.parentNode.querySelectorAll('.item')].indexOf(el);if(!list||!list[i])return;
   const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affectMap(list,i);
   clearMarks();el.classList.add('src');aff.forEach((l,j)=>{const t=tiles[j];if(!t)return;t.classList.add('aff');affTag(t,l)});
   tipEl=document.createElement('div');tipEl.className='itip';tipEl.setAttribute('role','tooltip');

@@ -109,7 +109,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
     const d=DEFS[g.k],up=!!findMatch(g);
-    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
+    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t} c-${kindOf(g.k)}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
   let talk;
   if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
@@ -126,7 +126,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
       <path d="M92 54q-3-14 0-28h22q3 14 0 28z"/><path d="M91 34h24M91 46h24" fill="none"/></g></pattern>`;
   return`<section class="stallsec">
     <div class="stall" id="stall">
-      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#000"/><path d="M22 0h22v22q-11 12-22 0z" fill="#fff" stroke="#000" stroke-width="2"/></pattern></defs>
+      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#B5533C" stroke="#000" stroke-width="2"/><path d="M22 0h22v22q-11 12-22 0z" fill="#FBF5E8" stroke="#000" stroke-width="2"/></pattern></defs>
         <rect x="0" y="62" width="100%" height="58" fill="url(#stock)"/><path d="M0 120.5H4000" stroke="#000" stroke-width="3"/>
         <rect x="0" y="138" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 196.5H4000" stroke="#000" stroke-width="3"/>
         <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>

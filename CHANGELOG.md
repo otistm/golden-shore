@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.35.0
+- First colour pass, after Chris Ware: flat, muted print colours with pure black kept for lines only. Cream paper; deep navy for solid fills, shadows and text; a slate-blue sea with sage islands and mustard on the stops you can sail to; a peach sky over a brick, mustard, sage and slate harbour; brick-and-cream stall awnings; and cargo tiles washed by kind (brick weapons, slate rigging, mustard food, sage armour). Gold coins are the one bright accent, in mustard.
+- Fixed: a hover card could stay on screen after the chart changed under the mouse.
+
 ## 0.34.1
 - On a computer the game keeps a 16:9 shape: it plays in a frame centred in the window, with black bars filling the rest as you resize. Keys still reach the game after clicking the bars. Phones and tablets are unchanged.
 
