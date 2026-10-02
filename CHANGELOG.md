@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.0
+- Seas are shorter: 9 rows to the boss instead of 12. Ports now only appear where you set out, on part of the halfway row and just before the boss, so you never get ports two rows in a row.
+- Charts branch more, so most stops give you a real choice of where to go, and a fork always offers different kinds of stop.
+- Each sea has its own mix: the Shallows lean on fishing and isles, the Fog Sea on strangers and unknown waters, the Deep on elites. Every chart also features one kind of stop more than usual, so no two feel the same.
+- A voyage already under way keeps its current chart; the next sea is drawn the new way.
+
 ## 0.26.1
 - The tip about crew now shows at your first port, right after the tip about buying cargo, so you learn that items need the right hands before you set sail. Before, it waited until the second port.
 
