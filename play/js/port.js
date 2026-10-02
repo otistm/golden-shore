@@ -19,7 +19,7 @@ function port(id,view){
     const wg=payWages();if(wg)msg.push(wg);
     if(msg.length)setTimeout(()=>toast(msg.join('. ')),250)}
   const S=G.shops[id];
-  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null,wsel:PV.id===id?PV.wsel:null,dsel:PV.id===id?PV.dsel:null};
+  if(view==null)view=PV.id===id?PV.view:(G.tut?'market':'harbour');PV={id,view,hx:PV.id===id?PV.hx:null,scroll:PV.id===id?PV.scroll:null,tsel:PV.id===id?PV.tsel:null,msel:PV.id===id?PV.msel:null,wsel:PV.id===id?PV.wsel:null,dsel:PV.id===id?PV.dsel:null,dsold:PV.id===id?PV.dsold:false};
   if(G.sel==null)G.moving=false;
   const anim=fresh;fresh=false;
   const vis=!G.hock&&n.row===0&&G.sea<=1?'hock':n.visitor;
@@ -69,8 +69,8 @@ function port(id,view){
     ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')chart()})};
   const vb=document.getElementById('visitor');if(vb)vb.onclick=()=>talk(vis,id+'v',()=>port(id,view),()=>{S.talked=true});
   const hb=document.getElementById('hockin');if(hb)hb.onclick=()=>talk('hock2',id+'h',()=>port(id,view));
-  app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const i=+b.dataset.f,f=G.creel[i],g=fishVal(f,f===S.demand?2:1),r=(app.querySelector(`[data-df="${i}"]`)||b).getBoundingClientRect();G.creel.splice(i,1);G.gold+=g;logL(`Sold ${an(FISH[f].n)} for ${g} gold.`);save();toast(`Sold ${an(FISH[f].n)} for ${g} gold`);port(id,view);sellFx(r.left+r.width/2,r.top+r.height/2,g)});
-  const sa=document.getElementById('sellall');if(sa)sa.onclick=()=>{const g=G.creel.reduce((a,f)=>a+fishVal(f,f===S.demand?2:1),0),gs=app.querySelector('#goods'),r=(gs||sa).getBoundingClientRect();G.creel=[];G.gold+=g;logL(`Sold my catch at ${n.name} for ${g} gold.`);save();toast(`Sold your catch for ${g} gold`);port(id,view);sellFx(r.left+r.width/2,r.top+r.height/2,g)};
+  app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const i=+b.dataset.f,f=G.creel[i],g=fishVal(f,f===S.demand?2:1),r=(app.querySelector(`[data-df="${i}"] .o-icon`)||b).getBoundingClientRect();G.creel.splice(i,1);G.gold+=g;PV.dsold=true;logL(`Sold ${an(FISH[f].n)} for ${g} gold.`);save();port(id,view);fishSaleFx([f],[r],g)});
+  const sa=document.getElementById('sellall');if(sa)sa.onclick=()=>{const g=G.creel.reduce((a,f)=>a+fishVal(f,f===S.demand?2:1),0),fs=G.creel.slice(),rs=fs.map((f,i)=>{const e=app.querySelector(`[data-df="${i}"] .o-icon`);return e&&e.getBoundingClientRect()});G.creel=[];G.gold+=g;PV.dsold=true;logL(`Sold my catch at ${n.name} for ${g} gold.`);save();port(id,view);fishSaleFx(fs,rs,g)};
   app.querySelectorAll('[data-fit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.fit,k=S.fits[i],f=FITTINGS[k];
     if(G.gold<f.p)return toast(`Need ${f.p-G.gold} more gold`);
     if(!canEquip(k))return toast('Double Planking boards up a slot. Sell something to make room first.');
@@ -156,7 +156,7 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
   else if(typeof sel==='number'){const f=G.creel[sel],F=FISH[f],dem=f===S.demand;
     talk=`<div class="talk" id="talk"><p class="say">“${dem?M.demand:M.say[F.rar]||M.say[0]}”</p><p class="who"><b>${F.n}</b><span class="chipc">${RAR[F.rar]}</span>${dem?'<span class="chipc">in demand</span>':''}</p>
       <div class="acts"><button class="buy" data-f="${sel}">Sell for ${pay(f)} gold</button>${G.creel.length>1?`<button class="linkbtn" id="sellall">Sell all ${G.creel.length} for ${tot}</button>`:''}</div></div>`}
-  else talk=`<div class="talk" id="talk"><p class="say">“${M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
+  else talk=`<div class="talk" id="talk"><p class="say">“${PV.dsold?M.thanks:M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
   const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(look,PEEP_HEAD,'peep')}</button>`;
   const speaker=who?N.look:M.look;
   return`<section class="stallsec docksec">
@@ -171,6 +171,19 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
       <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
+/* a fish sale: each fish flops off the crate and arcs into the fishmonger's arms (they bob as they catch it), then the
+   coins fly from them up into your purse */
+function fishSaleFx(fs,rs,gold){const sl=app.querySelector('#stall .seller'),S=sl&&sl.getBoundingClientRect();
+  if(!S||matchMedia('(prefers-reduced-motion:reduce)').matches){const el=document.getElementById('goldst');if(el)squish(el,'bump');return}
+  const tx=S.left+S.width/2,ty=S.top+S.height*.7,b=document.querySelector('#goldst b');if(b)b.textContent=G.gold-gold;
+  let k=0,left=0;
+  fs.forEach((f,i)=>{const r=rs[i];if(!r||r.right<0||r.left>innerWidth)return;left++;
+    const el=document.createElement('div');el.className='flyfish';el.innerHTML=fishSVG(f);el.style.cssText=`left:${r.left+r.width/2}px;top:${r.top+r.height/2}px`;document.body.appendChild(el);
+    const dx=tx-(r.left+r.width/2),dy=ty-(r.top+r.height/2);
+    el.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:`translate(calc(-50% + ${dx*.45}px),calc(-50% + ${dy*.45-70}px)) scale(1.15) rotate(${i%2?-200:200}deg)`,offset:.5},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.45) rotate(${i%2?-360:360}deg)`,opacity:.9}],
+      {duration:620,delay:k++*120,easing:'cubic-bezier(.45,0,.5,1)',fill:'both'}).onfinish=()=>{el.remove();squish(sl,'catchit');
+      if(--left===0)setTimeout(()=>sellFx(tx,S.top+S.height*.35,gold),120)}});
+  if(!left)sellFx(tx,S.top+S.height*.35,gold)}
 /* hull repairs: a card like the one for hull damage, run backwards. The ship steadies while a mallet knocks each new plank
    into place with an ink spark, and the number counts up with it. Tap to dismiss. */
 function repairFx(before,after){document.querySelectorAll('.hullcard').forEach(c=>c.remove());

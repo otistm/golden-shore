@@ -144,17 +144,17 @@ function wrightOf(id){const S=G.shops[id];if(S&&S.wright)return S.wright;
   if(S)S.wright=k;return k}
 /* ---------- the fishmongers ----------
    Whoever buys fish on the dock: Salt Sal at Gullhaven, and two who travel, one per port. A line per fish rarity in say, and
-   demand (the fish they pay double for), empty (no fish) and all (selling the whole creel). */
+   demand (the fish they pay double for), empty (no fish), thanks (just after you sell to them) and all (selling the whole creel). */
 const MONGERS={
   sal:{short:'Sal',n:'Salt Sal',look:{body:'Polo and Sweater',head:'Medium 3',face:'Cheeky'},
     say:["A tiddler, but it'll fry.","Now that's a proper fish. Fair price for it.","Oh my. Where did you catch this one?"],
-    demand:"That's the one I'm after today. Double, as promised.",empty:"No fish? Go and catch some, love. The sea's full of them.",all:"I'll take the whole creel off your hands."},
+    demand:"That's the one I'm after today. Double, as promised.",thanks:'Pleasure doing business, love. Come back with more.',empty:"No fish? Go and catch some, love. The sea's full of them.",all:"I'll take the whole creel off your hands."},
   dora:{short:'Dora',n:'Big Dora',look:{body:'Fur Jacket',head:'Bantu Knots',face:'Smile LOL'},
     say:['Small fry. Still pays.',"Good weight on that one. I'll give you a fair price.","Ha! A beauty! You've made my week."],
-    demand:"That's the one! Double, like I said.",empty:'Empty creel? Then what are you doing on my dock?',all:'Tip the lot on my scales.'},
+    demand:"That's the one! Double, like I said.",thanks:'Ha! Good haul. My scales thank you.',empty:'Empty creel? Then what are you doing on my dock?',all:'Tip the lot on my scales.'},
   gill:{short:'Gill',n:'Wendel Gill',look:{body:'Turtleneck',head:'Gray Short',face:'Suspicious',beard:'Moustache 1',acc:'Glasses 5'},
     say:['Common as gulls. Still, coin is coin.',"Hm. Decent. I've seen worse.","I'll admit, that's rare. Don't tell the others."],
-    demand:'Ah. That one. Double, as posted.',empty:'Nothing to sell? Nothing to buy, then.',all:"I'll weigh the whole creel."}};
+    demand:'Ah. That one. Double, as posted.',thanks:'Adequate fish. Adequate price. Good day.',empty:'Nothing to sell? Nothing to buy, then.',all:"I'll weigh the whole creel."}};
 /* who buys fish at this port's dock: Sal at home, otherwise one of the travellers */
 function mongerOf(id){const S=G.shops[id];if(S&&S.monger)return S.monger;
   const trav=Object.keys(MONGERS).filter(k=>k!=='sal');
