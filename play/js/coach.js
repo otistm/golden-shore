@@ -101,10 +101,11 @@ const TIPS={
   wright:"The shipwright fits parts to your ship. Each one changes how you fight, with a trade-off. Tap your hull to see your ship.",
   locker:"Your new locker holds spare cargo. It stays out of fights. Drag items between it and your hold."
 };
-function tip(key,pos){
+// then: runs when the player closes this tip, so a second tip can follow straight on instead of waiting for a later screen
+function tip(key,pos,then){
   if(!G||G.tut)return;A.tips=A.tips||{};if(A.tips[key])return;
   if(document.getElementById('coach'))return;
   A.tips[key]=1;saveA();
-  bubble(TIPS[key],{pos,label:'Tip'});
+  bubble(TIPS[key],{pos,label:'Tip',onClose:then?()=>{hideCoach();then()}:undefined});
 }
 function hideCoachIfTip(){if(!G||!G.tut)hideCoach()}
