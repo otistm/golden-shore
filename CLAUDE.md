@@ -51,6 +51,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 ## Items: the one place to add content
 Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fields)` line in items.js. Item text is generated from the data, so never write descriptions by hand.
 - A cooldown of 0 means passive.
+- `RETIRED` in items.js lists items taken out of the draw (`poolFor()` and `NEUTRAL` skip them). Never delete a retired item's `I()` row: saved voyages may carry it. Each ship's own pool is about 30 items; to add one, retire one or keep the mix of damage, support and defence even. The Atlas counts only live items and shows found retired ones as keepsakes.
 - Tags: W weapon, C cannon, F food, X fire, T tool, A armor, R rigging, V venom, K crew.
 - The field language (effects, `start`, `on` reactions, auras) is documented at the top of items.js.
 - New glyphs go in glyphs.js. They're 40×40, with class `w` for paper fill and `k` for ink fill.
