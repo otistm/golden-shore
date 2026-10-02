@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.7
+- Cards on the bandits' table stay white so their numbers and suits stay crisp while they animate; the scoring ones get a heavy border and shadow instead of turning black.
+
 ## 0.25.6
 - Playing a hand in the bandits' card game is a little show, Balatro style: the cards fly up onto a table, the hand's name appears with its chips and mult, each scoring card pops in turn with "+10" floating off it while the chips climb, the mult stamps on, the total slams down and flies into your score, and the played cards are swept off the table before new ones are dealt. Cards that don't score sit dimmed.
 

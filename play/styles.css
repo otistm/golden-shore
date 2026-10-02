@@ -1308,7 +1308,7 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .bds-cards{display:flex;gap:6px;justify-content:center}
 .bds-cards .bcard{width:46px;flex:none;translate:none;box-shadow:2px 3px 0 var(--ink)}
 .bds-cards .bcard:not(.scores){opacity:.45}
-.bds-cards .bcard.scores{background:var(--ink);color:var(--paper)}.bds-cards .bcard.scores.red i{color:var(--ink);-webkit-text-stroke:1.4px var(--paper)}
+.bds-cards .bcard.scores{border-width:3.5px;box-shadow:4px 4px 0 var(--ink)}
 .bds-cards .bcard.pop{animation:cpop .3s var(--spring)}
 @keyframes cpop{0%{transform:none}40%{transform:translateY(-10px) scale(1.2)}100%{transform:none}}
 .bds-plus{position:absolute;left:50%;top:-6px;transform:translateX(-50%);font:italic 900 16px var(--display);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:0 6px;animation:plusup .7s ease-out forwards;white-space:nowrap}
