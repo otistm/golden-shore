@@ -47,12 +47,14 @@ const berths=()=>(SHIPS[G.ship].berths||3)+(hasP('berth')?1:0)+(hasF('ballast')?
 const rankXP=()=>hasP('drill')?RANKXP.map(x=>Math.max(0,x-1)):RANKXP;
 const crewRank=c=>rankXP().filter(x=>c.xp>=x).length;
 const wageOf=k=>Math.max(0,CREW[k].wage-(hasP('paymaster')?1:0));
-const feeOf=k=>Math.max(1,CREW[k].fee-(hasP('recruiter')?3:0));
+/* the Guild pays your ship's own hands to sign on at Gullhaven, so a bare ship can always crew the cargo it starts with */
+const guildPays=k=>!!(G&&!G.tut&&G.sea===0&&G.map&&G.at===G.map.start&&(SHIPS[G.ship].crew||[]).includes(k));
+const feeOf=k=>guildPays(k)?0:Math.max(1,CREW[k].fee-(hasP('recruiter')?3:0));
 /* the crafts your crew cover, or null (everything works) when there's no voyage */
 function crewCrafts(){if(!G||!G.crew)return null;return new Set(G.crew.flatMap(c=>CREW[c.k].crafts))}
 /* the rank of each craft aboard: the best crew member with it */
 function craftRanks(){const r={};((G&&G.crew)||[]).forEach(c=>CREW[c.k].crafts.forEach(k=>r[k]=Math.max(r[k]||0,crewRank(c))));return r}
-function hire(k){G.crew=G.crew||[];G.crew.push({k,xp:0,m:3});logL(`Hired ${an(CREW[k].n)} for ${feeOf(k)} gold.`)}
+function hire(k){G.crew=G.crew||[];G.crew.push({k,xp:0,m:3});logL(feeOf(k)?`Hired ${an(CREW[k].n)} for ${feeOf(k)} gold.`:`Signed on ${an(CREW[k].n)}. The Guild paid.`)}
 /* wages at every new port: paid in order while the gold lasts. Unpaid crew lose heart, and leave when it runs out. */
 function payWages(){if(!G.crew||!G.crew.length||G.tut||G.path.length<2)return'';   // nothing is owed in the port you set out from
   let paid=0,left=[],sad=[];
@@ -98,13 +100,15 @@ const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]).filter(id=>{
    sailed once and leading back to that port, so a broke captain can earn gold to refit before trying again. Each loss opens a
    fresh pair (seeded by the voyage and the loss) and closes any left from the last one. They sit on the boss's row, on the
    port's side of the chart, at the port's depth. */
-function sideRoute(pid){const m=G.map,p=node(pid),k=m.sideN||0;m.sideN=k+1;
+const SIDES=2;
+function sideRoute(pid){const m=G.map,p=node(pid),k=m.sideN||0;
   m.edges=m.edges.filter(([a,b])=>!(a===pid&&node(b)&&node(b).side));
+  if(k>=SIDES)return false;m.sideN=k+1;   // two side routes per boss, then it's the boss or nothing
   const r=RNG(G.seed,'side',G.sea,k),pool=Object.keys(ENEMIES).filter(e=>ENEMIES[e].sea===G.sea&&ENEMIES[e].kind==='t');
   const row=mapRows(),depth=depthOf(p),left=p.x<170;
   [['threat',left?100:240],['fish',left?30:310]].forEach(([type,x])=>{const id=G.sea*100+m.nodes.length;
     const n={id,row,col:x<170?0:3,x,type,side:1,depth};if(type==='threat')n.enemy=pick(r,pool);
-    m.nodes.push(n);m.edges.push([pid,id],[id,pid])})}
+    m.nodes.push(n);m.edges.push([pid,id],[id,pid])});return SIDES-k-1}
 function logL(t){G.log.push({d:G.day,t})}
 function lore(t){G.log.push({lore:1,t})}
 function seen(k){if(!A.items[k]){A.items[k]=1;saveA()}}
@@ -175,15 +179,19 @@ function genMap(seed,sea){
 function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extra+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0)}
 
 /* ---------- enemy boards (seeded: every captain on this sea meets the same crew) ---------- */
+/* how tough each sea's enemies are: their health, how much cargo they carry, and the best tier it comes in. The Shallows go
+   easy on a bare new ship (less cargo, and all of it bronze, so the Serpent's poison doesn't snowball); the Fog Sea and the
+   Deep push back harder, because by then crew ranks, upgraded cargo and fittings have built up. */
+const SEASCALE=[{hp:.95,gear:.75,tier:0},{hp:1.15,gear:1.2,tier:3},{hp:1.3,gear:1.4,tier:3}];
 function enemyOf(n){
   if(n.fixed){const list=n.fixed.list.map(x=>({...x}));list.enemy=true;return{e:ENEMIES[n.enemy],list,hp:n.fixed.hp,depth:depthOf(n)}}
-  const e=ENEMIES[n.enemy],depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
-  let budget=(6+depth*6)*mult;const list=[];
-  e.sig.forEach(k=>{const t=rollTier(depth,r);if(used(list)+DEFS[k].s<=HOLD){list.push({k,t});budget-=price(k,t)*.5}});
+  const e=ENEMIES[n.enemy],sc=SEASCALE[G.sea]||SEASCALE[2],depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
+  let budget=(6+depth*6)*mult*sc.gear;const list=[];
+  e.sig.forEach(k=>{const t=Math.min(sc.tier,rollTier(depth,r));if(used(list)+DEFS[k].s<=HOLD){list.push({k,t});budget-=price(k,t)*.5}});
   const theme=pick(r,SHIPKEYS);
   let tries=0;while(tries++<90&&used(list)<HOLD&&budget>2){const k=drawKey(r,theme),d=DEFS[k];if(k==='chest')continue;
-    const t=rollTier(depth,r),p=price(k,t);if(used(list)+d.s>HOLD||p>budget)continue;list.splice(ri(r,list.length+1),0,{k,t});budget-=p}
-  const hp=Math.round((70+depth*12)*(e.kind==='e'?1.15:e.kind==='b'?1.3:1));
+    const t=Math.min(sc.tier,rollTier(depth,r)),p=price(k,t);if(used(list)+d.s>HOLD||p>budget)continue;list.splice(ri(r,list.length+1),0,{k,t});budget-=p}
+  const hp=Math.round((70+depth*12)*(e.kind==='e'?1.15:e.kind==='b'?1.3:1)*sc.hp);
   list.enemy=true;   // enemy cargo needs no crew
   return{e,list,hp,depth};
 }

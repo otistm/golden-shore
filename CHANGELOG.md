@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.29.0
+- The Shallows are gentler: enemies there carry less cargo, all of it bronze, and have a little less health. The Sea Serpent's poison no longer runs away with the fight.
+- The Fog Sea and the Deep push back harder: tougher enemies with more and better cargo, so the voyage builds toward the Kraken instead of getting easier.
+- At Gullhaven the Guild pays your ship's own two hands to sign on, so you can crew the cargo you start with and still spend your 30 gold on goods.
+- The side route after losing to a boss opens twice per boss. The second time it tells you it's the last one; after that, only the boss lies ahead.
+- Voyages already under way will meet the new enemy strengths from the next stop on.
+
 ## 0.28.0
 - Losing to a boss is no longer a dead end. When you limp back to port, a side route opens beside the boss: a bounty to fight and a fishing ground. Each can be sailed once and leads back to the port, so you can earn gold, pay your crew and refit before trying the boss again. Every loss opens a fresh pair.
 
