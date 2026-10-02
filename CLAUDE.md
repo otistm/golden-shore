@@ -43,7 +43,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | bandits.js | The bandits' card game (`bandits()`, `bandEval()`, `BHANDS`) |
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
-| coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
+| coach.js | The maiden voyage: `TUT` steps, Ansel's coach bubble and dimmer, the fixed six-stop map |
 | (fittings) | `FITTINGS` and `SPOTS` live in world.js, `hasF`, `equip`, `canEquip`, `holdCap` in state.js, their fight effects in battle.js, the shipwright in port.js |
 | desk.js | The captain's desk side panel on big screens (`renderDesk`, `DESK`) |
 | main.js | Startup (always last) |
