@@ -10,7 +10,7 @@ const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
-  const out=Object.assign({sv:ATLAS_SCHEMA,voyages:0,wins:0,bosses:0,elites:0,met:{},beat:{},items:{},charts:{},fish:{},people:{},tips:{},tutDone:false,best:0,daily:{}},m||{});
+  const out=Object.assign({sv:ATLAS_SCHEMA,voyages:0,wins:0,bosses:0,elites:0,met:{},beat:{},items:{},charts:{},fish:{},people:{},tips:{},tipsOff:false,tutDone:false,best:0,daily:{}},m||{});
   ['met','beat','items','charts','fish','people','tips','daily'].forEach(k=>{if(!out[k]||typeof out[k]!=='object')out[k]={}});
   ['voyages','wins','bosses','elites','best'].forEach(k=>{if(typeof out[k]!=='number'||!isFinite(out[k]))out[k]=0});
   // for the future: if(out.sv<2){ ...convert...; out.sv=2; }

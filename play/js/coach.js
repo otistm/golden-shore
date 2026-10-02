@@ -101,11 +101,14 @@ const TIPS={
   wright:"The shipwright fits parts to your ship. Each one changes how you fight, with a trade-off. Tap your hull to see your ship.",
   locker:"Your new locker holds spare cargo. It stays out of fights. Drag items between it and your hold."
 };
-// then: runs when the player closes this tip, so a second tip can follow straight on instead of waiting for a later screen
-function tip(key,pos,then){
-  if(!G||G.tut)return;A.tips=A.tips||{};if(A.tips[key])return;
+// fire a tip where it applies (the place it's about, the moment it explains); "End tutorial" on any tip stops the rest for good
+function tip(key,pos){
+  if(!G||G.tut||A.tipsOff)return;A.tips=A.tips||{};if(A.tips[key])return;
   if(document.getElementById('coach'))return;
   A.tips[key]=1;saveA();
-  bubble(TIPS[key],{pos,label:'Tip',onClose:then?()=>{hideCoach();then()}:undefined});
+  const c=bubble(TIPS[key],{pos,label:'Tip',links:'<button class="linkbtn" data-c="end">End tutorial</button>'});
+  c.querySelector('[data-c=end]').onclick=()=>{A.tipsOff=true;saveA();hideCoach()};
 }
+// cargo nobody aboard can work: the crew tip is about exactly this, so it takes over from whatever tip is showing
+function deadTip(o){if(!G||G.tut||A.tipsOff||(A.tips&&A.tips.crew)||itemUse(o.k,crewCrafts())==='all')return;hideCoachIfTip();tip('crew')}
 function hideCoachIfTip(){if(!G||!G.tut)hideCoach()}
