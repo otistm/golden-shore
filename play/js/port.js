@@ -95,7 +95,7 @@ function port(id,view){
   app.querySelectorAll('[data-sel]').forEach(b=>{const go=()=>{PV.tsel=+b.dataset.sel;port(id,view)};b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
-  save();coach('port');tip('port');tip('crew');tip('wright');
+  save();coach('port');tip('port',undefined,()=>{if(G&&G.inPort)tip('crew')});tip('crew');tip('wright');
 }
 /* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
    out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. */
