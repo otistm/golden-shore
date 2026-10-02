@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.27.1
+## 0.27.2
 - A health pill sits next to your hull in the top bar: the health your ship will have in the next fight. It grows as you sail deeper, and with the Bulwark's trait, Coral Reef and fittings. In a fight it shows that fight's health.
 - On small phones the top bar's pills are a little tighter so they stay on one line.
 
