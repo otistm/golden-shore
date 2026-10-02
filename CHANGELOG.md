@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.2
+- Tips wait until you're somewhere they're about: the market tip when you open the market, the crew tip in the tavern (or as soon as you buy cargo nobody aboard can work), the shipwright tip in the yard. Nothing pops up on the harbour any more.
+- Every tip has a small End tutorial link that stops all remaining tips for good.
+
 ## 0.26.1
 - The tip about crew now shows at your first port, right after the tip about buying cargo, so you learn that items need the right hands before you set sail. Before, it waited until the second port.
 
