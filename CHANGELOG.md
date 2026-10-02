@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.1
+- Spoils always show what each item does, even when your hold is too full to take it, instead of a note about freeing slots. Its Take button still dims, and tapping it says how much room you need.
+
 ## 0.25.0
 - Each sea's voyage to its boss is twice as long: 12 rows of chart instead of 6, with a row of ports halfway as well as before the boss. The difficulty climbs over the same range, just more gradually. Voyages already underway keep their current chart until their next sea.
 - Bandits! Hidden in one stretch of unknown water per sea, pirates board you and make you play a hand of cards for your freedom. You're dealt 8 cards and have 3 plays and 2 discards to beat their score by playing poker hands (pair, flush, full house and so on), each worth chips times mult. Win and you keep your ship, but they still take the most valuable half of your hold. Lose and they take your whole hold and smash your hull to half. Leaving mid-hand brings you back to the cards.
