@@ -75,7 +75,7 @@ function bandits(n,done,resumed){
     function next(){hand=hand.filter(c=>!sel.has(c.id));const k=sel.size;sel.clear();busy=false;
       if(score>=T)return finish(true);if(!plays)return finish(false);draw(k);render()}}
   function finish(won){G.boarded=null;
-    const lost=[];let msg;
+    const lost=[],wasHull=G.hull;let msg;
     if(won){// they take the most valuable half of your hold
       const half=Math.ceil(used(G.board)/2);let took=0;const order=G.board.map((b,i)=>[price(b.k,b.t),i]).sort((a,b)=>b[0]-a[0]);
       const gone=new Set();for(const[,i]of order){if(took>=half)break;gone.add(i);took+=DEFS[G.board[i].k].s}
@@ -84,12 +84,18 @@ function bandits(n,done,resumed){
     else{lost.push(...G.board);G.board=[];const was=G.hull;G.hull=Math.max(1,Math.floor(G.hull/2));
       msg=`Lost to the bandits at cards. They stripped the hold${lost.length?` (${lost.length} piece${lost.length===1?'':'s'} of cargo)`:''} and smashed the hull from ${was} to ${G.hull}.`}
     logL(msg);save();
+    // the reckoning: their verdict stamps down, the scores are set side by side, then the cargo they take is snatched away piece
+    // by piece; if you lost, the hull number is smashed down while planks crack off. The button arrives last.
+    const nl=lost.length,still=matchMedia('(prefers-reduced-motion:reduce)').matches,hullT=.9+nl*.18;
     const ov=overlay(`<div class="bd-end ${won?'won':'lost'}"><div class="bd-face big">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
-      <h2>${won?'You keep your ship':'They take everything'}</h2>
-      <p>${won?`${score} beats ${T}. The bandits keep their word, mostly.`:`${score} against their ${T}.`}</p>
-      ${lost.length?`<div class="bd-lost">${lost.map(b=>`<span class="o-icon t${b.t}">${icon(b.k)}</span>`).join('')}</div><p class="soft">${won?'They took':'Gone'}: ${lost.map(b=>DEFS[b.k].n).join(', ')}.</p>`:''}
-      ${won?'':`<p><b>Hull smashed to ${G.hull}.</b></p>`}</div>
-      <button class="primary" id="bdgo">Sail on</button>`,true,'bdresult');
+      <h2 class="bd-verdict">${won?'You keep your ship':'They take everything'}</h2>
+      <div class="bd-vs"><span><small>You</small><b>${score}</b></span><i>${won?'beats':'against'}</i><span><small>Them</small><b>${T}</b></span></div>
+      ${nl?`<div class="bd-lost">${lost.map((b,k)=>`<span class="o-icon t${b.t}" style="--i:${k}">${icon(b.k)}</span>`).join('')}</div><p class="soft bd-gone" style="--d:${.9+nl*.18}s">${won?'They took':'Gone'}: ${lost.map(b=>DEFS[b.k].n).join(', ')}.</p>`:`<p class="soft bd-gone" style="--d:.9s">${won?'There was nothing in the hold for them to take.':'There was nothing in the hold to take.'}</p>`}
+      ${won?'':`<div class="bd-hull" style="--d:${hullT}s;--hd:${hullT}s"><span>Hull</span><b id="bdhull">${still?G.hull:wasHull}</b><div class="planks" aria-hidden="true">${Array.from({length:Math.min(wasHull,40)},(_,k)=>`<i${k>=G.hull?` class="go" style="--d:${(k-G.hull)*60}ms"`:''}></i>`).join('')}</div></div>`}</div>
+      <button class="primary bd-go" id="bdgo" style="--d:${won?1.2+nl*.18:hullT+1}s">Sail on</button>`,true,'bdresult');
+    if(!won&&!still){const hb=ov.querySelector('#bdhull'),n=wasHull-G.hull;
+      for(let k=1;k<=n;k++)setTimeout(()=>{if(!ov.isConnected)return;hb.textContent=wasHull-k;squish(hb,'bump')},hullT*1000+600+(k-1)*60);
+      setTimeout(()=>{if(ov.isConnected)squish(ov.querySelector('.sheet')||ov.firstElementChild,'jolt')},hullT*1000+500)}
     const b=ov.querySelector('#bdgo');b.focus();b.onclick=()=>{ov.remove();done()}}
   render();
 }

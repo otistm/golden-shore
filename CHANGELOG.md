@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.25.5
+- The bandits' verdict is animated: the captain laughs (or grumbles if you beat him), the verdict stamps down, your score and theirs are set side by side, then each piece of cargo they take is snatched away one by one. If you lost, the hull number is smashed down point by point while planks crack off, and the card jolts. The button arrives last.
+
 ## 0.25.4
 - The bandits board in style: their black-sailed ship runs up alongside yours, grappling hooks arc across and bite, your ship jolts as they haul in, three bandits swing over onto your deck and "Boarded!" slams onto the screen before the cards are dealt. Tap to skip; it doesn't replay if you come back mid-hand.
 - Fixed a bug where tapping another stop while your boat was still sailing could, after arriving, send you to a stop you couldn't actually reach, and tangle up the next fight.
