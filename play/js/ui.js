@@ -268,10 +268,10 @@ function showPause(){
   if(PAUSE.on||!G||!app.querySelector(':scope>.bar,:scope>.charthead>.bar'))return;
   PAUSE.on=true;PAUSE.since=performance.now();
   const fighting=B&&!B.over,fishing=!!app.querySelector('#pond');
-  const note=G.tut?'The tutorial is not saved, so leaving starts it over next time.'
+  const note=G.tut?'The maiden voyage is not saved, so leaving starts it over next time.'
     :`Your voyage is saved. Pick it up from the title screen whenever you like.${fighting?' If you leave now, this fight starts over when you come back.':fishing?' If you leave now, the casts you have left are lost.':''}`;
-  const ov=PAUSE.ov=overlay(`<h2>Paused</h2><p class="soft">${G.tut?'Tutorial':`${SEAS[G.sea]}, day ${G.day}. Voyage ${codeOf(G.seed)}`}</p><p>${note}</p>
-    <button class="primary" data-p="go">Keep sailing</button><button class="ghost" data-p="home">${G.tut?'Leave the tutorial':'Save and go to the title'}</button>
+  const ov=PAUSE.ov=overlay(`<h2>Paused</h2><p class="soft">${G.tut?'The maiden voyage':`${SEAS[G.sea]}, day ${G.day}. Voyage ${codeOf(G.seed)}`}</p><p>${note}</p>
+    <button class="primary" data-p="go">Keep sailing</button><button class="ghost" data-p="home">${G.tut?'Leave the maiden voyage':'Save and go to the title'}</button>
     <p class="ver">Version ${VERSION}.${feedbackLink('fbPause')}</p>`,true,'pausecard');
   ov.addEventListener('click',e=>{if(e.target===ov)return resumePause();const b=e.target.closest('[data-p]');if(!b)return;
     if(b.dataset.p==='go')resumePause();else leaveToTitle()});

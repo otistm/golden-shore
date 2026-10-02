@@ -70,14 +70,16 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 4. Push the branch and share the Vercel preview link with Otis. Merge to `main` only when he's happy.
 
 ## Tutorial and tips
-- The game reports moments with `coach(event)`: `port`, `bought`, `moved`, `chart`, `sail`, `fight`, `spoils`, `spoilsTaken`, `fishing`, `fishDone`, `landmarkOpen`, `landmark`.
-- Each step in `TUT` has `when` (the event that shows it), `until` (the event that moves on, or `next`/`finish` buttons), an optional `target` to highlight, and `pause` to hold the fight.
-- If you rename a screen element a step targets, or change when one of those events fires, update `TUT` and replay the tutorial.
-- The tutorial uses a fixed five-stop map, a guaranteed-winnable fight, `G.tut`, and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone`.
+- The tutorial is the maiden voyage (`startTutorial()` in coach.js): a fixed six-stop map, one lesson per stop. Gullhaven (items, then crew: the Rapier arrives faded and comes alive when the Fencing Master signs on), a training hulk (fighting, then renown: `G.renown` starts one short of level 1 so the win brings a captain's pick), an uncharted isle (landmarks), Saltmere (fittings, from a fixed bench), the examiner (everything together), the Guild hall (finish).
+- Each port node lists the places open for its lesson in `open`; `tutOpen(view)` closes the rest during the trial.
+- The game reports moments with `coach(event)`: `port`, the place opened (`market`, `tavern`, `wright`, `docks`, `harbour`), `bought`, `moved`, `hired`, `fitted`, `chart`, `sail`, `fight`, `renown`, `perkDone`, `spoils`, `spoilsTaken`, `fishing`, `fishDone`, `landmarkOpen`, `landmark`.
+- Each step in `TUT` has `when` (the event that shows it), `until` (the event that moves on, or `next`/`finish`), an optional `target` to highlight, and `pause` to hold the fight. The bubble's label names the stop ("Maiden voyage, stop 2 of 6").
+- If you rename a screen element a step targets, or change when one of those events fires, update `TUT` and replay the maiden voyage.
+- The maiden voyage uses `G.tut` and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone` and marks the port, chart, crew and shipwright tips as seen.
 - One-time tips live in `TIPS` and show once per player. `A.tips` remembers which ones they've seen.
 - A tip fires only where it applies: port tips when you open that place (`port` in the market, `crew` in the tavern, `wright` in the yard), and `crew` also when you buy cargo nobody aboard can work (`deadTip()`). Every tip has an End tutorial link that sets `A.tipsOff`, after which `tip()` shows nothing.
 - Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
-  - Tutorial tips show "Tip N of M". Closing an explanation advances, closing the last tip finishes, and closing an action tip only hides it.
+  - Maiden voyage steps show which stop you're on. Closing an explanation advances, closing the last one finishes, and closing an action step only hides it.
   - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
 
 ## Crafts and crew
@@ -205,7 +207,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
 ## Smoke test before sharing a preview
-- A fresh player sees Learn to sail first. The tutorial runs start to finish on both the fishing and the isle branch, and Continue voyage is untouched afterwards.
+- A fresh player sees The maiden voyage first. It runs start to finish (all six stops), and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
 - At 1440 × 900 and 1920 × 1080: the desk panel shows the ship, landmarks and log, the chart fills the stage and tapping a stop opens its preview, the fight fills the screen, and nothing sits behind the hold.
 - Start a voyage: pick a ship, Gullhaven's intro appears with a bare ship and 30 gold, the market and tavern lead with the ship's own gear and hands, and Hock is on the dock.

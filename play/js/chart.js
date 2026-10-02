@@ -77,7 +77,7 @@ function chart(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   // the bar and the sea's name stay pinned to the top while the chart scrolls under them
-  app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${G.tut?'Gullhaven harbour':SEAS[G.sea]}</h2><span>${G.tut?'Tutorial':`Sea ${G.sea+1} of 3`}</span></div></div>
+  app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span>${G.tut?'Guild trial':`Sea ${G.sea+1} of 3`}</span></div></div>
     <div class="map">${mapSVG()}</div><p class="tapnote">Tap a marked spot to see what's there.</p>
     ${holdDock('')}`;
   bindBar();bindHold('hold',chart);fitDock();

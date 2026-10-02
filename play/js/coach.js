@@ -1,43 +1,68 @@
 /* Ink Crossing: the tutorial (a short guided first voyage with Ansel as coach) and one-time tips for everything else. */
 "use strict";
-/* Tutorial steps. when: the event that shows the step (none = right after the previous one).
+/* The maiden voyage: the Guild's trial run, six stops that each teach one part of the game by playing it.
+   Gullhaven: items, then the crew who make them work. The training hulk: a fight, then renown and a captain's pick.
+   The uncharted isle: a landmark. Saltmere: a fitting at the shipwright. The examiner: everything working together.
+   The Guild hall: done.
+   Steps. when: the event that shows the step (none = right after the previous one).
    until: the event that moves on ('next' shows a Next button, 'finish' a Finish button). pause: holds the fight while it's shown. */
 const TUT=[
-  {when:'port',until:'next',text:"Welcome aboard, cartographer. I'm Ansel. I keep the Gullhaven light, and I'll see you out of the harbour."},
-  {until:'bought',target:'#stall',text:"This is Marta's stall. Tap something on her counter to hear about it, then Buy. You have enough gold for any of these."},
-  {until:'moved',target:'.dock .board',skip:1,text:"It went into your hold. In a fight, each item fires on its own when it's charged. Drag an item to a new spot. Some items boost their neighbours."},
-  {until:'chart',target:'#leave',text:"Good. When you're ready, tap Set sail."},
-  {when:'chart',until:'fight',target:'.node.reach',text:"This is your chart. Fog hides what's far off. Tap the glowing mark to see what's there, then sail."},
-  {when:'fight',until:'next',pause:1,target:'#ef',pos:'bottom',text:"A fight. Every enemy has its own tricks. Tap its card any time to read them. Reef Sharks get faster when they're hurt."},
-  {until:'next',pause:1,target:'.board[data-side="p"]',text:"Your cargo charges up and fires by itself. Watch the hatching fill each item."},
-  {until:'next',pause:1,target:'.speed',text:"After 30 seconds a storm hits both ships. Win before then. Tap 2× or 4× to speed things up."},
-  {when:'spoils',until:'spoilsTaken',target:'.offers',text:"You won. Winners take spoils. Drag one piece of their cargo into your hold, or tap Take. Then Sail on."},
-  {when:'chart',until:'sail',target:'.node.reach',text:"Routes branch. Fishing grounds give you fish to sell at port. Uncharted isles give landmarks that help for the whole voyage. Pick one."},
-  {when:['fishing','landmarkOpen'],until:['fishDone','landmark'],textFor:{
-    fishing:"Tap Cast. When the bobber dips and shows !, tap fast. Then hold to keep the fish inside the bracket.",
-    landmarkOpen:"Pick a landmark. It goes on your chart and helps you for the rest of the voyage."}},
-  {when:'chart',until:'sail',target:'.node.reach',text:"Last stop today: Saltmere. Sail in."},
-  {when:'port',until:'finish',text:"Ports sell cargo and buy fish. Out in the real seas there are people to meet, elites, events and a boss at the end of each sea. That's everything. Good luck, cartographer."}
+  // Gullhaven: items
+  {when:'port',until:'next',text:"Welcome aboard, cartographer. I'm Ansel. Before the Guild trusts you with a real chart, you sail its trial: the maiden voyage. Six stops, and each one teaches you one thing."},
+  {until:'bought',target:'#stall',text:"First, cargo. Everything that fights for you is an item in your hold. Tap the Rapier on Marta's table to read it, then Buy it."},
+  {until:'moved',target:'.dock .board',skip:1,text:"It's in your hold. In a fight, each item charges up and fires on its own; the number is how many seconds that takes. Drag it to another slot. Some items help their neighbours."},
+  // Gullhaven: crew
+  {until:'tavern',target:'[data-bld="tavern"]',text:"See how your cargo looks faded, with its lines crossed out? Nobody aboard can work it yet. Each line names the crew skill it needs, like Steel. Open the Tavern."},
+  {when:'tavern',until:'hired',target:'.talk .buy',text:"The Fencing Master has Steel, so they can work your blades. The Guild pays for your first hands. Sign them on."},
+  {when:'hired',until:'next',target:'.dock .board',text:"Look at your hold now. Steel lines are ticked and those items are back in full ink, so they'll fire in a fight. Any line still crossed out needs another skill: hire someone who has it."},
+  {until:'chart',target:'#leave',text:"That's items and the crew who work them. Tap Set sail."},
+  // the training hulk: fighting
+  {when:'chart',until:'fight',target:'.node.reach',text:"Your chart. Each mark is a stop. This one is a Guild training hulk. Tap it, then Sail here."},
+  {when:'fight',until:'next',pause:1,target:'.board[data-side="p"]',pos:'bottom',text:"A fight. Your items fill with hatching as they charge, then fire by themselves. Only items your crew can work will fire."},
+  {until:'next',pause:1,target:'.speed',pos:'bottom',text:"After 30 seconds a storm hurts both ships, so win before then. Tap 2× or 4× to speed things up."},
+  // renown
+  {when:'renown',until:'perkDone',text:"Wins earn renown. Fill the bar and you make a captain's pick: a rule that lasts the whole voyage. Orders fire once a fight, at the moment you choose. Pick one."},
+  {when:'spoils',until:'spoilsTaken',target:'.offers',text:"Winners take spoils. Drag one piece of their cargo into your hold, or tap Take. Then Sail on."},
+  // the isle: landmarks
+  {when:'chart',until:'sail',target:'.node.reach',text:"That island isn't on any map. Sail there and chart it."},
+  {when:'landmarkOpen',until:'landmark',text:"Landmarks go on your chart and help you for the rest of the voyage. Pick one."},
+  {when:'chart',until:'sail',target:'.node.reach',text:"Saltmere has a shipwright. Sail in."},
+  // Saltmere: fittings
+  {when:'port',until:'wright',target:'[data-bld="wright"]',text:"Fittings change how your ship fights, and every one has a trade-off. Open the Shipwright."},
+  {when:'wright',until:'fitted',target:'#stall',text:"Tap a fitting on the bench to read it, then fit it. You've enough gold for either."},
+  {when:'fitted',until:'next',target:'#shipbtn',text:"Fittings last the voyage, but losing a fight can tear one away. Tap your hull in the top bar any time to see your ship, crew, picks and fittings."},
+  {until:'chart',target:'#leave',text:"One test left. Set sail."},
+  // the examiner: everything together
+  {when:'chart',until:'fight',target:'.node.reach',text:"The Guild's examiner. Your cargo, your crew, your fitting, your landmark and your pick all work together now. Sail at them."},
+  {when:'fight',until:'next',pause:1,target:'#pf',pos:'bottom',text:"Watch for your fitting and your captain's order going off in this fight."},
+  {when:'spoils',until:'spoilsTaken',target:'.offers',text:"Take your spoils, then Sail on."},
+  {when:'chart',until:'sail',target:'.node.reach',text:"The Guild hall is just ahead. Sail in to finish your trial."},
+  {when:'port',until:'finish',text:"Trial passed. The Guild signs your papers. Out in the real seas you'll also find fishing grounds, people, events, elites, bandits and a boss at the end of each sea. Good luck, cartographer."}
 ];
 const ANSEL=NPCS.ansel.look;
 function startTutorial(){
-  const map={sea:0,start:900,boss:null,nodes:[
-    {id:900,row:0,col:1.5,x:170,type:'port',name:'Gullhaven'},
-    {id:901,row:1,col:1.5,x:170,type:'threat',enemy:'sharks',fixed:{hp:55,list:[{k:'dagger',t:0},{k:'fenders',t:0}]}},
-    {id:902,row:2,col:.5,x:100,type:'fish'},
-    {id:903,row:2,col:2.5,x:240,type:'isle'},
-    {id:904,row:3,col:1.5,x:170,type:'port',name:'Saltmere'}],
-    edges:[[900,901],[901,902],[901,903],[902,904],[903,904]]};
-  G=Object.assign({},VOYAGE_DEFAULTS,{seed:'TUTORIAL',ship:'sloop',sea:0,map,at:900,path:[900],day:1,gold:12,hull:20,
-    board:SHIPS.sloop.start.map(x=>({...x})),charts:[],log:[],creel:[],hock:'tutorial',tut:{i:0,on:false},crew:['fencer','bosun','herbalist'].map(k=>({k,xp:0,m:3})),
-    shops:{900:{offers:[{k:'swordcane',t:0},{k:'sail',t:0},{k:'pork',t:0},{k:'duelglove',t:0}],reroll:1,demand:'mackerel'}}});
+  // open: the places that are open at each port of the trial
+  const map={sea:0,start:900,boss:null,rows:5,nodes:[
+    {id:900,row:0,col:1.5,x:170,type:'port',name:'Gullhaven',open:['market','tavern']},
+    {id:901,row:1,col:1.5,x:170,type:'threat',enemy:'gulls',fixed:{hp:60,list:[{k:'pins',t:0}]}},
+    {id:902,row:2,col:1.5,x:170,type:'isle'},
+    {id:903,row:3,col:1.5,x:170,type:'port',name:'Saltmere',open:['market','wright']},
+    {id:904,row:4,col:1.5,x:170,type:'threat',enemy:'sharks',fixed:{hp:110,list:[{k:'dagger',t:0},{k:'fenders',t:0},{k:'pins',t:0}]}},
+    {id:905,row:5,col:1.5,x:170,type:'port',name:'The Guild hall',open:['market']}],
+    edges:[[900,901],[901,902],[902,903],[903,904],[904,905]]};
+  G=Object.assign({},VOYAGE_DEFAULTS,{seed:'TUTORIAL',ship:'sloop',sea:0,map,at:900,path:[900],day:1,gold:25,hull:20,renown:RENOWN[0]-1,
+    board:[],charts:[],log:[],creel:[],hock:'tutorial',tut:{i:0,on:false},crew:[],
+    shops:{900:{offers:[{k:'rapier',t:0},{k:'jib',t:0},{k:'swordcane',t:0},{k:'pork',t:0}],tavern:['fencer','bosun','herbalist'],reroll:1,demand:'mackerel'},
+      903:{offers:[{k:'pistols',t:0},{k:'sail',t:0},{k:'duelglove',t:0},{k:'fenders',t:0}],fits:['ram','studding'],reroll:1,demand:'mackerel'}}});
   updateReveal();lore(LORE.start);port(900);
 }
+/* is a place open? Everywhere in a real voyage; in the trial, only where that stop's lesson is */
+const tutOpen=view=>!G||!G.tut||((node(G.at)||{}).open||[]).includes(view);
 function finishTutorial(){
-  hideCoach();A.tutDone=true;A.tips=A.tips||{};['port','chart','fishing'].forEach(k=>A.tips[k]=1);saveA();
+  hideCoach();A.tutDone=true;A.tips=A.tips||{};['port','chart','crew','wright'].forEach(k=>A.tips[k]=1);saveA();
   cancelAnimationFrame(raf);cancelAnimationFrame(FR);B=null;G=null;
   document.querySelectorAll('.overlay').forEach(o=>o.remove());title();
-  toast("Tutorial done. Pick a voyage when you're ready.");
+  toast("Trial passed. Pick a voyage when you're ready.");
 }
 /* the coach bubble */
 function hideCoach(){const c=document.getElementById('coach');if(c){clearTimeout(c._t);c.remove()}document.querySelectorAll('.coach-hi').forEach(e=>e.classList.remove('coach-hi'));if(B)B.coachHold=false}
@@ -72,7 +97,7 @@ function showStep(ev){
   const text=st.textFor?st.textFor[ev]:st.text,u=[].concat(st.until);
   // closing a step: explanations move on, the last one finishes, and action steps just tuck the tip away until you do the thing
   const onClose=u.includes('finish')?finishTutorial:(u.includes('next')||st.skip)?()=>advance():()=>{const c=document.getElementById('coach');if(c){clearTimeout(c._t);c.remove()}};
-  const c=bubble(text,{pos:st.pos,target:st.target,label:`Tip ${T.i+1} of ${TUT.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
+  const c=bubble(text,{pos:st.pos,target:st.target,label:`Maiden voyage, stop ${Math.min(G.path.length,G.map.nodes.length)} of ${G.map.nodes.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
   if(st.pause&&B)B.coachHold=true;
   c.querySelector('[data-c=skip]').onclick=finishTutorial;
 }
