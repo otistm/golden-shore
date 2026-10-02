@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.24.3
+- Repairing your hull at the shipwright shows the work: a "Hull repaired" card (the hull damage card run backwards) where a mallet knocks each new plank into the row with a thump, the hull number counts up with every plank, and a +N pops in beside it. Tap it to dismiss.
+
 ## 0.24.2
 - Show me more is a little performance: the seller sweeps the old goods off the table (they tip and slide away) and ducks down behind it, then pops back up as the new goods thump onto the table one by one with a squash.
 

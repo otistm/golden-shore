@@ -1199,3 +1199,14 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .good.thump{animation:thump .5s cubic-bezier(.4,0,.6,1) both}
 @keyframes thump{0%{transform:translateY(-140px) rotate(-10deg);opacity:0}55%{transform:translateY(0) rotate(0);opacity:1}68%{transform:scale(1.14,.82)}84%{transform:scale(.96,1.05) translateY(-4px)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.stall.sweeping .good,.stall.sweeping .seller,.seller.popup,.good.thump{animation:none}}
+/* hull repairs: the damage card run backwards, planks knocked into place by a mallet */
+.hullcard.repair .hc-ship{animation:none}
+.hullcard.repair{position:fixed}
+.planks i.come{animation:plankOn .35s cubic-bezier(.3,1.6,.5,1) calc(.55s + var(--d)) both}
+@keyframes plankOn{0%{transform:translateY(-14px) scale(1,.4);opacity:0;background:var(--ink)}60%{transform:translateY(2px) scale(1.15,.9);opacity:1;background:var(--ink)}100%{transform:none;background:var(--paper)}}
+.hc-mallet{position:absolute;right:12px;top:-14px;width:34px;height:34px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;transform-origin:20% 90%;transform:rotate(18deg)}
+.hc-mallet .w{fill:var(--paper)}
+.hc-mallet.knock{animation:knock .16s ease-in}
+@keyframes knock{0%{transform:rotate(18deg)}50%{transform:rotate(-26deg)}100%{transform:rotate(18deg)}}
+.hullcard.repair .hc-loss{animation:hcLoss .5s var(--spring) .35s both}
+@media (prefers-reduced-motion:reduce){.planks i.come{animation:none}.hc-mallet.knock{animation:none}}
