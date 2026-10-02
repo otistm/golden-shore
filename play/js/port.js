@@ -50,7 +50,10 @@ function port(id,view){
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
     if(hasC('route')&&G.freeRoll){G.freeRoll=false}
     else{if(G.gold<rr)return toast(`Need ${rr-G.gold} more gold`);G.gold-=rr;S.reroll++;bump='gold'}
-    S.offers=Array.from({length:4},(_,i)=>stallItem(Math.random,depthOf(n),sellerOf(id),i));PV.msel=null;fresh=true;save();port(id,view)};
+    S.offers=Array.from({length:4},(_,i)=>stallItem(Math.random,depthOf(n),sellerOf(id),i));PV.msel=null;save();
+    // the seller sweeps the old goods off the table and ducks under it, then thumps the new ones down one by one
+    const st=app.querySelector('#stall');if(!st||matchMedia('(prefers-reduced-motion:reduce)').matches){fresh=true;return port(id,view)}
+    rb.disabled=true;st.classList.add('sweeping');setTimeout(()=>{restock=true;port(id,view)},520)};
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>itemSheet([S.offers[+b.dataset.v]],0,'view',()=>{}));
   app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const i=+b.dataset.b,o=S.offers[i],p=buyP(o);
     if(G.gold<p)return toast(`Need ${p-G.gold} more gold`);
@@ -85,6 +88,7 @@ function port(id,view){
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
+  if(restock){restock=false;const sl=app.querySelector('#stall .seller');if(sl)sl.classList.add('popup')}
   app.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{PV.dsel=b.dataset.ds;port(id,view)});
   app.querySelectorAll('[data-df]').forEach(b=>b.onclick=()=>{PV.dsel=+b.dataset.df;port(id,view)});
   app.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const v=b.dataset.w;PV.wsel=v==='r'?'r':+v;port(id,view)});
@@ -95,12 +99,14 @@ function port(id,view){
 }
 /* the market: a seller's stall. The seller stands behind the table with their speech bubble beside them, and the day's goods sit
    out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. */
+/* the market just restocked (Show me more): the new goods thump down onto the table instead of popping in */
+let restock=false;
 function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
   let sel=PV.msel;if(sel==null||!S.offers[sel])sel=S.offers.findIndex(Boolean);
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
     const d=DEFS[g.k],up=!!findMatch(g);
-    return`<button class="good${i===sel?' sel':''}${anim?' in':''}" data-g="${i}" style="animation-delay:${i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
+    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
   let talk;
   if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
