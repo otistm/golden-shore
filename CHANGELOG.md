@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.24.2
+- Show me more is a little performance: the seller sweeps the old goods off the table (they tip and slide away) and ducks down behind it, then pops back up as the new goods thump onto the table one by one with a squash.
+
 ## 0.24.1
 - The little figure and its "!" speech bubble are gone from the pier in the harbour panorama. Once you're inside the port, the Docks button still shows a ! when someone is waiting to talk.
 

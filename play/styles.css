@@ -1188,3 +1188,14 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .sx-name{font:italic 900 clamp(46px,13vw,110px)/1 var(--display);background:var(--paper);padding:4px 20px 12px;border:3.5px solid var(--ink);border-radius:18px;box-shadow:7px 7px 0 var(--ink);margin-top:10px;animation:seaname 3.2s 1.7s both}
 @keyframes seaname{0%{transform:scale(3) rotate(-10deg);opacity:0}9%{transform:scale(.94) rotate(-2deg);opacity:1}13%{transform:rotate(-3deg)}85%{transform:rotate(-3deg) scale(1.02);opacity:1}100%{transform:scale(1.1) rotate(-3deg);opacity:0}}
 .seacross.still *{animation:none!important}.seacross.still .sx-bar{height:11vh}.seacross.still .sx-rain,.seacross.still .sx-fog,.seacross.still .sx-bolt{display:none}
+/* Show me more: the old goods are swept off the table while the seller ducks, then the new ones thump down one by one */
+.stall.sweeping .good{animation:sweep .42s cubic-bezier(.5,0,.8,.5) both}
+.stall.sweeping .good:nth-child(2){animation-delay:50ms}.stall.sweeping .good:nth-child(3){animation-delay:100ms}.stall.sweeping .good:nth-child(4){animation-delay:150ms}
+@keyframes sweep{0%{transform:none}30%{transform:translate(-6px,-10px) rotate(-6deg)}100%{transform:translate(120px,40px) rotate(40deg);opacity:0}}
+.stall.sweeping .seller{animation:duck .5s cubic-bezier(.5,0,.6,1) both}
+@keyframes duck{0%{transform:none}35%{transform:translateY(-6px)}100%{transform:translateY(40%) scale(1,.92)}}
+.seller.popup{animation:popup .5s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes popup{0%{transform:translateY(40%) scale(1,.92)}100%{transform:none}}
+.good.thump{animation:thump .5s cubic-bezier(.4,0,.6,1) both}
+@keyframes thump{0%{transform:translateY(-140px) rotate(-10deg);opacity:0}55%{transform:translateY(0) rotate(0);opacity:1}68%{transform:scale(1.14,.82)}84%{transform:scale(.96,1.05) translateY(-4px)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.stall.sweeping .good,.stall.sweeping .seller,.seller.popup,.good.thump{animation:none}}
