@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.31.0
+- Learn to sail is now the maiden voyage: the Guild's six-stop trial run, where each stop teaches one part of the game by playing it. Gullhaven teaches items and the crew who make them work (buy a Rapier, see it faded, sign on the Fencing Master, watch it come alive). A training hulk teaches fighting, then renown and your first captain's pick. An uncharted isle teaches landmarks, Saltmere's shipwright teaches fittings, and the Guild's examiner puts it all together before the Guild hall signs your papers.
+- Ansel's bubble shows which stop of the trial you're on. Places that aren't part of a stop's lesson stay closed.
+
 ## 0.30.1
 - The Deep's ordinary fights sit halfway between their old toughness and last week's softer version, and the Kraken has more health and carries more cargo, so the Deep stays the hardest sea now that holds reach diamond.
 

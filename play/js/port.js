@@ -38,7 +38,7 @@ function port(id,view){
   const info=harbourInfo(S,vis);
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
-      ${view==='market'?marketH:view==='tavern'?(G.tut?'':tavernHTML(S)):view==='wright'?(G.tut?'':wrightHTML(S,id,anim)):docksHTML(S,id,vis,anim)}`;
+      ${view==='market'?marketH:view==='tavern'?(tutOpen('tavern')?tavernHTML(S):'<p class="soft">The tavern is closed for the trial.</p>'):view==='wright'?(tutOpen('wright')?wrightHTML(S,id,anim):'<p class="soft">The shipwright is closed for the trial.</p>'):docksHTML(S,id,vis,anim)}`;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><span>${SEAS[G.sea]}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
@@ -75,7 +75,7 @@ function port(id,view){
     if(G.gold<f.p)return toast(`Need ${f.p-G.gold} more gold`);
     if(!canEquip(k))return toast('Double Planking boards up a slot. Sell something to make room first.');
     const from=(app.querySelector(`.fitgood[data-w="${i}"] .o-icon`)||b).getBoundingClientRect(),old=fitIn(f.spot);
-    G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view);fitFly(k,from,old)});
+    G.gold-=f.p;const back=equip(k);S.fits[i]=null;PV.wsel=null;bump='gold';save();toast(`Fitted ${f.n}${back?`. Sold the old one for ${back} gold`:''}`);port(id,view);fitFly(k,from,old);coach('fitted')});
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const n=b.dataset.r==='all'?repairable():1;
     if(n<1||G.gold<n*repairCost())return toast(G.hull>=HULL_MAX?'The hull is already sound.':`Need ${n*repairCost()-G.gold} more gold`);
     const was=G.hull;G.gold-=n*repairCost();G.hull+=n;bump='hull';logL(`Paid the shipwright ${n*repairCost()} gold to repair ${n} hull.`);save();port(id,view);repairFx(was,G.hull)});
@@ -84,7 +84,7 @@ function port(id,view){
     if((G.crew||[]).length>=berths())return toast('Your deck is full. Dismiss someone on the ship card first.');
     if(G.gold<feeOf(k))return toast(`Need ${feeOf(k)-G.gold} more gold`);
     const from=(app.querySelector('.patron.sel .bust')||b).getBoundingClientRect();
-    G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view);hireFly(k,from)});
+    G.gold-=feeOf(k);hire(k);S.tavern[i]=null;bump='gold';save();toast(`${C.n} joins the crew`);port(id,view);hireFly(k,from);coach('hired')});
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
@@ -95,7 +95,7 @@ function port(id,view){
   app.querySelectorAll('[data-sel]').forEach(b=>{const go=()=>{PV.tsel=+b.dataset.sel;port(id,view)};b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   app.querySelectorAll('[data-bld]').forEach(b=>{const go=()=>port(id,b.dataset.bld);b.onclick=go;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   if(view!=='harbour'&&PV.scroll!==view){PV.scroll=view;scrollTo(0,0)}
-  save();coach('port');
+  save();coach('port');coach(view);
   // each tip waits until you walk into the place it's about
   if(view==='market')tip('port');else if(view==='tavern')tip('crew');else if(view==='wright')tip('wright');
 }
@@ -289,8 +289,8 @@ const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));
 /* what each building has for you right now: a badge and a few words for screen readers */
 function harbourInfo(S,vis){const n=S.offers.filter(Boolean).length,h=(S.tavern||[]).filter(Boolean).length,f=(S.fits||[]).filter(Boolean).length,hurt=G.hull<HULL_MAX,
   who=(vis&&!S.talked)||G.hock==='active';
-  return{market:{badge:n||'',say:`${n} for sale`,n},tavern:{badge:G.tut?'':h||'',say:G.tut?'closed':`${h} for hire`,h:G.tut?0:h},
-    wright:{badge:G.tut?'':hurt?'!':f||'',say:G.tut?'closed':`${f} fittings${hurt?', hull needs repair':''}`,f:G.tut?0:f},
+  return{market:{badge:n||'',say:`${n} for sale`,n},tavern:{badge:!tutOpen('tavern')?'':h||'',say:!tutOpen('tavern')?'closed':`${h} for hire`,h:!tutOpen('tavern')?0:h},
+    wright:{badge:!tutOpen('wright')?'':hurt?'!':f||'',say:!tutOpen('wright')?'closed':`${f} fittings${hurt?', hull needs repair':''}`,f:!tutOpen('wright')?0:f},
     docks:{badge:who?'!':G.creel.length||'',say:`${who?'someone is waiting':'nobody waiting'}${G.creel.length?`, ${G.creel.length} fish to sell`:''}`,who,fish:G.creel.length}}}
 /* how much hull you can afford to repair, up to the most the shipwright will fix */
 const repairable=()=>Math.max(0,Math.min(HULL_MAX-G.hull,Math.floor(G.gold/repairCost())));

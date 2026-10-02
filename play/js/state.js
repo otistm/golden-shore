@@ -48,7 +48,7 @@ const rankXP=()=>hasP('drill')?RANKXP.map(x=>Math.max(0,x-1)):RANKXP;
 const crewRank=c=>rankXP().filter(x=>c.xp>=x).length;
 const wageOf=k=>Math.max(0,CREW[k].wage-(hasP('paymaster')?1:0));
 /* the Guild pays your ship's own hands to sign on at Gullhaven, so a bare ship can always crew the cargo it starts with */
-const guildPays=k=>!!(G&&!G.tut&&G.sea===0&&G.map&&G.at===G.map.start&&(SHIPS[G.ship].crew||[]).includes(k));
+const guildPays=k=>!!(G&&G.sea===0&&G.map&&G.at===G.map.start&&(SHIPS[G.ship].crew||[]).includes(k));
 const feeOf=k=>guildPays(k)?0:Math.max(1,CREW[k].fee-(hasP('recruiter')?3:0));
 /* the crafts your crew cover, or null (everything works) when there's no voyage */
 function crewCrafts(){if(!G||!G.crew)return null;return new Set(G.crew.flatMap(c=>CREW[c.k].crafts))}

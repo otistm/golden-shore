@@ -219,7 +219,7 @@ function end(win){
   }
   if(win&&G.crew){G.crew.forEach(c=>{const was=crewRank(c);c.xp++;const now=crewRank(c);
     if(now>was){const C=CREW[c.k];lines.push(`${C.n} is now rank ${now}: ${C.crafts.map(x=>RANKS[x][now-2]).join(' ')}`);logL(`${C.n} made rank ${now}.`)}})}
-  if(win&&!G.tut&&!(k==='b'&&G.sea>=2)){const gain=k==='b'?3:k==='e'?2:1,was=renownLvl();G.renown=(G.renown||0)+gain;
+  if(win&&!(k==='b'&&G.sea>=2)){const gain=k==='b'?3:k==='e'?2:1,was=renownLvl();G.renown=(G.renown||0)+gain;
     lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Pick a perk.`:''}`);
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}
   save();
@@ -279,7 +279,8 @@ function perkPick(done){
     <p class="rn-ribbon">Renown up!</p>
     <h2 class="rn-title">Renown ${lvl}</h2><p class="soft rn-sub">Word of ${sh.n} spreads along the coast. Make a captain's pick for the rest of the voyage.</p>
     <div class="picks">${opts.map((k,i)=>`<button class="pick" data-pk="${k}" style="--i:${i}"><span class="pi plain">${STAR}</span><div><b>${PERKS[k].n}${PERKS[k].order?' <span class="soft">order</span>':''}</b><span class="d">${PERKS[k].d}${PERKS[k].order?' Once a fight.':''}</span></div></button>`).join('')}</div>`,true,'perkpick');
-  const fin=k=>{G.perks=taken.concat(k);logL(`Renown ${lvl}: ${PERKS[k].n}${PERKS[k].order?`, ${WHEN[orderWhen(k)]}`:''}.`);save();if(perksOwed()>0)perkPick(done);else done()};
+  coach('renown');
+  const fin=k=>{coach('perkDone');G.perks=taken.concat(k);logL(`Renown ${lvl}: ${PERKS[k].n}${PERKS[k].order?`, ${WHEN[orderWhen(k)]}`:''}.`);save();if(perksOwed()>0)perkPick(done);else done()};
   // choosing: the pick you tap jumps forward and gets stamped, the others drop away, then the voyage carries on
   let chosen=false;
   ov.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{if(chosen)return;chosen=true;const k=b.dataset.pk,still=matchMedia('(prefers-reduced-motion:reduce)').matches;

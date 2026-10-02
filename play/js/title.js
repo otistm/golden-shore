@@ -41,12 +41,12 @@ function title(){
     <p class="tag">Chart the sea. Reach the far shore.</p></div>
     <div class="way"><div class="buttons">
       ${saved?`<button class="primary" id="cont">Continue voyage</button>`:''}
-      ${!A.tutDone&&!saved?`<button class="primary" id="tut">Learn to sail</button>`:''}
+      ${!A.tutDone&&!saved?`<button class="primary" id="tut">The maiden voyage</button>`:''}
       <button class="${saved||!A.tutDone?'ghost':'primary'}" id="daily">Today's voyage</button>
       <button class="ghost" id="new">New voyage</button>
       <button class="ghost" id="code">Sail a voyage code</button>
       <button class="ghost" id="atlas">Atlas</button>
-      ${A.tutDone||saved?`<button class="linkbtn tutlink" id="tut">${A.tutDone?'Replay the tutorial':'Learn to sail'}</button>`:''}
+      ${A.tutDone||saved?`<button class="linkbtn tutlink" id="tut">${A.tutDone?'Sail the maiden voyage again':'The maiden voyage'}</button>`:''}
     </div>
     <p class="seed">Today's voyage is the same sea for every captain.${db?` Your best today: ${db}.`:''}</p>
     <p class="ver">Version ${VERSION}.${feedbackLink('fbBtn')}</p></div>
