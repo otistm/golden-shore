@@ -7,37 +7,41 @@
    Steps. when: the event that shows the step (none = right after the previous one).
    until: the event that moves on ('next' shows a Next button, 'finish' a Finish button). pause: holds the fight while it's shown. */
 const TUT=[
-  // Gullhaven: items
+  // Gullhaven: items, the crew who work them, and why order matters
   {when:'port',until:'next',text:"Welcome, cartographer. This trial voyage teaches the game one stop at a time."},
   {until:'bought',target:'#stall',text:"Everything that fights for you is cargo. Tap the Rapier, then Buy."},
-  {until:'moved',target:'.dock .board',skip:1,text:"Items fire by themselves once charged. Drag it to another slot."},
-  // Gullhaven: crew
-  {until:'tavern',target:'[data-bld="tavern"]',pos:'bottom',text:"It's faded: nobody aboard can use it yet. Open the Tavern."},
+  {until:'next',target:'.dock .board .item',text:"It's faded: nobody aboard can use it yet."},
+  {until:'tavern',target:'[data-bld="tavern"]',pos:'bottom',text:"Crew make cargo work. Open the Tavern."},
   {when:'tavern',until:'hired',target:'.talk .buy',text:"The Fencing Master has Steel, which works blades. Sign them on."},
-  {when:'hired',until:'next',target:'.dock .board',text:"The Rapier is in full ink now. Faded cargo needs a hand with its skill."},
+  {when:'hired',until:'next',target:'.dock',text:"Your Rapier is ready, and your new hand joins the crew strip."},
+  {until:'market',target:'[data-bld="market"]',pos:'bottom',skipIf:()=>G.board.length>1,text:"Back to the Market for one more piece."},
+  {when:'market',until:'bought',target:'#stall',skipIf:()=>G.board.length>1,text:"The Jib Sail speeds up the item on its right. Buy it."},
+  {until:'moved',target:'.dock .board',text:"Order matters. Drag the Jib Sail to the left of the Rapier."},
+  {until:'hired',target:'[data-bld="tavern"]',pos:'bottom',skipIf:()=>G.crew.some(c=>c.k==='bosun'),text:"The Jib Sail needs Seamanship. Sign on the Bosun in the Tavern."},
   {until:'chart',target:'#leave',text:"Now tap Set sail."},
-  // the training hulk: fighting
+  // the training hulk: fighting, then renown
   {when:'chart',until:'fight',target:'.node.reach',text:"Tap the training hulk, then Sail here."},
   {when:'fight',until:'next',pause:1,target:'.board[data-side="p"]',pos:'bottom',text:"Your cargo charges up and fires on its own."},
   {until:'next',pause:1,target:'.speed',pos:'bottom',text:"A storm hits both ships at 30 seconds. Tap 2× or 4× to speed up."},
-  // renown
-  {when:'renown',until:'perkDone',text:"Wins earn renown. Level up and pick a rule for the whole voyage."},
+  {when:'renown',until:'perkDone',text:"Wins earn renown. Make a captain's pick: a rule for the whole voyage."},
   {when:'spoils',until:'spoilsTaken',target:'.offers',text:"Take one piece of their cargo, then Sail on."},
   // the isle: landmarks
   {when:'chart',until:'sail',target:'.node.reach',text:"Sail to the uncharted isle."},
   {when:'landmarkOpen',until:'landmark',text:"Landmarks help for the whole voyage. Pick one."},
   {when:'chart',until:'sail',target:'.node.reach',text:"Sail on to Saltmere."},
-  // Saltmere: fittings
-  {when:'port',until:'wright',target:'[data-bld="wright"]',pos:'bottom',text:"Fittings change how your ship fights. Open the Shipwright."},
+  // Saltmere: upgrades, selling, fittings
+  {when:'port',until:'bought',target:'#stall',text:"Buy the Rapier here. A matching item upgrades yours."},
+  {until:'next',target:'.dock .board',text:"Upgraded! To sell cargo, drag it onto Set sail."},
+  {until:'wright',target:'[data-bld="wright"]',pos:'bottom',text:"Fittings change how your ship fights. Open the Shipwright."},
   {when:'wright',until:'fitted',target:'#stall',text:"Tap a fitting, then fit it. Each one has a trade-off."},
   {when:'fitted',until:'next',target:'#shipbtn',pos:'bottom',text:"Tap your hull up top any time to see your ship."},
   {until:'chart',target:'#leave',text:"One test left. Set sail."},
   // the examiner: everything together
   {when:'chart',until:'fight',target:'.node.reach',text:"Sail at the Guild's examiner."},
-  {when:'fight',until:'next',pause:1,target:'#pf',pos:'bottom',text:"Everything works together now. Watch your fitting and order fire."},
+  {when:'fight',until:'next',pause:1,target:'#pf',pos:'bottom',text:"Cargo, crew, fitting and landmark all work together now."},
   {when:'spoils',until:'spoilsTaken',target:'.offers',text:"Take your spoils, then Sail on."},
   {when:'chart',until:'sail',target:'.node.reach',text:"Sail in to the Guild hall."},
-  {when:'port',until:'finish',text:"Trial passed! The real seas also hold fishing, people, events, bandits and bosses."}
+  {when:'port',until:'finish',text:"Trial passed! Out there, crew take wages each port and shipwrights mend your hull."}
 ];
 const ANSEL=NPCS.ansel.look;
 function startTutorial(){
@@ -53,7 +57,7 @@ function startTutorial(){
   G=Object.assign({},VOYAGE_DEFAULTS,{seed:'TUTORIAL',ship:'sloop',sea:0,map,at:900,path:[900],day:1,gold:25,hull:20,renown:RENOWN[0]-1,
     board:[],charts:[],log:[],creel:[],hock:'tutorial',tut:{i:0,on:false},crew:[],
     shops:{900:{offers:[{k:'rapier',t:0},{k:'jib',t:0},{k:'swordcane',t:0},{k:'pork',t:0}],tavern:['fencer','bosun','herbalist'],reroll:1,demand:'mackerel'},
-      903:{offers:[{k:'pistols',t:0},{k:'sail',t:0},{k:'duelglove',t:0},{k:'fenders',t:0}],fits:['ram','studding'],reroll:1,demand:'mackerel'}}});
+      903:{offers:[{k:'rapier',t:0},{k:'pistols',t:0},{k:'duelglove',t:0},{k:'fenders',t:0}],fits:['ram','studding'],reroll:1,demand:'mackerel'}}});
   updateReveal();lore(LORE.start);port(900);
 }
 /* is a place open? Everywhere in a real voyage; in the trial, only where that stop's lesson is */
@@ -72,11 +76,11 @@ function hideCoach(){const c=document.getElementById('coach');if(c){clearTimeout
 function bubble(text,o){o=o||{};
   hideCoach();
   const c=document.createElement('div');c.id='coach';c.className='coach '+(o.pos||'top');c.setAttribute('role','status');c.setAttribute('aria-live','polite');
-  c.innerHTML=`${portrait(ANSEL)}<div class="coach-body">${o.label?`<small>${o.label}</small>`:''}<p>${text}</p><div class="coach-btns"><button class="cnext" data-c="next">${o.btn||'Next'}</button>${o.links||''}</div></div>`;
+  c.innerHTML=`${portrait(ANSEL)}<div class="coach-body">${o.label?`<small>${o.label}</small>`:''}<p>${text}</p><div class="coach-btns">${o.btn===null?'':`<button class="cnext" data-c="next">${o.btn||'Next'}</button>`}${o.links||''}</div></div>`;
   document.body.appendChild(c);dimFor(c,o.target);
   if(o.pos==='bottom'){const d=document.querySelector('.dock');c.style.bottom=`calc(${d?d.offsetHeight+10:14}px + env(safe-area-inset-bottom,0px))`}
   highlight(o.target);
-  c.querySelector('.cnext').onclick=()=>{if(o.onClose)o.onClose();else hideCoach()};
+  const nb=c.querySelector('.cnext');if(nb)nb.onclick=()=>{if(o.onClose)o.onClose();else hideCoach()};
   return c;
 }
 /* the dimmer behind the coach bubble. It takes no taps, so you can still do what Ansel asks. It keeps a clear window over
@@ -99,11 +103,11 @@ function showStep(ev){
   const text=st.textFor?st.textFor[ev]:st.text,u=[].concat(st.until);
   // closing a step: explanations move on, the last one finishes, and action steps just tuck the tip away until you do the thing
   const onClose=u.includes('finish')?finishTutorial:(u.includes('next')||st.skip)?()=>advance():()=>{const c=document.getElementById('coach');if(c){clearTimeout(c._t);c.remove()}};
-  const c=bubble(text,{btn:u.includes('finish')?'Finish':(u.includes('next')||st.skip)?'Next':'Hide',pos:st.pos,target:st.target,label:`Maiden voyage, stop ${Math.min(G.path.length,G.map.nodes.length)} of ${G.map.nodes.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
+  const c=bubble(text,{btn:u.includes('finish')?'Finish':(u.includes('next')||st.skip)?'Next':null,pos:st.pos,target:st.target,label:`Maiden voyage, stop ${Math.min(G.path.length,G.map.nodes.length)} of ${G.map.nodes.length}`,links:`<button class="linkbtn" data-c="skip">Skip tutorial</button>`,onClose});
   if(st.pause&&B)B.coachHold=true;
   c.querySelector('[data-c=skip]').onclick=finishTutorial;
 }
-function advance(ev){const T=G.tut;hideCoach();T.i++;T.on=false;const nx=TUT[T.i];
+function advance(ev){const T=G.tut;hideCoach();T.i++;while(TUT[T.i]&&TUT[T.i].skipIf&&TUT[T.i].skipIf())T.i++;T.on=false;const nx=TUT[T.i];
   if(nx&&(!nx.when||(ev&&[].concat(nx.when).includes(ev))))setTimeout(()=>{if(G&&G.tut&&!G.tut.on&&TUT[G.tut.i]===nx)showStep(ev)},320)}
 /* the game reports what just happened */
 function coach(ev){

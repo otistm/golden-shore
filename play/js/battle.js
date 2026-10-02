@@ -150,7 +150,7 @@ function fire(S,F,it,i){
 function step(dt){
   if(B.wait>0){B.wait-=dt;return}
   checkOrders();
-  if(B.ram){B.ram=false;pop(B.P.fel,'Ram!','haste');hit(B.E,10+G.sea*5,'dmg',B.P);B.P.hp-=3;pop(B.P.fel,'−3','soft')}
+  if(B.ram){B.ram=false;pop(B.P.fel,'Ram!','haste');if(!B.quiet)toast(`Iron Ram: ${10+G.sea*5} damage`);hit(B.E,10+G.sea*5,'dmg',B.P);B.P.hp-=3;pop(B.P.fel,'−3','soft')}
   B.t+=dt;
   for(const[S,F]of[[B.P,B.E],[B.E,B.P]]){
     S.items.forEach((it,i)=>{if(!it.s.cd)return;let r=1;
@@ -223,7 +223,7 @@ function end(win){
   if(win&&G.crew){G.crew.forEach(c=>{const was=crewRank(c);c.xp++;const now=crewRank(c);
     if(now>was){const C=CREW[c.k];lines.push(`${C.n} is now rank ${now}: ${C.crafts.map(x=>RANKS[x][now-2]).join(' ')}`);logL(`${C.n} made rank ${now}.`)}})}
   if(win&&!(k==='b'&&G.sea>=2)){const gain=k==='b'?3:k==='e'?2:1,was=renownLvl();G.renown=(G.renown||0)+gain;
-    lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Pick a perk.`:''}`);
+    lines.push(`+${gain} renown.${renownLvl()>was?` Renown ${renownLvl()}! Make a captain's pick.`:''}`);
     const nx=next;next=()=>perksOwed()>0?perkPick(nx):nx()}
   save();
   setTimeout(()=>{draw();const ov=win?victoryCard(head,lines,btn):defeatCard(head,lines,btn,G.hull<=0);
@@ -288,7 +288,8 @@ function loseFit(n){const have=Object.keys(SPOTS).filter(s=>fitIn(s));if(!have.l
   if(k==='studding')updateReveal();logL(`Lost my ${FITTINGS[k].n} in the fight.`);return k}
 /* a renown level: pick 1 of 3 captain's picks, offered by the voyage code. Orders then ask when the crew should carry them out. */
 function perkPick(done){
-  const taken=G.perks||[],pool=Object.keys(PERKS).filter(k=>!taken.includes(k)),r=RNG(G.seed,'perk',taken.length),opts=[];
+  const taken=G.perks||[],pool=Object.keys(PERKS).filter(k=>!taken.includes(k)&&!(G.tut&&PERKS[k].order)),   // the trial offers rules only, no orders to time
+    r=RNG(G.seed,'perk',taken.length),opts=[];
   while(opts.length<3&&pool.length)opts.push(pool.splice(ri(r,pool.length),1)[0]);
   if(!opts.length)return done();
   const lvl=taken.length+1,sh=SHIPS[G.ship];
@@ -317,7 +318,7 @@ const WHEN={start:'when the fight starts',half:'when you drop below half health'
 function ordersAboard(){return((G&&G.perks)||[]).filter(k=>PERKS[k]&&PERKS[k].order).map(k=>({k,when:(G.orders&&G.orders[k])||PERKS[k].when,done:false}))}
 function checkOrders(){const P=B.P,E=B.E;(B.orders||[]).forEach(o=>{if(o.done)return;
   const go=o.when==='start'||(o.when==='half'&&P.hp<P.max/2)||(o.when==='storm'&&B.t>=B.bell)||(o.when==='ehalf'&&E.hp<E.max/2);if(!go)return;o.done=true;
-  pop(P.fel,PERKS[o.k].n,'crit');
+  pop(P.fel,PERKS[o.k].n,'crit');if(!B.quiet)toast(`Order: ${PERKS[o.k].n}`);
   if(o.k==='brace')B.braceT=B.t+2;
   if(o.k==='allhands')P.items.forEach(x=>{if(x.s.cd)x.h=Math.max(x.h,2)});
   if(o.k==='fire')P.items.forEach(x=>{const t=DEFS[x.k].tags;if(x.s.cd&&(t.includes('W')||t.includes('C')))x.c=Math.min(x.s.cd,x.c+x.s.cd*.5)});

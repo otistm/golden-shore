@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.32.3
+- Maiden voyage fixes from playtesting:
+  - The arrange lesson now uses two items: buy the Jib Sail, which speeds up the item on its right, and drag it to the left of the Rapier. Dragging an item back to where it was no longer counts as a move.
+  - Steps that wait for you to do something keep their line on screen until you do it.
+  - "It's faded" now lights up the faded Rapier itself before pointing at the Tavern.
+  - Signing on a hand who can work your cargo plays "Ready!" on it.
+  - The trial teaches the Jib Sail needing the Bosun's Seamanship, and upgrading: Saltmere sells a second Rapier that upgrades yours to Silver. It also mentions selling, wages and hull repair.
+  - Captain's picks in the trial are rules only, so there's no order to time yet.
+  - Ansel waits for the fitting animation to finish.
+- After you buy something, the seller says "Pleasure doing business" instead of jumping to the next item.
+- The victory card says "Make a captain's pick" (it used to say perk). Orders and the Iron Ram announce themselves at the top of the screen when they fire.
+- The shipwright's repair mallet says "hull full" instead of "sound".
+
 ## 0.32.2
 - Tips and maiden voyage steps no longer make you wait for a timer: a Next button is there straight away. Steps that wait for you to do something show Hide instead, and the last step shows Finish.
 

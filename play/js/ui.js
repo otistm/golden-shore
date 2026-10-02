@@ -85,7 +85,7 @@ function holdFlash(){if(!flash)return;const f=flash;flash=null;
     const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,up=f.kind==='up';
     const burst=document.createElement('div');burst.className='inkburst'+(up?' big':'');burst.style.left=cx+'px';burst.style.top=cy+'px';
     burst.innerHTML=`<svg viewBox="-50 -50 100 100" aria-hidden="true">${Array.from({length:up?12:8},(_,k)=>{const a=k/(up?12:8)*Math.PI*2;return`<path d="M${Math.cos(a)*24} ${Math.sin(a)*24}L${Math.cos(a)*(k%2?36:44)} ${Math.sin(a)*(k%2?36:44)}"/>`}).join('')}${up?'<path class="star" d="M0-46l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>':''}</svg>`;
-    const tag=document.createElement('div');tag.className='floatlbl'+(up?' up':'');tag.textContent=up?`${TIER[f.ref.t]}!`:'New';tag.style.left=cx+'px';tag.style.top=r.top+'px';
+    const tag=document.createElement('div');tag.className='floatlbl'+(up?' up':'');tag.textContent=up?`${TIER[f.ref.t]}!`:f.kind==='ready'?'Ready!':'New';tag.style.left=cx+'px';tag.style.top=r.top+'px';
     document.body.append(burst,tag);const hw=tag.offsetWidth/2+6;tag.style.left=Math.max(hw,Math.min(innerWidth-hw,cx))+'px';   // keep the label on screen
     setTimeout(()=>{burst.remove();tag.remove()},1300);return}}
 function bindHold(mode,rerender,ext){
@@ -255,7 +255,7 @@ function dragHold(mode,rerender,ext){
         if(d.full)return toast(tgt.side==='l'?'No room in the locker.':'No room in the hold.');
         let dst=d.dst;
         if(xin){const at=xin.drop(tgt,dst);rerender();if(at!=null){const m=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[at];if(m)squish(m,'land')}return}
-        if(tgt===src){if(dst===si)return;src.list.splice(si,1);if(dst>si)dst--;src.list.splice(dst,0,d.it)}
+        if(tgt===src){if(dst>si)dst--;if(dst===si)return;src.list.splice(si,1);src.list.splice(dst,0,d.it)}
         else{src.list.splice(si,1);tgt.list.splice(dst,0,d.it)}
         save();rerender();
         const moved=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[dst];if(moved)squish(moved,'land');coach('moved');
