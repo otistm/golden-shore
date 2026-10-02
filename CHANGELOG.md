@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.25.0
+- Each sea's voyage to its boss is twice as long: 12 rows of chart instead of 6, with a row of ports halfway as well as before the boss. The difficulty climbs over the same range, just more gradually. Voyages already underway keep their current chart until their next sea.
+- Bandits! Hidden in one stretch of unknown water per sea, pirates board you and make you play a hand of cards for your freedom. You're dealt 8 cards and have 3 plays and 2 discards to beat their score by playing poker hands (pair, flush, full house and so on), each worth chips times mult. Win and you keep your ship, but they still take the most valuable half of your hold. Lose and they take your whole hold and smash your hull to half. Leaving mid-hand brings you back to the cards.
+- More ways to lose money on the longer road: a navy toll ship (pay or run), a pickpocket (lose a third of your gold or chase him and take damage), a rogue wave (lose a piece of cargo or take damage) and a smooth-talking trader who swaps your best item for a worse one unless you pay him off. Unknown waters turn up more often.
+- Fixed a rare bug where tapping Sail here twice could sail the same leg twice, which after a boss defeat could leave you stuck at the boss.
+
 ## 0.24.4
 - Selling fish at the docks: each fish flops off the crates and arcs, spinning, into the fishmonger's arms (they bob as they catch it, one after another when you sell the lot), then the coins burst from them and fly up into your purse. Afterwards the fishmonger thanks you instead of asking where your fish are.
 

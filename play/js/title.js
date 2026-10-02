@@ -97,4 +97,5 @@ function startVoyage(seed,ship){
   const ov=overlay(`<h2>Gullhaven</h2><p class="log">${LORE.start}</p><button class="primary" data-a="c">Find a crew and cargo</button>`,true);
   ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus();
 }
-function resume(){unrollNext=true;if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}
+function resume(){unrollNext=true;if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));
+  if(G.boarded!=null&&node(G.boarded))return bandits(node(G.boarded),()=>{if(G.hull<=0)return sink();save();chart()});const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}

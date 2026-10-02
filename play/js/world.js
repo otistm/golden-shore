@@ -205,5 +205,24 @@ const EVENTS={
   gunsmith:{t:"Gunsmith's island",x:'A forge smokes on the beach.',o:[
     {l:'Buy a Swivel Gun',d:'5 gold.',need:()=>G.gold>=5,f:r=>{G.gold-=5;return addOrGold({k:'swivel',t:rollTier(D(),r)},'Bought')}},
     {l:'Upgrade a cannon',d:'8 gold. Upgrades a random cannon.',need:()=>G.gold>=8&&G.board.some(b=>DEFS[b.k].tags.includes('C')&&b.t<3),f:r=>{G.gold-=8;const b=pick(r,G.board.filter(b=>DEFS[b.k].tags.includes('C')&&b.t<3));b.t++;return`The gunsmith upgraded the ${DEFS[b.k].n}.`}},
-    {l:'Move on',d:'Nothing happens.',f:()=>"Passed a gunsmith's island."}]}
+    {l:'Move on',d:'Nothing happens.',f:()=>"Passed a gunsmith's island."}]},
+  // ways to lose money on the longer road: every choice costs something
+  toll:{t:'Navy toll ship',x:'A navy cutter runs alongside, guns run out. "Toll for these waters, captain."',o:[
+    {l:'Pay the toll',d:()=>`Lose ${tollOf()} gold, or all you have.`,f:()=>{const t=Math.min(G.gold,tollOf());G.gold-=t;return`Paid a navy toll of ${t} gold.`}},
+    {l:'Run for it',d:'Half the time you get away. Otherwise lose 4 hull and the toll.',f:r=>{if(r()<.5)return'Outran a navy toll ship.';const t=Math.min(G.gold,tollOf());G.gold-=t;G.hull-=4;return`The navy caught us. Lost 4 hull and ${t} gold.`}}]},
+  pickpocket:{t:'Light fingers',x:"The new deckhand nobody remembers hiring is gone, and so is part of your purse.",o:[
+    {l:'Chase him down',d:'Keep your gold, lose 3 hull in the scuffle.',f:()=>{G.hull-=3;return'Chased down a pickpocket. Lost 3 hull in the scuffle.'}},
+    {l:'Let him go',d:'Lose a third of your gold.',f:()=>{const t=Math.ceil(G.gold/3);G.gold-=t;return`A pickpocket made off with ${t} gold.`}}]},
+  rogue:{t:'Rogue wave',x:'A wall of grey water rises off the bow.',o:[
+    {l:'Hold course',d:'A random piece of cargo washes overboard.',need:()=>G.board.length>0,f:r=>{const[b]=G.board.splice(ri(r,G.board.length),1);return`A rogue wave took the ${DEFS[b.k].n} overboard.`}},
+    {l:'Turn into it',d:'Lose 5 hull.',f:()=>{G.hull-=5;return'Turned into a rogue wave. Lost 5 hull.'}}]},
+  swindler:{t:'Smooth-talking trader',x:'"Lovely piece, that. I\'ll swap you for something even finer." It is not finer.',o:[
+    {l:'Take his swap',d:'Your most valuable item becomes a cheaper one of the same size.',need:()=>G.board.length>0,f:r=>{let j=0;G.board.forEach((b,i)=>{if(price(b.k,b.t)>price(G.board[j].k,G.board[j].t))j=i});
+      const old=G.board[j],s=DEFS[old.k].s;let it=null;for(let n=0;n<40&&!it;n++){const c=randItem(r,Math.max(0,D()-4));if(DEFS[c.k].s===s&&c.k!==old.k)it=c}
+      G.board[j]=it?{k:it.k,t:Math.max(0,Math.min(old.t-1,it.t))}:{k:old.k,t:Math.max(0,old.t-1)};seen(G.board[j].k);return`Swapped the ${DEFS[old.k].n} for a ${TIER[G.board[j].t]} ${DEFS[G.board[j].k].n}. Swindled.`}},
+    {l:'Pay him to leave',d:'Lose 10 gold.',need:()=>G.gold>=10,f:()=>{G.gold-=10;return'Paid a swindler 10 gold to go away.'}},
+    {l:'Show him the door',d:'Nothing to swap and nothing to pay.',need:()=>!G.board.length&&G.gold<10,f:()=>'Sent a swindler packing with nothing.'}]},
+  // the bandits play out on their own screen (bandits.js); one stretch of unknown water per sea hides them
+  bandits:{t:'Bandits!',x:'',o:[]}
 };
+const tollOf=()=>8+G.sea*6;

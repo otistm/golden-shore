@@ -15,12 +15,16 @@ for (let run = 0; run < runs; run++) {
   await click(run ? '#new' : '#daily'); await page.waitForTimeout(150);
   await click('.shipcard:not([disabled])'); await page.waitForTimeout(150);
   let result = 'timeout', steps = 0;
-  for (; steps < 900; steps++) {
+  const trail = [];   // the last few screens, printed if the bot gets stuck
+  for (; steps < 2000; steps++) {
+    const sig = await page.evaluate(() => G ? `${(document.querySelector('.overlay h2') || document.querySelector('.seahead h2') || {}).textContent || (document.querySelector('.battle') ? 'fight' : '?')} @${node(G.at).row}${node(G.at).type}` : 'title').catch(() => '');
+    if (trail[trail.length - 1] !== sig) { trail.push(sig); if (trail.length > 14) trail.shift(); }
     if (await q('#coach .cx')) await click('#coach .cx');
     if (await q('.overlay')) {
       if (await q('[data-a=home]')) { result = await page.innerText('.overlay h2'); break; }
       for (const s of ['#next', '.pick:not([disabled])', '[data-l=gold]', '.opt:not([disabled])', '[data-a=go]', '.overlay .primary', '.overlay button']) if (await click(s)) break;
-    } else if (await q('#fstop')) await click('#fstop');
+    } else if (await q('#bplay')) { for (let i = 0; i < 5; i++) await click(`.bcard:nth-child(${i + 1}):not(.on)`); await click('#bplay:not([disabled])'); await page.waitForTimeout(900); }
+    else if (await q('#fstop')) await click('#fstop');
     else if (await q('#skip')) await click('#skip');
     else if (await q('#sailon')) { await click('.spoil .buy:not([aria-disabled])'); await page.waitForTimeout(20); await click('#sailon'); }
     else if (await q('#leave')) {
@@ -37,7 +41,9 @@ for (let run = 0; run < runs; run++) {
     }
     await page.waitForTimeout(40);
   }
+  if (result === 'timeout') result += ` on ${await page.evaluate(() => (document.querySelector('.seahead h2') || document.querySelector('h2') || {}).textContent + ' / ' + (G ? `sea ${G.sea + 1}, row ${node(G.at).row}, path ${G.path.slice(-3).map(i => node(i).row + node(i).type).join('>')}, hull ${G.hull}, overlays ${document.querySelectorAll('.overlay,.seacross,.chestfx,.fitfx').length}, reach ${document.querySelectorAll('.node.reach').length}, buttons ${[...document.querySelectorAll('button')].map(b => b.id || b.textContent.trim().slice(0, 12)).slice(0, 12).join('|')}` : 'title'))}`;
   console.log(`voyage ${run + 1}: ${result} (${steps} steps)`);
+  if (result.startsWith('timeout')) console.log('  last screens: ' + trail.join(' -> '));
 }
 await browser.close();
 if (errors.length) { console.error('Page errors:\n' + errors.slice(0, 5).join('\n')); process.exit(1); }

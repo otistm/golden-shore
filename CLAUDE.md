@@ -2,7 +2,7 @@
 
 Ink Crossing is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
 
-You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war. It has ports, threats, elites, events, people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
+You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war, 12 rows to each sea's boss. It has ports, threats, elites, events (including the bandits), people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
 
 ## Who you're working with
 Otis is the designer. He doesn't read code. He judges changes by playing them on his phone.
@@ -40,6 +40,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | harbour.js | The harbour scene: a side-on ink panorama of the port you scroll along |
 | port.js | The port's places: market, tavern, shipwright, docks (visitors and the fish market) |
 | rewards.js | Events, the spoils screen (drag spoils into the hold, sell onto Sail on), landmark picks |
+| bandits.js | The bandits' card game (`bandits()`, `bandEval()`, `BHANDS`) |
 | battle.js | Fight setup, the effects engine (`applyFx`, `emit`), the step loop, HP bars, results, next sea, endings |
 | atlas.js | The cartographer's log and the Atlas |
 | coach.js | The tutorial (`TUT` steps, Ansel's coach bubble, the fixed tutorial map) and one-time tips (`TIPS`, `tip()`) |
@@ -122,6 +123,11 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## The harbour
 - A port opens on the harbour scene in harbour.js: one wide ink panorama (`harbourWorld()`, `HW`×`HH` units) you scroll along, with places at `HSTOPS` positions and arrows that walk between them (`bindHarbour()`, which remembers the spot in `PV.hx`). Each place shows its state in the drawing (goods, faces at windows, chalk notices, a figure on the pier), not with badges. `port(id,view)` draws the harbour or one building; `PV` remembers the view while you stay, and `chart()` resets it. Re-renders inside a port must call `port(id,view)` so you stay put.
 - Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
+
+## Sea length and the bandits
+- `genMap()` builds `ROWS` (12) rows to the boss, with ports at row 0, halfway and the row before the boss, and stores `rows` on the map. Old saved maps have no `rows`: `mapRows()` reads them as 6, and `depthOf()` scales any row to the same 0 to 6 range per sea, so difficulty, tiers and rewards don't depend on chart length. Use `mapRows()`, never a literal row count.
+- Each sea hides one `bandits` event in unknown water (row 3 or later). `eventAt()` hands it to `bandits(n,done)` in bandits.js: a seeded deck, 8 cards, 3 plays and 2 discards against `bandTarget()` (360, +60 per sea). Win: they take the most valuable half of the hold. Lose: the whole hold and half the hull (never below 1). `G.boarded` marks a boarding in progress, and `resume()` goes back to the cards.
+- Event option text (`d`) may be a function, for costs that depend on the sea (`tollOf()`).
 
 ## Chart water
 - `chartWater()` in chart.js draws the sea under the chart: wave marks (`.wv`) kept clear of stops and the fog, islands under ports and isles (shores, then outlines, then land, so neighbours merge), and a ripple under every other stop. It uses its own `RNG(G.seed,'water',G.sea)`, so it never touches gameplay randomness.

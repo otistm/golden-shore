@@ -6,7 +6,7 @@ let G=null,B=null,raf=0,last=0,bump=null,fresh=false;
    RULES FOR CHANGES: never rename or remove a field; give new fields a default in migrateAtlas / VOYAGE_DEFAULTS;
    if a field's meaning changes, bump the schema number and convert old data in the migrate function. */
 const ATLAS_SCHEMA=1,VOYAGE_SCHEMA=1;
-const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,unrolled:-1,fit:null,renown:0,perks:null,crew:null,orders:null};
+const VOYAGE_DEFAULTS={sv:VOYAGE_SCHEMA,charts:[],log:[],shops:{},creel:[],rod:0,tip:0,far:0,extra:0,full:false,freeRoll:true,quest:null,hock:null,locker:null,fightAt:null,boarded:null,unrolled:-1,fit:null,renown:0,perks:null,crew:null,orders:null};
 function readKey(key){let raw=null;try{raw=localStorage.getItem(key)}catch(e){}if(!raw)return{raw:null,val:null};
   try{return{raw,val:JSON.parse(raw)}}catch(e){try{localStorage.setItem(key+'-unreadable',raw)}catch(_){}return{raw,val:null}}}
 function migrateAtlas(m){
@@ -86,7 +86,10 @@ function equip(k){const f=FITTINGS[k],old=fitIn(f.spot);G.fit=Object.assign({hul
 function canEquip(k){const f=FITTINGS[k],old=fitIn(f.spot);if(old===k)return false;
   const cap=HOLD-(k==='planks'?1:0)-(f.spot!=='hull'&&hasF('planks')?1:0);return used(G.board)<=cap}
 const node=id=>G.map.nodes.find(n=>n.id===id);
-const depthOf=n=>G.sea*7+n.row;
+/* how many rows a sea's chart has before the boss: 12 now, 6 on charts drawn before the seas got longer (and the tutorial's) */
+const ROWS=12,mapRows=()=>(G&&G.map&&G.map.rows)||6;
+/* difficulty runs over the same range in every sea however long its chart is: 0 at the first port to 6 at the boss */
+const depthOf=n=>G.sea*7+Math.round(n.row*6/mapRows());
 const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]);
 function logL(t){G.log.push({d:G.day,t})}
 function lore(t){G.log.push({lore:1,t})}
@@ -96,33 +99,37 @@ function seen(k){if(!A.items[k]){A.items[k]=1;saveA()}}
 function genMap(seed,sea){
   const r=RNG(seed,'map',sea),nodes=[],edges=new Set(),pos={};
   const add=(row,col)=>{const key=row+'_'+col;if(pos[key]!=null)return pos[key];const id=sea*100+nodes.length;nodes.push({id,row,col});pos[key]=id;return id};
-  const start=add(0,1.5),boss=add(6,1.5);
+  const start=add(0,1.5),boss=add(ROWS,1.5);
   const paths=3+ri(r,2);
   for(let p=0;p<paths;p++){let c=ri(r,4),prev=start;
-    for(let row=1;row<=5;row++){if(row>1)c=Math.max(0,Math.min(3,c+ri(r,3)-1));const id=add(row,c);edges.add(prev+'>'+id);prev=id}
+    for(let row=1;row<ROWS;row++){if(row>1)c=Math.max(0,Math.min(3,c+ri(r,3)-1));const id=add(row,c);edges.add(prev+'>'+id);prev=id}
     edges.add(prev+'>'+boss)}
   const pool=Object.keys(ENEMIES).filter(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='t');
   const elite=Object.keys(ENEMIES).find(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='e');
   const bossE=Object.keys(ENEMIES).find(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='b');
-  let evs=Object.keys(EVENTS);const names=[...PORTNAMES];
+  let evs=Object.keys(EVENTS).filter(k=>k!=='bandits');const names=[...PORTNAMES];
   nodes.forEach(n=>{
     n.x=n.col===1.5?170:45+n.col*83+(r()*14-7);
-    if(n.row===0||n.row===5)n.type='port';
-    else if(n.row===6)n.type='boss';
+    // ports to start, halfway and before the boss; more unknown waters along the longer way
+    if(n.row===0||n.row===ROWS-1||n.row===ROWS/2)n.type='port';
+    else if(n.row===ROWS)n.type='boss';
     else if(n.row===1)n.type='threat';
-    else{const x=r();n.type=x<.32?'threat':x<.45?'event':x<.6?'npc':x<.7?'fish':x<.8?'elite':x<.88?'isle':'port'}
+    else{const x=r();n.type=x<.3?'threat':x<.48?'event':x<.6?'npc':x<.7?'fish':x<.8?'elite':x<.88?'isle':'port'}
     if(n.type==='threat')n.enemy=pick(r,pool);
     if(n.type==='elite')n.enemy=elite;
     if(n.type==='boss')n.enemy=bossE;
-    if(n.type==='event'){if(!evs.length)evs=Object.keys(EVENTS);n.ev=evs.splice(ri(r,evs.length),1)[0]}
+    if(n.type==='event'){if(!evs.length)evs=Object.keys(EVENTS).filter(k=>k!=='bandits');n.ev=evs.splice(ri(r,evs.length),1)[0]}
     if(n.type==='port')n.name=sea===0&&n.row===0?'Gullhaven':names.splice(ri(r,names.length),1)[0];
     if(n.type==='port'&&r()<.6)n.visitor=pick(r,NPC_POOL.filter(k=>NPCS[k].sea===-1));
   });
   let npcs=Object.keys(NPCS).filter(k=>!NPCS[k].lore&&!NPCS[k].quest&&(NPCS[k].sea===-1||NPCS[k].sea===sea));
   nodes.filter(n=>n.type==='npc').forEach(n=>{if(!npcs.length)npcs=NPC_POOL.filter(k=>NPCS[k].sea===-1);n.npc=npcs.splice(ri(r,npcs.length),1)[0]});
   const loreN=Object.keys(NPCS).find(k=>NPCS[k].lore&&NPCS[k].sea===sea);
-  if(loreN){const c=nodes.filter(n=>n.row>=2&&n.row<=4&&n.type!=='elite');if(c.length){const n=pick(r,c);n.type='npc';n.npc=loreN;delete n.enemy;delete n.ev}}
-  return{sea,start,boss,nodes,edges:[...edges].map(e=>e.split('>').map(Number))};
+  if(loreN){const c=nodes.filter(n=>n.row>=2&&n.row<=ROWS-2&&n.type!=='elite'&&n.type!=='port');if(c.length){const n=pick(r,c);n.type='npc';n.npc=loreN;delete n.enemy;delete n.ev}}
+  // the bandits lurk in exactly one stretch of unknown water per sea, past the first few rows
+  const ev=nodes.filter(n=>n.type==='event'&&n.row>=3),bc=ev.length?ev:nodes.filter(n=>n.row>=3&&n.row<ROWS-1&&(n.type==='threat'||n.type==='fish'));
+  if(bc.length){const n=pick(r,bc);n.type='event';n.ev='bandits';delete n.enemy}
+  return{sea,start,boss,rows:ROWS,nodes,edges:[...edges].map(e=>e.split('>').map(Number))};
 }
 function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extra+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0)}
 

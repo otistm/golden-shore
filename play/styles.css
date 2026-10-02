@@ -1216,3 +1216,42 @@ body.desk .crewrow .o-icon,.crewrow .o-icon{width:44px;height:44px;padding:2px;b
 .flyfish .w{fill:var(--paper)}.flyfish .k{fill:var(--ink);stroke:none}
 .seller.catchit{animation:catchit .3s var(--spring)}
 @keyframes catchit{0%{transform:none}40%{transform:translateY(5px) scale(1.04,.95)}100%{transform:none}}
+/* the bandits' card game */
+.bandits{display:grid;gap:12px}
+.bd-top{display:flex;align-items:flex-end;gap:12px}
+.bd-face{flex:none;width:96px;height:84px;border-bottom:2.5px solid var(--ink)}
+.bd-face svg{display:block;width:100%;height:100%}
+.bd-face.big{width:120px;height:104px;margin:0 auto;border:0}
+.bandits .talk.bd-talk{position:relative;left:auto;top:auto;width:auto;min-width:0;max-width:none;flex:1;margin:0 0 8px;padding:10px 12px;animation:none}
+.bandits .talk.bd-talk::before{top:auto;bottom:18px;left:-12px;border-top:0;border-bottom:2.5px solid var(--ink)}
+.bandits .talk .say{font-size:15px;width:auto;min-width:0}
+.bd-score{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bd-score>div{border:2.5px solid var(--ink);border-radius:14px;padding:6px 8px;display:grid}
+.bd-score b{font:italic 900 24px/1.1 var(--display)}
+.bd-score .bd-mine{background:var(--ink);color:var(--paper)}.bd-score .bd-mine .sc-lbl{color:var(--paper)}
+.bd-score b.bump{display:inline-block;animation:bump .3s var(--spring)}
+.bd-bar{height:10px;border:2px solid var(--ink);border-radius:6px;overflow:hidden}
+.bd-bar i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--ink) 0 2px,var(--paper) 2px 4.5px);border-right:2px solid var(--ink);transition:width .6s var(--spring)}
+.bd-now{text-align:center;font-size:14px;min-height:20px}
+.bd-now b{font:italic 900 16px var(--display)}
+.bd-hand{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding-top:14px}
+.bcard{position:relative;aspect-ratio:5/7;border:2.5px solid var(--ink);border-radius:8px;background:var(--paper);box-shadow:2px 3px 0 var(--ink);display:grid;place-items:center;align-content:center;gap:0;padding:0;font:italic 900 clamp(15px,4.6vw,24px)/1 var(--display);transition:translate .25s var(--spring),box-shadow .2s;cursor:pointer}
+.bcard i{font:normal 400 clamp(13px,4vw,20px)/1 var(--ui)}
+.bcard.red i{-webkit-text-stroke:1.4px var(--ink);color:var(--paper)}
+.bcard.on{translate:0 -12px;box-shadow:2px 6px 0 var(--ink);border-width:3.5px}
+.bcard.deal{animation:dealin .45s var(--spring) both}
+.bcard:nth-child(2).deal{animation-delay:.04s}.bcard:nth-child(3).deal{animation-delay:.08s}.bcard:nth-child(4).deal{animation-delay:.12s}.bcard:nth-child(5).deal{animation-delay:.16s}.bcard:nth-child(6).deal{animation-delay:.2s}.bcard:nth-child(7).deal{animation-delay:.24s}.bcard:nth-child(8).deal{animation-delay:.28s}
+@keyframes dealin{from{transform:translate(40px,-60px) rotate(20deg);opacity:0}to{transform:none;opacity:1}}
+.bcard.played{translate:0 -34px;transition:translate .3s var(--spring)}
+.bcard.played.scores{background:var(--ink);color:var(--paper)}.bcard.played.scores.red i{color:var(--ink);-webkit-text-stroke:1.4px var(--paper)}
+.bd-acts{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.bd-acts button[disabled]{opacity:.45}
+.bd-help summary{font-weight:800;cursor:pointer;font-size:13.5px}
+.bd-table{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:13px;margin:6px 0}
+.bd-end{text-align:center;display:grid;gap:8px;justify-items:center}
+.bd-lost{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.bd-lost .o-icon{width:40px;height:40px;animation:lostitem .5s calc(.3s + var(--i,0) * 80ms) both}
+.bd-end.lost .bd-lost .o-icon{animation-name:lostfall}
+@keyframes lostitem{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes lostfall{0%{transform:none;opacity:1}100%{transform:translateY(20px) rotate(25deg);opacity:.35}}
+@media (prefers-reduced-motion:reduce){.bcard,.bcard.deal,.bd-lost .o-icon{animation:none;transition:none}}
