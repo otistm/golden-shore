@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.29.1
+- The Deep's ordinary fights come down a step: its threats and the Leviathan have less health and carry a little less cargo, so you reach the Kraken with a ship left to fight it. The Kraken is unchanged.
+
 ## 0.29.0
 - The Shallows are gentler: enemies there carry less cargo, all of it bronze, and have a little less health. The Sea Serpent's poison no longer runs away with the fight.
 - The Fog Sea and the Deep push back harder: tougher enemies with more and better cargo, so the voyage builds toward the Kraken instead of getting easier.
