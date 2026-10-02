@@ -86,9 +86,8 @@ function equip(k){const f=FITTINGS[k],old=fitIn(f.spot);G.fit=Object.assign({hul
 function canEquip(k){const f=FITTINGS[k],old=fitIn(f.spot);if(old===k)return false;
   const cap=HOLD-(k==='planks'?1:0)-(f.spot!=='hull'&&hasF('planks')?1:0);return used(G.board)<=cap}
 const node=id=>G.map.nodes.find(n=>n.id===id);
-/* how many rows a sea's chart has before the boss: 12 now, 6 on charts drawn before the seas got longer (and the tutorial's) */
-const ROWS=12,mapRows=()=>(G&&G.map&&G.map.rows)||6;
-/* difficulty runs over the same range in every sea however long its chart is: 0 at the first port to 6 at the boss */
+/* how many rows a sea's chart has before the boss: 9 now (12 for a while, 6 on charts drawn before that, and the tutorial's) */
+const ROWS=9,mapRows=()=>(G&&G.map&&G.map.rows)||6;
 const depthOf=n=>G.sea*7+Math.round(n.row*6/mapRows());
 const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]);
 function logL(t){G.log.push({d:G.day,t})}
@@ -96,25 +95,52 @@ function lore(t){G.log.push({lore:1,t})}
 function seen(k){if(!A.items[k]){A.items[k]=1;saveA()}}
 
 /* ---------- map generation ---------- */
+/* what the open water between ports is made of, per sea: the Shallows lean on fishing and isles, the Fog Sea on strangers and
+   unknown waters, the Deep on elites. Each chart also features one kind of stop at half again its share (FEATURE), so two
+   charts of the same sea still feel different. */
+const SEAMIX=[{threat:34,event:15,npc:11,fish:16,elite:10,isle:14},{threat:31,event:21,npc:16,fish:10,elite:11,isle:11},{threat:31,event:15,npc:11,fish:10,elite:18,isle:15}];
+const FEATURE=['event','npc','fish','isle','elite'];
 function genMap(seed,sea){
   const r=RNG(seed,'map',sea),nodes=[],edges=new Set(),pos={};
   const add=(row,col)=>{const key=row+'_'+col;if(pos[key]!=null)return pos[key];const id=sea*100+nodes.length;nodes.push({id,row,col});pos[key]=id;return id};
-  const start=add(0,1.5),boss=add(ROWS,1.5);
-  const paths=3+ri(r,2);
-  for(let p=0;p<paths;p++){let c=ri(r,4),prev=start;
+  const start=add(0,1.5),boss=add(ROWS,1.5),HALF=Math.floor(ROWS/2);
+  // more routes than columns, so they cross and split: most stops offer a real choice of where to go next
+  const paths=5+ri(r,2);
+  for(let p=0;p<paths;p++){let c=p%4,prev=start;
     for(let row=1;row<ROWS;row++){if(row>1)c=Math.max(0,Math.min(3,c+ri(r,3)-1));const id=add(row,c);edges.add(prev+'>'+id);prev=id}
     edges.add(prev+'>'+boss)}
+  // a stop with only one way on gets a second route to a neighbour on the next row, if that route crosses no other
+  const at=(row,col)=>pos[row+'_'+col],cr=(a,b)=>{const[r0,c0]=a,[,c1]=b;const x=at(r0,c1),y=at(r0+1,c0);return x!=null&&y!=null&&edges.has(x+'>'+y)};
+  for(let row=1;row<ROWS-2;row++)for(let col=0;col<4;col++){const id=at(row,col);if(id==null)continue;
+    const outs=[...edges].filter(e=>e.startsWith(id+'>'));if(outs.length>1)continue;
+    const opts=[col-1,col,col+1].filter(c=>at(row+1,c)!=null&&!edges.has(id+'>'+at(row+1,c))&&!cr([row,col],[row+1,c]));
+    if(opts.length)edges.add(id+'>'+at(row+1,opts[ri(r,opts.length)]))}
+  const E=[...edges].map(e=>e.split('>').map(Number)),byId=id=>nodes.find(n=>n.id===id);
+  const parents=n=>E.filter(e=>e[1]===n.id).map(e=>byId(e[0])),kids=n=>E.filter(e=>e[0]===n.id).map(e=>byId(e[1]));
+  // ports: where you set out, the row before the boss, and some of the halfway row (so pushing on without resupplying is a choice)
+  nodes.forEach(n=>{if(n.row===0||n.row===ROWS-1)n.type='port';else if(n.row===ROWS)n.type='boss';else if(n.row===1)n.type='threat'});
+  const mid=nodes.filter(n=>n.row===HALF).sort((a,b)=>a.col-b.col),first=ri(r,2);
+  mid.forEach((n,i)=>{if(mid.length===1||i%2===first)n.type='port'});
+  // the rest are dealt from a shuffled bag in this sea's proportions, so every chart gets its share of each kind
+  const open=nodes.filter(n=>!n.type).sort((a,b)=>a.row-b.row||a.col-b.col);
+  const mix=Object.assign({},SEAMIX[sea]),feat=FEATURE[ri(r,FEATURE.length)];mix[feat]=Math.round(mix[feat]*1.5);
+  const tot=Object.values(mix).reduce((a,v)=>a+v,0),bag=[];
+  Object.entries(mix).forEach(([k,w])=>{const n=w*open.length/tot;for(let i=0;i<Math.floor(n)+(r()<n%1?1:0);i++)bag.push(k)});
+  while(bag.length<open.length)bag.push('threat');
+  for(let i=bag.length-1;i>0;i--){const j=ri(r,i+1);[bag[i],bag[j]]=[bag[j],bag[i]]}
+  // no stop repeats the one before it (two fights in a row are fine, two elites aren't), and a fork offers different kinds
+  const ok=(n,t)=>{if(t==='elite'&&n.row<3)return false;
+    if(parents(n).some(p=>p.type===t&&t!=='threat'))return false;
+    return!parents(n).some(p=>kids(p).some(s=>s!==n&&s.type===t))};
+  open.forEach(n=>{let j=bag.findIndex(t=>ok(n,t));
+    if(j<0){const alt=Object.keys(mix).filter(t=>ok(n,t));n.type=alt.length?pick(r,alt):'threat';j=bag.indexOf(n.type);if(j>=0)bag.splice(j,1)}
+    else n.type=bag.splice(j,1)[0]});
   const pool=Object.keys(ENEMIES).filter(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='t');
   const elite=Object.keys(ENEMIES).find(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='e');
   const bossE=Object.keys(ENEMIES).find(k=>ENEMIES[k].sea===sea&&ENEMIES[k].kind==='b');
   let evs=Object.keys(EVENTS).filter(k=>k!=='bandits');const names=[...PORTNAMES];
   nodes.forEach(n=>{
     n.x=n.col===1.5?170:45+n.col*83+(r()*14-7);
-    // ports to start, halfway and before the boss; more unknown waters along the longer way
-    if(n.row===0||n.row===ROWS-1||n.row===ROWS/2)n.type='port';
-    else if(n.row===ROWS)n.type='boss';
-    else if(n.row===1)n.type='threat';
-    else{const x=r();n.type=x<.3?'threat':x<.48?'event':x<.6?'npc':x<.7?'fish':x<.8?'elite':x<.88?'isle':'port'}
     if(n.type==='threat')n.enemy=pick(r,pool);
     if(n.type==='elite')n.enemy=elite;
     if(n.type==='boss')n.enemy=bossE;
@@ -129,7 +155,7 @@ function genMap(seed,sea){
   // the bandits lurk in exactly one stretch of unknown water per sea, past the first few rows
   const ev=nodes.filter(n=>n.type==='event'&&n.row>=3),bc=ev.length?ev:nodes.filter(n=>n.row>=3&&n.row<ROWS-1&&(n.type==='threat'||n.type==='fish'));
   if(bc.length){const n=pick(r,bc);n.type='event';n.ev='bandits';delete n.enemy}
-  return{sea,start,boss,rows:ROWS,nodes,edges:[...edges].map(e=>e.split('>').map(Number))};
+  return{sea,start,boss,rows:ROWS,nodes,edges:E};
 }
 function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extra+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0)}
 

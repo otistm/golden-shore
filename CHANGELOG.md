@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.0
+- Seas are shorter: 9 rows to the boss instead of 12. Ports now only appear where you set out, on part of the halfway row and just before the boss, so you never get ports two rows in a row.
+- Charts branch more, so most stops give you a real choice of where to go, and a fork always offers different kinds of stop.
+- Each sea has its own mix: the Shallows lean on fishing and isles, the Fog Sea on strangers and unknown waters, the Deep on elites. Every chart also features one kind of stop more than usual, so no two feel the same.
+- A voyage already under way keeps its current chart; the next sea is drawn the new way.
+
 ## 0.26.2
 - Tips wait until you're somewhere they're about: the market tip when you open the market, the crew tip in the tavern (or as soon as you buy cargo nobody aboard can work), the shipwright tip in the yard. Nothing pops up on the harbour any more.
 - Every tip has a small End tutorial link that stops all remaining tips for good.

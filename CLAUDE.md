@@ -2,7 +2,7 @@
 
 Ink Crossing is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
 
-You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war, 12 rows to each sea's boss. It has ports, threats, elites, events (including the bandits), people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
+You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war, 9 rows to each sea's boss. It has ports, threats, elites, events (including the bandits), people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
 
 ## Who you're working with
 Otis is the designer. He doesn't read code. He judges changes by playing them on his phone.
@@ -126,7 +126,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Badges come from `harbourInfo()`. The tutorial opens on the market so its steps still find `.offers`.
 
 ## Sea length and the bandits
-- `genMap()` builds `ROWS` (12) rows to the boss, with ports at row 0, halfway and the row before the boss, and stores `rows` on the map. Old saved maps have no `rows`: `mapRows()` reads them as 6, and `depthOf()` scales any row to the same 0 to 6 range per sea, so difficulty, tiers and rewards don't depend on chart length. Use `mapRows()`, never a literal row count. Long charts keep rows at least 88 (phones) or 150 (big screens) apart and scroll rather than squeeze.
+- `genMap()` builds `ROWS` (9) rows to the boss and stores `rows` on the map. Ports sit at row 0, on some of the halfway row (so pushing past it is a choice) and on the row before the boss, never anywhere else, so two port rows never meet. Routes cross and split (5 or 6 paths, plus a second way on for any stop that has only one, if it crosses nothing). The other stops are dealt from a shuffled bag in the sea's proportions (`SEAMIX`), with one `FEATURE` kind at half again its share per chart; no stop repeats the kind before it (fights excepted), elites wait until row 3, and a fork offers different kinds. Old saved maps have no `rows`: `mapRows()` reads them as 6, and `depthOf()` scales any row to the same 0 to 6 range per sea, so difficulty, tiers and rewards don't depend on chart length. Use `mapRows()`, never a literal row count. Long charts keep rows at least 88 (phones) or 150 (big screens) apart and scroll rather than squeeze.
 - Each sea hides one `bandits` event in unknown water (row 3 or later). `eventAt()` hands it to `bandits(n,done)` in bandits.js: a seeded deck, 8 cards, 3 plays and 2 discards against `bandTarget()` (360, +60 per sea). Win: they pay `bandPurse()` gold (15, +5 per sea), and the coins fly into the purse on the chart. Lose: the whole hold and half the hull (never below 1). `G.boarded` marks a boarding in progress, and `resume()` goes back to the cards. A fresh boarding first plays `boardingFx()` (their ship alongside, grappling hooks, bandits swinging across); resuming skips it.
 - Event option text (`d`) may be a function, for costs that depend on the sea (`tollOf()`).
 
