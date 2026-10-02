@@ -13,6 +13,7 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 ## How the project is built
 - **No build step, no frameworks, no npm packages in the game.** Plain HTML, CSS and JavaScript files are served as-is by Vercel. The only outside code is Google Fonts and, when online services are configured, Supabase's client from a CDN.
 - `index.html`: the front page (an animated voyage and a Play button).
+- `play/frame.html`: on a computer (`(hover:hover) and (pointer:fine)`), `play/index.html` sends you here, and the game plays in a 16:9 iframe (`./?framed=1`) centred on black bars, refitted on resize; keys pressed on the bars are passed in. Inside the frame the game sees a 16:9 window, so all its layouts and media queries work unchanged. Phones and tablets, and test runs from `file:` URLs, skip it.
 - `play/index.html`: the game page. It loads `styles.css` and then the scripts in `play/js/` **in the order listed there**.
 - The scripts are classic scripts that share one global scope (`"use strict"` at the top of each). Order matters: while a file is loading, it can only use things defined in files above it. Code that runs later (on a tap, per frame) can use anything.
 - `play/js/config.js`: `VERSION` and the Supabase URL and publishable key. The key is public by design. **Never add a Supabase secret or service key anywhere.**

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.34.1
+- On a computer the game keeps a 16:9 shape: it plays in a frame centred in the window, with black bars filling the rest as you resize. Keys still reach the game after clicking the bars. Phones and tablets are unchanged.
+
 ## 0.34.0
 - The fight recap is now a full fight report. Every item, in hold order and numbered by position, shows what it does and what it did to whom: damage and crits, shield, healing, burn and poison, which of your items it hasted or charged (how often and for how long), which of theirs it slowed, which items its aura boosted, and who helped it.
 - Focusing an item shows what it touches. On a computer, hovering an item in your hold makes every item it affects glow and bob with a label (Haste, Charge, Boosted). In the market, the good you've chosen (by hover or tap) glows the items in your hold it would affect, including the one it would upgrade.
