@@ -116,7 +116,9 @@ function preview(n){
   if(n.type==='fish')body=`<p>The water boils with fish. ${3+G.tip} casts. Sell what you catch at port.</p>`;
   if(n.type==='port'&&n.visitor)body+=`<p class="soft">Someone is waiting on the dock.</p>`;
   if(n.enemy){const f=enemyOf(n),e=f.e,k=e.kind;A.met[n.enemy]=1;saveA();
-    body=`<p class="soft">${k==='b'?'The guardian of this sea. Beat it to sail on.':k==='e'?'Elite. Tougher, with better spoils.':'A threat on the route.'} ${f.hp} health.</p>${traitsHTML(e,G.sea)}
+    // the health they start the fight with: their own cargo adds to it (sideOf), and the Kraken fitting swells it (setupFight)
+    let hp=f.hp+sideOf(f.list).hp;if(hasF('kraken'))hp=Math.round(hp*1.1);
+    body=`<p class="soft">${k==='b'?'The guardian of this sea. Beat it to sail on.':k==='e'?'Elite. Tougher, with better spoils.':'A threat on the route.'} ${hp} health.</p>${traitsHTML(e,G.sea)}
       ${hasC('sound')?`<div class="mini-board"><p class="label" style="margin:6px 0">Their cargo</p>${boardHTML(f.list,'e')}</div>`:''}
       <p class="soft">Win: ${k==='b'?`${15+G.sea*10} gold and passage to the next sea`:k==='e'?`${10+f.depth} gold, a pick of cargo and a landmark`:`${5+Math.floor(f.depth/2)} gold and a pick of cargo`}. Lose: ${lossOf(k)} hull${k==='b'?' and fall back to port':''}.</p>`}
   const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Not yet</button><button class="primary" data-a="go">Sail here</button></div>`);
