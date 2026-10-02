@@ -35,7 +35,7 @@ const TUT=[
   {until:'next',target:'.dock .board',text:"Upgraded! To sell cargo, drag it onto Set sail."},
   {until:'wright',target:'[data-bld="wright"]',pos:'bottom',text:"Fittings change how your ship fights. Open the Shipwright."},
   {when:'wright',until:'fitted',target:'#stall',text:"Tap a fitting, then fit it. Each one has a trade-off."},
-  {when:'fitted',until:'next',target:'#shipbtn',pos:'bottom',text:"Tap your hull up top any time to see your ship."},
+  {when:'fitted',until:'next',target:'#shipbtn',pos:'bottom',text:"Tap your hull any time to see your ship."},
   {until:'chart',target:'#leave',text:"One test left. Set sail."},
   // the examiner: everything together
   {when:'chart',until:'fight',target:'.node.reach',text:"Sail at the Guild's examiner."},

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.32.5
+- On big screens, the day, gold, hull, health and fish pills move to the captain's desk on the right, under your ship's name and passive ability. The top bar keeps Log and Pause. Phones are unchanged.
+
 ## 0.32.4
 - Ansel's bubble no longer covers what he's pointing at: it sits at whichever end of the screen hides less of it. Signing on the Bosun in the maiden voyage now lights up the Sign on button itself.
 
