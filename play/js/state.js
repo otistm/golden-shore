@@ -183,7 +183,7 @@ function updateReveal(){const row=node(G.at).row;G.reveal=G.full?99:row+2+G.extr
    easy on a bare new ship (less cargo, and all of it bronze, so the Serpent's poison doesn't snowball); the Fog Sea and the
    Deep push back harder, because by then crew ranks, upgraded cargo and fittings have built up. */
 // boss: its own numbers where the sea's boss should stand apart from the ordinary fights (the Deep's are a step below the Kraken)
-const SEASCALE=[{hp:.95,gear:.75,tier:0},{hp:1.15,gear:1.2,tier:3},{hp:1.05,gear:1.25,tier:3,boss:{hp:1.3,gear:1.4}}];
+const SEASCALE=[{hp:.95,gear:.75,tier:0},{hp:1.15,gear:1.2,tier:3},{hp:1.18,gear:1.33,tier:3,boss:{hp:1.5,gear:1.6}}];
 function enemyOf(n){
   if(n.fixed){const list=n.fixed.list.map(x=>({...x}));list.enemy=true;return{e:ENEMIES[n.enemy],list,hp:n.fixed.hp,depth:depthOf(n)}}
   const e=ENEMIES[n.enemy],s0=SEASCALE[G.sea]||SEASCALE[2],sc=e.kind==='b'&&s0.boss?Object.assign({},s0,s0.boss):s0,depth=depthOf(n),r=RNG(G.seed,'foe',n.id),mult=e.kind==='e'?1.2:e.kind==='b'?1.3:1;
