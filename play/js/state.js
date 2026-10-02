@@ -92,8 +92,19 @@ function canEquip(k){const f=FITTINGS[k],old=fitIn(f.spot);if(old===k)return fal
 const node=id=>G.map.nodes.find(n=>n.id===id);
 /* how many rows a sea's chart has before the boss: 9 now (12 for a while, 6 on charts drawn before that, and the tutorial's) */
 const ROWS=9,mapRows=()=>(G&&G.map&&G.map.rows)||6;
-const depthOf=n=>G.sea*7+Math.round(n.row*6/mapRows());
-const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]);
+const depthOf=n=>n.depth!=null?n.depth:G.sea*7+Math.round(n.row*6/mapRows());   // side-route stops carry their own
+const reachable=()=>G.map.edges.filter(e=>e[0]===G.at).map(e=>e[1]).filter(id=>{const n=node(id);return!(n&&n.side&&G.path.includes(id))});   // a side stop is sailed once
+/* after losing to a boss: two side stops open off the port you limped back to, a bounty to fight and a fishing ground, each
+   sailed once and leading back to that port, so a broke captain can earn gold to refit before trying again. Each loss opens a
+   fresh pair (seeded by the voyage and the loss) and closes any left from the last one. They sit on the boss's row, on the
+   port's side of the chart, at the port's depth. */
+function sideRoute(pid){const m=G.map,p=node(pid),k=m.sideN||0;m.sideN=k+1;
+  m.edges=m.edges.filter(([a,b])=>!(a===pid&&node(b)&&node(b).side));
+  const r=RNG(G.seed,'side',G.sea,k),pool=Object.keys(ENEMIES).filter(e=>ENEMIES[e].sea===G.sea&&ENEMIES[e].kind==='t');
+  const row=mapRows(),depth=depthOf(p),left=p.x<170;
+  [['threat',left?100:240],['fish',left?30:310]].forEach(([type,x])=>{const id=G.sea*100+m.nodes.length;
+    const n={id,row,col:x<170?0:3,x,type,side:1,depth};if(type==='threat')n.enemy=pick(r,pool);
+    m.nodes.push(n);m.edges.push([pid,id],[id,pid])})}
 function logL(t){G.log.push({d:G.day,t})}
 function lore(t){G.log.push({lore:1,t})}
 function seen(k){if(!A.items[k]){A.items[k]=1;saveA()}}
