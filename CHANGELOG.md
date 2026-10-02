@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.32.5
+- On big screens, the day, gold, hull, health and fish pills move to the captain's desk on the right, under your ship's name and passive ability. The top bar keeps Log and Pause. Phones are unchanged.
+
+## 0.32.4
+- Ansel's bubble no longer covers what he's pointing at: it sits at whichever end of the screen hides less of it. Signing on the Bosun in the maiden voyage now lights up the Sign on button itself.
+
+## 0.32.3
+- Maiden voyage fixes from playtesting:
+  - The arrange lesson now uses two items: buy the Jib Sail, which speeds up the item on its right, and drag it to the left of the Rapier. Dragging an item back to where it was no longer counts as a move.
+  - Steps that wait for you to do something keep their line on screen until you do it.
+  - "It's faded" now lights up the faded Rapier itself before pointing at the Tavern.
+  - Signing on a hand who can work your cargo plays "Ready!" on it.
+  - The trial teaches the Jib Sail needing the Bosun's Seamanship, and upgrading: Saltmere sells a second Rapier that upgrades yours to Silver. It also mentions selling, wages and hull repair.
+  - Captain's picks in the trial are rules only, so there's no order to time yet.
+  - Ansel waits for the fitting animation to finish.
+- After you buy something, the seller says "Pleasure doing business" instead of jumping to the next item.
+- The victory card says "Make a captain's pick" (it used to say perk). Orders and the Iron Ram announce themselves at the top of the screen when they fire.
+- The shipwright's repair mallet says "hull full" instead of "sound".
+
+## 0.32.2
+- Tips and maiden voyage steps no longer make you wait for a timer: a Next button is there straight away. Steps that wait for you to do something show Hide instead, and the last step shows Finish.
+
+## 0.32.1
+- Every maiden voyage step and tip is now one short line.
+- When Ansel speaks, the screen dims behind him with a clear window over whatever he's pointing at, so tips stand apart from the game. You can still tap through to do what he asks.
+
+## 0.32.0
+- Fight recap: after every fight, tap Fight recap on the result card to see what each of your items did (damage, shield, healing, burn, poison, hastes, charges, slows, and how often it fired), biggest first. Items that did nothing say why, like "nobody aboard can work it". The enemy's three busiest pieces and what burn, poison and the storm did are listed too.
+- On a computer, hovering a piece of cargo shows its card beside it and outlines the items it works on (the ones it hastes, charges or boosts). On a phone, tap as before; the card now lists what the item works on.
+- In the tavern, "How they grow" shows what a hand learns at rank 2 and rank 3, and after how many wins.
+- In port, the Chart button (a telescope) shows the chart, so you can plan your route while you shop.
+
 ## 0.31.0
 - Learn to sail is now the maiden voyage: the Guild's six-stop trial run, where each stop teaches one part of the game by playing it. Gullhaven teaches items and the crew who make them work (buy a Rapier, see it faded, sign on the Fencing Master, watch it come alive). A training hulk teaches fighting, then renown and your first captain's pick. An uncharted isle teaches landmarks, Saltmere's shipwright teaches fittings, and the Guild's examiner puts it all together before the Guild hall signs your papers.
 - Ansel's bubble shows which stop of the trial you're on. Places that aren't part of a stop's lesson stay closed.

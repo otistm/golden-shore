@@ -30,6 +30,32 @@ function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdC
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
 }
+/* which other items in the same list an item works on: the ones it hastes or charges, and the ones its aura boosts */
+function affects(list,i){const d=DEFS[list[i].k],out=new Set(),add=j=>{if(j>=0&&j<list.length&&j!==i)out.add(j)};
+  const tgt=t=>{if(typeof t!=='string')return;if(t==='adj'){add(i-1);add(i+1)}else if(t==='left')add(i-1);else if(t==='right')add(i+1);
+    else if(t==='all'||t==='rand1'||t==='rand2')list.forEach((x,j)=>add(j));else if(t.startsWith('tag:'))list.forEach((x,j)=>{if(DEFS[x.k].tags.includes(t.slice(4)))add(j)})};
+  const scan=f=>{if(f)for(const k of['haste','charge'])if(Array.isArray(f[k]))tgt(f[k][0])};
+  scan(d);scan(d.start);(d.on||[]).forEach(scan);
+  const cr=list.enemy?null:crewCrafts();list.forEach((x,j)=>{if(j!==i&&statsOf(list,j,cr).boost.includes(d.n))out.add(j)});
+  return out}
+/* the list a tile on screen belongs to */
+function listOf(el){const bd=el.closest('.board');if(!bd)return null;const sd=bd.dataset.side;
+  if(B&&bd.closest('.battle'))return sd==='e'?B.E.list:B.P.list;return sd==='l'?G&&G.locker:sd==='p'?G&&G.board:null}
+/* desktop: hovering a tile shows its card beside it and marks the items it works on; phones keep tap for the full sheet */
+const HOVERS=matchMedia('(hover:hover) and (pointer:fine)');
+let tipEl=null;
+function hideItemTip(){if(tipEl){tipEl.remove();tipEl=null}document.querySelectorAll('.item.src,.item.aff').forEach(x=>x.classList.remove('src','aff'))}
+function showItemTip(el){hideItemTip();if(!G||document.querySelector('.dragging'))return;const list=listOf(el),i=[...el.parentNode.querySelectorAll('.item')].indexOf(el);if(!list||!list[i])return;
+  const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affects(list,i);
+  el.classList.add('src');aff.forEach(j=>tiles[j]&&tiles[j].classList.add('aff'));
+  tipEl=document.createElement('div');tipEl.className='itip';tipEl.setAttribute('role','tooltip');
+  tipEl.innerHTML=`<b>${d.n}</b><p class="soft"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}</p><ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>${aff.size?`<p class="itip-aff">Works on ${aff.size} of your other items.</p>`:''}`;
+  document.body.appendChild(tipEl);const r=el.getBoundingClientRect(),t=tipEl.getBoundingClientRect();
+  let x=Math.min(innerWidth-t.width-8,Math.max(8,r.left+r.width/2-t.width/2)),y=r.top-t.height-10;if(y<8)y=r.bottom+10;
+  tipEl.style.left=x+'px';tipEl.style.top=y+'px'}
+document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse')return;const el=e.target.closest&&e.target.closest('.board .item');if(el)showItemTip(el)});
+document.addEventListener('pointerout',e=>{const el=e.target.closest&&e.target.closest('.board .item');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hideItemTip()});
+document.addEventListener('pointerdown',hideItemTip,true);
 function itemSheet(list,i,mode,after){
   const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;
@@ -37,6 +63,7 @@ function itemSheet(list,i,mode,after){
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
     <ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>
     ${g.length?`<div class="gloss">${g.map(x=>`<span>${x}</span>`).join('')}</div>`:''}
+    ${(()=>{const a=[...affects(list,i)].map(j=>DEFS[list[j].k].n);return a.length?`<p class="gloss">Works on: ${[...new Set(a)].join(', ')}.</p>`:''})()}
     ${!list.enemy&&itemUse(it.k,crewCrafts())!=='all'?'<p class="gloss">Unticked abilities need someone aboard with that craft. Hire crew at a port tavern.</p>':''}
     ${mode!=='view'&&it.t<3?`<p class="gloss">Get another ${d.n}, ${TIER[it.t]} or better, to upgrade it to ${TIER[it.t+1]}.</p>`:''}
     <div class="sh-actions">${mode!=='view'&&!inL?`<button class="ghost" data-a="move">Move</button>`:''}${canSwap?`<button class="ghost" data-a="swap" ${swapOk?'':'disabled'}>${inL?'Move to hold':'Stow in locker'}</button>`:''}${mode==='port'||mode==='spoils'?`<button class="ghost" data-a="sell">Sell for ${sellP(it.k,it.t)} gold</button>`:''}<button class="primary" data-a="close">Close</button></div>`);
@@ -58,7 +85,7 @@ function holdFlash(){if(!flash)return;const f=flash;flash=null;
     const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,up=f.kind==='up';
     const burst=document.createElement('div');burst.className='inkburst'+(up?' big':'');burst.style.left=cx+'px';burst.style.top=cy+'px';
     burst.innerHTML=`<svg viewBox="-50 -50 100 100" aria-hidden="true">${Array.from({length:up?12:8},(_,k)=>{const a=k/(up?12:8)*Math.PI*2;return`<path d="M${Math.cos(a)*24} ${Math.sin(a)*24}L${Math.cos(a)*(k%2?36:44)} ${Math.sin(a)*(k%2?36:44)}"/>`}).join('')}${up?'<path class="star" d="M0-46l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>':''}</svg>`;
-    const tag=document.createElement('div');tag.className='floatlbl'+(up?' up':'');tag.textContent=up?`${TIER[f.ref.t]}!`:'New';tag.style.left=cx+'px';tag.style.top=r.top+'px';
+    const tag=document.createElement('div');tag.className='floatlbl'+(up?' up':'');tag.textContent=up?`${TIER[f.ref.t]}!`:f.kind==='ready'?'Ready!':'New';tag.style.left=cx+'px';tag.style.top=r.top+'px';
     document.body.append(burst,tag);const hw=tag.offsetWidth/2+6;tag.style.left=Math.max(hw,Math.min(innerWidth-hw,cx))+'px';   // keep the label on screen
     setTimeout(()=>{burst.remove();tag.remove()},1300);return}}
 function bindHold(mode,rerender,ext){
@@ -228,7 +255,7 @@ function dragHold(mode,rerender,ext){
         if(d.full)return toast(tgt.side==='l'?'No room in the locker.':'No room in the hold.');
         let dst=d.dst;
         if(xin){const at=xin.drop(tgt,dst);rerender();if(at!=null){const m=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[at];if(m)squish(m,'land')}return}
-        if(tgt===src){if(dst===si)return;src.list.splice(si,1);if(dst>si)dst--;src.list.splice(dst,0,d.it)}
+        if(tgt===src){if(dst>si)dst--;if(dst===si)return;src.list.splice(si,1);src.list.splice(dst,0,d.it)}
         else{src.list.splice(si,1);tgt.list.splice(dst,0,d.it)}
         save();rerender();
         const moved=app.querySelectorAll(`.dock .board[data-side="${tgt.side}"] .item`)[dst];if(moved)squish(moved,'land');coach('moved');
@@ -257,7 +284,7 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea')))return;
   const ovs=document.querySelectorAll('.overlay'),top=ovs[ovs.length-1];
   if(e.key==='p'||e.key==='P'){if(PAUSE.on)resumePause();else if(!top)showPause();return}
-  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cx');if(x)x.click();else showPause()}return}
+  if(e.key==='Escape'){if(top)top.dispatchEvent(new MouseEvent('click',{bubbles:true}));else{const x=document.querySelector('#coach .cnext');if(x)x.click();else showPause()}return}
   if(B&&!B.over&&!top){const b=app.querySelector(`[data-sp="${e.key}"]`);if(b)b.click()}
 });
 /* ---------- pause (like Ink Nine and Ink Rally) ----------

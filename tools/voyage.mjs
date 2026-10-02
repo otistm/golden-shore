@@ -19,7 +19,7 @@ for (let run = 0; run < runs; run++) {
   for (; steps < 2000; steps++) {
     const sig = await page.evaluate(() => G ? `${(document.querySelector('.overlay h2') || document.querySelector('.seahead h2') || {}).textContent || (document.querySelector('.battle') ? 'fight' : '?')} @${node(G.at).row}${node(G.at).type}` : 'title').catch(() => '');
     if (trail[trail.length - 1] !== sig) { trail.push(sig); if (trail.length > 14) trail.shift(); }
-    if (await q('#coach .cx')) await click('#coach .cx');
+    if (await q('#coach .cnext')) await click('#coach .cnext');
     if (await q('.overlay')) {
       if (await q('[data-a=home]')) { result = await page.innerText('.overlay h2'); break; }
       for (const s of ['#next', '.pick:not([disabled])', '[data-l=gold]', '.opt:not([disabled])', '[data-a=go]', '.overlay .primary', '.overlay button']) if (await click(s)) break;

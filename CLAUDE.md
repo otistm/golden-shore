@@ -73,14 +73,17 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - The tutorial is the maiden voyage (`startTutorial()` in coach.js): a fixed six-stop map, one lesson per stop. Gullhaven (items, then crew: the Rapier arrives faded and comes alive when the Fencing Master signs on), a training hulk (fighting, then renown: `G.renown` starts one short of level 1 so the win brings a captain's pick), an uncharted isle (landmarks), Saltmere (fittings, from a fixed bench), the examiner (everything together), the Guild hall (finish).
 - Each port node lists the places open for its lesson in `open`; `tutOpen(view)` closes the rest during the trial.
 - The game reports moments with `coach(event)`: `port`, the place opened (`market`, `tavern`, `wright`, `docks`, `harbour`), `bought`, `moved`, `hired`, `fitted`, `chart`, `sail`, `fight`, `renown`, `perkDone`, `spoils`, `spoilsTaken`, `fishing`, `fishDone`, `landmarkOpen`, `landmark`.
+- A step may have `skipIf` (a function): `advance()` skips it when the player already did what it asks. Action steps show no button, so their line stays until the player acts; explanations show Next, the last step Finish.
+- The trial's Gullhaven teaches buying, the crew gate (the Rapier faded, then Ready), and order (the Jib Sail to the Rapier's left, then the Bosun for Seamanship); Saltmere stocks a second Rapier to show upgrading. Its captain's picks are rules only (`perkPick()` leaves orders out while `G.tut`).
 - Each step in `TUT` has `when` (the event that shows it), `until` (the event that moves on, or `next`/`finish`), an optional `target` to highlight, and `pause` to hold the fight. The bubble's label names the stop ("Maiden voyage, stop 2 of 6").
 - If you rename a screen element a step targets, or change when one of those events fires, update `TUT` and replay the maiden voyage.
 - The maiden voyage uses `G.tut` and seed `TUTORIAL`. `save()` does nothing during it, so a voyage in progress is never overwritten. Finishing sets `A.tutDone` and marks the port, chart, crew and shipwright tips as seen.
 - One-time tips live in `TIPS` and show once per player. `A.tips` remembers which ones they've seen.
 - A tip fires only where it applies: port tips when you open that place (`port` in the market, `crew` in the tavern, `wright` in the yard), and `crew` also when you buy cargo nobody aboard can work (`deadTip()`). Every tip has an End tutorial link that sets `A.tipsOff`, after which `tip()` shows nothing.
-- Every tip uses `bubble()`. A reading ring fills for 3 to 8 seconds, depending on the tip's length, then turns into an x that closes it, matching Ink Nine.
-  - Maiden voyage steps show which stop you're on. Closing an explanation advances, closing the last one finishes, and closing an action step only hides it.
-  - The bubble lets taps through, and only its buttons are tappable. Don't add Next or Got it buttons.
+- Keep every step and tip to one short line (about 15 words); testers found longer ones too much.
+- `bubble()` also dims the screen behind it (`dimFor()`, `.coachdim`): a dark layer that takes no taps, with a clear window over the step's `target` (or the open pop-up), following it every frame. Steps that point at something near the top use `pos:'bottom'` so the bubble doesn't cover it.
+- Every tip uses `bubble()`, which shows a button straight away (no reading timer): Next for tips and explanations, Hide on a maiden voyage step that waits for the player to do something, Finish on the last step. Tips also carry the End tutorial link.
+  - The bubble lets taps through; only its buttons are tappable.
 
 ## Crafts and crew
 - Voyages start bare (no cargo, no crew, 30 gold). The first port of sea 1 stocks the ship's `start` items and `crew` hires (port.js), so `SHIPS[k].start` and `.crew` mean "what Gullhaven stocks for her", not what she carries.
@@ -143,6 +146,12 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 - Sailing: `go(id)` plays `sailAnim()` (the boat `#boat` rides the route path `[data-e="from>to"]` and inks a wake) and then `goNow(id)`, which does the actual move. `sailing` blocks a second tap mid-voyage and previews of other stops, and `go()` only sails to a stop in `reachable()`.
 
+## Fight recap, hover cards, crew growth, the telescope
+- Every fight item keeps a tally in `it.rec` (damage, shield, heal, burn, poison, hastes, charges, slows, uses). `applyFx()` sets `recIt` so `hit()` can credit damage to the item. `B.dot` totals burn, poison and storm damage per side. `fightRecap()` (battle.js) shows it from the result card's Fight recap link.
+- `affects(list,i)` (ui.js) is which items an item works on: its haste and charge targets and the items its auras boost (from `statsOf().boost`). On desktop (`HOVERS`), hovering a `.board .item` shows `showItemTip()` and outlines those items (`.src`, `.aff`); the item sheet lists them on phones.
+- The tavern bubble's "How they grow" lists `RANKS` for rank 2 and 3 with `rankXP()`.
+- The port header's Chart button opens `chartPeek()` (port.js): `mapSVG()` in a sheet, nothing tappable.
+
 ## Celebrations
 - Fights open with an intro in `fight()`: `.battle.intro` animations and a `.fightcall` stamp, with the clock held by `B.intro` (checked in `loop()`); a tap, Skip or 1.65s ends it.
 - A catch plays `leap()` in fishing.js (the fish jumps from the bobber to the boat, on the pause-aware clock) and then the animated catch card (`.catchcard`).
@@ -202,7 +211,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Mobile first, portrait, one thumb. Respect safe areas and `prefers-reduced-motion`. The hold stays docked at the bottom on the chart and port screens.
 - Desktop has two tiers, both in blocks at the end of `styles.css`, so phones are never touched:
   - At least 900 × 560: a wider single column (4 market cards, the chart fitted to the window, centred pop-ups).
-  - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart fills the stage. `fitMap()` redraws the chart at the size it has (`mapSVG(fit)` stretches x and row height for display only; node positions in the saved map never change). `DESK` in desk.js must match the CSS media query.
+  - At least 1180 × 640 during a voyage, `desk.js` sets `body.desk` and shows the captain's desk on the right (ship, landmarks, catch, log). The hold becomes a band along the bottom with named tiles (`.nm`, hidden on phones), and the chart fills the stage. `fitMap()` redraws the chart at the size it has (`mapSVG(fit)` stretches x and row height for display only; node positions in the saved map never change). `DESK` in desk.js must match the CSS media query. In desk mode, `renderDesk()` moves the live `.bar .stats` element (day, gold, hull, health, fish) into `#deskstats` under the ship's trait, so its ids, taps and animations keep working; it moves back into the bar when desk mode ends. Code that looks up `#goldst`, `#shipbtn` or `#creelbtn` by id keeps working either way.
   - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 9 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
