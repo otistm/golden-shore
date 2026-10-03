@@ -88,7 +88,7 @@ function port(id,view){
     const was=G.board.map(b=>itemUse(b.k,crewCrafts()));
     G.gold-=feeOf(k);hire(k);S.tavern[i]=null;{const j=G.board.findIndex((b,n)=>was[n]!=='all'&&itemUse(b.k,crewCrafts())==='all');if(j>=0)flash={ref:G.board[j],kind:'ready'}}bump='gold';save();toast(`${C.n} joins the crew`);port(id,view);hireFly(k,from);coach('hired')});
   if(view==='harbour')bindHarbour();
-  if(view==='tavern'){layBar();requestAnimationFrame(layBar)}
+  if(view==='tavern'){layBar();requestAnimationFrame(layBar);const rk=app.querySelector('#talk .ranks');if(rk)rk.addEventListener('toggle',layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
   restoreFocusMarks();
   if(restock){restock=false;const sl=app.querySelector('#stall .seller');if(sl)sl.classList.add('popup')}
@@ -279,14 +279,29 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
 function layBar(){const room=document.getElementById('barroom');if(!room)return;
   const svg=room.querySelector('svg'),talk=document.getElementById('talk'),dock=app.querySelector('.dock');
   const top=room.getBoundingClientRect().top,dh=dock?dock.offsetHeight:0,cw=room.clientWidth;
-  const ch=Math.max(260,Math.round(innerHeight-top-dh-14));room.style.height=ch+'px';
-  const PW=+room.dataset.pw,s=Math.min(cw/(PW+16),ch/330),vw=cw/s,vh=ch/s,x0=PW/2-vw/2;
-  const th=talk&&!talk.classList.contains('quiet')?talk.offsetHeight:0;
+  let ch=Math.max(260,Math.round(innerHeight-top-dh-14));
+  const PW=+room.dataset.pw,s0=Math.min(cw/(PW+16),ch/330),sx=+room.dataset.sx;
+  const live=talk&&!talk.classList.contains('quiet');if(live)talk.classList.remove('side');room.classList.remove('sided');
+  let th=live?talk.offsetHeight:0;
+  // the bubble never covers a face. Under the hands when it fits; on a wide, short room, beside them; otherwise the scene
+  // shrinks a little and, if that's not enough, the room grows taller and the screen scrolls
+  if(th&&ch<250*s0+th+22&&cw>=640){talk.classList.add('side');const tw=talk.offsetWidth;th=talk.offsetHeight;
+    const s=Math.min((cw-tw-56)/(PW+16),ch/330);
+    if(s>=s0*.55){ch=Math.max(ch,th+16);room.style.height=ch+'px';
+      const x0=-16/s,y0=-Math.max(0,Math.min((ch-300*s)/2,60*s))/s,hx=16+PW*s;
+      svg.setAttribute('viewBox',`${x0} ${y0} ${cw/s} ${ch/s}`);
+      const left=Math.max(hx+20,Math.min(cw-tw-12,hx+(cw-hx-tw)/2)),py=(sx>=0?95:120-y0)*s+(sx>=0?-y0*s:0);
+      const topY=Math.max(8,Math.min(ch-th-8,py-48));
+      talk.style.left=left+'px';talk.style.top=topY+'px';talk.style.setProperty('--ay',(py-topY)+'px');room.classList.add('sided');return}
+    talk.classList.remove('side');th=talk.offsetHeight}
+  const s=th?Math.max(s0*Math.min(.7,Math.max(.45,120/(260*s0))),Math.min(s0,(ch-th-22)/250)):s0;
+  if(th)ch=Math.max(ch,Math.ceil(250*s+th+22));room.style.height=ch+'px';
+  const vw=cw/s,vh=ch/s,x0=PW/2-vw/2;
   // spare height goes above the shelves, so the hands and the bubble under them sit together in the middle
   const free=Math.max(0,ch-(250*s+th+18)),y0=-Math.min(free/2,60*s)/s;
   svg.setAttribute('viewBox',`${x0} ${y0} ${vw} ${vh}`);
   if(!th)return;
-  const sx=+room.dataset.sx,px=(sx-x0)*s,tw=talk.offsetWidth;
+  const px=(sx-x0)*s,tw=talk.offsetWidth;
   const left=Math.max(8,Math.min(cw-tw-8,px-tw/2)),topY=Math.min(ch-th-10,(250-y0)*s);
   talk.style.left=left+'px';talk.style.top=topY+'px';talk.style.setProperty('--ax',(px-left)+'px')}
 const buyP=o=>Math.max(1,price(o.k,o.t)-(hasP('haggler')?1:0));

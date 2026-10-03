@@ -116,6 +116,9 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Show me more adds `.sweeping` to the stall for half a second, then redraws with `restock` set so the new goods get `.thump` and the seller `.popup`.
 - The tutorial's market step targets `#stall`. The bot taps each `[data-g]` and then `.talk .buy`.
 
+## The tavern
+- `tavernHTML()` draws the bar scene and the hand you're talking to in a `.talk` bubble; `layBar()` (port.js) fits them. The bubble never covers a face: under the hands when it fits; in a wide, short room (640px and up) beside them (`.talk.side`, `.barroom.sided` fades the other hands); otherwise the scene shrinks to 45 to 70% and the room grows so the screen scrolls. Opening "How they grow" re-runs `layBar()`.
+
 ## The shipwright's yard
 - `wrightHTML(S,id,anim)` in port.js uses the market stall's layout and classes (`.stall.yard`, `.stalltop`, `.seller`, `.talk`, `.table.bench`, `.good`): the fittings in `S.fits` and a repair mallet (`data-w="r"`) sit on the bench, and `PV.wsel` is the chosen one.
 - Shipwrights are `WRIGHTS` in people.js (`short`, `n`, `look`, `spot`, a line per fitting spot in `say`, and `repair`, `full`, `broke`, `out`, `slot`). `wrightOf(id)` picks one per port (Hock at Gullhaven) and stores it as `S.wright`; the first fitting on the bench is from their `spot` when one is left. The bot taps each `[data-w]` and then `.talk .buy`.

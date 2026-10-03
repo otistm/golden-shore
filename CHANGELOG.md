@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.35.5
+- The tavern's speech bubble no longer covers the face of the hand you're talking to. On a computer it sits beside the bar with the other hands faded back; on phones it stays underneath, the scene shrinks a little to make room, and on short screens the tavern scrolls. Opening "How they grow" re-fits it.
+
 ## 0.35.4
 - Fights in colour: your card takes your ship's colour, ordinary enemies are brick, elites slate and bosses deep navy. Health bars are green for you and brick for them, the shield is slate stripes, and burn, poison and shield badges each have their own colour. "Fight!" is stamped in brick, Victory in mustard, and the Defeat sign is weathered wood.
 - Fishing in colour: a peach sky over two planes of slate water, a wood boat and rod, a red-and-cream bobber, a mustard catch zone on the reel and a green progress bar.
