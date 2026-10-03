@@ -7,7 +7,7 @@ function mkSide(name,max,list,traits,sea,cr){const b=sideOf(list,cr);
 /* the item whose effect is being applied right now, so hits can be credited to it in the fight recap */
 let recIt=null;
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
-function fighterHTML(S,k){return`<div class="fighter ${k}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
+function fighterHTML(S,k,c){return`<div class="fighter ${k} ${c||''}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
 /* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
 function setupFight(n,f,board){
   const depth=f.depth,sh=SHIPS[G.ship];
@@ -40,9 +40,9 @@ function fight(n){
   A.met[n.enemy]=1;saveA();G.fightAt=n.id;save();
   setupFight(n,f,G.board);const P=B.P,E=B.E;
   app.innerHTML=`${barHTML()}<section class="battle">
-    ${fighterHTML(E,'e')}${boardHTML(E.list,'e')}
+    ${fighterHTML(E,'e','k-'+(n.type==='boss'||n.type==='elite'?n.type:'threat'))}${boardHTML(E.list,'e')}
     <div class="mid"><span class="clock" id="clock"></span><div class="speed">${[1,2,4].map(v=>`<button data-sp="${v}" aria-pressed="${B.speed===v}">${v}×</button>`).join('')}<button id="skip">Skip</button></div></div>
-    ${boardHTML(P.list,'p',null,holdCap())}${fighterHTML(P,'p')}
+    ${boardHTML(P.list,'p',null,holdCap())}${fighterHTML(P,'p','ship-'+(SHIPDRAW[G.ship]?G.ship:'sloop'))}
     <p class="tip">Tap any item to see what it does.</p></section>`;
   bindBar();
   for(const[S,k]of[[P,'p'],[E,'e']]){

@@ -9,16 +9,16 @@ function fishing(key,casts,done){
   const zoneW=()=>.24+G.rod*.05;
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>Fishing</h2><span id="casts"></span></div>
     <div class="pond" id="pond"><svg viewBox="0 0 340 150" aria-hidden="true">
-      <g class="pwave"><path d="M-40 88 Q-20 80 0 88 T40 88 T80 88 T120 88 T160 88 T200 88 T240 88 T280 88 T320 88 T360 88 T400 88" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/></g>
-      <g class="pwave back"><path d="M-40 112 Q-20 105 0 112 T40 112 T80 112 T120 112 T160 112 T200 112 T240 112 T280 112 T320 112 T360 112 T400 112" fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" opacity=".4"/></g>
-      <path d="M0 150V60l26 6 6 84z" fill="#fff" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>
-      <path d="M14 70L60 12" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+      <g class="pwave"><path class="pw-sea" d="M-40 88 Q-20 80 0 88 T40 88 T80 88 T120 88 T160 88 T200 88 T240 88 T280 88 T320 88 T360 88 T400 88V160H-40z" stroke="none"/><path d="M-40 88 Q-20 80 0 88 T40 88 T80 88 T120 88 T160 88 T200 88 T240 88 T280 88 T320 88 T360 88 T400 88" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/></g>
+      <g class="pwave back"><path class="pw-deep" d="M-40 112 Q-20 105 0 112 T40 112 T80 112 T120 112 T160 112 T200 112 T240 112 T280 112 T320 112 T360 112 T400 112V160H-40z" stroke="none"/><path d="M-40 112 Q-20 105 0 112 T40 112 T80 112 T120 112 T160 112 T200 112 T240 112 T280 112 T320 112 T360 112 T400 112" fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" opacity=".4"/></g>
+      <path class="pw-boat" d="M0 150V60l26 6 6 84z"/><path class="pw-boat2" d="M0 150V104l29.2 3.4L32 150z" stroke="none"/><path d="M0 150V60l26 6 6 84z" fill="none" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 70L60 12" stroke="#000" stroke-width="4.6" stroke-linecap="round"/><path class="pw-rod" d="M14 70L60 12" stroke-width="2" stroke-linecap="round"/>
       <path id="fline" fill="none" stroke="#000" stroke-width="1.2"/>
-      <g id="bob"><path d="M0-9v5" stroke="#000" stroke-width="1.6"/><circle r="5" fill="#fff" stroke="#000" stroke-width="2"/><path d="M-5 0a5 5 0 0 0 10 0z" fill="#000"/></g>
+      <g id="bob"><path d="M0-9v5" stroke="#000" stroke-width="1.6"/><circle r="5" fill="#FBF5E8" stroke="#000" stroke-width="2"/><path d="M-5 0a5 5 0 0 1 10 0z" fill="#B5533C" stroke="#000" stroke-width="1.4"/></g>
       <text id="bang" x="0" y="0" text-anchor="middle" class="bang" opacity="0">!</text>
     </svg></div>
     <div class="reel" id="reel" hidden>
-      <div class="track" id="track"><div class="zone" id="zone"></div><div class="fishmark" id="fmark"><svg viewBox="0 0 24 14"><path d="M2 7c4-6 12-6 16 0-4 6-12 6-16 0z" fill="#fff" stroke="#000" stroke-width="1.8"/><path d="M18 7l5-4v8z" fill="#fff" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6" cy="6.5" r="1.1"/></svg></div></div>
+      <div class="track" id="track"><div class="zone" id="zone"></div><div class="fishmark" id="fmark"><svg viewBox="0 0 24 14"><path d="M2 7c4-6 12-6 16 0-4 6-12 6-16 0z" fill="#B5533C" stroke="#000" stroke-width="1.8"/><path d="M18 7l5-4v8z" fill="#84463A" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6" cy="6.5" r="1.1"/></svg></div></div>
       <div class="prog"><div id="progf"></div></div>
     </div>
     <p class="fmsg" id="fmsg"></p>
@@ -41,7 +41,7 @@ function fishing(key,casts,done){
     if(matchMedia('(prefers-reduced-motion:reduce)').matches)return then();
     const x0=F.bx,y0=88,x2=22,y2=60,x1=(x0+x2)/2+20,y1=-50,g=document.createElementNS(NS,'g');
     g.innerHTML=fishSVG(k).replace('<svg ','<svg x="-20" y="-10" width="40" height="20" ');svg.appendChild(g);
-    const drops=Array.from({length:10},(_,i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',1.6+Math.random()*1.6);c.setAttribute('fill','#fff');c.setAttribute('stroke','#000');c.setAttribute('stroke-width','1.3');svg.appendChild(c);
+    const drops=Array.from({length:10},(_,i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',1.6+Math.random()*1.6);c.setAttribute('fill','#C9D5DC');c.setAttribute('stroke','#000');c.setAttribute('stroke-width','1.3');svg.appendChild(c);
       const a=-Math.PI/2+(Math.random()-.5)*2.2,v=55+Math.random()*60;return{c,x:x0,y:y0,vx:Math.cos(a)*v,vy:Math.sin(a)*v}});
     const ring=document.createElementNS(NS,'ellipse');ring.setAttribute('cx',x0);ring.setAttribute('cy',y0+2);ring.setAttribute('fill','none');ring.setAttribute('stroke','#000');ring.setAttribute('stroke-width','1.6');svg.insertBefore(ring,svg.firstChild);
     const t0=now(),T=.95;let tl=t0;

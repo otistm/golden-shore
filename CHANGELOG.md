@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.35.6
+- On a computer, speech bubbles only show while you point at someone or something that talks: a good on the stall, a fitting, a fish, a face on the pier, a hand at the bar. Move onto the bubble to press Buy or Hire; move away and it tucks away. Phones still tap.
+- In the tavern, the hands you're not talking to fade back only while you're talking to someone, and they stay solid (washed toward the paper) instead of see-through.
+
+## 0.35.5
+- The tavern's speech bubble no longer covers the face of the hand you're talking to. On a computer it sits beside the bar with the other hands faded back; on phones it stays underneath, the scene shrinks a little to make room, and on short screens the tavern scrolls. Opening "How they grow" re-fits it.
+
+## 0.35.4
+- Fights in colour: your card takes your ship's colour, ordinary enemies are brick, elites slate and bosses deep navy. Health bars are green for you and brick for them, the shield is slate stripes, and burn, poison and shield badges each have their own colour. "Fight!" is stamped in brick, Victory in mustard, and the Defeat sign is weathered wood.
+- Fishing in colour: a peach sky over two planes of slate water, a wood boat and rod, a red-and-cream bobber, a mustard catch zone on the reel and a green progress bar.
+- Every fish has its own colours, with a paler belly and darker fins, wherever fish appear: the catch card, the creel, the fish market and the Atlas.
+
 ## 0.35.3
 - Portrait colours fixed: skin, hair and clothes are now told apart properly. Necks and hands are skin (not shirt colour), light and grey hair is hair (not skin), hats, papers, cups and blades get their own colours, and each person keeps the same colours everywhere.
 

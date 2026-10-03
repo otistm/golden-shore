@@ -1477,3 +1477,65 @@ b.now{font-weight:800}
 .peepart .ar-s{fill:var(--skin)}.peepart .ar-h{fill:var(--hair)}.peepart .ar-t{fill:var(--hat)}.peepart .ar-c{fill:var(--cloth)}
 .peepart .ar-p{fill:#F3E9D6}.peepart .ar-l{fill:#DCE5E9}
 .peepart .pl-body [fill="#000"]{fill:#232C3B}
+/* fights in flat colour: each card is a plane of its own. Your card takes your ship's sail colour, an ordinary
+   enemy is brick, an elite slate, a boss deep navy. Health is sage for you and brick for them, the shield slate. */
+.fighter.p{background:var(--sail,var(--slate-p))}
+.fighter.ship-privateer.p{background:#E9C2B3}
+.fighter.ship-junk.p{background:#F1DDA6}
+.fighter.ship-sloop.p{background:var(--slate-p)}
+.fighter.ship-galleon.p{background:#E6D3B8}
+.fighter.k-threat{background:var(--brick-p)}
+.fighter.k-elite{background:var(--slate-p)}
+.fighter.k-boss{background:var(--ink);color:var(--paper);box-shadow:4px 5px 0 var(--brick)}
+.fighter.k-boss .hpbar{border-color:var(--paper)}
+.fighter.k-boss .traits,.fighter.k-boss .trait{color:var(--paper)}
+.hpbar{background:var(--paper)}
+.fighter.p .hpbar .hp{background:#6F8259}
+.fighter.e .hpbar .hp{background:var(--brick)}
+.hpbar .lag{background:var(--mustard);opacity:.7}
+.hpbar .sh{background:repeating-linear-gradient(-45deg,var(--slate) 0 2px,transparent 2px 5px);border-right:2px solid var(--slate)}
+.burnseg{background:repeating-linear-gradient(90deg,var(--mustard) 0 1.6px,transparent 1.6px 4px)}
+.poiseg{background:radial-gradient(circle,var(--sage-p) 1.3px,transparent 1.7px) 0 0/5px 5px}
+.chip[data-c="sh"]{background:var(--slate-p)}
+.chip[data-c="bu"]{background:var(--peach)}
+.chip[data-c="po"]{background:var(--sage-p)}
+.battle>.mid .speed button[aria-pressed="true"]{background:var(--mustard)}
+.fightcall span{background:var(--brick);box-shadow:5px 5px 0 var(--paper),8px 8px 0 var(--ink)}
+.vic-head{background:var(--mustard);color:var(--ink)}
+.vic-star{fill:var(--mustard-p)}.vic-star:nth-of-type(odd){fill:var(--mustard)}
+.def-sign h2{background:#B98E64;color:var(--ink)}
+.sunk .def-sign h2{background:var(--slate);color:var(--paper)}
+/* fishing: a peach sky over slate water, the boat in wood, the reel a slate channel with a mustard catch zone */
+.pond{background:var(--peach-p)}
+.pond .pw-sea{fill:#B4C6CE}.pond .pw-deep{fill:#8FA6B3}
+.pond .pw-boat{fill:#B98E64;stroke:none}.pond .pw-boat2{fill:#8E6A4B}.pond .pw-rod{stroke:#B98E64}
+.track{background:var(--slate-p)}
+.zone{background:var(--mustard-p)}
+.zone.on{background:var(--mustard)}
+.prog div{background:#6F8259}
+/* each fish its own flat colour: body, a darker belly plane, fins darker again */
+[class*="fish-"] .w.fb{fill:var(--fb,var(--paper))}
+[class*="fish-"] .fbel{fill:var(--fb2,var(--fog))}
+[class*="fish-"] .w.fn{fill:var(--fn,var(--fb2,var(--fog)))}
+[class*="fish-"] .w.fl{fill:var(--mustard)}
+.fish-sardine{--fb:#C9D5DC;--fb2:#E8ECEA;--fn:#7F98A7}
+.fish-mackerel{--fb:#7F98A7;--fb2:#DDE3CC;--fn:#5E7487}
+.fish-snapper{--fb:#C27866;--fb2:#E9C2B3;--fn:#A35A49}
+.fish-moonfish{--fb:#F1DDA6;--fb2:#FBF5E8;--fn:#D9A93A}
+.fish-herring{--fb:#E8DFD0;--fb2:#FBF5E8;--fn:#C9D5DC}
+.fish-lanternf{--fb:#5E7487;--fb2:#8FA6B3;--fn:#4B5E70}
+.fish-fogeel{--fb:#A9B68E;--fb2:#D4DCC0;--fn:#7E8F69}
+.fish-marlin{--fb:#4B5E70;--fb2:#C9D5DC;--fn:#2F3A4C}
+.fish-angler{--fb:#7E6A5C;--fb2:#B7A7A0;--fn:#5D4E44}
+.fish-oarfish{--fb:#E9C2B3;--fb2:#FBF5E8;--fn:#B5533C}
+.fish-squid{--fb:#C27866;--fb2:#E9C2B3;--fn:#A35A49}
+.fish-boot{--fb:#8E6A4B;--fb2:#72543A}
+.fish-angler .k.k,.fish-marlin .k.k,.fish-lanternf .k.k{fill:#FBF5E8}
+/* on a wide, short tavern the bubble sits beside the hands, pointing back at them */
+.talk.side{min-width:300px;max-width:360px}
+.talk.side::before{top:calc(var(--ay,40px) - 9px);left:-11px;border-top:0;border-bottom:2.5px solid var(--line)}
+/* on a computer, bubbles show only while you point at whoever's talking (ui.js talkOn); the other hands at the bar fade back
+   then, washed toward the paper but still solid */
+body.hovtalk .talk:not(.quiet){opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .16s,transform .16s,visibility 0s .16s}
+body.hovtalk #app.talkon .talk:not(.quiet){opacity:1;visibility:visible;transform:none;transition:opacity .16s,transform .2s var(--spring),visibility 0s}
+body.hovtalk #app.talkon .barroom.sided .patron:not(.sel) .bust{filter:url(#tfade)}
