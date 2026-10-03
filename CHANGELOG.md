@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.35.4
+- Fights in colour: your card takes your ship's colour, ordinary enemies are brick, elites slate and bosses deep navy. Health bars are green for you and brick for them, the shield is slate stripes, and burn, poison and shield badges each have their own colour. "Fight!" is stamped in brick, Victory in mustard, and the Defeat sign is weathered wood.
+- Fishing in colour: a peach sky over two planes of slate water, a wood boat and rod, a red-and-cream bobber, a mustard catch zone on the reel and a green progress bar.
+- Every fish has its own colours, with a paler belly and darker fins, wherever fish appear: the catch card, the creel, the fish market and the Atlas.
+
 ## 0.35.3
 - Portrait colours fixed: skin, hair and clothes are now told apart properly. Necks and hands are skin (not shirt colour), light and grey hair is hair (not skin), hats, papers, cups and blades get their own colours, and each person keeps the same colours everywhere.
 
