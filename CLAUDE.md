@@ -203,7 +203,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Planned next: PvP ghosts, meaning snapshots of other captains' holds, replayed on the same stops of the same voyage code.
 
 ## Look and feel (keep it consistent)
-- Flat colour after Chris Ware: pure black (`--line`) only for lines; deep navy (`--ink`) for solid fills, shadows and text; cream paper (`--paper`, page `--page`); and a muted print palette (`--mustard`, `--brick`, `--slate`, `--sage`, `--peach`, with pale `-p` tints, `--sea`, `--land`, `--fog`). No gradients, soft light or glow; one flat colour per area. Cargo tiles take a pale wash by kind (`kindOf()`, `.c-X`). Bright colour only as a small accent (gold coins).
+- Flat colour after Chris Ware: pure black (`--line`) only for lines; deep navy (`--ink`) for solid fills, shadows and text; cream paper (`--paper`, page `--page`); and a muted print palette (`--mustard`, `--brick`, `--slate`, `--sage`, `--peach`, with pale `-p` tints, `--sea`, `--land`, `--fog`). No gradients, soft light or glow; one flat colour per area. Cargo tiles take a pale wash by kind (`kindOf()`, `.c-X`). Bright colour only as a small accent (gold coins). Buildings and props are coloured by plane: give each surface a role class (harbour.js `h-wall`, `h-wall2`, `h-roof`, `h-roof2`, `h-shade`, `h-trim`, `h-win`, `h-door`, `h-wood`… and the bar's `t-` classes), with a side or recessed plane a darker shade of the same hue and shadows as flat darker shapes. Each place sets its own `--wall`/`--roof` on its `.hstop`.
 - Tiers and states still show with line style, not colour:
   - Bronze: single line
   - Silver: double line

@@ -1412,10 +1412,6 @@ b.now{font-weight:800}
 .map .node.reach .body circle{fill:var(--mustard-p)}
 /* the harbour: a peach sky, each place its own flat colour */
 .harbour,.hscroll{background:var(--peach-p)}
-.hworld .hstop[data-bld="market"] .w{fill:var(--brick-p)}
-.hworld .hstop[data-bld="tavern"] .w{fill:var(--mustard-p)}
-.hworld .hstop[data-bld="wright"] .w{fill:var(--sage-p)}
-.hworld .hstop[data-bld="docks"] .w{fill:var(--slate-p)}
 .hworld .hsign rect,.hworld .hstop .hsign rect{fill:var(--paper)}
 /* cargo tiles take a pale wash by kind */
 .item.c-W,.o-icon.c-W{background:var(--brick-p)}
@@ -1442,3 +1438,28 @@ b.now{font-weight:800}
 .ic{stroke:var(--line)}.ic .k{fill:var(--ink)}
 .t3 .ic{stroke:currentColor}.t3 .ic .k{fill:currentColor}
 .item.t3 .cdt{color:var(--ink)}
+/* the harbour, coloured by plane (after Chris Ware): every surface one flat colour; a recessed or side plane is a darker
+   shade of the same hue, shadows under eaves and awnings are flat darker shapes, windows are charcoal, never black */
+.hworld{--wall:#E6D6BC;--wall2:#CDBB9E;--shade:rgba(31,42,60,.22);--roof:#5D6E7C;--roof2:#4B5A67;--trim:#F3E9D6;--win:#3B4454;--winlit:#E3BE6A;
+  --door:#7B5A49;--door2:#644737;--wood:#B98E64;--wood2:#9A7350;--crate:#D7BA8E;--awn:#F3E9D6;--awnstripe:#B5533C;--awn2:#94412F;--lamp:#F0D78A;
+  --hull:#9C5E48;--hull2:#7E4A38;--flag:#B5533C;--flag2:#D9A93A;--sea:#B4C6CE;--water:#7F98A7;--water2:#6C8494;--quay:#B7A7A0;--stone:#CEC0B8;--land:#A9B68E;--land2:#909D76;--sun:#F0D78A}
+.hstop[data-bld="market"]{--wall:#C27866;--wall2:#9E5A4C}
+.hstop[data-bld="tavern"]{--wall:#D8B05E;--wall2:#BE9447;--roof:#7C5848;--roof2:#634537}
+.hstop[data-bld="wright"]{--wall:#9DAE8A;--wall2:#83956F}
+.hworld .h-wall{fill:var(--wall)}.hworld .h-wall2{fill:var(--wall2)}.hworld .h-shade{fill:var(--shade)}
+.hworld .h-roof{fill:var(--roof)}.hworld .h-roof2{fill:var(--roof2)}.hworld .h-trim{fill:var(--trim)}.hworld .h-trimline{stroke:var(--trim)}
+.hworld .h-win{fill:var(--win)}.hworld .h-winlit{fill:var(--winlit)}.hworld .h-door{fill:var(--door)}.hworld .h-door2{fill:var(--door2)}
+.hworld .h-wood{fill:var(--wood)}.hworld .h-wood2{fill:var(--wood2)}.hworld .h-crate{fill:var(--crate)}
+.hworld .h-awn{fill:var(--awn)}.hworld .h-awnstripe{fill:var(--awnstripe)}.hworld .h-awn2{fill:var(--awn2)}.hworld .h-lamp{fill:var(--lamp)}
+.hworld .h-hull{fill:var(--hull)}.hworld .h-hull2{fill:var(--hull2)}.hworld .h-flag{fill:var(--flag)}.hworld .h-flag2{fill:var(--flag2)}
+.hworld .h-sea{fill:var(--sea)}.hworld .h-water{fill:var(--water)}.hworld .h-water2{fill:var(--water2)}.hworld .h-quay{fill:var(--quay)}.hworld .h-stone{fill:var(--stone)}
+.hworld .h-land{fill:var(--land)}.hworld .h-land2{fill:var(--land2)}.hworld .h-sun{fill:var(--sun)}
+.hworld .hwaves path{stroke:var(--line)}
+/* inside the port's places, the same flat planes: each back wall its own colour, stock and tools in material colours, and
+   the bar a wood counter whose front is a darker plane than its top */
+.stall:not(.yard):not(.pier){background:#EED8BE}
+.stall.yard{background:#DCE3CB}
+.stall.pier{background:#F4DFCB}
+.barroom{background:#E7CF93}
+.barscene .t-glass{fill:#A9B68E}.barscene .t-glass2{fill:#7F98A7}.barscene .t-box{fill:#D7BA8E}.barscene .t-jar{fill:#C27866}
+.barscene .t-top{fill:#B98E64}.barscene .t-front{fill:#8E6A4B}.barscene .t-floor{fill:#B7A7A0}

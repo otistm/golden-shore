@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.35.1
+- Ports coloured by plane, after Chris Ware: every surface one flat colour, with recessed and side planes a darker shade of the same hue and flat shadow shapes under eaves and awnings. The harbour's market is brick, the tavern mustard with a darker hall and brown roof, the shipwright sage under a slate roof; windows are charcoal (warm where a hand waits), doors, pier and barrels wood, the quay mauve stone, the water two slate shades. Inside, the market's shelves, the yard's tools and the tavern's bottles take material colours, and the bar's front is a darker plane than its top. The sunbeams are gone (no light effects).
+
 ## 0.35.0
 - First colour pass, after Chris Ware: flat, muted print colours with pure black kept for lines only. Cream paper; deep navy for solid fills, shadows and text; a slate-blue sea with sage islands and mustard on the stops you can sail to; a peach sky over a brick, mustard, sage and slate harbour; brick-and-cream stall awnings; and cargo tiles washed by kind (brick weapons, slate rigging, mustard food, sage armour). Gold coins are the one bright accent, in mustard.
 - Fixed: a hover card could stay on screen after the chart changed under the mouse.
