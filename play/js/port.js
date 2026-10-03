@@ -87,6 +87,7 @@ function port(id,view){
     const from=(app.querySelector('.patron.sel .bust')||b).getBoundingClientRect();
     const was=G.board.map(b=>itemUse(b.k,crewCrafts()));
     G.gold-=feeOf(k);hire(k);S.tavern[i]=null;{const j=G.board.findIndex((b,n)=>was[n]!=='all'&&itemUse(b.k,crewCrafts())==='all');if(j>=0)flash={ref:G.board[j],kind:'ready'}}bump='gold';save();toast(`${C.n} joins the crew`);port(id,view);hireFly(k,from);coach('hired')});
+  document.body.classList.toggle('hovtalk',hoverTalk());if(view==='harbour'||view==='tavern'&&!app.querySelector('#barroom .patron'))app.classList.remove('talkon');
   if(view==='harbour')bindHarbour();
   if(view==='tavern'){layBar();requestAnimationFrame(layBar);const rk=app.querySelector('#talk .ranks');if(rk)rk.addEventListener('toggle',layBar)}
   if(view==='market'||view==='wright'||view==='docks'){layStall();requestAnimationFrame(layStall)}
@@ -259,7 +260,7 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
   const k=sel>=0?S.tavern[sel]:null,C=k&&CREW[k];
   return`<section class="tavern"><div class="m-head"><h2 style="font-size:20px">Tavern <span class="soft">deck ${(G.crew||[]).length}/${berths()}</span></h2><button class="ghost" id="yourcrew">Your crew</button></div>
     <div class="barroom" id="barroom" data-pw="${PW}" data-sx="${sel>=0?20+sel*240+120:-1}">
-    <svg class="barscene" aria-label="The bar" preserveAspectRatio="xMidYMin slice" viewBox="0 0 ${PW} 330">
+    <svg class="barscene" aria-label="The bar" preserveAspectRatio="xMidYMin slice" viewBox="0 0 ${PW} 330"><defs><filter id="tfade" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".303 .179 .018 0 .492  .053 .429 .018 0 .48  .053 .179 .268 0 .455  0 0 0 1 0"/></filter></defs>
       <path d="M${L} 92H${R}M${L} 164H${R}" stroke-width="3"/>${wall}
       ${seats}
       <rect class="t-floor" x="${L}" y="400" width="${R-L}" height="${B-400}" stroke="none"/>

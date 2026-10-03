@@ -1534,5 +1534,8 @@ b.now{font-weight:800}
 /* on a wide, short tavern the bubble sits beside the hands, pointing back at them */
 .talk.side{min-width:300px;max-width:360px}
 .talk.side::before{top:calc(var(--ay,40px) - 9px);left:-11px;border-top:0;border-bottom:2.5px solid var(--line)}
-.barroom.sided .patron:not(.sel) .bust{opacity:.45;transition:opacity .25s}
-@media (hover:hover) and (pointer:fine){.barroom.sided .patron:not(.sel):hover .bust{opacity:.8}}
+/* on a computer, bubbles show only while you point at whoever's talking (ui.js talkOn); the other hands at the bar fade back
+   then, washed toward the paper but still solid */
+body.hovtalk .talk:not(.quiet){opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .16s,transform .16s,visibility 0s .16s}
+body.hovtalk #app.talkon .talk:not(.quiet){opacity:1;visibility:visible;transform:none;transition:opacity .16s,transform .2s var(--spring),visibility 0s}
+body.hovtalk #app.talkon .barroom.sided .patron:not(.sel) .bust{filter:url(#tfade)}

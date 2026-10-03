@@ -118,6 +118,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 ## The tavern
 - `tavernHTML()` draws the bar scene and the hand you're talking to in a `.talk` bubble; `layBar()` (port.js) fits them. The bubble never covers a face: under the hands when it fits; in a wide, short room (640px and up) beside them (`.talk.side`, `.barroom.sided` fades the other hands); otherwise the scene shrinks to 45 to 70% and the room grows so the screen scrolls. Opening "How they grow" re-runs `layBar()`.
+- On a computer (`hoverTalk()` in ui.js: `HOVERS` and not the maiden voyage), every port bubble (`.talk`, not `.quiet`) shows only while the mouse is on a talker (`TALKSRC`) or the bubble itself: `talkOn()` sets `#app.talkon`, which survives redraws, and `port()` sets `body.hovtalk`. While on, the other hands at the bar fade through the opaque SVG filter `#tfade` (never opacity).
 
 ## The shipwright's yard
 - `wrightHTML(S,id,anim)` in port.js uses the market stall's layout and classes (`.stall.yard`, `.stalltop`, `.seller`, `.talk`, `.table.bench`, `.good`): the fittings in `S.fits` and a repair mallet (`data-w="r"`) sit on the bench, and `PV.wsel` is the chosen one.

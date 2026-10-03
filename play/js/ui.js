@@ -82,6 +82,17 @@ let pickT=null;
 document.addEventListener('pointerover',e=>{if(!HOVERS.matches||e.pointerType!=='mouse'||e.buttons||document.querySelector('.dragging'))return;
   const el=e.target.closest&&e.target.closest('#stall .good:not(.sel):not(.gone),#barroom .patron:not(.sel)');clearTimeout(pickT);
   if(el)pickT=setTimeout(()=>{if(el.isConnected&&!document.querySelector('.dragging'))el.dispatchEvent(new MouseEvent('click',{bubbles:true}))},140)});
+/* on a computer, a speech bubble shows only while the mouse is on someone or something that talks (a good, a fitting, a
+   fish, a face, a hand at the bar, the seller) or on the bubble itself; it hides a moment after you move away. #app keeps
+   the state across redraws, so hovering a new good (which redraws the stall) keeps the bubble up. The maiden voyage
+   keeps bubbles showing, so its steps can point at their buttons. */
+const TALKSRC='#stall .good,#stall [data-w],#stall [data-df],#stall [data-ds],#stall .seller,#barroom .patron,.talk:not(.quiet)';
+let talkT=null;
+function talkOn(on){clearTimeout(talkT);if(on){app.classList.add('talkon');return}talkT=setTimeout(()=>app.classList.remove('talkon'),320)}
+const hoverTalk=()=>HOVERS.matches&&!(G&&G.tut);
+document.addEventListener('pointerover',e=>{if(!hoverTalk())return;talkOn(!!(e.target.closest&&e.target.closest(TALKSRC)))});
+document.addEventListener('pointerout',e=>{if(!e.relatedTarget&&hoverTalk())talkOn(false)});
+document.addEventListener('focusin',e=>{if(hoverTalk()&&e.target.closest&&e.target.closest(TALKSRC))talkOn(true)});
 function itemSheet(list,i,mode,after){
   const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.35.6
+- On a computer, speech bubbles only show while you point at someone or something that talks: a good on the stall, a fitting, a fish, a face on the pier, a hand at the bar. Move onto the bubble to press Buy or Hire; move away and it tucks away. Phones still tap.
+- In the tavern, the hands you're not talking to fade back only while you're talking to someone, and they stay solid (washed toward the paper) instead of see-through.
+
 ## 0.35.5
 - The tavern's speech bubble no longer covers the face of the hand you're talking to. On a computer it sits beside the bar with the other hands faded back; on phones it stays underneath, the scene shrinks a little to make room, and on short screens the tavern scrolls. Opening "How they grow" re-fits it.
 
