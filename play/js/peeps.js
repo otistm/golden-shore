@@ -8,9 +8,13 @@ const PEEP_AT={body:[147,639],head:[372,180],face:[531,366],beard:[495,518],acc:
 const PEEP_BASE={body:'Tee 1',head:'Short 1',face:'Calm'};
 const PEEP_BUST='0 0 240 324',PEEP_HEAD='62 30 132 132';   // the whole bust, and a crop to head and shoulders for round portraits
 /* a portrait's layers from a look (body, head and face fall back to the base); drawn in the 240 by 324 frame */
+/* colour: the black shapes are the line art and stay black; the white of the head becomes a skin tone and the white of the
+   clothes a flat colour. Both are picked from the look itself, so a person always looks the same. */
+const PEEP_SKIN=['#F0CDAA','#E2B48C','#C9946C','#A8744F','#7E5238','#EBC29C'],PEEP_CLOTH=['#5E7487','#B5533C','#D9A93A','#93A47E','#C27866','#7F98A7','#8E6A4B','#D7BA8E'];
+function peepTone(L){let h=7;for(const c of JSON.stringify(L))h=(h*31+c.charCodeAt(0))>>>0;return`--skin:${PEEP_SKIN[h%PEEP_SKIN.length]};--cloth:${PEEP_CLOTH[(h>>>5)%PEEP_CLOTH.length]}`}
 function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{});
-  return`<g transform="scale(${PEEP_SCALE.toFixed(5)})" fill="none" stroke="none" fill-rule="evenodd">${PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];
-    return p?`<g transform="translate(${PEEP_AT[s][0]} ${PEEP_AT[s][1]})">${p}</g>`:''}).join('')}</g>`}
+  return`<g class="peepart" style="${peepTone(L)}" transform="scale(${PEEP_SCALE.toFixed(5)})" fill="none" stroke="none" fill-rule="evenodd">${PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];
+    return p?`<g class="pl-${s}" transform="translate(${PEEP_AT[s][0]} ${PEEP_AT[s][1]})">${p}</g>`:''}).join('')}</g>`}
 function peep(look,view,cls){return`<svg class="${cls||'peep'}" viewBox="${view||PEEP_BUST}" aria-hidden="true">${peepLayers(look)}</svg>`}
 /* a crew member's face for the round portraits in the tavern, the crew strip, the ship card and the desk */
 const crewFace=k=>peep(CREW[k]&&CREW[k].look,PEEP_HEAD);

@@ -368,7 +368,7 @@ function seaCrossing(sea,then){
       ${deep?'<path class="sx-bolt" d="M286 0l-18 52 14 4-26 58 10 3-30 70 44-80-12-4 26-50-14-4 18-49z"/>':''}
       <path class="sx-horizon" d="M-20 150H420"/>
       <g class="sx-w1">${wave(170,8,80)}</g>
-      <g class="sx-ship"><g transform="translate(140 98) scale(1.05)"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
+      <g class="sx-ship"><g transform="translate(140 98) scale(1.05)"><g class="shipdraw ship-${SHIPDRAW[G.ship]?G.ship:'sloop'}" stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
       <g class="sx-w2">${wave(206,deep?22:14,deep?120:100)}</g>
       <g class="sx-w3">${wave(240,deep?30:18,deep?150:120)}</g>
     </svg>${fog}

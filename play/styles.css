@@ -1463,3 +1463,17 @@ b.now{font-weight:800}
 .barroom{background:#E7CF93}
 .barscene .t-glass{fill:#A9B68E}.barscene .t-glass2{fill:#7F98A7}.barscene .t-box{fill:#D7BA8E}.barscene .t-jar{fill:#C27866}
 .barscene .t-top{fill:#B98E64}.barscene .t-front{fill:#8E6A4B}.barscene .t-floor{fill:#B7A7A0}
+/* the ships, coloured by plane: a hull with a darker lower plane, sails (a second, darker set where they face away), a flag */
+.ship-sloop{--hull:#5E7487;--hull2:#4B5E70;--sail:#FBF5E8;--sail2:#E3D7C1;--flag:#B5533C}
+.ship-galleon{--hull:#8E6A4B;--hull2:#72543A;--sail:#F3E9D6;--sail2:#DCCBAE;--flag:#B5533C}
+.ship-privateer{--hull:#A35A49;--hull2:#84463A;--sail:#F3E9D6;--sail2:#DCCBAE;--dsail:#2F3A4C;--dsail2:#232C3B;--flag:#2F3A4C}
+.ship-junk{--hull:#7E8F69;--hull2:#667652;--sail:#D9A93A;--sail2:#BE912A;--flag:#B5533C}
+.shipdraw{fill:var(--sail)}
+.shipdraw .s-sail{fill:var(--sail)}.shipdraw .s-sail2{fill:var(--sail2)}.shipdraw .s-dsail{fill:var(--dsail)}.shipdraw .s-dsail2{fill:var(--dsail2)}
+.shipdraw .s-hull{fill:var(--hull)}.shipdraw .s-hull2{fill:var(--hull2)}.shipdraw .s-flag{fill:var(--flag)}.shipdraw .s-port{fill:#26303F}.shipdraw .s-eye{fill:#FBF5E8}
+/* the bandits' ship stays a black-sailed menace: all deep navy, lined in cream */
+.bf-black .s-sail,.bf-black .s-sail2,.bf-black .s-hull,.bf-black .s-hull2{fill:#232C3B}.bf-black .s-flag{fill:#FBF5E8}
+/* portraits: skin and clothes in flat colour, the line art black */
+.peepart .pl-head [fill="#fff"],.peepart .pl-face [fill="#fff"]{fill:var(--skin)}
+.peepart .pl-body [fill="#fff"]{fill:var(--cloth)}
+.peepart .pl-body [fill="#000"]{fill:#232C3B}

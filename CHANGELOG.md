@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.35.2
+- Ships in colour, by plane: each hull with a darker lower plane, sails with a darker set where they face away. The Wren is slate, the Bulwark wood, the Ember brick with navy sails, the Lotus sage with mustard battened sails; flags in brick. The bandits' ship stays all deep navy.
+- Portraits in colour: every crew hand, seller and stranger has a steady skin tone and their own flat clothing colour, with the line art still black and dark clothes in deep navy.
+
 ## 0.35.1
 - Ports coloured by plane, after Chris Ware: every surface one flat colour, with recessed and side planes a darker shade of the same hue and flat shadow shapes under eaves and awnings. The harbour's market is brick, the tavern mustard with a darker hall and brown roof, the shipwright sage under a slate roof; windows are charcoal (warm where a hand waits), doors, pier and barrels wood, the quay mauve stone, the water two slate shades. Inside, the market's shelves, the yard's tools and the tavern's bottles take material colours, and the bar's front is a darker plane than its top. The sunbeams are gone (no light effects).
 
