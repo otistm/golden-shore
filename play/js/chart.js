@@ -32,7 +32,7 @@ function mapSVG(fit){
       ${big?`<text class="maplabel" y="-32" text-anchor="middle">${known?ENEMIES[n.enemy].n:'Something waits'}</text>`:''}</g>`});
   G.charts.forEach((c,i)=>{if(c.sea!==G.sea)return;const n=node(c.at);if(!n)return;const side=n.x>170?-1:1;
     g+=`<g transform="translate(${X(n)+side*30-11} ${y(n.row)-11}) scale(.733)" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">${CHARTS[c.k].g}</g>`});
-  g+=`<g id="boat" transform="translate(${X(cur)-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#fff"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z"/></g></g>`;
+  g+=`<g id="boat" transform="translate(${X(cur)-12} ${y(cur.row)-(cur.type==='boss'?54:46)})"><g class="boatbob" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#FBF5E8"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z" fill="#5E7487"/></g></g>`;
   return`<svg viewBox="-6 0 ${W+12} ${H}" aria-label="Chart of ${SEAS[G.sea]}"><defs><clipPath id="chartclip"><rect x="-6" y="0" width="${W+12}" height="${H}"/></clipPath><pattern id="fog" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000" opacity=".28"/><circle cx="6.5" cy="6.5" r=".9" fill="#000" opacity=".18"/></pattern></defs>${g}</svg>`;
 }
 /* the water under the chart: little wave marks bobbing on open sea, and islands under the ports and isles with ripples lapping
@@ -89,7 +89,7 @@ function chart(){
 /* the pinned header gets an ink rule along its bottom once the chart is scrolling under it */
 function stuckHead(){const h=app.querySelector('.charthead');if(h)h.classList.toggle('stuck',scrollY>4)}
 addEventListener('scroll',stuckHead,{passive:true});
-function nodeTip(el){const n=node(+el.dataset.id);if(!n||!G)return;hideItemTip();
+function nodeTip(el){const n=node(+el.dataset.id);if(!n||!G)return;hideItemTip();tipSrc=el;
   const known=n.row<=G.reveal||G.path.includes(n.id)||n.type==='boss';
   const{head,body}=known?nodeInfo(n,true):{head:'Uncharted water',body:'<p class="soft">Sail closer to see what waits here.</p>'};
   tipEl=document.createElement('div');tipEl.className='itip ntip';tipEl.setAttribute('role','tooltip');tipEl.innerHTML=`<b>${head}</b>${body}${el.classList.contains('reach')?'<p class="itip-aff">Click to sail here.</p>':''}`;

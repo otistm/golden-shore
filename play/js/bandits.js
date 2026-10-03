@@ -27,7 +27,7 @@ function boardingFx(then){
   const hooks=[[262,96,148,104],[270,120,150,124],[258,72,132,88]];
   fx.innerHTML=`<svg class="bf-sea" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <g class="bf-w1">${wave(178,6,80)}</g>
-      <g class="bf-mine"><g transform="translate(30 70)"><g stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
+      <g class="bf-mine"><g transform="translate(30 70)"><g class="shipdraw ship-${SHIPDRAW[G.ship]?G.ship:'sloop'}" stroke="#000" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[G.ship]||SHIPDRAW.sloop}</g></g></g>
       <g class="bf-pirate"><g transform="translate(372 62) scale(-1 1)"><g stroke="#fff" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#000" class="bf-black">${SHIPDRAW.galleon}</g></g></g>
       ${hooks.map(([x1,y1,x2,y2],i)=>`<g class="bf-hook" style="--i:${i}"><path class="bf-rope" d="M${x1} ${y1}Q${(x1+x2)/2} ${Math.min(y1,y2)-26} ${x2} ${y2}"/><path class="bf-claw" d="M${x2} ${y2}m-6 -4q2 8 6 4q4 4 6-4M${x2} ${y2}v-6"/></g>`).join('')}
       ${[0,1,2].map(i=>`<g class="bf-bandit" style="--i:${i}"><g transform="translate(${262+i*14} ${26+i*6}) scale(.17)">${peepLayers(BANDIT_LOOK)}</g></g>`).join('')}

@@ -109,7 +109,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
     const d=DEFS[g.k],up=!!findMatch(g);
-    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
+    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t} c-${kindOf(g.k)}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
   let talk;
   if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
@@ -119,14 +119,14 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   else if(PV.mbought&&S.offers.some(Boolean))talk=`<div class="talk" id="talk"><p class="say">“Pleasure doing business.”</p><p class="desc">Tap anything on the table to hear about it.</p></div>`;
   else talk=`<p class="talk quiet" id="talk">“${P.out}”</p>`;
   // the back wall: two shelves of crates, sacks, jars and barrels, drawn as tiles so it fills any width
-  const shelf=`<pattern id="stock" width="132" height="58" patternUnits="userSpaceOnUse"><g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round">
-      <rect x="6" y="22" width="30" height="32"/><path d="M6 32h30M6 44h30" fill="none"/>
-      <path d="M44 54q-6-14 2-26q6-6 12 0q8 12 2 26z"/><path d="M47 30q5 3 10 0" fill="none"/>
-      <rect x="70" y="34" width="14" height="20" rx="3"/><rect x="73" y="28" width="8" height="6"/>
-      <path d="M92 54q-3-14 0-28h22q3 14 0 28z"/><path d="M91 34h24M91 46h24" fill="none"/></g></pattern>`;
+  const shelf=`<pattern id="stock" width="132" height="58" patternUnits="userSpaceOnUse"><g fill="#FBF5E8" stroke="#000" stroke-width="2" stroke-linejoin="round">
+      <rect x="6" y="22" width="30" height="32" fill="#D7BA8E"/><path d="M6 32h30M6 44h30" fill="none"/>
+      <path d="M44 54q-6-14 2-26q6-6 12 0q8 12 2 26z" fill="#E9CF8E"/><path d="M47 30q5 3 10 0" fill="none"/>
+      <rect x="70" y="34" width="14" height="20" rx="3" fill="#B4C6CE"/><rect x="73" y="28" width="8" height="6" fill="#B98E64"/>
+      <path d="M92 54q-3-14 0-28h22q3 14 0 28z" fill="#B98E64"/><path d="M103 26h11q3 14 0 28h-11z" fill="#9A7350" stroke="none"/><path d="M92 54q-3-14 0-28h22q3 14 0 28z" fill="none"/><path d="M91 34h24M91 46h24" fill="none"/></g></pattern>`;
   return`<section class="stallsec">
     <div class="stall" id="stall">
-      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#000"/><path d="M22 0h22v22q-11 12-22 0z" fill="#fff" stroke="#000" stroke-width="2"/></pattern></defs>
+      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#B5533C" stroke="#000" stroke-width="2"/><path d="M22 0h22v22q-11 12-22 0z" fill="#FBF5E8" stroke="#000" stroke-width="2"/></pattern></defs>
         <rect x="0" y="62" width="100%" height="58" fill="url(#stock)"/><path d="M0 120.5H4000" stroke="#000" stroke-width="3"/>
         <rect x="0" y="138" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 196.5H4000" stroke="#000" stroke-width="3"/>
         <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>
@@ -166,7 +166,7 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
   return`<section class="stallsec docksec">
     <div class="stall pier" id="stall">
       <svg class="stallwall" aria-hidden="true"><defs><pattern id="swell" width="60" height="16" patternUnits="userSpaceOnUse"><path d="M0 8q15-8 30 0t30 0" fill="none" stroke="#000" stroke-width="1.6"/></pattern></defs>
-        <path d="M0 96H4000" stroke="#000" stroke-width="2.4"/><rect x="0" y="104" width="100%" height="100" fill="url(#swell)" opacity=".5"/>
+        <rect x="0" y="96" width="100%" height="400" fill="#B4C6CE"/><path d="M0 96H4000" stroke="#000" stroke-width="2.4"/><rect x="0" y="104" width="100%" height="100" fill="url(#swell)" opacity=".5"/>
         <g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"><path d="M60 92l14-30v30zM74 62l10 30H74"/><path d="M52 92h40l-6 6H58z"/></g>
         <path d="M150 50q6-5 12 0q6-5 12 0M210 38q5-4 10 0q5-4 10 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
       <h2 class="stallsign">${M.short}'s fish</h2>
@@ -246,8 +246,8 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
   let sel=PV.tsel;if(sel==null||!S.tavern[sel])sel=S.tavern.findIndex(Boolean);
   // the hands sit in 0..PW; the room runs on far past them on every side, so the scene can fill any shape
   const PW=n*240+40,L=-1600,R=PW+1600,B=1600;
-  let wall='';for(let x=L+6;x<R-20;x+=34){const a=Math.abs(x),h=18+(a*7)%16,w=9+(a*3)%6;wall+=`<path class="w" d="M${x} 92v-${h-6}q0-6 ${w/2}-6t${w/2} 6v${h-6}z" stroke-width="1.6"/><path d="M${x+w/2} ${92-h-4}v-6" stroke-width="2"/>`}
-  for(let x=L+20;x<R-20;x+=46){const a=Math.abs(x);wall+=`<path class="w" d="M${x} 164v-24h${10+(a*5)%8}v24z" stroke-width="1.6"/><path class="w" d="M${x+20} 164v-14q0-6 8-6t8 6v14z" stroke-width="1.6"/>`}
+  let wall='';for(let x=L+6;x<R-20;x+=34){const a=Math.abs(x),h=18+(a*7)%16,w=9+(a*3)%6;wall+=`<path class="${a%3?'t-glass':'t-glass2'}" d="M${x} 92v-${h-6}q0-6 ${w/2}-6t${w/2} 6v${h-6}z" stroke-width="1.6"/><path d="M${x+w/2} ${92-h-4}v-6" stroke-width="2"/>`}
+  for(let x=L+20;x<R-20;x+=46){const a=Math.abs(x);wall+=`<path class="t-box" d="M${x} 164v-24h${10+(a*5)%8}v24z" stroke-width="1.6"/><path class="t-jar" d="M${x+20} 164v-14q0-6 8-6t8 6v14z" stroke-width="1.6"/>`}
   for(let x=L+120;x<R;x+=240)wall+=`<g class="hlamp" transform="translate(${x} 0)"><path d="M0 0v20" stroke-width="1.6"/><path class="w" d="M-8 20h16l-3 16h-10z" stroke-width="1.8"/></g>`;
   let floor='';for(let y=400;y<B;y+=26)floor+=`<path d="M${L} ${y}H${R}" stroke-width="1" opacity="${Math.max(.15,.5-(y-400)/1400)}"/>`;
   for(let x=L+60;x<R;x+=150)floor+=`<path d="M${x} 400v${B}" stroke-width="1" opacity=".18"/>`;
@@ -262,8 +262,9 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
     <svg class="barscene" aria-label="The bar" preserveAspectRatio="xMidYMin slice" viewBox="0 0 ${PW} 330">
       <path d="M${L} 92H${R}M${L} 164H${R}" stroke-width="3"/>${wall}
       ${seats}
-      <rect class="w" x="${L}" y="262" width="${R-L}" height="16" stroke-width="3"/>
-      <path class="w" d="M${L} 278H${R}V400H${L}z" stroke-width="2.4"/>${Array.from({length:Math.floor((R-L)/40)},(_,i)=>`<path d="M${L+20+i*40} 284v104" stroke-width="1" opacity=".5"/>`).join('')}<path d="M${L} 314H${R}M${L} 388H${R}" stroke-width="2.4"/>
+      <rect class="t-floor" x="${L}" y="400" width="${R-L}" height="${B-400}" stroke="none"/>
+      <rect class="t-top" x="${L}" y="262" width="${R-L}" height="16" stroke-width="3"/>
+      <path class="t-front" d="M${L} 278H${R}V400H${L}z" stroke-width="2.4"/>${Array.from({length:Math.floor((R-L)/40)},(_,i)=>`<path d="M${L+20+i*40} 284v104" stroke-width="1" opacity=".5"/>`).join('')}<path d="M${L} 314H${R}M${L} 388H${R}" stroke-width="2.4"/>
       ${floor}
     </svg>
     ${C?`<div class="talk" id="talk"><p class="say">“${C.say||'Looking for a berth, captain.'}”</p>
@@ -326,11 +327,11 @@ function wrightHTML(S,id,anim){const wk=wrightOf(id),W=WRIGHTS[wk],all=repairabl
       <p class="desc">${f.d}${old?` <span class="soft">Replaces your ${FITTINGS[old].n}, which sells for ${Math.floor(FITTINGS[old].p/2)}.</span>`:''}</p>
       <button class="buy" data-fit="${sel}" ${poor||!ok?'aria-disabled="true"':''}>Fit for ${f.p} gold</button></div>`}
   // the back wall: a pegboard of saws, mallets, coiled rope and planks, tiled so it fills any width
-  const tools=`<pattern id="tools" width="150" height="70" patternUnits="userSpaceOnUse"><g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M10 10h6v46h-6z"/><path d="M8 10h10M13 4v6" fill="none"/>
-      <path d="M30 12h26l-4 14H30z"/><path d="M34 26v6M42 26v6M50 26v4" fill="none"/><path d="M28 12h-6v8h6" fill="none"/>
-      <circle cx="80" cy="30" r="15"/><circle cx="80" cy="30" r="9"/><path d="M80 15v-9" fill="none"/>
-      <path d="M108 8h14v10h-14z"/><path d="M115 18v40" fill="none"/>
+  const tools=`<pattern id="tools" width="150" height="70" patternUnits="userSpaceOnUse"><g fill="#FBF5E8" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 10h6v46h-6z" fill="#B98E64"/><path d="M8 10h10M13 4v6" fill="none"/>
+      <path d="M30 12h26l-4 14H30z" fill="#7F98A7"/><path d="M34 26v6M42 26v6M50 26v4" fill="none"/><path d="M28 12h-6v8h6" fill="none"/>
+      <circle cx="80" cy="30" r="15" fill="#D8B05E"/><circle cx="80" cy="30" r="9" fill="#DDE3CC"/><path d="M80 15v-9" fill="none"/>
+      <path d="M108 8h14v10h-14z" fill="#5D6E7C"/><path d="M115 18v40" fill="none"/>
       <path d="M134 10l6 50M140 10l6 50" fill="none"/></g></pattern>`;
   return`<section class="stallsec yardsec">
     <div class="stall yard" id="stall">
