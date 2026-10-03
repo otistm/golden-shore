@@ -1,6 +1,6 @@
 /* Ink Crossing: the bandits. Hidden in one stretch of unknown water per sea: pirates board you and make you play a hand of
    cards for your freedom. Poker hands score chips times mult, like Balatro: three plays and two discards to beat their score.
-   Win and they pay you to leave (bandPurse); lose and they take all of your hold and smash your hull to half. */
+   Win and they pay you to leave (bandPurse); lose and they take the most valuable half of your hold (rounded up) and smash your hull to half. */
 "use strict";
 const BANDIT_LOOK={body:'Killer',head:'hat-hip',face:'Very Angry',beard:'Full 3',acc:'Eyepatch'};
 // each hand: [name, chips, mult]
@@ -52,7 +52,7 @@ function bandits(n,done,resumed){
     app.innerHTML=`${barHTML()}<div class="seahead"><h2>Boarded!</h2><span>Bandits</span></div>
     <section class="bandits">
       <div class="bd-top"><div class="bd-face">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
-        <div class="talk bd-talk"><p class="say">“${score>=T?'Fine. You play well. Take your winnings.':plays===3&&discs===2?`Cards, captain. Beat ${T} and we pay you ${bandPurse()} gold. Lose, and we take the lot.`:score?`${T-score} more, or you lose everything.`:'Play your cards, captain.'}”</p></div></div>
+        <div class="talk bd-talk"><p class="say">“${score>=T?'Fine. You play well. Take your winnings.':plays===3&&discs===2?`Cards, captain. Beat ${T} and we pay you ${bandPurse()} gold. Lose, and we take the best half of your hold.`:score?`${T-score} more, or we take half your hold.`:'Play your cards, captain.'}”</p></div></div>
       <div class="bd-score"><div><span class="sc-lbl">Their score</span><b>${T}</b></div><div class="bd-mine"><span class="sc-lbl">Your score</span><b id="bdscore">${score}</b></div><div><span class="sc-lbl">Plays</span><b>${plays}</b></div><div><span class="sc-lbl">Discards</span><b>${discs}</b></div></div>
       <div class="bd-bar"><i style="width:${Math.min(100,score/T*100)}%"></i></div>
       <p class="bd-now" id="bdnow">${last?`<b>${last.name}</b> (${last.chips} × ${last.mult}) = <b>${last.score}</b>`:ev?`<b>${ev.name}</b>: ${ev.chips} chips × ${ev.mult} mult = ${ev.score}`:'Pick up to 5 cards to play, or to discard.'}</p>
@@ -100,14 +100,16 @@ function bandits(n,done,resumed){
     const lost=[],wasHull=G.hull;let msg,gold=0;
     if(won){// they pay up and row away
       gold=bandPurse();G.gold+=gold;bump='gold';msg=`Beat the bandits at cards. They paid ${gold} gold to be rid of us.`}
-    else{lost.push(...G.board);G.board=[];const was=G.hull;G.hull=Math.max(1,Math.floor(G.hull/2));
-      msg=`Lost to the bandits at cards. They stripped the hold${lost.length?` (${lost.length} piece${lost.length===1?'':'s'} of cargo)`:''} and smashed the hull from ${was} to ${G.hull}.`}
+    else{// they take the most valuable half of the hold, rounded up; the rest stays where it was
+      const best=G.board.map((b,i)=>i).sort((a,b)=>price(G.board[b].k,G.board[b].t)-price(G.board[a].k,G.board[a].t)).slice(0,Math.ceil(G.board.length/2));
+      lost.push(...best.sort((a,b)=>a-b).map(i=>G.board[i]));G.board=G.board.filter((b,i)=>!best.includes(i));const was=G.hull;G.hull=Math.max(1,Math.floor(G.hull/2));
+      msg=`Lost to the bandits at cards. They took the best half of the hold${lost.length?` (${lost.length} piece${lost.length===1?'':'s'} of cargo)`:''} and smashed the hull from ${was} to ${G.hull}.`}
     logL(msg);save();
     // the reckoning: their verdict stamps down, the scores are set side by side, then the cargo they take is snatched away piece
     // by piece; if you lost, the hull number is smashed down while planks crack off. The button arrives last.
     const nl=lost.length,still=matchMedia('(prefers-reduced-motion:reduce)').matches,hullT=.9+nl*.18;
     const ov=overlay(`<div class="bd-end ${won?'won':'lost'}"><div class="bd-face big">${peep(BANDIT_LOOK,'40 22 172 150')}</div>
-      <h2 class="bd-verdict">${won?'You keep your ship':'They take everything'}</h2>
+      <h2 class="bd-verdict">${won?'You keep your ship':'They take half'}</h2>
       <div class="bd-vs"><span><small>You</small><b>${score}</b></span><i>${won?'beats':'against'}</i><span><small>Them</small><b>${T}</b></span></div>
       ${won?`<p class="bd-purse">${sicon('gold')}<b>+${gold} gold</b></p><p class="soft bd-gone" style="--d:1.1s">They pay up and row away.</p>`:nl?`<div class="bd-lost">${lost.map((b,k)=>`<span class="o-icon t${b.t}" style="--i:${k}">${icon(b.k)}</span>`).join('')}</div><p class="soft bd-gone" style="--d:${.9+nl*.18}s">${won?'They took':'Gone'}: ${lost.map(b=>DEFS[b.k].n).join(', ')}.</p>`:`<p class="soft bd-gone" style="--d:.9s">${won?'There was nothing in the hold for them to take.':'There was nothing in the hold to take.'}</p>`}
       ${won?'':`<div class="bd-hull" style="--d:${hullT}s;--hd:${hullT}s"><span>Hull</span><b id="bdhull">${still?G.hull:wasHull}</b><div class="planks" aria-hidden="true">${Array.from({length:Math.min(wasHull,40)},(_,k)=>`<i${k>=G.hull?` class="go" style="--d:${(k-G.hull)*60}ms"`:''}></i>`).join('')}</div></div>`}</div>

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.36.0
+- Losing to the bandits at cards now costs the most valuable half of your hold (rounded up) instead of all of it, plus half your hull as before. A captain who loses can still fight their way back.
+- The Wren's starting kit at Gullhaven now has a second blade: the Jib Sail, the Rapier and a Sword Cane, all worked by the hands the Guild pays for. Her first fight used to be lost most of the time; now it's won about 9 times in 10, like the other ships.
+
 ## 0.35.6
 - On a computer, speech bubbles only show while you point at someone or something that talks: a good on the stall, a fitting, a fish, a face on the pier, a hand at the bar. Move onto the bubble to press Buy or Hire; move away and it tucks away. Phones still tap.
 - In the tavern, the hands you're not talking to fade back only while you're talking to someone, and they stay solid (washed toward the paper) instead of see-through.

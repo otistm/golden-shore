@@ -2,7 +2,7 @@
 "use strict";
 /* ---------- ships ---------- */
 const SHIPS={
-  sloop:{n:'The Wren',type:'Sloop',theme:'Speed, haste and crits.',hp:110,trait:'swift',start:[{k:'rapier',t:0},{k:'jib',t:0}],crew:['fencer','bosun'],berths:3},
+  sloop:{n:'The Wren',type:'Sloop',theme:'Speed, haste and crits.',hp:110,trait:'swift',start:[{k:'jib',t:0},{k:'rapier',t:0},{k:'swordcane',t:0}],crew:['fencer','bosun'],berths:3},
   galleon:{n:'The Bulwark',type:'Galleon',theme:'Shields, health and heavy hits.',hp:110,trait:'bulwark',start:[{k:'shieldbash',t:0},{k:'bulkhead',t:0}],crew:['marines','quartermaster'],berths:4,lock:'Beat a sea boss to unlock.',ok:a=>a.bosses>0},
   privateer:{n:'The Ember',type:'Privateer',theme:'Cannons, powder and burn.',hp:100,trait:'kindle',start:[{k:'swivel',t:0},{k:'flare',t:0}],crew:['guncrew','monkey'],berths:3,lock:'Beat 3 elites to unlock.',ok:a=>a.elites>=3},
   junk:{n:'The Lotus',type:'Junk',theme:'Healing, poison and calm.',hp:105,trait:'lotus',start:[{k:'fugu',t:0},{k:'teapot',t:0}],crew:['apothecary','cormorant'],berths:3,lock:'Finish a voyage to unlock.',ok:a=>a.wins>0}
