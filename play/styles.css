@@ -1474,6 +1474,6 @@ b.now{font-weight:800}
 /* the bandits' ship stays a black-sailed menace: all deep navy, lined in cream */
 .bf-black .s-sail,.bf-black .s-sail2,.bf-black .s-hull,.bf-black .s-hull2{fill:#232C3B}.bf-black .s-flag{fill:#FBF5E8}
 /* portraits: skin and clothes in flat colour, the line art black */
-.peepart .pl-head [fill="#fff"],.peepart .pl-face [fill="#fff"]{fill:var(--skin)}
-.peepart .pl-body [fill="#fff"]{fill:var(--cloth)}
+.peepart .ar-s{fill:var(--skin)}.peepart .ar-h{fill:var(--hair)}.peepart .ar-t{fill:var(--hat)}.peepart .ar-c{fill:var(--cloth)}
+.peepart .ar-p{fill:#F3E9D6}.peepart .ar-l{fill:#DCE5E9}
 .peepart .pl-body [fill="#000"]{fill:#232C3B}

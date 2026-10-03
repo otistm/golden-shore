@@ -3,3 +3,4 @@ node_modules/
 screenshots/
 *.log
 tools/peeps-sheet.html
+tools/peepcolor-sheet.html

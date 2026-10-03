@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.35.3
+- Portrait colours fixed: skin, hair and clothes are now told apart properly. Necks and hands are skin (not shirt colour), light and grey hair is hair (not skin), hats, papers, cups and blades get their own colours, and each person keeps the same colours everywhere.
+
 ## 0.35.2
 - Ships in colour, by plane: each hull with a darker lower plane, sails with a darker set where they face away. The Wren is slate, the Bulwark wood, the Ember brick with navy sails, the Lotus sage with mustard battened sails; flags in brick. The bandits' ship stays all deep navy.
 - Portraits in colour: every crew hand, seller and stranger has a steady skin tone and their own flat clothing colour, with the line art still black and dark clothes in deep navy.
