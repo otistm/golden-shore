@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.40.1
+- The fog is soft smoke now. Add ?fog=ink to the address to see the outlined ink version.
+
 ## 0.40.0
 - Real fog. The flat dotted fog is replaced by banks of cloud drawn on the graphics card: three layers at different heights that slide past each other as you sail, with billowing edges, shadows under the billows and an ink outline, drifting slowly with the wind. Add ?fog=soft to the address to try soft, smoky fog instead. Phones without WebGL keep the old fog.
 - The lighthouse beams, sails and storms that floated over the fog are gone.

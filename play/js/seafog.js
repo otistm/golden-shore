@@ -4,12 +4,12 @@
    - Each bank is noise that warps itself (fbm fed through fbm, after Inigo Quilez's domain warping), drifting with the wind.
      The noise comes from a small seeded texture rather than being computed per pixel, which keeps phones fast.
    - Billows are lit from the north-west: a pixel is in shadow when the fog thickens toward the light.
-   - In the ink style the banks are flat tones with an ink outline and stipple in the shadows (cel-shaded smoke). ?fog=soft
-     draws them as soft smoke instead, to compare.
+   - The banks are soft smoke (Otis chose it over the ink look). ?fog=ink draws them cel-shaded instead: flat tones with an
+     ink outline and stipple in the shadows.
    Where you've sailed is painted into a mask (one soft circle per point of G.fog.p) that thins the fog away. When WebGL isn't
    there, seaFog() in sea.js draws the old flat fog. */
 "use strict";
-const FOG={cv:null,gl:null,u:null,mask:null,mctx:null,mtex:null,mn:0,mkey:'',noise:null,soft:/[?&]fog=soft/.test(location.search)};
+const FOG={cv:null,gl:null,u:null,mask:null,mctx:null,mtex:null,mn:0,mkey:'',noise:null,soft:!/[?&]fog=ink/.test(location.search)};
 const FOGB={x:-320,y:-560,w:SEA_W+640,h:SEA_LEN+1120,k:1/8};   // the mask's stretch of sea, in world units, and its scale
 const FOG_VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 const FOG_FS=`#ifdef GL_OES_standard_derivatives
