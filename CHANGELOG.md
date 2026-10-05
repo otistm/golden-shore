@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.45.2
+- A faint shimmer of light runs along the edge of the sea, and the water past it looks a little hazy, as if not quite there.
+
 ## 0.45.1
 - Sailing into the edge of the sea stops the ship, and a card appears with a compass needle spinning wildly: "Your compass goes haywire. Something is keeping you out. Perhaps you should turn back for now..."
 

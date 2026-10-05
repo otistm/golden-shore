@@ -5,6 +5,7 @@
 "use strict";
 const SK=.6;                        // the sea floor is squashed: the camera looks down at an angle
 const SEA_LEN=3600,SEA_W=1700;      // a sea's size in world units: its chart's rows run north (up), its columns across
+const SEA_EDGE={x0:-220,y0:-460,x1:SEA_W+220,y1:SEA_LEN+460};   // where the ship can't go past (the compass goes haywire)
 const SIGHT=330;                    // how far you see through the fog
 const DAYLEN=700;                   // world units of sailing to a day
 const BOTTLES=4;                    // bottles adrift on each sea, each with a scrap of chart
@@ -193,7 +194,7 @@ function seaStep(dt){const p=G.pos;let want=0;
   // in rain and storms the wind pushes her off her course while she's under way
   if(WX.cur&&WX.cur.drift){const wd=curWaves()[0],k=WX.cur.drift*18*dt*Math.min(1,SEA.v/60);p.x+=wd.dx*k;p.y+=wd.dy*k}
   // the edges of the sea, and land: she slides along a shore rather than sailing over it
-  const ex=p.x,ey=p.y;p.x=clamp(p.x,-220,SEA_W+220);p.y=clamp(p.y,-460,SEA_LEN+460);
+  const ex=p.x,ey=p.y;p.x=clamp(p.x,SEA_EDGE.x0,SEA_EDGE.x1);p.y=clamp(p.y,SEA_EDGE.y0,SEA_EDGE.y1);
   if(ex!==p.x||ey!==p.y){SEA.target=null;SEA.hold=false;SEA.down=null;SEA.v*=.3;seaMark();seaEdge()}
   for(const n of G.map.nodes){if(n.type!=='port'&&n.type!=='isle')continue;const q=wpos(n),rr=isleR(n)+10,ex=(p.x-q.x)/1.12,dy=p.y-q.y,d=Math.hypot(ex,dy);
     if(d<rr&&d>0){p.x=q.x+ex/d*rr*1.12;p.y=q.y+dy/d*rr;

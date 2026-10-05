@@ -34,7 +34,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D uN;uniform vec2 uRes,uCam,uM,uWO;uniform float uZ,uSK,uT,uRS,uHM,uDark,uCaps,uClouds;
+uniform sampler2D uN;uniform vec2 uRes,uCam,uM,uWO;uniform float uZ,uSK,uT,uRS,uHM,uDark,uCaps,uClouds;uniform vec4 uEdge;
 void main(){
   vec2 s=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y)/uRS,w=vec2((s.x-uCam.x)/uZ,(s.y-uCam.y)/uZ/uSK);
   float h=0.;vec2 g=vec2(0.);
@@ -53,6 +53,10 @@ void main(){
   // cloud shadows slide over the water on calm days, faster than the swell
   float cl=smoothstep(.52,.62,texture2D(uN,(w+uWO*3.)/2600.).a);
   c*=1.-.1*cl*uClouds;
+  // the edge of the sea: a faint shimmer of light running along it, and the water past it a little hazy, as if not quite there
+  float ed=min(min(w.x-uEdge.x,uEdge.z-w.x),min(w.y-uEdge.y,uEdge.w-w.y));
+  float sh=(1.-smoothstep(0.,110.,abs(ed)))*(.5+.5*sin((w.x+w.y)*.045-uT*1.6+ed*.07))*(.6+.8*texture2D(uN,w/240.+vec2(uT*.02,-uT*.015)).g);
+  c=mix(c,vec3(.97,.96,.91),sh*.45+(ed<0.?.25*smoothstep(0.,160.,-ed):0.));
   // grey water under a heavy sky
   c=mix(c,vec3(.56,.63,.67),uDark*.45);
   gl_FragColor=vec4(c,1.);}`;
@@ -66,7 +70,7 @@ function waterInit(cv){WATER.cv=cv;WATER.gl=null;WATER.sea=G.sea;if(/[?&]water=f
   const t=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,t);
   [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.REPEAT],[gl.TEXTURE_WRAP_T,gl.REPEAT]].forEach(([k,v])=>gl.texParameteri(gl.TEXTURE_2D,k,v));
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,128,128,0,gl.RGBA,gl.UNSIGNED_BYTE,fogNoise());
-  const u={};['uN','uRes','uCam','uZ','uSK','uT','uRS','uM','uWO','uHM','uDark','uCaps','uClouds'].forEach(k=>u[k]=gl.getUniformLocation(p,k));gl.uniform1i(u.uN,0);gl.uniform1f(u.uSK,SK);
+  const u={};['uN','uRes','uCam','uZ','uSK','uT','uRS','uM','uWO','uHM','uDark','uCaps','uClouds','uEdge'].forEach(k=>u[k]=gl.getUniformLocation(p,k));gl.uniform1i(u.uN,0);gl.uniform1f(u.uSK,SK);gl.uniform4f(u.uEdge,SEA_EDGE.x0,SEA_EDGE.y0,SEA_EDGE.x1,SEA_EDGE.y1);
   WATER.gl=gl;WATER.u=u;return true}
 function waterGL(t){const cv=SEA.el.querySelector('#seawater');if(!cv)return;
   if((WATER.cv!==cv||WATER.sea!==G.sea)&&!waterInit(cv))return;   // each sea's waves are written into its shader
