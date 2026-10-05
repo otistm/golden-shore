@@ -37,7 +37,7 @@ for (let run = 0; run < runs; run++) {
       if (!(await q('.overlay'))) await click('#leave');
     } else if (await q('#siteleave')) {
       // up close at an isle or a wreck: try each spot, take what's offered, then go back to sea
-      for (const sp of await page.$('.spot:not(.done)')) { await press(sp).catch(() => {}); await page.waitForTimeout(30); if (await q('.overlay')) break; if (await click('#loottake')) await page.waitForTimeout(30); }
+      for (const sp of await page.$$('.spot:not(.done)')) { await press(sp).catch(() => {}); await page.waitForTimeout(30); if (await q('.overlay')) break; if (await click('#loottake')) await page.waitForTimeout(30); }
       if (!(await q('.overlay')) && !(await q('.spot:not(.done)'))) await click('#siteleave');
     } else if (await q('#ocean')) {
       // the open sea: sail (fast) to a place found and not yet done on the nearest rows, or toward the boss to find more
@@ -54,6 +54,7 @@ for (let run = 0; run < runs; run++) {
     await page.waitForTimeout(40);
   }
   if (result === 'timeout') result += ` on ${await page.evaluate(() => (document.querySelector('.seahead h2') || document.querySelector('h2') || {}).textContent + ' / ' + (G ? `sea ${G.sea + 1}, row ${node(G.at).row}, path ${G.path.slice(-3).map(i => node(i).row + node(i).type).join('>')}, hull ${G.hull}, overlays ${document.querySelectorAll('.overlay,.seacross,.chestfx,.fitfx').length}, reach ${document.querySelectorAll('.node.reach').length}, buttons ${[...document.querySelectorAll('button')].map(b => b.id || b.textContent.trim().slice(0, 12)).slice(0, 12).join('|')}` : 'title'))}`;
+  if (result.startsWith('timeout')) console.log('  up close: ' + await page.evaluate(() => !document.querySelector('#siteleave') ? '' : JSON.stringify({ site: G.site, spots: [...document.querySelectorAll('.spot')].map(e => e.dataset.s + (e.classList.contains('done') ? '+' : '-')), panel: (document.getElementById('siteout') || {}).innerText })));
   if (result.startsWith('timeout')) console.log('  at sea: ' + await page.evaluate(() => typeof SEA === 'undefined' || !G || !G.pos ? '' : JSON.stringify({ pos: [Math.round(G.pos.x), Math.round(G.pos.y)], v: Math.round(SEA.v), target: SEA.target && [Math.round(SEA.target.x), Math.round(SEA.target.y)], boss: [wpos(node(G.map.boss)).x, wpos(node(G.map.boss)).y], bossFound: seaFound(node(G.map.boss)), wx: WX.k, live: G.map.nodes.filter(n => seaFound(n) && seaLive(n)).map(n => n.type + n.row) })));
   console.log(`voyage ${run + 1}: ${result} (${steps} steps)`);
   if (result.startsWith('timeout')) console.log('  last screens: ' + trail.join(' -> '));

@@ -40,7 +40,7 @@ function siteScene(n){const kind=SITEKIND(n);if(!kind)return chart();
     <div class="sitepanel" id="siteout"><p class="log">${said}</p><p class="soft">Tap a spot to look closer.</p></div>
     ${holdDock(`<button class="primary" id="siteleave">Back to the sea</button>`)}`;
   bindBar();bindHold('hold',()=>siteScene(n));fitDock();portWeather();
-  app.querySelectorAll('.spot').forEach(el=>{const go=()=>{const s=spots.find(x=>x.k===el.dataset.s);if(!s||G.site.done.includes(s.k))return;siteDo(n,kind,v,s,el)};
+  app.querySelectorAll('.spot').forEach(el=>{const go=()=>{const s=spots.find(x=>x.k===el.dataset.s);if(!s)return;if(G.site.done.includes(s.k)){el.classList.add('done');return}siteDo(n,kind,v,s,el)};
     el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   document.getElementById('siteleave').onclick=()=>{G.site=null;save();chart()};
   scrollTo(0,0)}
