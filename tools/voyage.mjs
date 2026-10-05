@@ -16,7 +16,7 @@ for (let run = 0; run < runs; run++) {
   await click('.shipcard:not([disabled])'); await page.waitForTimeout(150);
   let result = 'timeout', steps = 0;
   const trail = [];   // the last few screens, printed if the bot gets stuck
-  for (; steps < 2000; steps++) {
+  for (; steps < 3500; steps++) {
     const sig = await page.evaluate(() => G ? `${(document.querySelector('.overlay h2') || document.querySelector('.seahead h2') || {}).textContent || (document.querySelector('.battle') ? 'fight' : '?')} @${node(G.at).row}${node(G.at).type}` : 'title').catch(() => '');
     if (trail[trail.length - 1] !== sig) { trail.push(sig); if (trail.length > 14) trail.shift(); }
     if (await q('#coach .cnext')) await click('#coach .cnext');
