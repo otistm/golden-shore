@@ -143,7 +143,7 @@ function openSea(){
 /* the space the sea shows between the top bar and the hold, and the fog's canvas to match */
 function seaLayout(){const el=SEA.el;if(!el)return;const r=el.getBoundingClientRect(),h=app.querySelector('.charthead'),d=app.querySelector('.dock');
   SEA.ox=r.left;SEA.oy=r.top;SEA.vw=r.width;SEA.vh=r.height;
-  SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;
+  SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;el.style.setProperty('--seatop',SEA.top+'px');
   if(SEA.bot-SEA.top<120)SEA.bot=Math.min(r.height,SEA.top+120);
   SEA.Z=clamp(Math.min(SEA.vw/520,(SEA.bot-SEA.top)/470),.85,1.5);   // phones see a little farther
 }
@@ -193,7 +193,8 @@ function seaStep(dt){const p=G.pos;let want=0;
   // in rain and storms the wind pushes her off her course while she's under way
   if(WX.cur&&WX.cur.drift){const wd=curWaves()[0],k=WX.cur.drift*18*dt*Math.min(1,SEA.v/60);p.x+=wd.dx*k;p.y+=wd.dy*k}
   // the edges of the sea, and land: she slides along a shore rather than sailing over it
-  p.x=clamp(p.x,-220,SEA_W+220);p.y=clamp(p.y,-460,SEA_LEN+460);
+  const ex=p.x,ey=p.y;p.x=clamp(p.x,-220,SEA_W+220);p.y=clamp(p.y,-460,SEA_LEN+460);
+  if(ex!==p.x||ey!==p.y){SEA.target=null;SEA.hold=false;SEA.down=null;SEA.v*=.3;seaMark();seaEdge()}
   for(const n of G.map.nodes){if(n.type!=='port'&&n.type!=='isle')continue;const q=wpos(n),rr=isleR(n)+10,ex=(p.x-q.x)/1.12,dy=p.y-q.y,d=Math.hypot(ex,dy);
     if(d<rr&&d>0){p.x=q.x+ex/d*rr*1.12;p.y=q.y+dy/d*rr;
       // turn along the shore, toward whichever way round is nearer where you are heading
@@ -219,6 +220,11 @@ function seaCall(ns){const rank=n=>n.type==='boss'?0:n.type==='port'?1:n.type===
   const t=n.type==='boss'?'Something huge, dead ahead!':s.call||SEECALL[n.type]||'Something in the water!';
   seaSay(t)}
 /* the lookout's words, over the ship for a moment */
+/* the edge of the sea: the compass spins and something keeps you out (once every few seconds while you're pressed against it) */
+function seaEdge(){const now=performance.now();if(SEA.edgeAt!=null&&now-SEA.edgeAt<6000||!SEA.el)return;SEA.edgeAt=now;
+  const c=document.createElement('div');c.className='seaedge';c.setAttribute('role','status');
+  c.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="w" cx="20" cy="20" r="16"/><circle cx="20" cy="20" r="12" fill="none" stroke-dasharray="2 4"/><g class="needle"><path class="k" d="M20 6l4 14h-8z"/><path class="w" d="M20 34l4-14h-8z"/></g><circle class="k" cx="20" cy="20" r="2"/></svg><p>Your compass goes haywire. Something is keeping you out. Perhaps you should turn back for now...</p>';
+  SEA.el.appendChild(c);setTimeout(()=>{c.classList.add('out');setTimeout(()=>c.remove(),500)},4500)}
 function seaSay(t){if(!SEA.el||!SEA.el.isConnected)return;
   if(SEA.call)SEA.call.remove();const c=document.createElement('div');c.className='seacall';c.setAttribute('role','status');c.textContent=t;SEA.el.appendChild(c);SEA.call=c;
   setTimeout(()=>{if(c===SEA.call){c.classList.add('out');setTimeout(()=>c.remove(),400)}},1700)}

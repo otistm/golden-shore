@@ -1665,3 +1665,13 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .hscene.wx-mist .hcloud .w{fill:#F4F1EB}.hscene.wx-rain .hcloud .w{fill:#C3C8CB}.hscene.wx-storm .hcloud .w{fill:#7F8992}
 .hscene.wx-mist .hworld{--sea:#C3CFD3}.hscene.wx-rain .hworld{--sea:#A3B3BA;--water:#71899A;--water2:#62798A}.hscene.wx-storm .hworld{--sea:#8E9FA7;--water:#5E7486;--water2:#4F6475}
 .stall .talk{z-index:6}   /* speech bubbles stay above the rain */
+/* the edge of the sea (seaEdge): a card with a compass spinning wildly */
+.seaedge{position:absolute;left:50%;top:calc(var(--seatop,120px) + 16px);transform:translateX(-50%);z-index:4;width:min(320px,calc(100% - 32px));display:flex;gap:12px;align-items:center;background:var(--paper);border:2.5px solid var(--line);border-radius:18px;box-shadow:3px 4px 0 var(--ink);padding:10px 14px;pointer-events:none;animation:callin .45s var(--spring) both}
+.seaedge p{font:italic 400 16px/1.3 var(--display);color:var(--ink)}
+.seaedge svg{flex:none;width:44px;height:44px;stroke:var(--line);stroke-width:2;stroke-linejoin:round}
+.seaedge .w{fill:var(--paper)}.seaedge .k{fill:var(--brick)}
+.seaedge .needle{transform-origin:20px 20px;animation:haywire 1.1s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes haywire{0%{transform:rotate(0)}30%{transform:rotate(250deg)}45%{transform:rotate(190deg)}75%{transform:rotate(520deg)}100%{transform:rotate(720deg)}}
+.seaedge.out{opacity:0;transition:opacity .45s}
+@media (prefers-reduced-motion:reduce){.seaedge .needle{animation:none}}
+.ocean .seaedge svg{position:static;inset:auto;width:44px;height:44px}

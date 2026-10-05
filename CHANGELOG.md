@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.45.1
+- Sailing into the edge of the sea stops the ship, and a card appears with a compass needle spinning wildly: "Your compass goes haywire. Something is keeping you out. Perhaps you should turn back for now..."
+
 ## 0.45.0
 - Weather only where you're outside. The harbour and the docks show the day's weather; step into the market, the tavern or the shipwright's and you're under cover.
 - People on the docks dress for the weather: a yellow oilskin sou'wester in the rain, a sou'wester and turned-up oilskin collar in a storm, a knitted scarf in the mist.
