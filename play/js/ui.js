@@ -12,6 +12,19 @@ function noteHull(){if(!G)return;if(hullSeen!=null&&G.hull<hullSeen&&G.hull>0){c
 /* the top strip: day, gold, hull and catch as chips with small ink icons, then the log and pause */
 const SI={hp:'<path class="w" d="M8 13.6C3.4 10.4 1.6 8.2 1.6 5.8a3.2 3.2 0 0 1 6.4-.9 3.2 3.2 0 0 1 6.4.9c0 2.4-1.8 4.6-6.4 7.8z"/>',gold:'<circle class="w" cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="3.4"/>',fish:'<path class="w" d="M1.5 8c3-4 8-4 10.5 0-2.5 4-7.5 4-10.5 0z"/><path class="w" d="M12 8l3-2.5v5z"/><circle class="k" cx="5" cy="7.4" r=".8"/>',
   log:'<path class="w" d="M1.5 3.5c2.2-1 4.4-.9 6.5.6v9.4c-2.1-1.5-4.3-1.6-6.5-.6zM14.5 3.5c-2.2-1-4.4-.9-6.5.6v9.4c2.1-1.5 4.3-1.6 6.5-.6z"/>'};
+/* the stat tag on a cargo tile: an icon and the number, coloured by what it does */
+const STI={dmg:'<path d="M2.5 9.5L9 3h1.5v1.5L4 11z" fill="currentColor"/><path d="M2 8.4L5.6 12M1.6 10.4l2 2" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>',
+  heal:'<path d="M6 10.6C2.6 8.3 1.3 6.6 1.3 4.8a2.4 2.4 0 0 1 4.7-.7 2.4 2.4 0 0 1 4.7.7c0 1.8-1.3 3.5-4.7 5.8z" fill="currentColor"/>',
+  shield:'<path d="M6 1.2l4.3 1.5v3.4c0 2.6-1.8 4.3-4.3 5.3-2.5-1-4.3-2.7-4.3-5.3V2.7z" fill="currentColor"/>',
+  burn:'<path d="M6 11.2c-2.4 0-3.8-1.6-3.8-3.6 0-2.1 1.7-3 2-5.6 1.4.8 2 2 2 3 .6-.4 1-1.2 1-2.1 1.6 1.2 2.6 2.8 2.6 4.7 0 2-1.4 3.6-3.8 3.6z" fill="currentColor"/>',
+  poison:'<path d="M6 1.3C4.4 4 2.6 5.8 2.6 7.8a3.4 3.4 0 0 0 6.8 0C9.4 5.8 7.6 4 6 1.3z" fill="currentColor"/>',
+  haste:'<path d="M1.5 2.5L6 6l-4.5 3.5zM6 2.5L10.5 6 6 9.5z" fill="currentColor"/>',
+  charge:'<path d="M7 1L2.6 6.8h3L4.8 11 9.4 5H6.4z" fill="currentColor"/>',
+  slow:'<path d="M3 1.5h6M3 10.5h6M3.6 1.5c0 2.6 4.8 2.4 4.8 4.5S3.6 7.9 3.6 10.5M8.4 1.5c0 2.6-4.8 2.4-4.8 4.5s4.8 1.9 4.8 4.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>',
+  crit:'<path d="M6 1v2.4M6 8.6V11M1 6h2.4M8.6 6H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="6" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  gold:'<circle cx="6" cy="6" r="4.6" fill="currentColor"/><circle cx="6" cy="6" r="2.2" fill="none" stroke="var(--ink)" stroke-width="1"/>'};
+const STN={dmg:'damage',heal:'heal',shield:'shield',burn:'burn',poison:'poison',haste:'haste',charge:'charge',slow:'slow',crit:'crit chance',gold:'gold'};
+const statTag=m=>m?`<span class="stag s-${m.k}${m.aura?' aura':''}" title="${m.aura?'Boosts other cargo: ':''}${m.when==='start'?'At the start of a fight: ':m.when==='on'?'When triggered: ':''}${STN[m.k]} ${m.v}"><svg viewBox="0 0 12 12" aria-hidden="true">${STI[m.k]}</svg><b>${m.v}</b></span>`:'';
 const sicon=(k,inner)=>`<svg class="sic" viewBox="0 0 ${inner?12:16} ${inner?12:16}" aria-hidden="true">${inner||SI[k]}</svg>`;
 function barHTML(){noteHull();const b=k=>bump===k?' bump':'',hp=Math.max(0,Math.min(1,G.hull/HULL_MAX));
   const h=`<header class="bar"><div class="stats">
@@ -27,7 +40,7 @@ const kindOf=k=>{const t=DEFS[k].tags;for(const c of'XCWVFARTK')if(t.includes(c)
 function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i,cr),use=itemUse(it.k,cr),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':s.cd+'s'}</span></button>`});
+    h+=`<button class="item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span><span class="tyb"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':+s.cd.toFixed(1)+'s'}</span>${statTag(mainStat(list,i,cr))}</button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
@@ -247,8 +260,8 @@ function dragHold(mode,rerender,ext){
       window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
       function start(ev){
         const r=el.getBoundingClientRect();let ghost,w=r.width,h=r.height,ox=ev.clientX-r.left,oy=ev.clientY-r.top;
-        if(xin){const t=tileSize(DEFS[it.k].s);w=t.w;h=t.h;ox=w/2;oy=h/2;ghost=document.createElement('div');ghost.className=`item t${it.t}${isPassive(it.k)?' passive':''}`;
-          ghost.innerHTML=`<span class="fill"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${DEFS[it.k].n}</span><span class="cdt">${isPassive(it.k)?'···':DEFS[it.k].cd+'s'}</span>`}
+        if(xin){const t=tileSize(DEFS[it.k].s);w=t.w;h=t.h;ox=w/2;oy=h/2;ghost=document.createElement('div');ghost.className=`item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}`;
+          ghost.innerHTML=`<span class="fill"></span><span class="tyb"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${DEFS[it.k].n}</span><span class="cdt">${isPassive(it.k)?'···':DEFS[it.k].cd+'s'}</span>${statTag(mainStatOf(it.k,it.t))}`}
         else ghost=el.cloneNode(true);
         ghost.classList.remove('aff','src');ghost.querySelectorAll('.afflbl').forEach(x=>x.remove());ghost.classList.add('ghost');ghost.style.width=w+'px';ghost.style.height=h+'px';
         document.body.appendChild(ghost);el.classList.add('dragging');

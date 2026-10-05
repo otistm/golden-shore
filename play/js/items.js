@@ -324,6 +324,38 @@ function statsOf(list,i,cr){
   s.cd=Math.round(s.cd*10)/10;if(fx.crit)fx.crit=Math.min(.9,fx.crit);s.pre=Math.min(.9,s.pre);
   return s;
 }
+/* the one number a tile shows big: what the item mostly does, worked out in context (tier, crew, the rest of the hold).
+   {k: dmg|heal|shield|burn|poison|haste|charge|slow|crit|gold, v: text, aura: a boost to other cargo, when: 'start'|'on'} */
+function mainStat(list,i,cr){
+  const pick=f=>{if(!f)return null;
+    if(f.dmg!=null&&f.dmg>0)return{k:'dmg',v:f.dmg+(f.multi>1?'×'+f.multi:'')};
+    if(f.dmgX)return{k:'dmg',v:'×'};
+    if(f.heal!=null)return{k:'heal',v:f.heal};if(f.healX)return{k:'heal',v:'+'};
+    if(f.shield!=null)return{k:'shield',v:f.shield};if(f.shieldX)return{k:'shield',v:'+'};
+    if(f.burn!=null)return{k:'burn',v:f.burn};if(f.burnPerHit)return{k:'burn',v:f.burnPerHit};
+    if(f.poison!=null)return{k:'poison',v:f.poison};if(f.poisonPerHit)return{k:'poison',v:f.poisonPerHit};
+    if(Array.isArray(f.haste))return{k:'haste',v:f.haste[1]+'s'};
+    if(Array.isArray(f.charge))return{k:'charge',v:'+'+f.charge[1]+'s'};
+    if(Array.isArray(f.slow))return{k:'slow',v:f.slow[1]+'s'};
+    return null};
+  const from=c=>{const s=statsOf(list,i,c);let m=pick(s.fx);if(m)return m;
+    if((m=pick(s.start)))return Object.assign(m,{when:'start'});
+    for(const h of s.on)if((m=pick(h)))return Object.assign(m,{when:'on'});return null};
+  let m=from(cr)||(cr?from(null):null);if(m)return m;
+  // passives that boost the rest of the hold
+  const d=DEFS[list[i].k],t=list[i].t,pc=x=>Math.round(x*100)+'%',A=[
+    ['adjDmg','dmg',v=>'+'+auraV(v,t)],['tagDmg','dmg',v=>'+'+auraV(v[1],t)],
+    ['adjCd','haste',v=>'−'+pc(auraV(v,t,1))],['tagCd','haste',v=>'−'+pc(auraV(v[1],t,1))],['edgeCd','haste',v=>'−'+pc(auraV(v,t,1))],['emptyCd','haste',v=>'−'+pc(auraV(v,t,1))],
+    ['adjCrit','crit',v=>'+'+pc(auraV(v,t,1))],['tagCrit','crit',v=>'+'+pc(auraV(v[1],t,1))],
+    ['adjPre','charge',v=>pc(auraV(v,t,1))],['tagPre','charge',v=>pc(auraV(v[1],t,1))],
+    ['adjShield','shield',v=>'+'+auraV(v,t)],['tagShield','shield',v=>'+'+auraV(v[1],t)],
+    ['adjHeal','heal',v=>'+'+auraV(v,t)],['tagHeal','heal',v=>'+'+pc(auraV(v[1],t,1))],
+    ['adjBurn','burn',v=>'+'+auraV(v,t,0,1)],['tagBurn','burn',v=>'+'+auraV(v[1],t,0,1)],
+    ['adjPoison','poison',v=>'+'+auraV(v,t,0,1)],['tagPoison','poison',v=>'+'+auraV(v[1],t,0,1)],
+    ['hpBonus','heal',v=>'+'+auraV(v,t)],['regen','heal',v=>'+'+auraV(v,t)],['gold','gold',v=>'+'+v]];
+  for(const[key,k,f]of A)if(d[key]!=null)return{k,v:f(d[key]),aura:1};
+  return null}
+const mainStatOf=(k,t)=>mainStat([{k,t}],0,null);
 const FXKEYS=['dmg','multi','crit','pierce','burnPerHit','poisonPerHit','dmgX','shield','shieldX','heal','healX','burn','poison','slow','haste','charge','cleanse','douse','selfDmg','grow'];
 function pickFx(d){const o={};let any=false;FXKEYS.forEach(k=>{if(d[k]!=null){o[k]=d[k];any=true}});return any?o:null}
 function sideOf(list,cr){const o={hp:0,regen:0,gold:0},ok=c=>!cr||cr.has(c);list.forEach(it=>{const d=DEFS[it.k];if(d.hpBonus&&ok('carp'))o.hp+=auraV(d.hpBonus,it.t);if(d.regen&&ok('med'))o.regen+=auraV(d.regen,it.t);if(d.gold)o.gold+=auraV(d.gold,it.t)});return o}

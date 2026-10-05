@@ -68,6 +68,7 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - A cooldown of 0 means passive.
 - `RETIRED` in items.js lists items taken out of the draw (`poolFor()` and `NEUTRAL` skip them). Never delete a retired item's `I()` row: saved voyages may carry it. Each ship's own pool is about 30 items; to add one, retire one or keep the mix of damage, support and defence even. The Atlas counts only live items and shows found retired ones as keepsakes.
 - Tags: W weapon, C cannon, F food, X fire, T tool, A armor, R rigging, V venom, K crew.
+- Tiles show one big stat tag (`mainStat()` in items.js, drawn by `statTag()` in ui.js): the item's main number in context, coloured by kind (`.s-dmg` etc.); passives that boost others show a dashed tag. Types are colour coded by `--ty`/`--typ` on `.c-X` classes (a top band `.tyb` and a wash). A new effect field needs a line in `mainStat()` if it should show.
 - The field language (effects, `start`, `on` reactions, auras) is documented at the top of items.js.
 - New glyphs go in glyphs.js. They're 40×40, with class `w` for paper fill and `k` for ink fill.
 

@@ -362,7 +362,7 @@ button:focus-visible{outline:3px solid var(--line);outline-offset:3px}
 .dropmark.no{background:repeating-linear-gradient(0deg,var(--ink) 0 3px,transparent 3px 6px)}
 .visitor.quest{border-style:dashed}
 .sh-actions [disabled]{opacity:.4;border-style:dashed}
-.item .emb,.o-icon .emb{position:absolute;top:3px;left:3px;width:9px;height:9px;z-index:2;fill:var(--ink)}
+.item .emb,.o-icon .emb{position:absolute;top:8px;left:3px;width:9px;height:9px;z-index:2;fill:var(--ink)}
 .o-icon .emb{top:-5px;left:-5px;width:13px;height:13px;background:var(--paper);border-radius:50%;padding:1px}
 .t3 .emb{fill:var(--paper)}.t3 .ic.crew g{stroke:var(--paper)}
 .ic.crew{border:0;border-radius:0;overflow:visible}
@@ -511,7 +511,7 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
   body.desk .item .ico{width:min(40px,64%)}
   body.desk .item .nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;line-height:1.15;font-weight:800;text-align:center;position:relative;z-index:1;max-width:100%;word-break:break-word}
   body.desk .item .cdt{font-size:11.5px}
-  body.desk .item .emb{width:12px;height:12px;top:5px;left:5px}
+  body.desk .item .emb{width:12px;height:12px;top:9px;left:5px}
   body.desk .board.locker .item,body.desk .board.locker .slot,body.desk .mini-board .item,body.desk .mini-board .slot{height:62px}
   body.desk .board.locker .item .nm,body.desk .mini-board .item .nm{display:none}
   body.desk .battle .item,body.desk .battle .slot{height:clamp(100px,calc((100vh - 500px) / 2),150px)}
@@ -1394,8 +1394,6 @@ body.desk .recap .rc-row .o-icon,.recap .rc-row .o-icon{width:40px;height:40px;p
 .afflbl{position:absolute;transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:var(--paper);font:800 9.5px/1 var(--ui);padding:3px 6px;border-radius:999px;z-index:4;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.board .item.aff{animation:none}}
 /* cooldowns stand out on every tile */
-.item .cdt{font:800 11px/1 var(--ui);background:var(--paper);border:1.6px solid var(--line);border-radius:999px;padding:2px 5px;margin-top:2px}
-body.desk .item .cdt{font-size:12.5px;padding:2px 7px}
 /* an upgrade, previewed */
 .upgr{font-weight:800;font-size:13px}
 .upgr-cd{font-size:13px}
@@ -1414,15 +1412,30 @@ b.now{font-weight:800}
 /* the harbour: a peach sky, each place its own flat colour */
 .harbour,.hscroll{background:var(--peach-p)}
 .hworld .hsign rect,.hworld .hstop .hsign rect{fill:var(--paper)}
-/* cargo tiles take a pale wash by kind */
-.item.c-W,.o-icon.c-W{background:var(--brick-p)}
-.item.c-C,.o-icon.c-C{background:var(--peach)}
-.item.c-X,.o-icon.c-X{background:var(--peach-p)}
-.item.c-R,.o-icon.c-R{background:var(--slate-p)}
-.item.c-F,.o-icon.c-F{background:var(--mustard-p)}
-.item.c-A,.o-icon.c-A{background:var(--sage-p)}
-.item.c-V,.o-icon.c-V{background:var(--sage)}
-.item.c-T,.o-icon.c-T{background:#E6DCC8}
+/* cargo types are colour coded: a solid band across the top of the tile in the type's colour, and a pale wash of it */
+.c-W{--ty:#B5533C;--typ:#EFCDBF}.c-C{--ty:#56534E;--typ:#DAD5CC}.c-X{--ty:#D9822B;--typ:#F6D8B4}.c-V{--ty:#7A4A6E;--typ:#E2CEDC}
+.c-F{--ty:#C9962C;--typ:#F3E3AE}.c-A{--ty:#3F6A8F;--typ:#CCDCEA}.c-R{--ty:#4E8C7A;--typ:#CFE5DC}.c-T{--ty:#8E6A4B;--typ:#E6D7C3}.c-K{--ty:#C07A5A;--typ:#F2DACB}
+.item[class*=" c-"],.o-icon[class*=" c-"]{background:var(--typ)}
+.item .tyb,.o-icon .tyb{position:absolute;left:0;right:0;top:0;height:5px;background:var(--ty);border-bottom:1.5px solid var(--line);z-index:1;pointer-events:none}
+.o-icon .tyb{height:6px}
+/* the stat tag: what the item does and how much, big enough to read at a glance */
+.stag{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:1px;
+  background:var(--sc);color:#fff;border:1.5px solid var(--line);border-radius:6px;padding:1px 3px 1px 2px;font:800 12px/1 var(--ui);white-space:nowrap;letter-spacing:-.02em}
+.stag svg{width:10px;height:10px;flex:none}
+.stag.aura{background:var(--paper);color:var(--sc);border-style:dashed}
+.stag.aura b{color:var(--ink)}
+.s-dmg{--sc:#B5533C}.s-heal{--sc:#4F8A44}.s-shield{--sc:#3F6A8F}.s-burn{--sc:#D9822B}.s-poison{--sc:#7A4A6E}
+.s-haste{--sc:#B8861F}.s-charge{--sc:#2F7F73}.s-slow{--sc:#5D6E7C}.s-crit{--sc:#1F1C1D}.s-gold{--sc:#B8861F}
+.item{justify-content:flex-start;padding-top:19px}
+.item .ico{width:min(26px,74%)}
+body.desk .item{padding-top:22px;gap:3px}
+.item .cdt{position:absolute;top:7px;right:3px;z-index:2;font:800 9px/1 var(--ui);background:var(--paper);border:1.2px solid var(--line);border-radius:999px;padding:1px 3px;margin:0}
+body.desk .item .cdt{font-size:11px;padding:2px 5px;top:8px;right:5px}
+body.desk .stag{font-size:15px;padding:2px 5px 2px 4px;bottom:5px;border-radius:7px}
+body.desk .stag svg{width:13px;height:13px}
+@media (min-width:900px) and (min-height:560px){.stag{font-size:14px}.stag svg{width:12px;height:12px}}
+.o-icon .stag{bottom:4px;font-size:13px}
+.item.t3 .stag{border-color:var(--paper)}
 .item.t3{background:var(--ink)}
 /* the one bright accent: gold is mustard */
 .sic .w{fill:var(--paper)}

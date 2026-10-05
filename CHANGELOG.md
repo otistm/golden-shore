@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.53.0
+- Every cargo tile now shows what it does at a glance: a big tag with an icon and the number, coloured by kind (red damage, green heal, blue shield, orange burn, purple poison, gold haste, teal charge, grey slow). The number is the real one for that item's tier and its spot in your hold. Items that boost the rest of your hold show a dashed tag. Item types are colour coded with a solid band across the top of the tile: weapons red, cannons iron, fire orange, venom purple, food gold, armor blue, rigging green, tools brown. The cooldown moves to the top corner.
+
 ## 0.52.0
 - The docks are redrawn to match the rest of the port: a grainy sky over a far shore with a lighthouse and a distant sail, wave marks that grow toward you, a fishing smack at her mooring with her tan sail furled and a dinghy astern, a red buoy, and a row of stencilled fish crates for your catch. Rain, mist and storms now grey the docks' sky and sea too.
 

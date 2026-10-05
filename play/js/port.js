@@ -113,7 +113,7 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
   const o=sel>=0?S.offers[sel]:null;
   const goods=S.offers.map((g,i)=>{if(!g)return`<span class="good gone" aria-label="Sold"><span class="o-icon"></span><span class="ptag">sold</span></span>`;
     const d=DEFS[g.k],up=!!findMatch(g);
-    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t} c-${kindOf(g.k)}">${emb(g.k)}${icon(g.k)}${up?CHEV:''}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
+    return`<button class="good${i===sel?' sel':''}${restock?' thump':anim?' in':''}" data-g="${i}" style="animation-delay:${restock?120+i*130:i*70}ms" aria-label="${d.n}, ${TIER[g.t]}, ${buyP(g)} gold${i===sel?', selected':''}"><span class="o-icon t${g.t} c-${kindOf(g.k)}"><span class="tyb"></span>${emb(g.k)}${icon(g.k)}${up?CHEV:''}${statTag(mainStatOf(g.k,g.t))}</span><span class="ptag">${sicon('gold')}${buyP(g)}</span></button>`}).join('');
   let talk;
   if(o){const d=DEFS[o.k],p=buyP(o),up=!!findMatch(o),poor=G.gold<p;
     talk=`<div class="talk" id="talk"><p class="say">“${poor?P.broke:up?P.up:pitch(sk,o)}”</p>
