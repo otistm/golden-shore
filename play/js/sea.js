@@ -102,7 +102,7 @@ function curve(ps){const n=ps.length;let d='';
     d+=`Q${pt(a)} ${f1((a[0]+b[0])/2)} ${f1((a[1]+b[1])/2)}`}return d+'Z'}
 function destHTML(n){const q=wpos(n),live=seaLive(n),pop=SEA.newly.has(n.id);
   return`<g class="dest d-${n.type}${live?' live':' spent'}" data-id="${n.id}" data-y="${q.y}" data-wx="${f1(q.x)}" data-wy="${f1(q.y)}" transform="translate(${f1(q.x)} ${f1(q.y*SK)})"${live?` tabindex="0" role="button" aria-label="${seaSeen(n).head}"`:''}>
-    <ellipse class="o-hit" rx="${f1(destR(n)*.85)}" ry="${f1(destR(n)*.85*SK+30)}" cy="-20"/><g class="dbody${pop?' pop':''}">${destArt(n,live)}</g></g>`}
+    <ellipse class="o-hit" rx="${f1(destR(n)*.85)}" ry="${f1(destR(n)*.85*SK+30)}" cy="-20"/><g class="dbody${pop?' pop':''}">${destArt(n,live)}</g>${nameTag(n)}</g>`}
 /* draw every stop you've found, back to front, and put your ship back among them */
 function seaThings(){const L=SEA.el&&SEA.el.querySelector('#seathings');if(!L)return;
   const ns=G.map.nodes.filter(seaFound).sort((a,b)=>wpos(a).y-wpos(b).y);
@@ -110,6 +110,7 @@ function seaThings(){const L=SEA.el&&SEA.el.querySelector('#seathings');if(!L)re
   SEA.newly.clear();SEA.ship=null;SEA.q=-1;
   SEA.foes=[...L.querySelectorAll('.dest.live .o-ship[data-k]')].map(el=>{const n=node(+el.closest('.dest').dataset.id);return{el,wl:el.closest('.shipdraw').querySelector('.o-wl'),n,q:wpos(n),k:el.dataset.k,a:-1}});
   seaFloats();
+  SEA.names=[...L.querySelectorAll('.o-pname')].map(el=>{const n=node(+el.closest('.dest').dataset.id);return{el,n,q:wpos(n),near:false}});
   L.querySelectorAll('.dest.live').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();seaTapDest(+el.dataset.id)}})}
 /* wave marks on the open water, from seeded tiles, so the sea goes on as far as you sail */
 function seaWaves(v){const T=300,x0=Math.floor(v.x0/T),x1=Math.floor(v.x1/T),y0=Math.floor(v.y0/T),y1=Math.floor(v.y1/T),key=[x0,x1,y0,y1].join();
@@ -143,7 +144,9 @@ function openSea(){
   SEA.el=app.querySelector('#ocean');SEA.wkey='';
   SEA.inside=new Set(G.map.nodes.filter(n=>seaFound(n)&&seaLive(n)&&Math.hypot(dockAt(n).x-p.x,dockAt(n).y-p.y)<arriveR(n)+30).map(n=>n.id));
   if(SEA.cx==null||Math.hypot(SEA.cx-p.x,SEA.cy-p.y)>600){SEA.cx=p.x;SEA.cy=p.y}
-  SEA.sail=false;SEA.wheel=0;SEA.wheelHeld=false;
+  SEA.sail=false;SEA.wheel=0;SEA.wheelHeld=false;SEA.names=[];
+  // the port you start each sea from is already yours
+  const home=node(G.map.start);if(placeKind(home)&&!claimed(home))claimPlace(home,true);
   seaLayout();seaThings();seaFlot();seaBind();seaHelm();
   document.getElementById('chartbtn').onclick=()=>seaChart();
   if(!SEA.raf){SEA.last=0;SEA.raf=requestAnimationFrame(seaLoop)}
@@ -275,7 +278,7 @@ function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
   const wh=document.querySelector('#wheel svg');if(wh)wh.style.transform=`rotate(${SEA.wheel.toFixed(1)}deg)`;
   const nd=document.querySelector('#compass .needle');if(nd)nd.style.transform=`rotate(${(p.a*57.2958+90).toFixed(1)}deg)`;
   const v={x0:-tx/Z,x1:(SEA.vw-tx)/Z,y0:-ty/Z/SK,y1:(SEA.vh-ty)/Z/SK};
-  seaWaves(v);seaRide(v);if(!fogGL())seaFog(v);
+  seaNames();seaWaves(v);seaRide(v);if(!fogGL())seaFog(v);
   if(SEA.call){const sx=tx+p.x*Z,sy=ty+p.y*SK*Z;SEA.call.style.transform=`translate(${f1(sx)}px,${f1(sy-110*Z)}px) translate(-50%,-100%)`}}
 /* the fog where WebGL isn't available: flat paper fog with stipple, cut away round everywhere you've sailed, with an ink line along its edge */
 let fogPat=null;
@@ -291,6 +294,7 @@ function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';ring(1.3/Z);x.fill();x.globalCompositeOperation='source-over'}
 /* what you see, in words: the title and lines for a place's card */
 function seaSeen(n){const s=sightOf(n);
+  if(placeKind(n)&&n.type!=='port'&&claimed(n))return{head:placeName(n),x:n.type==='event'?s.x||'':n.type==='isle'?seenLine(SEEN.isle,n.id):seenLine(SEEN.fish,n.id)};
   if(n.type==='port')return{head:n.name,x:seenLine(SEEN.port,n.id)};
   if(n.enemy)return{head:'The '+ENEMIES[n.enemy].n,x:seenLine(s.x,n.id)};
   if(n.type==='event')return{head:s.t||'Something in the water',x:s.x||''};
@@ -328,7 +332,7 @@ function seaChart(inPort){fogInit();seaShip();const s=1/5,X=v=>f1(v*s),P=G.fog.p
   [...found,...heard].filter(isIsle).forEach(n=>{const q=wpos(n),rr=isleR(n)*s;land+=`<ellipse cx="${X(q.x)}" cy="${X(q.y)}" rx="${f1(rr*1.15)}" ry="${f1(rr)}"/>`});
   [...new Set([...found,...heard,b])].forEach(n=>{const q=wpos(n),big=n.type==='boss',rr=big?15:11,known=seaFound(n)||charted(n),done=seaFound(n)&&!seaLive(n);
     marks+=`<g class="sc-node${done?' done':''}${seaFound(n)?'':' heard'}" transform="translate(${X(q.x)} ${X(q.y)})"><circle r="${rr}"/><g transform="translate(${big?-10:-7.5} ${big?-10:-7.5}) scale(${big?.83:.62})" fill="none" stroke-width="2.4">${known?NG[n.type]:NG.event}</g>${done?`<path class="x" d="M${-rr-3} ${-rr-3}L${rr+3} ${rr+3}M${rr+3} ${-rr-3}L${-rr-3} ${rr+3}"/>`:''}
-      ${n.type==='port'?`<text y="${rr+15}" text-anchor="middle">${n.name}</text>`:big?`<text y="${-rr-7}" text-anchor="middle">${known?ENEMIES[n.enemy].n:'Something waits'}</text>`:''}</g>`});
+      ${claimed(n)?`<path class="flag" d="M${rr-2} ${-rr+2}v-14l9 3.5-9 3.5"/><text y="${rr+15}" text-anchor="middle">${placeName(n)}</text>`:big?`<text y="${-rr-7}" text-anchor="middle">${known?ENEMIES[n.enemy].n:'Something waits'}</text>`:''}</g>`});
   G.charts.forEach(c=>{if(c.sea!==G.sea)return;const n=node(c.at);if(!n)return;const q=wpos(n);
     marks+=`<g transform="translate(${f1(q.x*s+14)} ${f1(q.y*s-22)}) scale(.6)" fill="none" stroke-width="2.4">${CHARTS[c.k].g}</g>`});
   let track='';for(let i=G.fog.s||0;i<P.length;i+=2)track+=(i>(G.fog.s||0)?'L':'M')+X(P[i])+' '+X(P[i+1]);

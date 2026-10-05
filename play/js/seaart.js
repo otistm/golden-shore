@@ -63,9 +63,6 @@ function isleArt(n,live){const town=n.type==='port',r=RNG(G.seed,'isleart',n.id)
     // houses, back to front
     const spots=[];for(let t=0;t<40&&spots.length<5;t++){const x=(r()-.5)*Rd*1.1,y=(r()-.4)*Rd*.9;if(Math.hypot(x-lh[0],(y-lh[1])*1.6)<34)continue;if(spots.every(s=>Math.hypot(s[0]-x,(s[1]-y)*1.6)>34))spots.push([x,y])}
     spots.forEach(([x,y],i)=>{const b2=pr(x,y,zt);things.push({y,s:isoHouse(b2[0],b2[1],22+r()*8,13+r()*8,9+r()*5,i%3)})});
-    // the port's name, painted on a board on the quay
-    const w=n.name.length*8.4+22;
-    things.push({y:1e4,s:`<g class="o-name" transform="translate(${f1(-Rd*.62)} ${f1(Rd*SK+22)})"><rect x="${f1(-w/2)}" y="-14" width="${f1(w)}" height="24" rx="9"/><text y="3.5" text-anchor="middle">${n.name}</text></g>`});
   }else{
     for(let i=0;i<3;i++){const x=(r()-.5)*Rd*.9,y=(r()-.5)*Rd*.6,b2=pr(x,y,zt);things.push({y,s:`<g transform="translate(${pt(b2)})">${palm(r)}</g>`})}
     if(!live){const b2=pr(-Rd*.2,Rd*.2,zt);things.push({y:Rd*.2,s:`<g transform="translate(${pt(b2)})"><path d="M0 0v-30" stroke-width="2"/><path class="s-flag" d="M0 -30l16 5l-16 5z"/></g>`})}
