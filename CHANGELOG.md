@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.46.0
+- A ship's wheel to steer. Drag the wheel round and it turns like the real thing; the further you turn it the harder she turns, she needs some speed to answer the helm, and when you let go the wheel eases back to the middle. Grabbing the wheel hoists the sails. A sail button beside it hoists and furls them. Arriving somewhere, picking up a bottle or reaching the edge of the sea furls them for you.
+- Tapping the water no longer steers. Tapping a place you can see still sails you there, and the wheel takes back over when you grab it.
+- A small compass in the corner points the way you're heading, and spins wildly at the edge of the sea.
+- On a computer: the arrow keys or A and D turn the wheel, W hoists and S furls.
+- The camera sits further back again, so you see more of the sea.
+
 ## 0.45.6
 - The open sea's camera sits a little further back, so you see more water round your ship.
 

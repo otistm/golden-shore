@@ -11,7 +11,7 @@ const DAYLEN=700;                   // world units of sailing to a day
 const BOTTLES=4;                    // bottles adrift on each sea, each with a scrap of chart
 const MAXV=190,ACC=230,TURN=2.3;    // top speed (units a second), how fast she picks up speed, and how fast she turns
 const SEA={el:null,raf:0,last:0,v:0,target:null,hold:false,down:null,inside:new Set(),newly:new Set(),fast:1,cx:null,cy:null,Z:1,
-  trav:0,saved:0,dirty:false,wkey:'',floats:[],wvs:[],turn:0,lkey:'',q:-1,frame:0,foes:[],call:null};
+  trav:0,saved:0,dirty:false,wkey:'',floats:[],wvs:[],turn:0,sail:false,wheel:0,wheelHeld:false,keyTurn:0,lkey:'',q:-1,frame:0,foes:[],call:null};
 /* lookouts see farther with a crow's-nest landmark, studding sails and the like: the same things that used to show more rows */
 const sight=()=>SIGHT+60*Math.min(3,(G.extra||0)+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0));
 const angD=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -121,6 +121,11 @@ function seaWaves(v){const T=300,x0=Math.floor(v.x0/T),x1=Math.floor(v.x1/T),y0=
   const W=SEA.el.querySelector('#seawaves');W.innerHTML=g;SEA.wvs=[...W.children].map(el=>({el,x:+el.dataset.x,y:+el.dataset.y}))}
 
 /* ---------- the screen ---------- */
+/* the helm's drawings: a ship's wheel (eight spokes, the top one's grip in brass so you can see it turn), a sail that hoists
+   and furls, and a small compass whose needle points the way she's heading */
+const WHEELSVG=`<svg viewBox="-60 -60 120 120" aria-hidden="true">${Array.from({length:8},(_,i)=>`<g transform="rotate(${i*45})"><path class="wh-spoke" d="M-3 -10L-3 -44L3 -44L3 -10Z"/><path class="wh-grip${i?'':' king'}" d="M-5 -44q-1 -6 0 -12q5 -4 10 0q1 6 0 12z"/></g>`).join('')}<circle class="wh-rim" r="40"/><circle class="wh-rim2" r="33"/><circle class="wh-hub" r="11"/><circle class="wh-pin" r="3.5"/></svg>`;
+const SAILSVG='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="mast" d="M20 4v30"/><path class="sl" d="M20 7q12 7 11 22H20z"/><path class="sl2" d="M19 10q-9 8-9 19h9z"/><path class="furl" d="M10 30h20"/><path class="hull" d="M6 32h28l-4 5H10z"/></svg>';
+const COMPASSSVG='<svg viewBox="-24 -24 48 48"><circle class="cp-rim" r="20"/><path class="cp-n" d="M0 -20v6"/><text y="-8" text-anchor="middle">N</text><g class="needle"><path class="cp-head" d="M0 -14l4 14h-8z"/><path class="cp-tail" d="M0 14l4 -14h-8z"/></g><circle class="cp-pin" r="2"/></svg>';
 const CHARTICON='<svg viewBox="0 0 32 32" aria-hidden="true"><path class="w" d="M7 7h18v18H7z"/><path d="M11 21c2-4 6-2 8-6s2-4 3-5" fill="none" stroke-dasharray="1.5 3"/><path d="M19 9l3 3M22 9l-3 3"/><rect class="w" x="4" y="4" width="24" height="5" rx="2.5"/><rect class="w" x="4" y="23" width="24" height="5" rx="2.5"/></svg>';
 function openSea(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
@@ -128,7 +133,9 @@ function openSea(){
   fogInit();const p=seaShip();
   app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span id="seawx">Sea ${G.sea+1} of 3 · ${WEATHER[weatherOf(G.sea,G.day)].n}</span></div></div>
     <div class="ocean" id="ocean"><canvas id="seawater" aria-hidden="true"></canvas><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
-      <canvas id="seafog" aria-hidden="true"></canvas><canvas id="searain" aria-hidden="true"></canvas></div>
+      <canvas id="seafog" aria-hidden="true"></canvas><canvas id="searain" aria-hidden="true"></canvas><div class="compass" id="compass" aria-hidden="true">${COMPASSSVG}</div></div>
+    <div class="helm" id="helm"><div class="wheel" id="wheel" role="slider" tabindex="0" aria-label="Ship's wheel: drag it round to steer" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0">${WHEELSVG}</div>
+      <button class="sailbtn" id="sailbtn" type="button" aria-pressed="false">${SAILSVG}<span>Hoist</span></button></div>
     <button class="chartbtn${SEA.chartNew?' new':''}" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
     ${holdDock('')}`;
   document.body.classList.add('atsea');
@@ -136,7 +143,8 @@ function openSea(){
   SEA.el=app.querySelector('#ocean');SEA.wkey='';
   SEA.inside=new Set(G.map.nodes.filter(n=>seaFound(n)&&seaLive(n)&&Math.hypot(dockAt(n).x-p.x,dockAt(n).y-p.y)<arriveR(n)+30).map(n=>n.id));
   if(SEA.cx==null||Math.hypot(SEA.cx-p.x,SEA.cy-p.y)>600){SEA.cx=p.x;SEA.cy=p.y}
-  seaLayout();seaThings();seaFlot();seaBind();
+  SEA.sail=false;SEA.wheel=0;SEA.wheelHeld=false;
+  seaLayout();seaThings();seaFlot();seaBind();seaHelm();
   document.getElementById('chartbtn').onclick=()=>seaChart();
   if(!SEA.raf){SEA.last=0;SEA.raf=requestAnimationFrame(seaLoop)}
   save();coach('chart');
@@ -146,20 +154,35 @@ function seaLayout(){const el=SEA.el;if(!el)return;const r=el.getBoundingClientR
   SEA.ox=r.left;SEA.oy=r.top;SEA.vw=r.width;SEA.vh=r.height;
   SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;el.style.setProperty('--seatop',SEA.top+'px');
   if(SEA.bot-SEA.top<120)SEA.bot=Math.min(r.height,SEA.top+120);
-  SEA.Z=clamp(Math.min(SEA.vw/620,(SEA.bot-SEA.top)/560),.72,1.25);   // phones see a little farther
+  SEA.Z=clamp(Math.min(SEA.vw/760,(SEA.bot-SEA.top)/680),.6,1.05);   // phones see a little farther
 }
 addEventListener('resize',()=>{if(SEA.el&&SEA.el.isConnected){seaLayout();SEA.wkey=''}});
 /* tap or drag on the water to steer toward your finger; tap a place to sail to it */
+/* tapping a place you can see sails you to it; the wheel does the rest */
 function seaBind(){const el=SEA.el;
-  const aim=e=>{const x=(e.clientX-SEA.ox-SEA.tx)/SEA.Z,y=(e.clientY-SEA.oy-SEA.ty)/SEA.Z/SK;seaTarget(x,y,null)};
-  el.addEventListener('pointerdown',e=>{if(e.button>0||seaBusy())return;const d=e.target.closest('.dest.live');
-    SEA.down={id:e.pointerId,x:e.clientX,y:e.clientY,d:d?+d.dataset.id:null,moved:false};
-    if(!d){aim(e);SEA.hold=true;seaMark()}try{el.setPointerCapture(e.pointerId)}catch(_){}});
-  el.addEventListener('pointermove',e=>{const D=SEA.down;if(!D||D.id!==e.pointerId)return;
-    if(Math.hypot(e.clientX-D.x,e.clientY-D.y)>12)D.moved=true;if(SEA.hold||D.moved){SEA.hold=true;aim(e)}});
-  const up=e=>{const D=SEA.down;if(!D||D.id!==e.pointerId)return;SEA.down=null;SEA.hold=false;
-    if(D.d!=null&&!D.moved)seaTapDest(D.d);else seaMark()};
-  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
+  el.addEventListener('pointerdown',e=>{if(e.button>0||seaBusy())return;const d=e.target.closest('.dest.live');if(!d)return;
+    SEA.down={id:e.pointerId,x:e.clientX,y:e.clientY,d:+d.dataset.id,moved:false}});
+  el.addEventListener('pointermove',e=>{const D=SEA.down;if(D&&D.id===e.pointerId&&Math.hypot(e.clientX-D.x,e.clientY-D.y)>12)D.moved=true});
+  const up=e=>{const D=SEA.down;if(!D||D.id!==e.pointerId)return;SEA.down=null;if(!D.moved){SEA.sail=true;seaSailBtn();seaTapDest(D.d)}};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>SEA.down=null)}
+/* the helm: drag the wheel round like a ship's wheel (it turns as far as you turn it, and eases back to the middle when you let
+   go); the sail button hoists and furls. Grabbing the wheel hoists the sails and takes over from any course you'd set. */
+const WHEELMAX=240;   // degrees of wheel for the hardest turn
+function seaHelm(){const w=document.getElementById('wheel'),b=document.getElementById('sailbtn');if(!w)return;let last=null;
+  const ang=e=>{const r=w.getBoundingClientRect();return Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2))*57.3};
+  w.addEventListener('pointerdown',e=>{if(seaBusy())return;e.preventDefault();SEA.wheelHeld=true;last=ang(e);seaTakeHelm();try{w.setPointerCapture(e.pointerId)}catch(_){}});
+  w.addEventListener('pointermove',e=>{if(!SEA.wheelHeld||last==null)return;const a=ang(e);let d=a-last;if(d>180)d-=360;if(d<-180)d+=360;last=a;SEA.wheel=clamp(SEA.wheel+d,-WHEELMAX,WHEELMAX)});
+  const up=()=>{SEA.wheelHeld=false;last=null};w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
+  w.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();seaTakeHelm();SEA.wheel=clamp(SEA.wheel+(e.key==='ArrowLeft'?-40:40),-WHEELMAX,WHEELMAX)}});
+  b.onclick=()=>{SEA.sail=!SEA.sail;if(SEA.sail)seaTakeHelm();seaSailBtn()};seaSailBtn()}
+function seaTakeHelm(){if(SEA.target){SEA.target=null;seaMark()}if(!SEA.sail){SEA.sail=true;seaSailBtn()}}
+function seaSailBtn(){const b=document.getElementById('sailbtn');if(!b)return;b.setAttribute('aria-pressed',SEA.sail);b.classList.toggle('up',SEA.sail);b.querySelector('span').textContent=SEA.sail?'Furl':'Hoist';
+  b.setAttribute('aria-label',SEA.sail?'Furl the sails and stop':'Hoist the sails')}
+// on a computer: the arrow keys or A and D turn the wheel; W hoists, S furls
+addEventListener('keydown',e=>{if(!SEA.el||!SEA.el.isConnected||seaBusy()||e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea,#wheel')))return;const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a'){SEA.keyTurn=-1;seaTakeHelm();e.preventDefault()}else if(k==='arrowright'||k==='d'){SEA.keyTurn=1;seaTakeHelm();e.preventDefault()}
+  else if(k==='w'||k==='arrowup'){seaTakeHelm();e.preventDefault()}else if(k==='s'||k==='arrowdown'){SEA.sail=false;seaSailBtn();e.preventDefault()}});
+addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(['arrowleft','a','arrowright','d'].includes(k))SEA.keyTurn=0});
 /* a stop you tap: sail to it, or if you're already there, see what it is */
 function seaTapDest(id){const n=node(id);if(!n)return;
   if(SEA.inside.has(id)&&seaLive(n))return seaArrive(n);
@@ -181,6 +204,10 @@ function seaLoop(now){
   seaDraw(real);seaRain(wdt)}
 /* one tick of sailing. Returns true when she arrived somewhere (and the sea stops for the card). */
 function seaStep(dt){const p=G.pos;let want=0;
+  // the wheel: held keys turn it, and let go it eases back to the middle
+  if(SEA.keyTurn)SEA.wheel=clamp(SEA.wheel+SEA.keyTurn*220*dt,-WHEELMAX,WHEELMAX);else if(!SEA.wheelHeld)SEA.wheel*=Math.exp(-dt*2.2);
+  if(!SEA.target){const wxs=WX.cur?WX.cur.speed:1,r=SEA.wheel/WHEELMAX,turn=TURN*.85*r*(.3+.7*Math.min(1,SEA.v/(MAXV*.5)))*(.55+.45*wxs)*dt;   // she needs way on her to answer the helm
+    p.a=angD(p.a+turn);SEA.turn+=(turn/dt-SEA.turn)*Math.min(1,dt*4);if(SEA.sail)want=MAXV*wxs}
   if(SEA.target){const dx=SEA.target.x-p.x,dy=SEA.target.y-p.y,d=Math.hypot(dx,dy);
     if(d<(SEA.hold?34:14)){if(!SEA.hold){SEA.target=null;seaMark()}}
     else{
@@ -195,7 +222,7 @@ function seaStep(dt){const p=G.pos;let want=0;
   if(WX.cur&&WX.cur.drift){const wd=curWaves()[0],k=WX.cur.drift*18*dt*Math.min(1,SEA.v/60);p.x+=wd.dx*k;p.y+=wd.dy*k}
   // the edges of the sea, and land: she slides along a shore rather than sailing over it
   const ex=p.x,ey=p.y;p.x=clamp(p.x,SEA_EDGE.x0,SEA_EDGE.x1);p.y=clamp(p.y,SEA_EDGE.y0,SEA_EDGE.y1);
-  if(ex!==p.x||ey!==p.y){SEA.target=null;SEA.hold=false;SEA.down=null;SEA.v*=.3;seaMark();seaEdge()}
+  if(ex!==p.x||ey!==p.y){SEA.target=null;SEA.hold=false;SEA.down=null;SEA.v*=.3;SEA.sail=false;seaSailBtn();seaMark();seaEdge()}
   for(const n of G.map.nodes){if(n.type!=='port'&&n.type!=='isle')continue;const q=wpos(n),rr=isleR(n)+10,ex=(p.x-q.x)/1.12,dy=p.y-q.y,d=Math.hypot(ex,dy);
     if(d<rr&&d>0){p.x=q.x+ex/d*rr*1.12;p.y=q.y+dy/d*rr;
       // turn along the shore, toward whichever way round is nearer where you are heading
@@ -205,10 +232,10 @@ function seaStep(dt){const p=G.pos;let want=0;
   const F=G.fog.p;if(Math.hypot(p.x-F[F.length-2],p.y-F[F.length-1])>70){seeFrom(p.x,p.y);if(SEA.newly.size){const found=[...SEA.newly].map(node);seaThings();seaCall(found)}}
   // a bottle adrift: sail through it to fish it out
   const bi=seaBottles().findIndex((b,i)=>!G.fog.b.includes(i)&&Math.hypot(b.x-p.x,b.y-p.y)<44);
-  if(bi>=0){SEA.target=null;SEA.v*=.3;SEA.hold=false;SEA.down=null;seaMark();seaBottle(bi);return true}
+  if(bi>=0){SEA.target=null;SEA.v*=.3;SEA.sail=false;seaSailBtn();SEA.hold=false;SEA.down=null;seaMark();seaBottle(bi);return true}
   // arriving: sailing into a stop you haven't spent stops the ship and shows what's there
   for(const n of G.map.nodes){if(!seaFound(n)||!seaLive(n))continue;const q=dockAt(n),d=Math.hypot(p.x-q.x,p.y-q.y),r=arriveR(n);
-    if(d<r){if(!SEA.inside.has(n.id)){SEA.inside.add(n.id);SEA.target=null;SEA.v=0;SEA.hold=false;SEA.down=null;seaMark();seaArrive(n);return true}}
+    if(d<r){if(!SEA.inside.has(n.id)){SEA.inside.add(n.id);SEA.target=null;SEA.v=0;SEA.sail=false;SEA.wheel=0;seaSailBtn();SEA.hold=false;SEA.down=null;seaMark();seaArrive(n);return true}}
     else if(d>r+30)SEA.inside.delete(n.id)}
   return false}
 /* the ship's wake: short ink strokes at the stern that spread and fade */
@@ -225,7 +252,7 @@ function seaCall(ns){const rank=n=>n.type==='boss'?0:n.type==='port'?1:n.type===
 function seaEdge(){const now=performance.now();if(SEA.edgeAt!=null&&now-SEA.edgeAt<6000||!SEA.el)return;SEA.edgeAt=now;
   const c=document.createElement('div');c.className='seaedge';c.setAttribute('role','status');
   c.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="w" cx="20" cy="20" r="16"/><circle cx="20" cy="20" r="12" fill="none" stroke-dasharray="2 4"/><g class="needle"><path class="k" d="M20 6l4 14h-8z"/><path class="w" d="M20 34l4-14h-8z"/></g><circle class="k" cx="20" cy="20" r="2"/></svg><p>Your compass goes haywire. Something is keeping you out. Perhaps you should turn back for now...</p>';
-  SEA.el.appendChild(c);setTimeout(()=>{c.classList.add('out');setTimeout(()=>c.remove(),500)},4500)}
+  SEA.el.appendChild(c);const cp=document.getElementById('compass');if(cp){cp.classList.add('haywire');setTimeout(()=>cp.classList.remove('haywire'),4500)}setTimeout(()=>{c.classList.add('out');setTimeout(()=>c.remove(),500)},4500)}
 function seaSay(t){if(!SEA.el||!SEA.el.isConnected)return;
   if(SEA.call)SEA.call.remove();const c=document.createElement('div');c.className='seacall';c.setAttribute('role','status');c.textContent=t;SEA.el.appendChild(c);SEA.call=c;
   setTimeout(()=>{if(c===SEA.call){c.classList.add('out');setTimeout(()=>c.remove(),400)}},1700)}
@@ -245,6 +272,8 @@ function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
   // strangers turn to watch you as you come near
   SEA.foes.forEach(f=>{if(!f.el||Math.hypot(f.q.x-p.x,f.q.y-p.y)>520)return;const a=Math.atan2(p.y-f.q.y,p.x-f.q.x)+(f.k==='row'?0:Math.PI/2),qq=Math.round(a/(Math.PI/32))&63;
     if(qq!==f.a){f.a=qq;f.el.innerHTML=isoShip(a,f.k);if(f.wl)f.wl.innerHTML=isoWater(a,f.k)}});
+  const wh=document.querySelector('#wheel svg');if(wh)wh.style.transform=`rotate(${SEA.wheel.toFixed(1)}deg)`;
+  const nd=document.querySelector('#compass .needle');if(nd)nd.style.transform=`rotate(${(p.a*57.2958+90).toFixed(1)}deg)`;
   const v={x0:-tx/Z,x1:(SEA.vw-tx)/Z,y0:-ty/Z/SK,y1:(SEA.vh-ty)/Z/SK};
   seaWaves(v);seaRide(v);if(!fogGL())seaFog(v);
   if(SEA.call){const sx=tx+p.x*Z,sy=ty+p.y*SK*Z;SEA.call.style.transform=`translate(${f1(sx)}px,${f1(sy-110*Z)}px) translate(-50%,-100%)`}}
