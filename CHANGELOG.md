@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.0
+- Real fog. The flat dotted fog is replaced by banks of cloud drawn on the graphics card: three layers at different heights that slide past each other as you sail, with billowing edges, shadows under the billows and an ink outline, drifting slowly with the wind. Add ?fog=soft to the address to try soft, smoky fog instead. Phones without WebGL keep the old fog.
+- The lighthouse beams, sails and storms that floated over the fog are gone.
+
 ## 0.39.0
 - The sea is drawn as what's there, with no icons. Shark fins circle, a serpent's coils rise and sink, the Kraken's arms sway, sirens sing on their rocks, fish swim under wheeling birds, a bottle glints, a wreck floats keel-up, a forge smokes on an islet. Strangers' ships come in their own colours: navy grey, ghostly, iron-hulled, fire-scorched.
 - The world draws you on: tall and loud things show over the fog from far off (a lighthouse beam, the tops of sails, smoke, birds, a song, a lantern, a peak), and the boss's storm, the nearest ports' lights and anything a scrap of chart has shown you stand on the horizon at the edge of the screen.

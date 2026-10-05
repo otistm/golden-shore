@@ -1,7 +1,6 @@
-/* Golden Shore: How things look on the open sea. Ships at any heading, islands and towns, creatures, flotsam, and the lures you
-   see over the fog from far off (a lighthouse beam, sails on the horizon, smoke, birds, a storm). Nothing out here is drawn as an
-   icon: each place looks like what it is. Everything is drawn round its own spot on the water (0,0), seen from above at an
-   angle (pr in sea.js). */
+/* Golden Shore: How things look on the open sea. Ships at any heading, islands and towns, creatures, scenery and flotsam.
+   Nothing out here is drawn as an icon: each place looks like what it is. Everything is drawn round its own spot on the water
+   (0,0), seen from above at an angle (pr in sea.js). */
 "use strict";
 /* Ships are drawn from their real shape, turned to their heading, so they look right whichever way they sail: the hull's sides
    that face you, the deck, the stern cabin, then masts and sails from back to front. m: masts as [position along the hull,
@@ -139,20 +138,3 @@ function destArt(n,live){const t=n.type;
   if(!live)return s.art==='ship'&&n.enemy?ART.wreck():ART.calm();
   if(s.art==='row')return shipAt(n,'row','foe-n');
   return(ART[s.art]||ART.flotsam)(n,s)}
-
-/* ---------- lures: what you see of a place over the fog, from far off ---------- */
-/* Tall or loud things show above the fog before you've found them: a lighthouse beam, the tops of sails, smoke, birds, a song,
-   a lantern, a peak, and over every sea's boss a storm. Quiet things (sharks, a bottle, a cairn) you only find by sailing. */
-function lureArt(n){const t=n.type,s=sightOf(n);
-  if(t==='boss')return cloud(-120,1.6,1)+cloud(-150,1.1,0).replace('translate(0','translate(70');
-  if(t==='port'){const Rd=isleR(n),b=pr(...LIGHT(Rd),14);return`<g transform="translate(${f1(b[0])} ${f1(b[1]-50)})"><g class="o-beam"><path d="M0 0L-120 -16L-120 16Z"/><path d="M0 0L120 -16L120 16Z"/></g><path class="o-win" d="M-5 4h10v-8h-10z"/><path class="o-roof" d="M-8 -4h16l-8 -9z"/></g>`}
-  if(t==='isle')return`<g transform="translate(0 -10)"><path class="o-land" d="M-44 0L-14 -36L0 -24L16 -46L46 0Z"/><path class="o-hatch" d="M-14 -26l6 -3M14 -34l6 -3"/></g>`;
-  if(t==='fish'||s.art==='fish')return birds(0,-70,5);
-  if(t==='npc')return`<g class="o-lantern" transform="translate(0 -46)"><path d="M0 -14v8" stroke-width="1.6"/><path class="o-lamp" d="M-5 -6h10v11h-10z"/><path class="o-roof" d="M-6 -6l6 -5 6 5z"/></g>`;
-  if(s.art==='ship'){const k=s.k==='b'?1.4:s.k==='e'?1.15:1;return`<g class="shipdraw ${s.pal}" transform="translate(0 ${f1(-62*k)}) scale(${k})">${bobs('<path d="M0 26v-40" stroke-width="2"/><path class="s-sail" d="M-14 -6q14 -6 28 0v20q-14 -6 -28 0z"/><path class="s-flag" d="M0 -14l-12 -4 12 -4z"/>')}</g>`}
-  if(s.art==='flock')return birds(s.dark,-80,12);
-  if(s.art==='sirens')return`<g transform="translate(0 -60)">${[0,1,2].map(i=>`<path class="o-note" style="animation-delay:${-i*1.2}s" d="M${-12+i*12} 0v-12l7 -2v12M${-12+i*12} 0a3 2 0 1 1 -1 0z"/>`).join('')}</g>`;
-  if(s.art==='humps'&&s.sp)return`<g transform="translate(46 -40)"><path class="o-spout" d="M0 0q-6 -18 -16 -22M0 0q6 -18 16 -22M0 0v-26"/></g>`;
-  if(s.art==='squall')return cloud(-70,1,0);
-  if(s.art==='forge')return smoke(4,-60);
-  return''}

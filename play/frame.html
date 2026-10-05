@@ -18,8 +18,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden}
 <iframe id="game" title="Golden Shore" src="./?framed=1" allow="fullscreen; clipboard-write"></iframe>
 <script>
 "use strict";
-if(!matchMedia('(hover:hover) and (pointer:fine)').matches)location.replace('./'+location.hash);
+if(!matchMedia('(hover:hover) and (pointer:fine)').matches)location.replace('./'+location.search+location.hash);
 const game=document.getElementById('game');
+// settings in the address (like ?fog=soft) pass through to the game
+if(location.search)game.src='./?framed=1&'+location.search.slice(1);
 function fit(){const W=innerWidth,H=innerHeight,w=Math.floor(Math.min(W,H*16/9)),h=Math.floor(w*9/16);
   game.style.width=w+'px';game.style.height=h+'px';game.style.left=Math.floor((W-w)/2)+'px';game.style.top=Math.floor((H-h)/2)+'px'}
 addEventListener('resize',fit);fit();

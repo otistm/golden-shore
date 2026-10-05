@@ -1,12 +1,11 @@
 /* Golden Shore: The open sea. The main way to get around: an ink ocean seen from above at an angle, where you steer your ship
-   wherever you like. Places sit out on the water, hidden in fog until you sail close, and look like what they are (seaart.js);
-   tall or loud ones show over the fog from far off and draw you on. Days pass as you sail. Bottles adrift and the peaks of
+   wherever you like. Places sit out on the water, hidden in fog (seafog.js) until you sail close, and look like what they are
+   (seaart.js). Days pass as you sail. Bottles adrift and the peaks of
    uncharted isles give you scraps of chart, which fill in the chart you carry (seaChart). */
 "use strict";
 const SK=.6;                        // the sea floor is squashed: the camera looks down at an angle
 const SEA_LEN=3600,SEA_W=1700;      // a sea's size in world units: its chart's rows run north (up), its columns across
 const SIGHT=330;                    // how far you see through the fog
-const LURE=1400;                    // how far off a lighthouse, a sail or a storm shows over the fog
 const DAYLEN=700;                   // world units of sailing to a day
 const BOTTLES=4;                    // bottles adrift on each sea, each with a scrap of chart
 const MAXV=190,ACC=230,TURN=2.3;    // top speed (units a second), how fast she picks up speed, and how fast she turns
@@ -127,12 +126,12 @@ function openSea(){
   fogInit();const p=seaShip();
   app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span>Sea ${G.sea+1} of 3</span></div></div>
     <div class="ocean" id="ocean"><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
-      <canvas id="seafog" aria-hidden="true"></canvas><svg id="seasky" aria-hidden="true"><g id="skycam"></g><g id="skyedge"></g></svg></div>
+      <canvas id="seafog" aria-hidden="true"></canvas></div>
     <button class="chartbtn${SEA.chartNew?' new':''}" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
     ${holdDock('')}`;
   document.body.classList.add('atsea');
   bindBar();bindHold('hold',chart);fitDock();
-  SEA.el=app.querySelector('#ocean');SEA.wkey='';SEA.lkey='';
+  SEA.el=app.querySelector('#ocean');SEA.wkey='';
   SEA.inside=new Set(G.map.nodes.filter(n=>seaFound(n)&&seaLive(n)&&Math.hypot(dockAt(n).x-p.x,dockAt(n).y-p.y)<arriveR(n)+30).map(n=>n.id));
   if(SEA.cx==null||Math.hypot(SEA.cx-p.x,SEA.cy-p.y)>600){SEA.cx=p.x;SEA.cy=p.y}
   seaLayout();seaThings();seaFlot();seaBind();
@@ -146,8 +145,7 @@ function seaLayout(){const el=SEA.el;if(!el)return;const r=el.getBoundingClientR
   SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;
   if(SEA.bot-SEA.top<120)SEA.bot=Math.min(r.height,SEA.top+120);
   SEA.Z=clamp(Math.min(SEA.vw/520,(SEA.bot-SEA.top)/470),.85,1.5);   // phones see a little farther
-  const c=el.querySelector('#seafog'),dpr=Math.min(2,devicePixelRatio||1);
-  if(c.width!==Math.round(r.width*dpr)||c.height!==Math.round(r.height*dpr)){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr)}SEA.dpr=dpr}
+}
 addEventListener('resize',()=>{if(SEA.el&&SEA.el.isConnected){seaLayout();SEA.wkey=''}});
 /* tap or drag on the water to steer toward your finger; tap a place to sail to it */
 function seaBind(){const el=SEA.el;
@@ -232,12 +230,12 @@ function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
   SEA.foes.forEach(f=>{if(!f.el||Math.hypot(f.q.x-p.x,f.q.y-p.y)>520)return;const a=Math.atan2(p.y-f.q.y,p.x-f.q.x)+(f.k==='row'?0:Math.PI/2),qq=Math.round(a/(Math.PI/32))&63;
     if(qq!==f.a){f.a=qq;f.el.innerHTML=isoShip(a,f.k)}});
   const v={x0:-tx/Z,x1:(SEA.vw-tx)/Z,y0:-ty/Z/SK,y1:(SEA.vh-ty)/Z/SK};
-  el.querySelector('#skycam').setAttribute('transform',`translate(${f1(tx)} ${f1(ty)}) scale(${Z.toFixed(3)})`);
-  seaWaves(v);seaFog(v);seaSky();
+  seaWaves(v);if(!fogGL())seaFog(v);
   if(SEA.call){const sx=tx+p.x*Z,sy=ty+p.y*SK*Z;SEA.call.style.transform=`translate(${f1(sx)}px,${f1(sy-110*Z)}px) translate(-50%,-100%)`}}
-/* the fog: flat paper fog with stipple, cut away round everywhere you've sailed, with an ink line along its edge */
+/* the fog where WebGL isn't available: flat paper fog with stipple, cut away round everywhere you've sailed, with an ink line along its edge */
 let fogPat=null;
-function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),d=SEA.dpr,Z=SEA.Z;
+function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),d=Math.min(2,devicePixelRatio||1),Z=SEA.Z;if(!x)return;
+  if(c.width!==Math.round(SEA.vw*d)||c.height!==Math.round(SEA.vh*d)){c.width=Math.round(SEA.vw*d);c.height=Math.round(SEA.vh*d)}
   x.setTransform(d,0,0,d,0,0);x.globalCompositeOperation='source-over';x.clearRect(0,0,SEA.vw,SEA.vh);
   if(!fogPat){const t=document.createElement('canvas');t.width=t.height=9;const tc=t.getContext('2d');tc.fillStyle='rgba(0,0,0,.26)';tc.beginPath();tc.arc(2,2,.9,0,7);tc.fill();tc.fillStyle='rgba(0,0,0,.16)';tc.beginPath();tc.arc(6.5,6.5,.9,0,7);tc.fill();fogPat=x.createPattern(t,'repeat')}
   x.fillStyle=SEA.fogC||(SEA.fogC=getComputedStyle(document.documentElement).getPropertyValue('--fog').trim()||'#E8DFD0');x.fillRect(0,0,SEA.vw,SEA.vh);x.fillStyle=fogPat;x.fillRect(0,0,SEA.vw,SEA.vh);
@@ -246,23 +244,6 @@ function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),
   const ring=sh=>{x.beginPath();vis.forEach(([px,py,r])=>{x.moveTo(px+r-sh,py*SK);x.ellipse(px,py*SK,r-sh,(r-sh)*SK,0,0,Math.PI*2)})};
   ring(0);x.lineWidth=2.4/Z;x.strokeStyle='#000';x.stroke();
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';ring(1.3/Z);x.fill();x.globalCompositeOperation='source-over'}
-/* over the fog: the lures of places you haven't found that lie within sight of a lookout (redrawn as you sail). Beyond that,
-   the boss's storm, the lights of ports you haven't found and anything a scrap of chart has shown you stand on the edge of the
-   screen like things on the horizon, so there is always something drawing you on. */
-const HORIZON=2800;
-function seaSky(){const p=G.pos,b=G.map.boss,key=Math.round(p.x/120)+','+Math.round(p.y/120)+','+G.fog.f.length+','+G.fog.m.length;
-  if(key!==SEA.lkey){SEA.lkey=key;const far=n=>Math.hypot(wpos(n).x-p.x,wpos(n).y-p.y);
-    SEA.el.querySelector('#skycam').innerHTML=G.map.nodes.filter(n=>(n.id===b||!seaFound(n))&&far(n)<LURE)
-      .sort((a,c)=>wpos(a).y-wpos(c).y).map(n=>{const q=wpos(n),l=lureArt(n);return l?`<g class="lure" transform="translate(${f1(q.x)} ${f1(q.y*SK)})">${l}</g>`:''}).join('');
-    const lights=G.map.nodes.filter(n=>n.type==='port'&&!seaFound(n)).sort((x,y)=>far(x)-far(y)).slice(0,2);   // the two nearest ports' lights
-    SEA.el.querySelector('#skyedge').innerHTML=G.map.nodes.filter(n=>n.id===b||!seaFound(n)&&(lights.includes(n)||charted(n))&&far(n)<HORIZON)
-      .map(n=>{const l=n.id===b?cloud(0,.8,1):n.type==='port'?'<g class="o-beam"><path d="M0 0L-60 -9L-60 9Z"/><path d="M0 0L60 -9L60 9Z"/></g><path class="o-win" d="M-5 4h10v-8h-10z"/><path class="o-roof" d="M-8 -4h16l-8 -9z"/>':lureArt(n);
-        return l?`<g class="o-horizon" data-id="${n.id}" visibility="hidden"><g transform="scale(.75)">${l}</g></g>`:''}).join('')}
-  const Z=SEA.Z,m=46,top=SEA.top+m+30,bot=SEA.bot-m*.7,cx=SEA.vw/2,cy=(top+bot)/2;
-  for(const e of SEA.el.querySelectorAll('#skyedge .o-horizon')){const q=wpos(node(+e.dataset.id)),sx=SEA.tx+q.x*Z,sy=SEA.ty+q.y*SK*Z;
-    if(sx>0&&sx<SEA.vw&&sy>SEA.top&&sy<SEA.bot){e.setAttribute('visibility','hidden');continue}
-    const dx=sx-cx,dy=sy-cy,k=Math.min(Math.abs((SEA.vw/2-m)/(dx||1e-6)),Math.abs(((bot-top)/2)/(dy||1e-6)),1);
-    e.setAttribute('visibility','visible');e.setAttribute('transform',`translate(${f1(cx+dx*k)} ${f1(cy+dy*k)})`)}}
 /* what you see, in words: the title and lines for a place's card */
 function seaSeen(n){const s=sightOf(n);
   if(n.type==='port')return{head:n.name,x:seenLine(SEEN.port,n.id)};
