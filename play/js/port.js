@@ -1,4 +1,4 @@
-/* Ink Crossing: Ports: market, fish market, dock visitors. */
+/* Golden Shore: Ports: market, fish market, dock visitors. */
 "use strict";
 /* ---------- port ---------- */
 /* which part of the port you're looking at: the drawn harbour, or one of its buildings. Kept while you stay in the same port. */

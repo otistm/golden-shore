@@ -1,4 +1,4 @@
-/* Ink Crossing: Fights: setup, effects engine (applyFx, emit), the step loop, HP bars and results, next sea and endings. */
+/* Golden Shore: Fights: setup, effects engine (applyFx, emit), the step loop, HP bars and results, next sea and endings. */
 "use strict";
 /* ---------- battle ---------- */
 function mkSide(name,max,list,traits,sea,cr){const b=sideOf(list,cr);

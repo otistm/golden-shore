@@ -1,4 +1,4 @@
-/* Ink Crossing: Title screen, ship selection and starting a voyage. */
+/* Golden Shore: Title screen, ship selection and starting a voyage. */
 "use strict";
 /* ---------- title ---------- */
 const WAVE=`<svg class="waves" viewBox="0 0 400 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 Q25 4 50 18 T100 18 T150 18 T200 18 T250 18 T300 18 T350 18 T400 18" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"/></svg>`;
@@ -37,7 +37,7 @@ function title(){
   cancelAnimationFrame(raf);B=null;app.style.paddingBottom='';hullSeen=null;
   const saved=load(),dayKey='D'+today(),db=A.daily[dayKey];
   app.innerHTML=`<section class="title"><div class="sea" aria-hidden="true">${WAVE.replace('class="waves"','class="waves back"')}${shipArt(saved?saved.ship:'sloop','ship')}${WAVE}${SEAFISH()}</div><div class="brand">
-    <h1>Ink Crossing</h1>
+    <h1>Golden Shore</h1>
     <p class="tag">Chart the sea. Reach the far shore.</p></div>
     <div class="way"><div class="buttons">
       ${saved?`<button class="primary" id="cont">Continue voyage</button>`:''}

@@ -1,4 +1,4 @@
-/* Ink Crossing: People you meet: portraits, NPCs and quests (Hock, Wet Jack, the lost cartographers), dialogue, the creel sheet. */
+/* Golden Shore: People you meet: portraits, NPCs and quests (Hock, Wet Jack, the lost cartographers), dialogue, the creel sheet. */
 "use strict";
 /* ---------- people you meet ---------- */
 /* a person's round portrait, built from Open Peeps like the crew (peeps.js). A ghost gets a dashed ring. */

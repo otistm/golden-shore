@@ -1,4 +1,4 @@
-/* Ink Crossing: The voyage chart (map), previews and sailing to a stop. */
+/* Golden Shore: The voyage chart (map), previews and sailing to a stop. */
 "use strict";
 /* ---------- the chart (map) ---------- */
 const NG={

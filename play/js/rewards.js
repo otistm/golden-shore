@@ -1,4 +1,4 @@
-/* Ink Crossing: Events, spoils and landmark picks. */
+/* Golden Shore: Events, spoils and landmark picks. */
 "use strict";
 /* ---------- events, loot, landmarks ---------- */
 function eventAt(n){

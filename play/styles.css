@@ -1,4 +1,4 @@
-/* Ink Crossing styles. Lines are pure black (--line). Everything else is a flat, muted print palette after Chris Ware:
+/* Golden Shore styles. Lines are pure black (--line). Everything else is a flat, muted print palette after Chris Ware:
    cream paper, deep navy for fills, shadows and text (--ink), and mustard, brick, slate blue, sage and peach for flat colour. */
 :root{--paper:#FBF5E8;--page:#F1E6CF;--ink:#1F2A3C;--line:#000;--soft:#6B6156;--hatch:rgba(31,42,60,.22);
   --mustard:#D9A93A;--brick:#B5533C;--slate:#5E7487;--sage:#93A47E;--peach:#EDC9A8;

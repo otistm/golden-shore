@@ -1,4 +1,4 @@
-/* Ink Crossing: All cargo: the shared set and each ship's themed set, tier scaling, stats in context (auras), and generated item text. */
+/* Golden Shore: All cargo: the shared set and each ship's themed set, tier scaling, stats in context (auras), and generated item text. */
 "use strict";
 /* ---------- cargo: a shared set plus a themed set for each ship ----------
    Fields (Bronze values, scaled by tier): dmg multi crit pierce burnPerHit poisonPerHit dmgX

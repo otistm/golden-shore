@@ -1,4 +1,4 @@
-# Ink Crossing
+# Golden Shore
 
 Chart the sea. Reach the far shore.
 

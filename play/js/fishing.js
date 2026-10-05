@@ -1,4 +1,4 @@
-/* Ink Crossing: The fishing minigame. */
+/* Golden Shore: The fishing minigame. */
 "use strict";
 /* ---------- fishing ---------- */
 let FR=0;

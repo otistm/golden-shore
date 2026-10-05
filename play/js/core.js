@@ -1,4 +1,4 @@
-/* Ink Crossing: Seeded randomness. Anything that must match for every captain on the same voyage code uses RNG(G.seed, ...). */
+/* Golden Shore: Seeded randomness. Anything that must match for every captain on the same voyage code uses RNG(G.seed, ...). */
 "use strict";
 /* ---------- seeded randomness (same seed = same sea for every captain) ---------- */
 function seedHash(str){let h=2166136261>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}

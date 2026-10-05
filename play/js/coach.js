@@ -1,4 +1,4 @@
-/* Ink Crossing: the tutorial (a short guided first voyage with Ansel as coach) and one-time tips for everything else. */
+/* Golden Shore: the tutorial (a short guided first voyage with Ansel as coach) and one-time tips for everything else. */
 "use strict";
 /* The maiden voyage: the Guild's trial run, six stops that each teach one part of the game by playing it.
    Gullhaven: items, then the crew who make them work. The training hulk: a fight, then renown and a captain's pick.

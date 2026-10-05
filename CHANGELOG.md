@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.37.0
+- Golden Shore begins: a copy of Ink Crossing 0.36.0, renamed, with its own saved progress, offline cache and feedback table, so the two games never mix.
+
 ## 0.36.0
 - Losing to the bandits at cards now costs the most valuable half of your hold (rounded up) instead of all of it, plus half your hull as before. A captain who loses can still fight their way back.
 - The Wren's starting kit at Gullhaven now has a second blade: the Jib Sail, the Rapier and a Sword Cane, all worked by the hands the Guild pays for. Her first fight used to be lost most of the time; now it's won about 9 times in 10, like the other ships.
@@ -367,7 +370,7 @@
 - A fight you leave, or a page you refresh mid-fight, now starts that fight over when you come back. Before, it let you skip the fight.
 
 ## 0.3.0
-- Ink Crossing has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
+- Golden Shore has a proper desktop layout. On a laptop or monitor, the game sits on the left and a captain's desk runs down the right: your ship and its trait, the landmarks you've charted, your catch, and the cartographer's log, always in view.
 - The hold is a band along the bottom with big tiles that show each item's name, and Set sail beside it.
 - Market cards are big, like playing cards, and the fish market sits beside the dock visitor.
 - The chart fills the whole stage, with stops spread wide instead of squeezed into a phone-shaped strip. The route is the same, only the spacing changes. Tap a stop on the chart to see what's there.
@@ -385,7 +388,7 @@
 - One-time tips the first time you meet something the tutorial doesn't cover: the storm, elites, bosses, people, fishing and the locker.
 
 ## 0.1.0
-- Ink Crossing moves to a proper project, set up like Ink Nine: a front page, the game in `play/`, and code split into readable files with no build step.
+- Golden Shore moves to a proper project, set up like Ink Nine: a front page, the game in `play/`, and code split into readable files with no build step.
 - Version number on the title screen and in the log.
 - "Send feedback" on the title screen and in the log, once online services are set up. Notes land in Supabase with the version, ship and chart position attached.
 - Saved progress is protected across updates, with a backup copy kept each time the version changes.

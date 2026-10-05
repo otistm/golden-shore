@@ -111,7 +111,7 @@ for (const [layer, parts] of Object.entries(out)) {
     if (SHEET) (sheetInfo[layer] = sheetInfo[layer] || {})[name] = areas.map((a, i) => ({ i, role: roles[i], share: +a.share.toFixed(3), cx: Math.round(a.cx), cy: Math.round(a.cy) }));
   }
 }
-const js = `/* Ink Crossing: the colour areas inside each portrait part (skin, hair, hat, clothes, lens), made by tools/peepcolor.mjs
+const js = `/* Golden Shore: the colour areas inside each portrait part (skin, hair, hat, clothes, lens), made by tools/peepcolor.mjs
    from peep-parts.js. Don't edit by hand: run npm run peeps:color after npm run peeps. */
 "use strict";
 const PEEP_AREAS=${JSON.stringify(result)};

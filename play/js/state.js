@@ -1,8 +1,8 @@
-/* Ink Crossing: Voyage state (G), Atlas (A), saving, map generation and seeded enemy boards. */
+/* Golden Shore: Voyage state (G), Atlas (A), saving, map generation and seeded enemy boards. */
 "use strict";
 /* ---------- state ---------- */
 let G=null,B=null,raf=0,last=0,bump=null,fresh=false;
-/* Saved data lives in localStorage: 'crossing-atlas' (meta progress) and 'crossing-voyage' (the voyage in progress).
+/* Saved data lives in localStorage: 'goldenshore-atlas' (meta progress) and 'goldenshore-voyage' (the voyage in progress).
    RULES FOR CHANGES: never rename or remove a field; give new fields a default in migrateAtlas / VOYAGE_DEFAULTS;
    if a field's meaning changes, bump the schema number and convert old data in the migrate function. */
 const ATLAS_SCHEMA=1,VOYAGE_SCHEMA=1;
@@ -33,14 +33,14 @@ function crewFromOldSave(g){
   g.crew=crew;
   for(const id in g.shops||{}){const S=g.shops[id];if(S.offers)S.offers=S.offers.map(o=>o&&DEFS[o.k]&&DEFS[o.k].tags.includes('K')?null:o)}
 }
-function loadA(){const{raw,val}=readKey('crossing-atlas'),out=migrateAtlas(val);
-  if(raw&&val&&val.lastVersion!==VERSION){try{localStorage.setItem('crossing-atlas-backup',raw)}catch(e){}}   // one safety copy per update
+function loadA(){const{raw,val}=readKey('goldenshore-atlas'),out=migrateAtlas(val);
+  if(raw&&val&&val.lastVersion!==VERSION){try{localStorage.setItem('goldenshore-atlas-backup',raw)}catch(e){}}   // one safety copy per update
   out.lastVersion=VERSION;return out}
 let A=loadA();
-function saveA(){try{localStorage.setItem('crossing-atlas',JSON.stringify(A))}catch(e){}}
-function save(){if(G&&G.tut)return;try{const{sel,moving,...r}=G;localStorage.setItem('crossing-voyage',JSON.stringify(r))}catch(e){}}
-function load(){return migrateVoyage(readKey('crossing-voyage').val)}
-function clearSave(){try{localStorage.removeItem('crossing-voyage')}catch(e){}}
+function saveA(){try{localStorage.setItem('goldenshore-atlas',JSON.stringify(A))}catch(e){}}
+function save(){if(G&&G.tut)return;try{const{sel,moving,...r}=G;localStorage.setItem('goldenshore-voyage',JSON.stringify(r))}catch(e){}}
+function load(){return migrateVoyage(readKey('goldenshore-voyage').val)}
+function clearSave(){try{localStorage.removeItem('goldenshore-voyage')}catch(e){}}
 const hasC=k=>!!(G&&G.charts&&G.charts.some(c=>c.k===k));
 /* ---------- crew ---------- */
 const berths=()=>(SHIPS[G.ship].berths||3)+(hasP('berth')?1:0)+(hasF('ballast')?FITTINGS.ballast.berth:0);

@@ -1,3 +1,3 @@
-/* Ink Crossing: startup. Loaded last. */
+/* Golden Shore: startup. Loaded last. */
 "use strict";
 title();

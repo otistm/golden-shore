@@ -1,4 +1,4 @@
-/* Ink Crossing: The cartographer's log and the Atlas. */
+/* Golden Shore: The cartographer's log and the Atlas. */
 "use strict";
 /* ---------- log + atlas ---------- */
 function journal(g){g=g||G;

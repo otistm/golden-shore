@@ -53,7 +53,7 @@ for (const layer of Object.keys(FOLDERS)) {
 const body = Object.entries(out).map(([layer, parts]) =>
   `  ${layer}:{\n${Object.entries(parts).map(([k, v]) => `    ${JSON.stringify(k)}:${JSON.stringify(v)}`).join(',\n')}}`).join(',\n');
 fs.writeFileSync(path.join(root, 'play/js/peep-parts.js'),
-  `/* Ink Crossing: crew and people parts, copied from Open Peeps (CC0, by Pablo Stanley) by tools/peeps.mjs. Don't edit by hand:\n   add a part to a look in world.js, people.js or coach.js and run npm run peeps. */\n"use strict";\nconst PEEP_PARTS={\n${body}};\n`);
+  `/* Golden Shore: crew and people parts, copied from Open Peeps (CC0, by Pablo Stanley) by tools/peeps.mjs. Don't edit by hand:\n   add a part to a look in world.js, people.js or coach.js and run npm run peeps. */\n"use strict";\nconst PEEP_PARTS={\n${body}};\n`);
 const n = Object.values(out).reduce((a, p) => a + Object.keys(p).length, 0);
 console.log(`ok: ${n} parts, ${Math.round(fs.statSync(path.join(root, 'play/js/peep-parts.js')).size / 1024)} KB`);
 

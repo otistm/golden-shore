@@ -1,4 +1,4 @@
-/* Ink Crossing: the harbour, a side-on ink panorama of the port you scroll along, like a 2D platformer.
+/* Golden Shore: the harbour, a side-on ink panorama of the port you scroll along, like a 2D platformer.
    Docks, market, tavern and shipwright stand along one quay. What each place has for you is drawn into the scene:
    goods on the market counter, faces in the tavern windows, a chalk notice at the shipwright, someone waiting on the pier. */
 "use strict";

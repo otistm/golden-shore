@@ -1,4 +1,4 @@
-/* Ink Crossing: UI helpers, boards, item sheets, the hold and locker dock, drag and drop. */
+/* Golden Shore: UI helpers, boards, item sheets, the hold and locker dock, drag and drop. */
 "use strict";
 /* ---------- ui helpers ---------- */
 const app=document.getElementById('app');

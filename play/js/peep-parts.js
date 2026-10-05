@@ -1,4 +1,4 @@
-/* Ink Crossing: crew and people parts, copied from Open Peeps (CC0, by Pablo Stanley) by tools/peeps.mjs. Don't edit by hand:
+/* Golden Shore: crew and people parts, copied from Open Peeps (CC0, by Pablo Stanley) by tools/peeps.mjs. Don't edit by hand:
    add a part to a look in world.js, people.js or coach.js and run npm run peeps. */
 "use strict";
 const PEEP_PARTS={

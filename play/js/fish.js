@@ -1,4 +1,4 @@
-/* Ink Crossing: Fish species, drawings and creel helpers. */
+/* Golden Shore: Fish species, drawings and creel helpers. */
 "use strict";
 /* ---------- fish ---------- */
 const FISH={

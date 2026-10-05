@@ -1,4 +1,4 @@
-/* Ink Crossing: every character's portrait, built from Open Peeps (CC0, by Pablo Stanley) the way the set is meant to be used:
+/* Golden Shore: every character's portrait, built from Open Peeps (CC0, by Pablo Stanley) the way the set is meant to be used:
    a body, a head (hair or hat), a face, facial hair and an accessory, stacked at fixed spots. The parts themselves live in
    peep-parts.js, copied from the atoms by tools/peeps.mjs. A look ({body,head,face,beard,acc}) names one part per layer. */
 "use strict";

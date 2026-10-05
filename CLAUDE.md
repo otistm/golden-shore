@@ -1,6 +1,8 @@
-# Ink Crossing: notes for Claude Code
+# Golden Shore: notes for Claude Code
 
-Ink Crossing is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
+> Golden Shore started on 2026-10-05 as a copy of Ink Crossing (version 0.36.0, with its full history) for a big pivot. Ink Crossing lives on in its own folder, repo and Vercel project; nothing here should touch it. Until the pivot is designed, the notes below still describe the Ink Crossing game this copy started from. Rewrite them as the game changes.
+
+Golden Shore is a mobile-first, Bazaar-like autobattler drawn like a paper-and-ink cartoon. It shares its look with Ink Nine, Otis's golf game at https://www.inknine.golf, and is set up the same way.
 
 You're a cartographer charting three seas (the Shallows, the Fog Sea, the Deep) toward the Far Shore. The voyage chart is seeded and branching, with fog of war, 9 rows to each sea's boss. It has ports, threats, elites, events (including the bandits), people, fishing grounds, uncharted isles and a boss per sea. Fights are real-time auto-battles in a 9-slot hold.
 
@@ -188,12 +190,12 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 
 ## Protect testers' saved progress
 Testers keep progress in their browser's localStorage. An update must never wipe or break it.
-- The keys are `crossing-atlas` (meta progress: ships unlocked, bestiary, cargo, fish, people, landmarks, daily bests) and `crossing-voyage` (the voyage in progress).
+- The keys are `goldenshore-atlas` (meta progress: ships unlocked, bestiary, cargo, fish, people, landmarks, daily bests) and `goldenshore-voyage` (the voyage in progress).
 - Never rename or remove a saved field.
   - New Atlas fields get a default in `migrateAtlas()`.
   - New voyage fields go in `VOYAGE_DEFAULTS` (both in state.js).
   - If a field's meaning changes, bump `ATLAS_SCHEMA` or `VOYAGE_SCHEMA` and convert old data in the migrate function.
-- Unreadable save data is kept aside under `-unreadable`. A backup copy of the Atlas is kept under `crossing-atlas-backup` each time the version changes.
+- Unreadable save data is kept aside under `-unreadable`. A backup copy of the Atlas is kept under `goldenshore-atlas-backup` each time the version changes.
 - Changing map generation, enemies or item keys changes voyages already in progress. Tell Otis that paused voyages may look different.
 
 ## Keep voyages deterministic
@@ -202,7 +204,7 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
 - Only player-driven randomness uses `Math.random`: rerolls, in-fight crits and random targets.
 
 ## Supabase
-- Table `crossing_feedback`: tester notes, readable only in the Supabase dashboard. Players are anonymous Supabase users, and row-level security lets each player insert only their own notes.
+- Table `goldenshore_feedback`: tester notes, readable only in the Supabase dashboard. Players are anonymous Supabase users, and row-level security lets each player insert only their own notes.
 - Feedback links only appear once `SUPABASE_URL` and `SUPABASE_ANON_KEY` are filled in `config.js`. The same Supabase project as Ink Nine works, because the table names don't overlap.
 - Any schema change needs a new numbered file in `supabase/` and a clear note to Otis to run it before merging.
 - Planned next: PvP ghosts, meaning snapshots of other captains' holds, replayed on the same stops of the same voyage code.

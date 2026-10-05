@@ -1,4 +1,4 @@
-/* Ink Crossing: Ships, traits (ship and enemy abilities), enemies, seas, landmarks (charts), the cartographer's story and events. */
+/* Golden Shore: Ships, traits (ship and enemy abilities), enemies, seas, landmarks (charts), the cartographer's story and events. */
 "use strict";
 /* ---------- ships ---------- */
 const SHIPS={

@@ -1,4 +1,4 @@
-/* Ink Crossing: the captain's desk, a side panel shown only on big screens during a voyage (ship, landmarks, catch, log). */
+/* Golden Shore: the captain's desk, a side panel shown only on big screens during a voyage (ship, landmarks, catch, log). */
 "use strict";
 /* Keep in step with the desk rules at the end of styles.css. */
 const DESK=matchMedia('(min-width:1180px) and (min-height:640px)');

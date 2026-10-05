@@ -1,4 +1,4 @@
-/* Ink Crossing: Ink glyph library (40x40 SVG), item icons, ship emblems and upgrade chevrons. */
+/* Golden Shore: Ink glyph library (40x40 SVG), item icons, ship emblems and upgrade chevrons. */
 "use strict";
 /* ---------- ink icons (40x40): w = paper fill, k = ink fill ---------- */
 /* ---------- ink glyphs (40x40): w = paper fill, k = ink fill ---------- */

@@ -1,4 +1,4 @@
-/* Ink Crossing: the bandits. Hidden in one stretch of unknown water per sea: pirates board you and make you play a hand of
+/* Golden Shore: the bandits. Hidden in one stretch of unknown water per sea: pirates board you and make you play a hand of
    cards for your freedom. Poker hands score chips times mult, like Balatro: three plays and two discards to beat their score.
    Win and they pay you to leave (bandPurse); lose and they take the most valuable half of your hold (rounded up) and smash your hull to half. */
 "use strict";
