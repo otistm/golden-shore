@@ -50,6 +50,7 @@ for (let run = 0; run < runs; run++) {
     await page.waitForTimeout(40);
   }
   if (result === 'timeout') result += ` on ${await page.evaluate(() => (document.querySelector('.seahead h2') || document.querySelector('h2') || {}).textContent + ' / ' + (G ? `sea ${G.sea + 1}, row ${node(G.at).row}, path ${G.path.slice(-3).map(i => node(i).row + node(i).type).join('>')}, hull ${G.hull}, overlays ${document.querySelectorAll('.overlay,.seacross,.chestfx,.fitfx').length}, reach ${document.querySelectorAll('.node.reach').length}, buttons ${[...document.querySelectorAll('button')].map(b => b.id || b.textContent.trim().slice(0, 12)).slice(0, 12).join('|')}` : 'title'))}`;
+  if (result.startsWith('timeout')) console.log('  at sea: ' + await page.evaluate(() => typeof SEA === 'undefined' || !G || !G.pos ? '' : JSON.stringify({ pos: [Math.round(G.pos.x), Math.round(G.pos.y)], v: Math.round(SEA.v), target: SEA.target && [Math.round(SEA.target.x), Math.round(SEA.target.y)], boss: [wpos(node(G.map.boss)).x, wpos(node(G.map.boss)).y], bossFound: seaFound(node(G.map.boss)), wx: WX.k, live: G.map.nodes.filter(n => seaFound(n) && seaLive(n)).map(n => n.type + n.row) })));
   console.log(`voyage ${run + 1}: ${result} (${steps} steps)`);
   if (result.startsWith('timeout')) console.log('  last screens: ' + trail.join(' -> '));
 }
