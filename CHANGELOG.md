@@ -1,4 +1,9 @@
 # Changelog
+## 0.48.1
+- Places up close redrawn to the harbour's standard, after research into Chris Ware's drawing and colour. Every isle and wreck now shares one frame: sun and slow clouds, a pale far shore, the sea in bands, your own ship at anchor offshore and your rowboat on the shore. Surfaces have a lit side and a shaded side, with sparse detail where it counts: grass along the crest, strata in the rock, planks and gunports on hulls, copper plates on a keel-up wreck.
+- Each place has a telling detail: a crab on the beach, a seal on the rock stack, the lighthouse keeper's empty cottage, a gull on the keel, the ship's name painted on a board.
+- The scene changes as you use it: a pennant on the peak you climbed, a surveyor's tripod, the lamp lit and its beam sweeping, the chest in the hole you dug, hatches left open, the cabin window lit.
+- Little things move, in stepped frames like hand drawing: foam at the shore, palm crowns, the crab, smoke and steam, a torn sail, a floating barrel.
 
 ## 0.46.0
 - A ship's wheel to steer. Drag the wheel round and it turns like the real thing; the further you turn it the harder she turns, she needs some speed to answer the helm, and when you let go the wheel eases back to the middle. Grabbing the wheel hoists the sails. A sail button beside it hoists and furls them. Arriving somewhere, picking up a bottle or reaching the edge of the sea furls them for you.
