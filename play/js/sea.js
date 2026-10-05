@@ -146,7 +146,7 @@ function seaLayout(){const el=SEA.el;if(!el)return;const r=el.getBoundingClientR
   SEA.ox=r.left;SEA.oy=r.top;SEA.vw=r.width;SEA.vh=r.height;
   SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;el.style.setProperty('--seatop',SEA.top+'px');
   if(SEA.bot-SEA.top<120)SEA.bot=Math.min(r.height,SEA.top+120);
-  SEA.Z=clamp(Math.min(SEA.vw/520,(SEA.bot-SEA.top)/470),.85,1.5);   // phones see a little farther
+  SEA.Z=clamp(Math.min(SEA.vw/620,(SEA.bot-SEA.top)/560),.72,1.25);   // phones see a little farther
 }
 addEventListener('resize',()=>{if(SEA.el&&SEA.el.isConnected){seaLayout();SEA.wkey=''}});
 /* tap or drag on the water to steer toward your finger; tap a place to sail to it */

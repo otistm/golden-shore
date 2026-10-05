@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.45.6
+- The open sea's camera sits a little further back, so you see more water round your ship.
+
 ## 0.45.5
 - On big screens, cargo cards keep a sensible size however wide the window, and the space between them grows instead. Market and spoils cards stop growing too.
 - Victory, defeat and every other pop-up centre over the battle or the sea, beside the captain's desk, instead of over the whole screen.
