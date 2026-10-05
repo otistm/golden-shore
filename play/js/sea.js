@@ -1,13 +1,19 @@
 /* Golden Shore: The open sea. The main way to get around: an ink ocean seen from above at an angle, where you steer your ship
-   wherever you like. Ports, isles, other ships, flotsam, strangers and fishing grounds sit out on the water, hidden in fog
-   until you sail close. Sail into one to see what's there. The chart is now something you carry (seaChart). */
+   wherever you like. Places sit out on the water, hidden in fog until you sail close, and look like what they are (seaart.js);
+   tall or loud ones show over the fog from far off and draw you on. Days pass as you sail. Bottles adrift and the peaks of
+   uncharted isles give you scraps of chart, which fill in the chart you carry (seaChart). */
 "use strict";
 const SK=.6;                        // the sea floor is squashed: the camera looks down at an angle
 const SEA_LEN=3600,SEA_W=1700;      // a sea's size in world units: its chart's rows run north (up), its columns across
 const SIGHT=330;                    // how far you see through the fog
+const LURE=1400;                    // how far off a lighthouse, a sail or a storm shows over the fog
+const DAYLEN=700;                   // world units of sailing to a day
+const BOTTLES=4;                    // bottles adrift on each sea, each with a scrap of chart
 const MAXV=190,ACC=230,TURN=2.3;    // top speed (units a second), how fast she picks up speed, and how fast she turns
 const SEA={el:null,raf:0,last:0,v:0,target:null,hold:false,down:null,inside:new Set(),newly:new Set(),fast:1,cx:null,cy:null,Z:1,
-  trav:0,saved:0,dirty:false,wkey:'',q:-1,frame:0,foes:[],call:null};
+  trav:0,saved:0,dirty:false,wkey:'',lkey:'',q:-1,frame:0,foes:[],call:null};
+/* lookouts see farther with a crow's-nest landmark, studding sails and the like: the same things that used to show more rows */
+const sight=()=>SIGHT+60*Math.min(3,(G.extra||0)+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0));
 const angD=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
@@ -34,17 +40,50 @@ const seaLive=n=>n.type==='port'||!G.path.includes(n.id)&&!(n.side&&!G.map.edges
 const seaFound=n=>!!(G.fog&&G.fog.f.includes(n.id));
 
 /* ---------- the fog ---------- */
-/* G.fog remembers this sea's wake: a point every 70 units you've sailed (the fog is lifted round each one) and the stops you've
-   found. Voyages from before the open sea start from the stops they've already been to. */
-function fogInit(){if(G.fog&&G.fog.sea===G.sea)return;G.fog={sea:G.sea,p:[],f:[]};
+/* G.fog remembers this sea's wake: a point every 70 units you've sailed (the fog is lifted round each one), the stops you've
+   found, the bottles you've picked up (b) and the scraps of chart you've found (m: circles of [x,y,r] inked on your chart).
+   Voyages from before the open sea start from the stops they've already been to. */
+function fogInit(){if(G.fog&&G.fog.sea===G.sea){G.fog.b=G.fog.b||[];G.fog.m=G.fog.m||[];return}G.fog={sea:G.sea,p:[],f:[],b:[],m:[]};
   // each stop you've been to lifts a lumpy patch of fog, so the edge billows from the start
   G.path.forEach(id=>{const n=node(id);if(!n)return;const q=wpos(n),r=RNG(G.seed,'fogstart',id);seeFrom(q.x,q.y);
     for(let i=0;i<6;i++){const a=i/6*Math.PI*2+r(),d=120+r()*90;seeFrom(q.x+Math.cos(a)*d*1.3,q.y+Math.sin(a)*d)}});
   G.fog.s=G.fog.p.length}   // the chart draws your track from here on
 function seeFrom(x,y){const F=G.fog;F.p.push(Math.round(x),Math.round(y));
-  G.map.nodes.forEach(n=>{if(F.f.includes(n.id))return;const q=wpos(n);if(Math.hypot(q.x-x,q.y-y)<SIGHT*.85+destR(n)*.4){F.f.push(n.id);SEA.newly.add(n.id)}})}
+  G.map.nodes.forEach(n=>{if(F.f.includes(n.id))return;const q=wpos(n);if(Math.hypot(q.x-x,q.y-y)<sight()*.85+destR(n)*.4){F.f.push(n.id);SEA.newly.add(n.id)}})}
 /* the fog's edge billows: each lifted circle is a little bigger or smaller than the last */
-const fogR=i=>{const v=Math.sin(i*12.9898)*43758.5453;return SIGHT*(.86+.14*(v-Math.floor(v)))};
+const fogR=i=>{const v=Math.sin(i*12.9898)*43758.5453;return sight()*(.86+.14*(v-Math.floor(v)))};
+
+/* ---------- scraps of chart ---------- */
+/* bottles adrift on open water, away from everything else. Seeded, so every captain finds them in the same places. */
+let seaBottleAt={key:'',l:[]};
+function seaBottles(){const key=G.seed+'|'+G.sea;if(seaBottleAt.key===key)return seaBottleAt.l;
+  const r=RNG(G.seed,'bottles',G.sea),l=[];
+  for(let t=0;t<200&&l.length<BOTTLES;t++){const x=80+r()*(SEA_W-160),y=300+r()*(SEA_LEN-700);
+    if(G.map.nodes.some(n=>{const q=wpos(n);return Math.hypot(q.x-x,q.y-y)<240})||l.some(b=>Math.hypot(b.x-x,b.y-y)<600))continue;l.push({x,y})}
+  seaBottleAt={key,l};return l}
+/* a scrap of chart: inks in a stretch of this sea round a place you haven't found yet (a port or an isle if there's one left),
+   and says what it shows and which way. Returns the words, or null when there's nothing left to show. */
+const charted=n=>!!(G.full||G.fog.m.some(([x,y,r])=>Math.hypot(wpos(n).x-x,wpos(n).y-y)<r));
+function seaFragment(src){const F=G.fog,r=RNG(G.seed,'frag',G.sea,src,F.m.length),p=G.pos;
+  const pool=G.map.nodes.filter(n=>n.type!=='boss'&&!seaFound(n)&&!charted(n));if(!pool.length)return null;
+  const land=pool.filter(isIsle),ahead=(land.length?land:pool).filter(n=>wpos(n).y<p.y),from=ahead.length?ahead:land.length?land:pool;
+  const n=pick(r,from),q=wpos(n);F.m.push([Math.round(q.x+(r()-.5)*200),Math.round(q.y+(r()-.5)*160),420]);SEA.chartNew=true;
+  const what=n.type==='port'?`a port called ${n.name}`:n.type==='isle'?'an island no chart shows':n.enemy?'waters marked with a warning':n.type==='fish'?'good fishing, marked with a hook':'a cross drawn on open water';
+  const dirs=['east','south-east','south','south-west','west','north-west','north','north-east'];
+  return`${what}, ${dirs[Math.round(Math.atan2(q.y-p.y,q.x-p.x)/(Math.PI/4)+8)%8]} of here`}
+function seaBottle(i){G.fog.b.push(i);seaFlot();
+  const note=NOTES[ri(RNG(G.seed,'note',G.sea,i),NOTES.length)],what=seaFragment('bottle'+i);
+  logL(what?`Fished a bottle out of the sea. Inside, a scrap of chart showing ${what}.`:'Fished a bottle out of the sea. The scrap of chart inside shows water I already know.');save();
+  const ov=overlay(`<h2>A message in a bottle</h2><p class="log">${note}</p><p>${what?`It's a scrap of chart. It shows ${what}.`:"It's a scrap of chart, of water you've already sailed."}</p>
+    <div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="chart">Look at the chart</button></div>`);
+  ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='chart')seaChart()})}
+function seaFlot(){const g=SEA.el&&SEA.el.querySelector('#seaflot');if(!g)return;
+  g.innerHTML=seaBottles().map((b,i)=>G.fog.b.includes(i)?'':`<g transform="translate(${f1(b.x)} ${f1(b.y*SK)})">${ART.bottle()}</g>`).join('')}
+
+/* ---------- days ---------- */
+/* a day passes for every stretch of sea you sail */
+function seaMiles(d){G.sailed=(G.sailed||0)+d;while(G.sailed>=DAYLEN){G.sailed-=DAYLEN;G.day++;
+  const b=document.querySelector('.stat.day b'),s=b&&b.parentNode;if(s){b.textContent=G.day;s.classList.remove('bump');void s.offsetWidth;s.classList.add('bump')}}}
 
 /* where your ship is: G.pos {x,y,a (heading),at,sea}. When the voyage moved you without sailing (a new sea, falling back to port
    after a boss), she starts just off that stop. */
@@ -61,107 +100,15 @@ const poly=ps=>'M'+ps.map(pt).join('L')+'Z';
 function curve(ps){const n=ps.length;let d='';
   for(let i=0;i<n;i++){const a=ps[i],b=ps[(i+1)%n];if(!i){const z=ps[n-1];d+=`M${f1((z[0]+a[0])/2)} ${f1((z[1]+a[1])/2)}`}
     d+=`Q${pt(a)} ${f1((a[0]+b[0])/2)} ${f1((a[1]+b[1])/2)}`}return d+'Z'}
-/* Ships are drawn from their real shape, turned to their heading and seen from above at an angle, so they look right whichever
-   way they sail: the hull's sides that face you, the deck, the stern cabin, then masts and sails from back to front.
-   m: masts as [position along the hull, height]. Drawings are cached per heading (64 of them). */
-const SHIPISO={sloop:{m:[[4,60]]},galleon:{L:1.12,m:[[14,52],[-8,62]]},privateer:{m:[[12,54],[-10,60]],dark:1},junk:{m:[[4,58]],junk:1},
-  t:{m:[[4,56]]},e:{L:1.12,m:[[13,52],[-9,60]]},b:{L:1.55,m:[[16,50],[-2,62],[-19,48]]},row:{L:.8,m:[],fig:1}};
-const HULL=[[34,0],[27,7.5],[14,11.5],[-6,12],[-22,10.5],[-29,8],[-30,0],[-29,-8],[-22,-10.5],[-6,-12],[14,-11.5],[27,-7.5]];
-const CABIN=[[-17,8],[-28,7],[-28,-7],[-17,-8]];
-const isoCache=new Map();
-function isoShip(a,kind){const q=Math.round(a/(Math.PI/32))&63,key=kind+q;let s=isoCache.get(key);if(s)return s;
-  const A=q*Math.PI/32,c=Math.cos(A),sn=Math.sin(A),o=SHIPISO[kind]||SHIPISO.sloop,L=(o.L||1)*1.2;
-  const P=(x,y,z)=>[(x*c-y*sn)*L,((x*sn+y*c)*SK-z)*L];
-  // the faces of a solid between an outline at z0 and one at z1 (the bottom one narrowed by k) that face the viewer
-  const sides=(pts,z0,z1,k,c1,c2)=>{let g='';const n=pts.length,top=pts.map(([x,y])=>P(x,y,z1)),bot=pts.map(([x,y])=>P(x*k[0],y*k[1],z0));
-    pts.forEach((p,i)=>{const j=(i+1)%n,q2=pts[j];let nx=q2[1]-p[1],ny=-(q2[0]-p[0]);
-      const mx=(p[0]+q2[0])/2,my=(p[1]+q2[1])/2;if(nx*mx+ny*my<0){nx=-nx;ny=-ny}
-      const len=Math.hypot(nx,ny),wy=(nx*sn+ny*c)/len,wx=(nx*c-ny*sn)/len;if(wy<=.02)return;
-      g+=`<path class="${wx<-.25?c2:c1}" d="${poly([top[i],top[j],bot[j],bot[i]])}"/>`});
-    return{g,top}};
-  const H=9,hull=sides(HULL,0,H,[.88,.72],'s-hull','s-hull2'),cab=sides(CABIN,H,H+7,[1,1],'s-hull','s-hull2');
-  let g=`<path class="o-lap" d="${curve(HULL.map(([x,y])=>P(x*1.16-2,y*1.6,0)))}"/>`+hull.g+`<path class="s-deck" d="${poly(hull.top)}"/>`;
-  if(!o.fig)g+=`<path d="M${pt(P(24,0,H))}L${pt(P(-14,0,H))}" stroke-width="1" opacity=".5"/>`+cab.g+`<path class="s-deck" d="${poly(cab.top)}"/>`;
-  // masts, sails, the jib and the flag, sorted by how near they are to the viewer
-  const parts=[],front=sn>0,sc=o.dark?['s-dsail','s-dsail2']:['s-sail','s-sail2'],tall=o.m.reduce((b,m)=>m[1]>b[1]?m:b,[0,0]);
-  o.m.forEach(([mx,h])=>{const t=H+h-8,b=H+16,w1=13+h*.07,w2=16+h*.07;
-    const tl=P(mx,-w1,t),tr=P(mx,w1,t),br=P(mx,w2,b),bl=P(mx,-w2,b),tc=P(mx+4,0,t),bc=P(mx+9,0,b);
-    const ctl=(m,a2,b2)=>[2*m[0]-(a2[0]+b2[0])/2,2*m[1]-(a2[1]+b2[1])/2];
-    let sail=`<path class="${front?sc[0]:sc[1]}" d="M${pt(tl)}Q${pt(ctl(tc,tl,tr))} ${pt(tr)}L${pt(br)}Q${pt(ctl(bc,br,bl))} ${pt(bl)}Z"/>`;
-    if(o.junk)for(let k=1;k<4;k++){const u=k/4,l=[tl[0]+(bl[0]-tl[0])*u,tl[1]+(bl[1]-tl[1])*u],r2=[tr[0]+(br[0]-tr[0])*u,tr[1]+(br[1]-tr[1])*u];sail+=`<path d="M${pt(l)}L${pt(r2)}" stroke-width="1.2"/>`}
-    const mast=`<path d="M${pt(P(mx,0,H))}L${pt(P(mx,0,H+h+(mx===tall[0]?4:0)))}" stroke-width="2.2"/>`;
-    const flag=mx===tall[0]?`<path class="s-flag" d="${poly([P(mx,0,H+h+4),P(mx-14,0,H+h),P(mx,0,H+h-4)])}"/>`:'';
-    parts.push({d:mx*sn,s:(front?mast+sail:sail+mast)+flag})});
-  if(o.m.length){const[fx,fh]=o.m.reduce((b,m)=>m[0]>b[0]?m:b);
-    parts.push({d:32*sn,s:`<path d="M${pt(P(31,0,H+1))}L${pt(P(44,0,H+4))}" stroke-width="2"/><path class="${front?sc[0]:sc[1]}" d="${poly([P(fx+1,0,H+fh-6),P(43,0,H+4),P(fx+6,0,H+12)])}"/>`})}
-  if(o.fig){const hd=P(0,0,H+15);parts.push({d:0,s:`<path class="s-flag" d="M${pt(P(-4,0,H))}Q${pt(P(0,0,H+14))} ${pt(P(4,0,H))}Z"/><circle class="o-skin" cx="${f1(hd[0])}" cy="${f1(hd[1])}" r="${f1(3.6*L)}"/>`})}
-  parts.sort((a,b)=>a.d-b.d).forEach(p=>g+=p.s);
-  isoCache.set(key,g);return g}
-const shipKind=()=>SHIPISO[G.ship]?G.ship:'sloop';
-/* an island: a seeded blob of land standing a little out of the sea, its cliff showing on the near side, shallows round it */
-function isleArt(n,live){const town=n.type==='port',r=RNG(G.seed,'isleart',n.id),Rd=isleR(n),zt=14,k=11;
-  const pts=Array.from({length:k},(_,i)=>{const a=i/k*Math.PI*2,rr=Rd*(.84+r()*.26);return[Math.cos(a)*rr*1.12,Math.sin(a)*rr]});
-  const at=(s,z)=>pts.map(([x,y])=>pr(x*s,y*s,z));
-  let g=`<path class="o-shore" d="${curve(at(1.28,0))}"/><path class="o-cliff" d="${curve(at(1,0))}"/><path class="o-land" d="${curve(at(1,zt))}"/>`;
-  for(let i=0;i<5;i++){const x=(r()-.5)*Rd*1.2,y=(r()-.5)*Rd*.9,p=pr(x,y,zt);g+=`<path class="o-hatch" d="M${pt(p)}l7 -3"/>`}
-  const things=[];   // drawn back to front
-  if(town){
-    // a jetty out into the water on the near side, where you make port
-    const jx=Rd*.18,j0=pr(jx-6,Rd*.7,zt-4),j1=pr(jx+6,Rd*.7,zt-4),j2=pr(jx+6,Rd*1.42,4),j3=pr(jx-6,Rd*1.42,4);
-    things.push({y:Rd*1.4,s:`<path d="M${pt(j3)}v8M${pt(j2)}v8" stroke-width="1.6"/><path class="o-wood" d="${poly([j0,j1,j2,j3])}"/>`});
-    // the lighthouse on the east point
-    const lh=[Rd*.72,-Rd*.18],b=pr(lh[0],lh[1],zt);
-    things.push({y:lh[1],s:`<g transform="translate(${pt(b)})"><path class="o-wall" d="M-7 0V-40H7V0z"/><path class="o-roof" d="M-7 -14h14v-7h-14zM-7 -30h14v-5h-14z"/><path class="o-win" d="M-5 -40h10v-8h-10z"/><path class="o-roof" d="M-8 -48h16l-8 -9z"/><path d="M-7 0a7 3 0 0 0 14 0" fill="none"/></g>`});
-    // houses, back to front
-    const spots=[];for(let t=0;t<40&&spots.length<5;t++){const x=(r()-.5)*Rd*1.1,y=(r()-.4)*Rd*.9;if(Math.hypot(x-lh[0],(y-lh[1])*1.6)<34)continue;if(spots.every(s=>Math.hypot(s[0]-x,(s[1]-y)*1.6)>34))spots.push([x,y])}
-    spots.forEach(([x,y],i)=>{const b2=pr(x,y,zt);things.push({y,s:isoHouse(b2[0],b2[1],22+r()*8,13+r()*8,9+r()*5,i%3)})});
-    const w=n.name.length*8.4+22;
-    things.push({y:1e4,s:`<g class="o-name" transform="translate(${f1(-Rd*.62)} ${f1(Rd*SK+22)})"><rect x="${f1(-w/2)}" y="-14" width="${f1(w)}" height="24" rx="9"/><text y="3.5" text-anchor="middle">${n.name}</text></g>`});
-  }else{
-    for(let i=0;i<3;i++){const x=(r()-.5)*Rd*.9,y=(r()-.5)*Rd*.6,b2=pr(x,y,zt),lean=(r()-.5)*16,h=26+r()*12;
-      things.push({y,s:`<g transform="translate(${pt(b2)})"><path class="o-trunk" d="M-2 0q${f1(lean/2)} ${f1(-h/2)} ${f1(lean)} ${f1(-h)}l3 1q${f1(-lean/2+2)} ${f1(h/2)} 2 ${f1(h-1)}z"/>${[-1,-.4,.4,1].map(s=>`<path class="o-leaf" d="M${f1(lean)} ${f1(-h)}q${f1(s*9)} -9 ${f1(s*20)} ${f1(Math.abs(s)*6-2)}q${f1(-s*10)} -3 ${f1(-s*20)} ${f1(-Math.abs(s)*6+2)}z"/>`).join('')}</g>`})}
-    if(!live){const b2=pr(-Rd*.2,Rd*.2,zt);things.push({y:Rd*.2,s:`<g transform="translate(${pt(b2)})"><path d="M0 0v-30" stroke-width="2"/><path class="s-flag" d="M0 -30l16 5l-16 5z"/></g>`})}
-  }
-  things.sort((a,b)=>a.y-b.y).forEach(t=>g+=t.s);return g}
-/* a little house seen from the corner: two walls (the shaded one on the right), a pyramid roof and a window */
-function isoHouse(x,y,w,h,rh,v){const dx=w/2,dy=dx*.5,F=[x,y],Lf=[x-dx,y-dy],Rt=[x+dx,y-dy],up=(p,z)=>[p[0],p[1]-z];
-  const ap=[x,y-dy-h-rh],o=1.15,ov=p=>[x+(p[0]-x)*o,y-dy-h+(p[1]-(y-dy-h))*o],lerp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];
-  const wl=[.32,.68].map(u=>lerp(Lf,F,u));
-  return`<g class="o-house r${v}"><path class="o-wall" d="${poly([Lf,F,up(F,h),up(Lf,h)])}"/><path class="o-wall2" d="${poly([F,Rt,up(Rt,h),up(F,h)])}"/>
-    <path class="o-win" d="${poly([up(wl[0],h*.38),up(wl[1],h*.38),up(wl[1],h*.72),up(wl[0],h*.72)])}" stroke-width="1"/>
-    <path class="o-roof" d="${poly([ov(up(Lf,h)),ov(up(F,h)),ap])}"/><path class="o-roof2" d="${poly([ov(up(F,h)),ov(up(Rt,h)),ap])}"/></g>`}
-/* barrels and a crate adrift: something to look into */
-function flotsamArt(){const barrel=(x,y)=>`<g transform="translate(${x} ${y})"><path class="o-wood" d="M-7 -12v12a7 3.5 0 0 0 14 0v-12z"/><ellipse class="o-wood2" cx="0" cy="-12" rx="7" ry="3.5"/><path d="M-7 -5a7 3.5 0 0 0 14 0" fill="none" stroke-width="1.2"/></g>`;
-  return`<ellipse class="o-lap" rx="34" ry="${f1(34*SK)}"/><g class="boatbob">${barrel(-14,4)}${barrel(12,-2)}<g transform="translate(0 10) rotate(-8)"><path class="o-wood2" d="M-9 -6l9-4 9 4-9 4z"/><path class="o-wood" d="M-9 -6v6l9 4v-6zM9 -6v6l-9 4v-6z"/></g></g>`}
-/* a beaten ship: planks and a broken mast on the water */
-function wreckArt(){return`<ellipse class="o-lap" rx="40" ry="${f1(40*SK)}"/><g class="boatbob"><path class="o-wood" d="M-26 4l20 -6 2 5 -20 6z"/><path class="o-wood" d="M4 -8l24 3 -1 5 -24 -3z"/><path class="o-wood2" d="M-6 10l18 -2 1 5 -18 2z"/><path d="M-2 0l10 -30" stroke-width="2.4"/><path class="s-sail2" d="M6 -24l12 4 -4 8z"/></g>`}
-/* fishing grounds: boiling water and gulls wheeling over it */
-function fishArt(){const gull=(a)=>`<path d="M${f1(Math.cos(a)*34-6)} ${f1(Math.sin(a)*34)}q3 -4 6 0q3 -4 6 0" fill="none" stroke-width="1.6"/>`;
-  return`${[0,1,2,3,4].map(i=>`<ellipse class="o-boil" style="animation-delay:${-i*.5}s" cx="${(i%3-1)*14}" cy="${(i%2)*8-4}" rx="9" ry="${f1(9*SK)}"/>`).join('')}
-    <g transform="translate(0 -46)"><g transform="scale(1 ${SK})"><g class="o-gulls">${[0,2.1,4.2].map(gull).join('')}</g></g></g>`}
-const ripArt=()=>`<ellipse class="o-lap" rx="26" ry="${f1(26*SK)}"/>`;
-/* the round glyph floating over a stop, as on the chart */
-const badge=(type,y)=>`<g transform="translate(0 ${y})"><g class="o-badge"><circle r="13"/><g transform="translate(-8.3 -8.3) scale(.69)" fill="none" stroke-width="2.4">${NG[type]}</g></g></g>`;
-/* each stranger's ship faces somewhere of its own until you're near; then it turns to watch you */
-const foeAng=n=>RNG(G.seed,'face',n.id)()*Math.PI*2;
-function destArt(n,live){const t=n.type;
-  if(t==='port'||t==='isle')return isleArt(n,live);
-  if(t==='threat'||t==='elite'||t==='boss'){if(!live)return wreckArt();const k=t==='boss'?'b':t==='elite'?'e':'t',L=SHIPISO[k].L||1;
-    return`<g class="shipdraw foe-${k}"><g class="boatbob"><g class="o-ship">${isoShip(foeAng(n),k)}</g></g></g>${badge(t,-Math.round(70*L+26))}${t==='boss'?`<g class="o-name boss" transform="translate(0 30)"><text y="3" text-anchor="middle">${ENEMIES[n.enemy].n}</text></g>`:''}`}
-  if(!live)return ripArt();
-  if(t==='event')return flotsamArt()+badge('event',-44);
-  if(t==='npc')return`<g class="shipdraw foe-n"><g class="boatbob"><g class="o-ship">${isoShip(foeAng(n),'row')}</g></g></g>`+badge('npc',-50);
-  if(t==='fish')return fishArt()+badge('fish',-78);
-  return ripArt()}
 function destHTML(n){const q=wpos(n),live=seaLive(n),pop=SEA.newly.has(n.id);
-  return`<g class="dest d-${n.type}${live?' live':' spent'}" data-id="${n.id}" data-y="${q.y}" transform="translate(${f1(q.x)} ${f1(q.y*SK)})"${live?` tabindex="0" role="button" aria-label="${nodeTitle(n)}"`:''}>
+  return`<g class="dest d-${n.type}${live?' live':' spent'}" data-id="${n.id}" data-y="${q.y}" transform="translate(${f1(q.x)} ${f1(q.y*SK)})"${live?` tabindex="0" role="button" aria-label="${seaSeen(n).head}"`:''}>
     <ellipse class="o-hit" rx="${f1(destR(n)*.85)}" ry="${f1(destR(n)*.85*SK+30)}" cy="-20"/><g class="dbody${pop?' pop':''}">${destArt(n,live)}</g></g>`}
 /* draw every stop you've found, back to front, and put your ship back among them */
 function seaThings(){const L=SEA.el&&SEA.el.querySelector('#seathings');if(!L)return;
   const ns=G.map.nodes.filter(seaFound).sort((a,b)=>wpos(a).y-wpos(b).y);
   L.innerHTML=ns.map(destHTML).join('');
   SEA.newly.clear();SEA.ship=null;SEA.q=-1;
-  SEA.foes=[...L.querySelectorAll('.dest.live.d-threat,.dest.live.d-elite,.dest.live.d-boss,.dest.live.d-npc')].map(el=>{const n=node(+el.dataset.id);return{el:el.querySelector('.o-ship'),n,q:wpos(n),k:n.type==='boss'?'b':n.type==='elite'?'e':n.type==='npc'?'row':'t',a:-1}});
+  SEA.foes=[...L.querySelectorAll('.dest.live .o-ship[data-k]')].map(el=>{const n=node(+el.closest('.dest').dataset.id);return{el,n,q:wpos(n),k:el.dataset.k,a:-1}});
   L.querySelectorAll('.dest.live').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();seaTapDest(+el.dataset.id)}})}
 /* wave marks on the open water, from seeded tiles, so the sea goes on as far as you sail */
 function seaWaves(v){const T=300,x0=Math.floor(v.x0/T),x1=Math.floor(v.x1/T),y0=Math.floor(v.y0/T),y1=Math.floor(v.y1/T),key=[x0,x1,y0,y1].join();
@@ -179,16 +126,16 @@ function openSea(){
   if(G.sel==null)G.moving=false;
   fogInit();const p=seaShip();
   app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span>Sea ${G.sea+1} of 3</span></div></div>
-    <div class="ocean" id="ocean"><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seathings"></g></g></svg>
-      <canvas id="seafog" aria-hidden="true"></canvas><div class="seapoint" id="seapoint" hidden aria-hidden="true"><i></i><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${NG.boss}</svg></div></div>
-    <button class="chartbtn" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
+    <div class="ocean" id="ocean"><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
+      <canvas id="seafog" aria-hidden="true"></canvas><svg id="seasky" aria-hidden="true"><g id="skycam"></g><g id="skyedge"></g></svg></div>
+    <button class="chartbtn${SEA.chartNew?' new':''}" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
     ${holdDock('')}`;
   document.body.classList.add('atsea');
   bindBar();bindHold('hold',chart);fitDock();
-  SEA.el=app.querySelector('#ocean');SEA.wkey='';
+  SEA.el=app.querySelector('#ocean');SEA.wkey='';SEA.lkey='';
   SEA.inside=new Set(G.map.nodes.filter(n=>seaFound(n)&&seaLive(n)&&Math.hypot(dockAt(n).x-p.x,dockAt(n).y-p.y)<arriveR(n)+30).map(n=>n.id));
   if(SEA.cx==null||Math.hypot(SEA.cx-p.x,SEA.cy-p.y)>600){SEA.cx=p.x;SEA.cy=p.y}
-  seaLayout();seaThings();seaBind();
+  seaLayout();seaThings();seaFlot();seaBind();
   document.getElementById('chartbtn').onclick=()=>seaChart();
   if(!SEA.raf){SEA.last=0;SEA.raf=requestAnimationFrame(seaLoop)}
   save();coach('chart');
@@ -198,7 +145,7 @@ function seaLayout(){const el=SEA.el;if(!el)return;const r=el.getBoundingClientR
   SEA.ox=r.left;SEA.oy=r.top;SEA.vw=r.width;SEA.vh=r.height;
   SEA.top=h?Math.max(0,h.getBoundingClientRect().bottom-r.top):0;SEA.bot=d?d.getBoundingClientRect().top-r.top:r.height;
   if(SEA.bot-SEA.top<120)SEA.bot=Math.min(r.height,SEA.top+120);
-  SEA.Z=clamp(Math.min(SEA.vw/520,(SEA.bot-SEA.top)/470),1,1.5);
+  SEA.Z=clamp(Math.min(SEA.vw/520,(SEA.bot-SEA.top)/470),.85,1.5);   // phones see a little farther
   const c=el.querySelector('#seafog'),dpr=Math.min(2,devicePixelRatio||1);
   if(c.width!==Math.round(r.width*dpr)||c.height!==Math.round(r.height*dpr)){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr)}SEA.dpr=dpr}
 addEventListener('resize',()=>{if(SEA.el&&SEA.el.isConnected){seaLayout();SEA.wkey=''}});
@@ -249,9 +196,12 @@ function seaStep(dt){const p=G.pos;let want=0;
     if(d<rr&&d>0){p.x=q.x+ex/d*rr*1.12;p.y=q.y+dy/d*rr;
       // turn along the shore, toward whichever way round is nearer where you are heading
       if(SEA.target){const tx=-dy/d,ty=ex/d,sg=tx*(SEA.target.x-p.x)+ty*(SEA.target.y-p.y)>0?1:-1;p.a=angD(p.a+clamp(angD(Math.atan2(ty*sg,tx*sg)-p.a),-TURN*dt,TURN*dt))}if(SEA.target&&!SEA.hold&&Math.hypot(SEA.target.x-q.x,SEA.target.y-q.y)<rr+20){SEA.target=null;seaMark()}}}
-  SEA.dirty=true;SEA.trav+=SEA.v*dt;
+  SEA.dirty=true;SEA.trav+=SEA.v*dt;seaMiles(SEA.v*dt);
   if(SEA.trav>26){SEA.trav=0;seaWake()}
   const F=G.fog.p;if(Math.hypot(p.x-F[F.length-2],p.y-F[F.length-1])>70){seeFrom(p.x,p.y);if(SEA.newly.size){const found=[...SEA.newly].map(node);seaThings();seaCall(found)}}
+  // a bottle adrift: sail through it to fish it out
+  const bi=seaBottles().findIndex((b,i)=>!G.fog.b.includes(i)&&Math.hypot(b.x-p.x,b.y-p.y)<44);
+  if(bi>=0){SEA.target=null;SEA.v*=.3;SEA.hold=false;SEA.down=null;seaMark();seaBottle(bi);return true}
   // arriving: sailing into a stop you haven't spent stops the ship and shows what's there
   for(const n of G.map.nodes){if(!seaFound(n)||!seaLive(n))continue;const q=dockAt(n),d=Math.hypot(p.x-q.x,p.y-q.y),r=arriveR(n);
     if(d<r){if(!SEA.inside.has(n.id)){SEA.inside.add(n.id);SEA.target=null;SEA.v=0;SEA.hold=false;SEA.down=null;seaMark();seaArrive(n);return true}}
@@ -262,9 +212,9 @@ function seaWake(){const w=SEA.el.querySelector('#seawake');if(!w||matchMedia('(
   const p=G.pos,c=Math.cos(p.a),s=Math.sin(p.a),L=(SHIPISO[shipKind()].L||1),sx=p.x-c*30*L,sy=p.y-s*30*L,a=pr(sx-s*7,sy+c*7),b=pr(sx+s*7,sy-c*7);
   const e=document.createElementNS('http://www.w3.org/2000/svg','path');e.setAttribute('class','o-wake');e.setAttribute('d',`M${pt(a)}L${pt(b)}`);
   w.appendChild(e);setTimeout(()=>e.remove(),1800)}
-/* "Land ho!": a call from the lookout when you find something */
-function seaCall(ns){const k=ns.some(n=>n.type==='boss')?'boss':ns.some(n=>n.type==='port')?'port':ns.some(n=>n.type==='isle')?'isle':ns.some(n=>n.enemy)?'ship':ns.some(n=>n.type==='fish')?'fish':'odd';
-  const t={boss:'Something huge, dead ahead!',port:'Land ho! A port!',isle:'Land ho!',ship:'Sail ho!',fish:'Birds working the water!',odd:'Something in the water!'}[k];
+/* "Land ho!": the lookout calls out the most striking thing just found */
+function seaCall(ns){const rank=n=>n.type==='boss'?0:n.type==='port'?1:n.type==='elite'?2:n.type==='isle'?3:n.enemy?4:5,n=ns.slice().sort((a,b)=>rank(a)-rank(b))[0],s=sightOf(n);
+  const t=n.type==='boss'?'Something huge, dead ahead!':s.call||SEECALL[n.type]||'Something in the water!';
   if(SEA.call)SEA.call.remove();const c=document.createElement('div');c.className='seacall';c.setAttribute('role','status');c.textContent=t;SEA.el.appendChild(c);SEA.call=c;
   setTimeout(()=>{if(c===SEA.call){c.classList.add('out');setTimeout(()=>c.remove(),400)}},1700)}
 function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
@@ -282,7 +232,8 @@ function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
   SEA.foes.forEach(f=>{if(!f.el||Math.hypot(f.q.x-p.x,f.q.y-p.y)>520)return;const a=Math.atan2(p.y-f.q.y,p.x-f.q.x)+(f.k==='row'?0:Math.PI/2),qq=Math.round(a/(Math.PI/32))&63;
     if(qq!==f.a){f.a=qq;f.el.innerHTML=isoShip(a,f.k)}});
   const v={x0:-tx/Z,x1:(SEA.vw-tx)/Z,y0:-ty/Z/SK,y1:(SEA.vh-ty)/Z/SK};
-  seaWaves(v);seaFog(v);seaPoint();
+  el.querySelector('#skycam').setAttribute('transform',`translate(${f1(tx)} ${f1(ty)}) scale(${Z.toFixed(3)})`);
+  seaWaves(v);seaFog(v);seaSky();
   if(SEA.call){const sx=tx+p.x*Z,sy=ty+p.y*SK*Z;SEA.call.style.transform=`translate(${f1(sx)}px,${f1(sy-110*Z)}px) translate(-50%,-100%)`}}
 /* the fog: flat paper fog with stipple, cut away round everywhere you've sailed, with an ink line along its edge */
 let fogPat=null;
@@ -295,33 +246,61 @@ function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),
   const ring=sh=>{x.beginPath();vis.forEach(([px,py,r])=>{x.moveTo(px+r-sh,py*SK);x.ellipse(px,py*SK,r-sh,(r-sh)*SK,0,0,Math.PI*2)})};
   ring(0);x.lineWidth=2.4/Z;x.strokeStyle='#000';x.stroke();
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';ring(1.3/Z);x.fill();x.globalCompositeOperation='source-over'}
-/* an arrow at the edge of the screen pointing to the sea's boss, while it's out of sight */
-function seaPoint(){const el=SEA.el.querySelector('#seapoint'),b=node(G.map.boss);if(!el||!b)return;const q=wpos(b),Z=SEA.Z;
-  const sx=SEA.tx+q.x*Z,sy=SEA.ty+q.y*SK*Z,m=34,top=SEA.top+m,bot=SEA.bot-m;
-  if(seaFound(b)&&sx>m&&sx<SEA.vw-m&&sy>top&&sy<bot){el.hidden=true;return}
-  const cx=SEA.vw/2,cy=(top+bot)/2,dx=sx-cx,dy=sy-cy,k=Math.min(Math.abs((SEA.vw/2-m)/(dx||1e-6)),Math.abs(((bot-top)/2)/(dy||1e-6)),1);
-  el.hidden=false;el.style.transform=`translate(${f1(cx+dx*k)}px,${f1(cy+dy*k)}px)`;el.firstChild.style.transform=`rotate(${Math.atan2(dy,dx).toFixed(3)}rad)`}
+/* over the fog: the lures of places you haven't found that lie within sight of a lookout (redrawn as you sail). Beyond that,
+   the boss's storm, the lights of ports you haven't found and anything a scrap of chart has shown you stand on the edge of the
+   screen like things on the horizon, so there is always something drawing you on. */
+const HORIZON=2800;
+function seaSky(){const p=G.pos,b=G.map.boss,key=Math.round(p.x/120)+','+Math.round(p.y/120)+','+G.fog.f.length+','+G.fog.m.length;
+  if(key!==SEA.lkey){SEA.lkey=key;const far=n=>Math.hypot(wpos(n).x-p.x,wpos(n).y-p.y);
+    SEA.el.querySelector('#skycam').innerHTML=G.map.nodes.filter(n=>(n.id===b||!seaFound(n))&&far(n)<LURE)
+      .sort((a,c)=>wpos(a).y-wpos(c).y).map(n=>{const q=wpos(n),l=lureArt(n);return l?`<g class="lure" transform="translate(${f1(q.x)} ${f1(q.y*SK)})">${l}</g>`:''}).join('');
+    const lights=G.map.nodes.filter(n=>n.type==='port'&&!seaFound(n)).sort((x,y)=>far(x)-far(y)).slice(0,2);   // the two nearest ports' lights
+    SEA.el.querySelector('#skyedge').innerHTML=G.map.nodes.filter(n=>n.id===b||!seaFound(n)&&(lights.includes(n)||charted(n))&&far(n)<HORIZON)
+      .map(n=>{const l=n.id===b?cloud(0,.8,1):n.type==='port'?'<g class="o-beam"><path d="M0 0L-60 -9L-60 9Z"/><path d="M0 0L60 -9L60 9Z"/></g><path class="o-win" d="M-5 4h10v-8h-10z"/><path class="o-roof" d="M-8 -4h16l-8 -9z"/>':lureArt(n);
+        return l?`<g class="o-horizon" data-id="${n.id}" visibility="hidden"><g transform="scale(.75)">${l}</g></g>`:''}).join('')}
+  const Z=SEA.Z,m=46,top=SEA.top+m+30,bot=SEA.bot-m*.7,cx=SEA.vw/2,cy=(top+bot)/2;
+  for(const e of SEA.el.querySelectorAll('#skyedge .o-horizon')){const q=wpos(node(+e.dataset.id)),sx=SEA.tx+q.x*Z,sy=SEA.ty+q.y*SK*Z;
+    if(sx>0&&sx<SEA.vw&&sy>SEA.top&&sy<SEA.bot){e.setAttribute('visibility','hidden');continue}
+    const dx=sx-cx,dy=sy-cy,k=Math.min(Math.abs((SEA.vw/2-m)/(dx||1e-6)),Math.abs(((bot-top)/2)/(dy||1e-6)),1);
+    e.setAttribute('visibility','visible');e.setAttribute('transform',`translate(${f1(cx+dx*k)} ${f1(cy+dy*k)})`)}}
+/* what you see, in words: the title and lines for a place's card */
+function seaSeen(n){const s=sightOf(n);
+  if(n.type==='port')return{head:n.name,x:seenLine(SEEN.port,n.id)};
+  if(n.enemy)return{head:'The '+ENEMIES[n.enemy].n,x:seenLine(s.x,n.id)};
+  if(n.type==='event')return{head:s.t||'Something in the water',x:s.x||''};
+  if(n.type==='isle')return{head:'An uncharted isle',x:seenLine(SEEN.isle,n.id)};
+  if(n.type==='npc')return{head:'A small boat',x:seenLine(SEEN.npc,n.id)};
+  if(n.type==='fish')return{head:'Birds over the water',x:seenLine(SEEN.fish,n.id)};
+  return{head:nodeTitle(n),x:''}}
 /* what's here: the card when you sail into a stop, with the button that goes in */
-function seaArrive(n){const{head,body}=nodeInfo(n);
+function seaArrive(n){const{head,x}=seaSeen(n);let{body}=nodeInfo(n);
+  if(n.type==='event')body='';if(n.type==='isle')body+='<p class="soft">From its peak you could see more of the sea.</p>';
   const verb={port:'Make port',threat:'Engage',elite:'Engage',boss:'Engage',event:'Take a look',isle:'Go ashore',npc:'Hail them',fish:'Cast your lines'}[n.type]||'Go';
-  const ov=overlay(`<h2>${head}</h2>${body}<div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="go">${verb}</button></div>`);
+  const ov=overlay(`<h2>${head}</h2>${x?`<p class="log">${x}</p>`:''}${body}<div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="go">${verb}</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')seaVisit(n.id)});
   ov.querySelector('[data-a="go"]').focus()}
 function seaVisit(id){const n=node(id);G.pos.at=id;SEA.target=null;
   if(n.type==='port'&&G.at===id){coach('sail');return port(id)}   // back to the port you last left: no new day, no wages
-  goNow(id)}
+  // the view from an uncharted isle's peak goes on your chart
+  if(n.type==='isle'&&seaLive(n)){const w=seaFragment('isle'+id);if(w)logL(`From the isle's peak I could see ${w}. I drew it on my chart.`)}
+  goNow(id,true)}   // the days passed on the way there
 
 /* ---------- the chart ---------- */
-/* your chart of this sea, seen straight down: the water you've sailed is inked in, the rest is blank paper. Every place you've
-   found is marked, the ones you're done with crossed off, with your track and where you are now. */
+/* your chart of this sea, seen straight down: the water you've sailed is inked in, the rest is blank paper. Scraps of chart
+   you've found are pasted in, with the places they show. Every place you've found is marked, the ones you're done with crossed
+   off, with your track and where you are now. */
 function seaChart(inPort){fogInit();seaShip();const s=1/5,X=v=>f1(v*s),P=G.fog.p,x0=-260,y0=-480,W=SEA_W+520,H=SEA_LEN+960;
   let circ='';for(let i=0;i<P.length;i+=2)circ+=`<circle cx="${X(P[i])}" cy="${X(P[i+1])}" r="${X(fogR(i/2)*.9)}"/>`;
   const r=RNG(G.seed,'chartwv',G.sea);let wv='';for(let i=0;i<160;i++){const x=x0+r()*W,y=y0+r()*H,w=5+r()*4;wv+=`<path d="M${X(x)-w} ${X(y)}q${w/4} -3 ${w/2} 0t${w/2} 0t${w/2} 0t${w/2} 0"/>`}
-  const found=G.map.nodes.filter(seaFound),b=node(G.map.boss);
+  const found=G.map.nodes.filter(seaFound),heard=G.map.nodes.filter(n=>!seaFound(n)&&charted(n)),b=node(G.map.boss);
+  // scraps of chart: a torn patch of inked sea round each
+  let frag='';G.fog.m.forEach(([fx,fy,fr],i)=>{const rr=RNG(G.seed,'torn',G.sea,i),k=16;
+    frag+='<path d="M'+Array.from({length:k},(_,j)=>{const a=j/k*Math.PI*2,d=fr*(.86+rr()*.2);return X(fx+Math.cos(a)*d)+' '+X(fy+Math.sin(a)*d)}).join('L')+'Z"/>'});
+  if(G.full)frag=`<rect x="${X(x0+40)}" y="${X(y0+40)}" width="${X(W-80)}" height="${X(H-80)}"/>`;
   let land='',marks='';
-  found.filter(n=>n.type==='port'||n.type==='isle').forEach(n=>{const q=wpos(n),rr=isleR(n)*s;land+=`<ellipse cx="${X(q.x)}" cy="${X(q.y)}" rx="${f1(rr*1.15)}" ry="${f1(rr)}"/>`});
-  [...new Set([...found,b])].forEach(n=>{const q=wpos(n),big=n.type==='boss',rr=big?15:11,done=!seaLive(n),known=seaFound(n);
-    marks+=`<g class="sc-node${done?' done':''}" transform="translate(${X(q.x)} ${X(q.y)})"><circle r="${rr}"/><g transform="translate(${big?-10:-7.5} ${big?-10:-7.5}) scale(${big?.83:.62})" fill="none" stroke-width="2.4">${known?NG[n.type]:NG.event}</g>${done?`<path class="x" d="M${-rr-3} ${-rr-3}L${rr+3} ${rr+3}M${rr+3} ${-rr-3}L${-rr-3} ${rr+3}"/>`:''}
+  [...found,...heard].filter(isIsle).forEach(n=>{const q=wpos(n),rr=isleR(n)*s;land+=`<ellipse cx="${X(q.x)}" cy="${X(q.y)}" rx="${f1(rr*1.15)}" ry="${f1(rr)}"/>`});
+  [...new Set([...found,...heard,b])].forEach(n=>{const q=wpos(n),big=n.type==='boss',rr=big?15:11,known=seaFound(n)||charted(n),done=seaFound(n)&&!seaLive(n);
+    marks+=`<g class="sc-node${done?' done':''}${seaFound(n)?'':' heard'}" transform="translate(${X(q.x)} ${X(q.y)})"><circle r="${rr}"/><g transform="translate(${big?-10:-7.5} ${big?-10:-7.5}) scale(${big?.83:.62})" fill="none" stroke-width="2.4">${known?NG[n.type]:NG.event}</g>${done?`<path class="x" d="M${-rr-3} ${-rr-3}L${rr+3} ${rr+3}M${rr+3} ${-rr-3}L${-rr-3} ${rr+3}"/>`:''}
       ${n.type==='port'?`<text y="${rr+15}" text-anchor="middle">${n.name}</text>`:big?`<text y="${-rr-7}" text-anchor="middle">${known?ENEMIES[n.enemy].n:'Something waits'}</text>`:''}</g>`});
   G.charts.forEach(c=>{if(c.sea!==G.sea)return;const n=node(c.at);if(!n)return;const q=wpos(n);
     marks+=`<g transform="translate(${f1(q.x*s+14)} ${f1(q.y*s-22)}) scale(.6)" fill="none" stroke-width="2.4">${CHARTS[c.k].g}</g>`});
@@ -331,11 +310,12 @@ function seaChart(inPort){fogInit();seaShip();const s=1/5,X=v=>f1(v*s),P=G.fog.p
     <pattern id="scfog" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".7" fill="#000" opacity=".25"/></pattern></defs>
     <rect class="sc-paper" x="${X(x0)}" y="${X(y0)}" width="${X(W)}" height="${X(H)}"/><rect x="${X(x0)}" y="${X(y0)}" width="${X(W)}" height="${X(H)}" fill="url(#scfog)"/>
     <text class="sc-monsters" x="${X(SEA_W/2)}" y="${X(SEA_LEN*.3)}" text-anchor="middle">here be monsters</text>
-    <g class="sc-edge">${circ}</g><g class="sc-sea">${circ}</g><g clip-path="url(#scseen)"><g class="sc-wv">${wv}</g><g class="sc-land">${land}</g></g>
+    <g class="sc-frag">${frag}</g><g class="sc-edge">${circ}</g><g class="sc-sea">${circ}</g><g clip-path="url(#scseen)"><g class="sc-wv">${wv}</g><g class="sc-land">${land}</g></g>
     <path class="sc-track" d="${track}"/>${marks}
     <g transform="translate(${X(p.x)} ${X(p.y)})"><g transform="translate(-12 -26)" stroke="#000" stroke-width="1.8" stroke-linejoin="round" fill="#FBF5E8"><path d="M11 1v17" fill="none"/><path d="M12 3c6 3 7 8 6 13h-6z"/><path d="M1 18h21l-3 5H4z" fill="#5E7487"/></g></g></svg>`;
-  const ov=overlay(`<div class="peekhead"><h2>${SEAS[G.sea]}</h2><span class="soft">${found.length} of ${G.map.nodes.length} places found</span></div>
+  const ov=overlay(`<div class="peekhead"><h2>${SEAS[G.sea]}</h2><span class="soft">${found.length} found${heard.length?`, ${heard.length} more charted`:''}</span></div>
     <div class="peekwrap" id="peekwrap"><div class="seachart">${svg}</div></div><button class="primary" data-a="close">${inPort?'Back to port':'Back to the sea'}</button>`,false,'peekov');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});
+  SEA.chartNew=false;const cb=document.getElementById('chartbtn');if(cb)cb.classList.remove('new');
   const wrap=ov.querySelector('#peekwrap'),sv=ov.querySelector('svg');
   if(wrap&&sv){const k=sv.getBoundingClientRect().height/(H*s);wrap.scrollTop=Math.max(0,(p.y-y0)*s*k-wrap.clientHeight*.5)}}

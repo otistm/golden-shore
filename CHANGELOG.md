@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.0
+- The sea is drawn as what's there, with no icons. Shark fins circle, a serpent's coils rise and sink, the Kraken's arms sway, sirens sing on their rocks, fish swim under wheeling birds, a bottle glints, a wreck floats keel-up, a forge smokes on an islet. Strangers' ships come in their own colours: navy grey, ghostly, iron-hulled, fire-scorched.
+- The world draws you on: tall and loud things show over the fog from far off (a lighthouse beam, the tops of sails, smoke, birds, a song, a lantern, a peak), and the boss's storm, the nearest ports' lights and anything a scrap of chart has shown you stand on the horizon at the edge of the screen.
+- Days pass as you sail.
+- Scraps of chart: bottles drift on every sea, and the peak of each uncharted isle shows more coast. Each scrap is pasted into your chart, showing places before you reach them.
+- Every place you sail up to opens with a few lines of what you see, before the fight or trade details.
+
 ## 0.38.0
 - The open sea: instead of picking stops on a chart, you now steer your ship across an ink ocean seen from above. Tap or drag on the water to sail, or tap a place to sail straight to it. Ports, isles, other ships, flotsam, strangers in rowboats and fishing grounds wait in the fog until you sail close, and sailing into one shows what it is. The chart is now a button you carry: it inks in the water you have sailed, marks what you have found and crosses off what you have done. The maiden voyage still uses the old chart for now.
 

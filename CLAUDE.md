@@ -41,7 +41,9 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | ui.js | Boards, item sheets, the hold and locker dock, drag and drop |
 | title.js | Title screen, ship selection, starting a voyage |
 | chart.js | The old voyage chart (the maiden voyage still uses it), stop info cards (`nodeInfo`), `goNow()` |
-| sea.js | The open sea: steering, places on the water, fog, the carried chart |
+| sealore.js | What you see at sea, in words: `FOESEEN` (each enemy's look, lookout call and lines), `SEEN`, `EVSEEN` (each event as it looks before you know what it is), `NOTES` (bottle notes) |
+| sea.js | The open sea: steering, fog, days, scraps of chart, lures, arrival cards, the carried chart |
+| seaart.js | How things look at sea: `isoShip`, islands and towns, `ART` (creatures, scenery), `sightOf`, `destArt`, `lureArt` |
 | harbour.js | The harbour scene: a side-on ink panorama of the port you scroll along |
 | port.js | The port's places: market, tavern, shipwright, docks (visitors and the fish market) |
 | rewards.js | Events, the spoils screen (drag spoils into the hold, sell onto Sail on), landmark picks |
@@ -116,13 +118,18 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 ## The open sea (sea.js)
 - Real voyages get around on the open sea: `chart()` calls `openSea()` unless `G.tut` (the maiden voyage still draws the old chart). Every screen that ends with `chart()` returns to the sea.
 - The sea is the current map's nodes placed in the world by `wpos(n)` (seeded; rows run north, `SEA_LEN` long, `SEA_W` wide; side stops sit beside their port). Depth and difficulty still come from `n.row` through `depthOf()`, so sailing north is sailing deeper.
-- The camera looks down at an angle: world (x,y,z) draws at (x, y×`SK` − z). Ships are drawn from their shape at their heading by `isoShip(a,kind)` (`SHIPISO` lists masts per ship and for foes; cached per 64 headings, coloured by `ship-<key>` or `foe-t/e/b/n` plus `s-deck`). Islands, towns (`isoHouse`), flotsam, wrecks and fishing grounds have their own art functions; colours are `.ocean .o-*` classes.
+- The camera looks down at an angle: world (x,y,z) draws at (x, y×`SK` − z). Ships are drawn from their shape at their heading by `isoShip(a,kind)` (`SHIPISO` lists masts per ship and for foes; cached per 64 headings, coloured by `ship-<key>` or a `foe-*` palette plus `s-deck`). Colours are `.ocean .o-*` classes.
+- No icons on the sea: every place is drawn as what it is (seaart.js). `sightOf(n)` reads the look from `FOESEEN[n.enemy]` or `EVSEEN[n.ev]` (an `art` key into `ART`, plus ship kind and palette); a new enemy or event needs a row there. Lines on the arrival card come from sealore.js through `seaSeen(n)`, picked with `seenLine()` from the seed.
+- Lures (`lureArt`, drawn by `seaSky()` above the fog): places you haven't found within `LURE` show what can be seen from afar. The boss's storm, the two nearest unfound ports' lights and places on scraps of chart stand at the screen's edge as a horizon (`#skyedge`) while out of view. Quiet things (sharks, bottles, cairns) have no lure.
+- Days pass as you sail (`seaMiles`, a day per `DAYLEN`; `G.sailed` keeps the remainder). Arriving by sea calls `goNow(id,true)`, which adds no day of its own.
+- Scraps of chart: `BOTTLES` seeded bottles per sea (`seaBottles()`, picked up by sailing through them) and each uncharted isle's peak call `seaFragment()`, which adds a circle to `G.fog.m` round a place you haven't found (ports and isles first, ahead of you first). `charted(n)` is true inside one, or everywhere with `G.full`. The chart pastes them in as torn patches with their places (dashed rings).
+- Sight grows with the things that used to show more chart rows (`sight()`: extra, far, the Buoy, Studding Sails).
 - Steering: tap or drag on the water sets `SEA.target`; tapping a place sails to `dockAt(n)` (a port's jetty, an isle's near beach, or the thing itself). Arriving within `arriveR(n)` of a place you've found that's still live (`seaLive`: ports always, everything else once) stops the ship and opens `seaArrive()`; its button runs `seaVisit()`, which calls `goNow()` (or `port()` for the port you last left). Islands block the ship; a target it can't reach is dropped after a few seconds.
-- Saved: `G.pos` {x,y,a,at,sea} and `G.fog` {sea, p: a point every 70 units sailed with the fog lifted round each, f: ids found, s: where the chart's track starts}. When `G.at` changes without sailing (new sea, falling back after a boss) the ship starts beside that stop. Old saves lift the fog round the stops in `G.path`.
-- The fog is a canvas over the sea (`seaFog()`), cut away round `G.fog.p`. The arrow at the screen edge (`seaPoint()`) points to the boss while it's out of sight. Finding things plays `seaCall()` (Land ho!).
+- Saved: `G.pos` {x,y,a,at,sea}, `G.sailed`, and `G.fog` {sea, p: a point every 70 units sailed with the fog lifted round each, f: ids found, s: where the chart's track starts, b: bottles taken, m: scraps of chart}. When `G.at` changes without sailing (new sea, falling back after a boss) the ship starts beside that stop. Old saves lift the fog round the stops in `G.path`.
+- The fog is a canvas over the sea (`seaFog()`), cut away round `G.fog.p`. Finding things plays `seaCall()`, the lookout's call from `FOESEEN`/`EVSEEN`/`SEECALL`.
 - The chart is a button (`#chartbtn`) that opens `seaChart()`, a top-down sketch of what you've found. The port's Chart button opens it too (`chartPeek()`).
 - Anything on the sea runs on `seaLoop()` and stands still while `seaBusy()` (pause, any pop-up). The bot sails with `SEA.fast` and `seaAim()`.
-- Not decided yet: whether open water should cost time or supplies, and whether every place on a sea should stay visitable (today a sea's places can all be done in any order).
+- Not decided yet: what days at sea cost or change (they only count for now), and whether every place on a sea should stay visitable (today a sea's places can all be done in any order). Planned: map fragments as the main way to open up the chart.
 
 ## The market stall
 - The market is a seller's stall (`stallHTML()` and `layStall()` in port.js): the top half is the seller with their speech bubble (`.talk`) beside them, the bottom half is the table with the 4 offers as large goods (`.good`, `data-g`). The bubble has their pitch and the Buy button for the chosen good (`PV.msel`); tapping the chosen good again does nothing. Goods also drag into the hold or locker through `bindHold`'s `ext.from` (like spoils), paying on drop (`buyInto` in `port()`). On big screens `layStall()` sizes the seller to the space the table leaves.

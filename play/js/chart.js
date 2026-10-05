@@ -164,10 +164,10 @@ function go(id){
   const from=G.at;
   if(G.map.edges.some(([a,b])=>a===from&&b===id))return sailAnim(from,id,()=>goNow(id));
   goNow(id)}
-function goNow(id){
+function goNow(id,atSea){
   if(G.at===id)return;   // already there: a second tap on Sail here must never sail the same leg twice
   coach('sail');
-  G.at=id;G.path.push(id);G.day++;G.moving=false;G.sel=null;updateReveal();save();
+  G.at=id;G.path.push(id);if(!atSea)G.day++;   // on the open sea, days pass as you sail insteadG.moving=false;G.sel=null;updateReveal();save();
   const n=node(id);
   if(n.type==='port')port(id);
   else if(n.enemy)fight(n);

@@ -1546,7 +1546,8 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .ocean svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ocean canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ocean .wv{fill:none;stroke:var(--line);stroke-width:1.5;stroke-linecap:round;opacity:.38;animation:wvbob 5s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
-.ocean #seathings{stroke:var(--line);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.ocean #seasky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ocean #seathings,.ocean #seasky,.ocean #seaflot{stroke:var(--line);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .ocean .dest.live{cursor:pointer}
 .ocean .dest:focus{outline:none}.ocean .dest:focus-visible .o-hit{stroke:var(--line);stroke-width:2;stroke-dasharray:3 5}
 .ocean .o-hit{fill:transparent;stroke:none}
@@ -1580,10 +1581,6 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .foe-e{--hull:#3F4E60;--hull2:#2F3B4A;--sail:#C9D5DC;--sail2:#A9BAC4;--flag:#B5533C;--deck:#B7A58A}
 .foe-b{--hull:#232C3B;--hull2:#161D29;--sail:#2F3A4C;--sail2:#232C3B;--flag:#B5533C;--deck:#5E6B7B}
 .foe-n{--hull:#8E6A4B;--hull2:#72543A;--flag:#5E7487;--deck:#E6D3B8}
-.seapoint{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;z-index:2}
-.seapoint i{position:absolute;left:-26px;top:-26px;width:52px;height:52px}
-.seapoint i::after{content:"";position:absolute;right:-4px;top:50%;margin-top:-7px;border:7px solid transparent;border-left:11px solid var(--line);border-right:0}
-.seapoint svg{position:absolute;left:-17px;top:-17px;width:34px;height:34px;padding:5px;background:var(--paper);border:2.2px solid var(--line);border-radius:50%;box-shadow:2px 3px 0 var(--ink)}
 .seacall{position:absolute;left:0;top:0;z-index:3;pointer-events:none;font:italic 900 18px var(--display);color:var(--ink);background:var(--paper);border:2.2px solid var(--line);border-radius:14px;padding:6px 12px;box-shadow:3px 4px 0 var(--ink);white-space:nowrap;animation:callin .45s var(--spring) both}
 .seacall.out{opacity:0;transition:opacity .35s}
 @keyframes callin{from{opacity:0;margin-top:14px;scale:.6}to{opacity:1;margin-top:0;scale:1}}
@@ -1610,3 +1607,54 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
   body.desk .ocean{left:var(--fx);right:calc(var(--fx) + var(--dw))}
   body.desk .chartbtn{right:calc(var(--fx) + var(--dw) + 18px)}
 }
+/* the open sea's creatures, scenery and lures (seaart.js) */
+.ocean .o-gulls{fill:none;stroke-width:1.6;animation:gulls 7s linear infinite}.ocean .o-gulls.dark{stroke-width:2.6;animation-duration:4s}
+.ocean .o-rock{fill:#B7ACA0}.ocean .o-rock2{fill:#8C8177}
+.ocean .o-tail{fill:var(--sage)}.ocean .o-hair{fill:var(--brick)}
+.ocean .o-shark{fill:#5E6B7B}
+.ocean .o-fin{animation:fin 4.5s ease-in-out infinite}
+@keyframes fin{0%,100%{transform:translateX(-12px)}50%{transform:translateX(12px)}}
+.ocean .o-crab{fill:var(--brick)}.ocean .o-crab2{fill:#93402D}
+.ocean .o-sway{animation:sway 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.ocean .o-serp{--body:#7E8F69}.ocean .o-levi{--body:#5E7487}
+.ocean .o-body{fill:var(--body)}.ocean .o-eye{fill:var(--paper)}
+.ocean .o-hump{animation:hump 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes hump{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.82)}}
+.ocean .o-spout{fill:none;stroke-width:1.8;stroke-dasharray:3 4;animation:spout 1.4s linear infinite}
+@keyframes spout{to{stroke-dashoffset:-14}}
+.ocean .o-deep{fill:#6C8494;stroke:none}.ocean .o-krak{fill:#8A4A5C}.ocean .o-sucker{fill:#E9C2B3;stroke:none}
+.ocean .o-glass{fill:#9DB8A6}.ocean .o-paper{fill:var(--paper);stroke-width:1}
+.ocean .o-glint{fill:var(--mustard);stroke-width:1;animation:glint 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes glint{0%,60%,100%{transform:scale(0)}75%{transform:scale(1)}}
+.ocean .o-weed{fill:none;stroke:#5E7A4E;stroke-width:2}.ocean .o-gold{fill:var(--mustard)}
+.ocean .o-sand{fill:#E8D6A8}
+.ocean .o-wave2{animation:sway 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:0 100%}
+.ocean .o-spin{animation:gulls 6s linear infinite}.ocean .o-swirl{fill:none;stroke-width:2}
+.ocean .o-rain{fill:none;stroke-width:1.4;stroke-dasharray:4 6;animation:rain .6s linear infinite}
+@keyframes rain{to{stroke-dashoffset:-20}}
+.ocean .o-cloud{fill:#3E4A5C;stroke-width:2}.ocean .o-bolt{fill:var(--mustard);stroke-width:1.4;animation:bolt 3.4s steps(1) infinite}
+@keyframes bolt{0%,8%,14%,100%{opacity:0}9%,13%{opacity:1}}
+.ocean .o-shoal{animation:gulls 9s linear infinite reverse}.ocean .o-fishy{fill:#6C8494;stroke:none}
+.ocean .o-fogp{fill:var(--fog);stroke-width:1.6}
+.ocean .o-smoke{fill:#C9C2B8;stroke-width:1.4;animation:smoke 3.3s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes smoke{0%{transform:translate(0,0) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(14px,-46px) scale(1.4);opacity:0}}
+.ocean .o-wave{fill:#8FAAB4}
+.ocean .o-beam{animation:beam 4s linear infinite}.ocean .o-beam path{fill:#F1DDA6;stroke-width:1.4;stroke-dasharray:3 4}
+@keyframes beam{to{transform:rotate(360deg)}}
+.ocean .o-lamp{fill:var(--mustard)}
+.ocean .o-lantern{animation:sway 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 0}
+.ocean .o-note{fill:var(--line);stroke-width:1.6;animation:note 3.6s ease-out infinite;transform-box:fill-box}
+@keyframes note{0%{transform:translateY(10px);opacity:0}20%{opacity:1}100%{transform:translateY(-30px);opacity:0}}
+.ocean .lure .boatbob,.ocean .o-horizon{animation-duration:4s}
+.foe-r{--hull:#8E6A4B;--hull2:#72543A;--sail:#F1DDA6;--sail2:#DCC48A;--flag:#B5533C;--deck:#C9B08F}
+.foe-fire{--hull:#5B4A3E;--hull2:#463A30;--sail:#B5533C;--sail2:#93402D;--flag:#D9A93A;--deck:#A98E6E}
+.foe-navy{--hull:#2F3B4A;--hull2:#232C3B;--sail:#E3E3DC;--sail2:#C7C9C2;--flag:#5E7487;--deck:#C9B08F}
+.foe-ghost{--hull:#A9B5B0;--hull2:#8E9A95;--sail:#E8E6DA;--sail2:#CFCCBD;--flag:#6B7F79;--deck:#C7CFC9}
+.foe-iron{--hull:#4F5A63;--hull2:#3C454D;--sail:#C9D5DC;--sail2:#A9BAC4;--flag:#B5533C;--deck:#9AA3A8}
+.foe-m{--hull:#9C5E48;--hull2:#7E4A38;--sail:#F3E9D6;--sail2:#DCCBAE;--flag:#D9A93A;--deck:#E6D3B8}
+.seachart .sc-frag path,.seachart .sc-frag rect{fill:#DCE5E2;stroke:var(--line);stroke-width:1.4;stroke-dasharray:4 3}
+.seachart .sc-node.heard>circle{stroke-dasharray:3 3}
+.chartbtn.new::after{content:"";position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--brick);border:2px solid var(--line);animation:bump .6s var(--spring) infinite alternate}
+@media (prefers-reduced-motion:reduce){.ocean .o-fin,.ocean .o-sway,.ocean .o-hump,.ocean .o-spout,.ocean .o-glint,.ocean .o-spin,.ocean .o-rain,.ocean .o-bolt,.ocean .o-shoal,.ocean .o-smoke,.ocean .o-beam,.ocean .o-lantern,.ocean .o-note,.chartbtn.new::after{animation:none}}
+.ocean .o-keel{fill:#6E5A4A}
