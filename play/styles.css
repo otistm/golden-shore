@@ -1741,7 +1741,7 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .hscene.site .hscroll{background:transparent}
 .hworld.site .hcloud{animation:none}
 .hworld .h-flag{fill:var(--brick)}
-.hworld text.s-name{font:800 7.5px var(--ui);letter-spacing:.14em;fill:var(--ink);stroke:none}
+.hworld text.s-name{font:800 7px var(--ui);letter-spacing:.16em;fill:#ece6d6;stroke:none}
 /* motion up close, kept to a few things at once and stepped like hand-drawn frames */
 .hworld .st-drift{animation:sdrift 260s linear infinite}.hworld .st-drift.slow{animation-duration:340s}
 @keyframes sdrift{from{transform:translateX(-160px)}to{transform:translateX(420px)}}

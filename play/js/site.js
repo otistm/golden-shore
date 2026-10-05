@@ -79,12 +79,13 @@ function siteDo(n,kind,v,s,el){const out=document.getElementById('siteout'),dept
     setTimeout(()=>{const o=document.getElementById('siteout');if(o)o.innerHTML=`<p>The wreck groans and rolls. You get out, but your ship takes a beating: ${h} hull lost.</p>`},0)}}
 /* ---------- the art ----------
    Each variant is drawn with the ware-style-assets skill in tools/ware/places.py and bundled into placeart.js. The game
-   adds only what changes: the overlays for spots you've used (or the dig mark before you dig), the ship's name on her
-   board, and your own ship riding at anchor offshore. */
+   adds only what changes: the overlays for spots you've used (or the dig mark before you dig), the ship's name painted
+   on her bow, and your own ship riding at anchor offshore. */
 function siteArt(n,kind,v){const A=PLACEART[v],done=k=>!!(G.site&&G.site.done.includes(k)),spots=siteSpots(n,kind,v),k=SHIPDRAW[G.ship]?G.ship:'sloop';
   // the generated art carries its own strokes; nothing should inherit the scene's default outline
-  let g=`<defs>${A.defs}</defs><g stroke="none">${A.base}`;
-  g+=`<g transform="translate(8 96) scale(.34)"><g class="shipdraw ship-${k}" stroke="#1f1c1d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[k]}</g></g>`;
+  // every place sits in the same sky and sea (PLACEART.frame), then its own drawing on top
+  let g=`<defs>${PLACEART.frame.defs}${A.defs}</defs><g stroke="none">${PLACEART.frame.base}${A.base}`;
+  g+=`<g transform="translate(354 99) scale(.3)"><g class="shipdraw ship-${k}" stroke="#1f1c1d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="#fff">${SHIPDRAW[k]}</g></g>`;
   spots.forEach(sp=>{if(done(sp.k)&&A.over[sp.k])g+=A.over[sp.k]});
   if(spots.some(sp=>sp.k==='dig')&&!done('dig'))g+=A.over.x||'';
   g+='</g>';

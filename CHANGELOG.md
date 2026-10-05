@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.49.1
+- Isles and wrecks up close redrawn at twice the detail with finer lines, after the drawing kit's Cora Lee example: planked hulls with wales, rust streaks, gunport lids hanging, rigging with ratlines, a torn and patched sail, an anchor at the bow, a stern gallery and a ship's wheel; leafy palms, a keeper's cottage with a washing line and a hanging shutter, basalt columns, nesting birds and a seal. Every place shares one sky and sea, wrecks cast a broken reflection, foam bubbles where things meet the water, and the ship's name is painted on her bow.
+
 ## 0.49.0
 - Isles and wrecks up close are redrawn by a new drawing kit in the Chris Ware manner: a grained sky with a pale sun and flat clouds, sea marks that grow toward you, foam, reflections, and small signs of life (crabs, gulls, a rowboat). What you've done at a place shows in the picture: the lamp lit, the tripod set up, hatches open, the hole you dug.
 
