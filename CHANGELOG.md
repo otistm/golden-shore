@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.52.0
+- The docks are redrawn to match the rest of the port: a grainy sky over a far shore with a lighthouse and a distant sail, wave marks that grow toward you, a fishing smack at her mooring with her tan sail furled and a dinghy astern, a red buoy, and a row of stencilled fish crates for your catch. Rain, mist and storms now grey the docks' sky and sea too.
+
 ## 0.51.0
 - The market, tavern and shipwright are redrawn inside to match the harbour. The market has a scalloped awning and two shelves of stock behind the seller: crates, sacks, jars, bolts of cloth, a string of onions, a lantern, candles, spice jars, a pair of scales and ledgers, over a planked counter. The tavern has a back bar of bottles, a ship in a bottle, tankards on hooks, casks with taps, lamps between the seats, a mounted fish and a chart, a panelled bar with a brass foot rail, and pewter tankards with a head of foam. The shipwright's yard has a roof beam, a board wall hung with saws, mallets, augers, chisels, an adze, a calendar with days crossed off and a builder's half-model of a hull, over a workbench with shavings.
 

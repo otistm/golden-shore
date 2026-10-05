@@ -323,17 +323,81 @@ def t_floor():
     w, h = 480, 104
     return plank_tile(w, h, C["floor"], 2, 21)
 
+# ================================================================ docks (outdoors: sky and sea take the weather's colours)
+import harbour as HB
+K = HB.K
+def d_sky():
+    w, h = 1280, 192                       # 640 x 96 game: grain, the far shore on the horizon, a far sail, gulls
+    s = stipple(0, 0, w, h, 260, K["hk-grain"], 1.4, .55, lambda u, v: v ** 2, seed=5)
+    s += stipple(0, 0, w, h, 120, K["hk-grain2"], 1.4, .4, lambda u, v: (1 - v) ** 3, seed=6)
+    s += path(f"M40 {h} Q120 {h-34} 240 {h-28} Q360 {h-52} 470 {h-30} Q540 {h-16} 600 {h} Z", K["hk-far"], None)
+    s += path(f"M300 {h} Q380 {h-20} 520 {h-14} L560 {h} Z", K["hk-far2"], None)
+    s += poly([(196, h - 30), (198, h - 64), (206, h - 64), (208, h - 30)], K["hk-far2"], None) + rect(195, h - 70, 14, 6, K["hk-far2"], None) + poly([(196, h - 70), (202, h - 76), (208, h - 70)], K["hk-far2"], None)
+    s += path(f"M820 {h} Q900 {h-22} 1020 {h-16} Q1140 {h-26} 1240 {h-8} L1280 {h} Z", K["hk-far"], None)
+    s += poly([(700, h - 2), (706, h - 26), (712, h - 2)], K["hk-far2"], None) + rect(696, h - 3, 22, 3, K["hk-far2"], None)
+    for gx, gy in ((380, 60), (420, 44), (1000, 80)):
+        s += path(f"M{gx-8} {gy} q4 -5 8 0 q4 -5 8 0", "none", INK, Hh)
+    s += line(0, h - 1, w, h - 1, INK, 1.4)
+    return w, h, s
+
+def smack(x, y):
+    """a fishing smack at her mooring: tan sail furled on the boom, a dinghy astern"""
+    s = path(f"M{x-60} {y-14} L{x+56} {y-16} L{x+46} {y} Q{x} {y+6} {x-52} {y} Z", "#5d6e7c", None)
+    s += rect(x - 58, y - 14, 112, 4, "#e8dfc9", None) + path(f"M{x-60} {y-14} L{x+56} {y-16} L{x+46} {y} Q{x} {y+6} {x-52} {y} Z", "none", INK, D)
+    s += line(x - 6, y - 14, x - 6, y - 96, INK, 2.6) + line(x - 6, y - 14, x - 6, y - 96, "#b98e64", 1.2)
+    s += line(x - 6, y - 96, x - 60, y - 16, INK, Hh) + line(x - 6, y - 96, x + 54, y - 18, INK, Hh)
+    s += path(f"M{x-4} {y-32} L{x+50} {y-26} Q{x+24} {y-20} {x-4} {y-24} Z", "#c88a5a", INK, D)
+    s += poly([(x - 6, y - 96), (x + 8, y - 92), (x - 6, y - 88)], "#b5533c", INK, Hh)
+    s += path(f"M{x+56} {y-10} q10 2 18 8", "none", INK, Hh) + path(f"M{x+74} {y-6} L{x+100} {y-6} L{x+96} {y+2} L{x+78} {y+2} Z", "#b98e64", INK, D)
+    s += poly([(x - 52, y + 2), (x + 46, y + 2), (x + 40, y + 12), (x - 44, y + 12)], "#2f474e", None, op=.4)
+    return s
+
+def d_sea():
+    w, h = 1280, 640                       # 640 x 320 game, from the horizon down
+    r = random.Random(8)
+    dash = []
+    k, y = 0, 3.0
+    while y < h:
+        n = int(30 - y * .03) + 8
+        th = .9 + y * .012
+        for _ in range(n):
+            dash.append((r.uniform(-20, w + 20), y, 5 + y * .18 * r.uniform(.5, 1.4), th))
+        k += 1; y = 3 * (1.15 ** k)
+    s = rects_path(dash, K["hk-dash"], .75)
+    s += smack(880, 92)
+    s += path("M300 160 Q306 140 312 160 Z", "#b5533c", INK, D) + line(306, 140, 306, 128, INK, D) + rect(298, 160, 16, 4, "#2f474e", None, op=.4)   # a buoy
+    return w, h, s
+
+def d_crates():
+    w, h = 240, 128                        # 120 x 64 game: one crate front a row
+    s = ""
+    for row in range(2):
+        y0 = row * 64
+        s += rect(0, y0, w, 64, "#c8a879", None)
+        for sy in (y0 + 6, y0 + 26, y0 + 46):
+            s += rect(8, sy, w - 16, 16, "#d7ba8e", None) + rect(8, sy + 12, w - 16, 4, "#c4a06e", None) + rect(8, sy, w - 16, 16, "none", INK, Hh)
+        s += rect(0, y0, 10, 64, "#b98e64", INK, D) + rect(w - 10, y0, 10, 64, "#b98e64", INK, D)
+        s += path(f"M{w/2-18} {y0+22} q18 -12 36 0", "none", INK, 3.6) + path(f"M{w/2-18} {y0+22} q18 -12 36 0", "none", "#c9b48a", 1.8)
+        s += text("Oswald", "No " + str(3 + row * 4), 36, y0 + 44, 14, "#8a5a3c", 1, "start", 600, op=.85)
+        s += line(0, y0, w, y0, INK, D)
+    return w, h, s
+
 # ================================================================ build
 def tile(fn):
     w, h, s = fn()
     s = PL.compact(s)
     return dict(w=w // 2, h=h // 2, s=f'<g transform="scale(.5)">{s}</g>')
 
+def vtile(fn):
+    """a tile whose colours follow the weather (CSS variables)"""
+    t = tile(fn); t["s"] = HB.swap_vars(t["s"]); return t
+
 def build():
     reset()
     out = dict(
         market=dict(awn=tile(m_awn), wall=tile(m_wall), table=tile(m_table)),
         wright=dict(beam=tile(w_beam), wall=tile(w_wall), bench=tile(w_bench)),
+        docks=dict(sky=vtile(d_sky), sea=vtile(d_sea), crates=tile(d_crates)),
         tavern=dict(wall=tile(t_wall), bar=tile(t_bar), floor=tile(t_floor),
                     mug=f'<g transform="scale(.5)">{mug(k=2)}</g>', tipped=f'<g transform="scale(.5)">{PL.tr(mug(True, k=2), 0, 0, rot=-80)}</g>'),
     )
@@ -354,7 +418,8 @@ def build():
             y += hh + 16
     rows += f'<g transform="translate(40 {y+40}) scale(2)">{out["tavern"]["mug"]}</g><g transform="translate(120 {y+40}) scale(2)">{out["tavern"]["tipped"]}</g>'
     y += 80
-    svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 {y}" width="1200" height="{y}"><defs>{pats}</defs><rect width="1200" height="{y}" fill="#fff"/>{rows}</svg>'
+    fair = ":root{--hk-grain:#f6e5c8;--hk-grain2:#62808c;--hk-far:#b6c6c1;--hk-far2:#a3b6b3;--hk-dash:#b7cdcf}"
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 {y}" width="1200" height="{y}"><style>{fair}</style><defs>{pats}</defs><rect width="1200" height="{y}" fill="#9fb8bd"/>{rows}</svg>'
     save(svg, HERE / "out" / "interiors.svg")
     print(f"wrote play/js/interiorart.js ({len(js)//1024} KB) and tools/ware/out/interiors.svg")
 

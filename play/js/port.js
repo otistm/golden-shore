@@ -160,17 +160,15 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
   else talk=`<div class="talk" id="talk"><p class="say">“${PV.dsold?M.thanks:M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
   // the docks are out in the weather, so everyone on them is dressed for it
   const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(wearFor(look),PEEP_HEAD,'peep')}</button>`;
-  const speaker=wearFor(who?N.look:M.look);
+  const speaker=wearFor(who?N.look:M.look),IA=INTERIORART.docks;
   return`<section class="stallsec docksec">
     <div class="stall pier" id="stall">
-      <svg class="stallwall" aria-hidden="true"><defs><pattern id="swell" width="60" height="16" patternUnits="userSpaceOnUse"><path d="M0 8q15-8 30 0t30 0" fill="none" stroke="#000" stroke-width="1.6"/></pattern></defs>
-        <rect x="0" y="96" width="100%" height="400" fill="#B4C6CE"/><path d="M0 96H4000" stroke="#000" stroke-width="2.4"/><rect x="0" y="104" width="100%" height="100" fill="url(#swell)" opacity=".5"/>
-        <g fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"><path d="M60 92l14-30v30zM74 62l10 30H74"/><path d="M52 92h40l-6 6H58z"/></g>
-        <path d="M150 50q6-5 12 0q6-5 12 0M210 38q5-4 10 0q5-4 10 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg class="stallwall" aria-hidden="true"><defs>${iaPat('dsky',IA.sky)}${iaPat('dsea',IA.sea,96)}</defs>
+        <rect x="0" y="0" width="100%" height="96" fill="url(#dsky)"/><rect x="0" y="96" width="100%" height="100%" fill="url(#dsea)"/></svg>
       <h2 class="stallsign">${M.short}'s fish</h2>
       <div class="pchips">${face('m',M.look,`${M.n}, the fishmonger`,!who)}${people.map(p=>face(p.k,NPCS[p.npc].look,`${NPCS[p.npc].n}, on the dock`,p===who)).join('')}</div>
       <div class="stalltop"><div class="seller" aria-label="${who?N.n:M.n}">${peep(speaker,'40 22 172 150')}</div>${talk}</div>
-      <div class="table crates"><div class="goods" id="goods">${goods}</div></div>
+      <div class="table crates">${iaBack('dcrates',IA.crates)}<div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
 /* a fish sale: each fish flops off the crate and arcs into the fishmonger's arms (they bob as they catch it), then the
