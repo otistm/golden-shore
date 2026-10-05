@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.43.0
+- Storms slow you down. In a storm your ship sails at about 60% speed, turns more sluggishly and is pushed sideways by the wind; rain slows her a little and pushes her gently.
+- Storms change fights. Fighting in a storm at sea, the fight's storm hits 12 seconds early (at 18 seconds instead of 30), and the rain halves all burning, yours and theirs. Rain falls over the fight, and the card before the fight says so. Overall win rates barely move (50.8% clear, 50% in a storm), but fire-heavy holds suffer and fast ones shine.
+
 ## 0.42.0
 - Weather. Each sea has its own swell: a short one in the Shallows, a long heavy one in the Fog Sea, big seas in the Deep. The weather changes day by day as you sail, and the lookout calls it out. It eases from calm with cloud shadows drifting over the water, to a fair wind, to mist lying low on the sea with drizzle, to rain, to storms with whitecaps, driving rain, a dark sky and lightning. Rougher weather raises the swell, so ships pitch and roll harder. The wind pushes the fog along. The Shallows are mostly fair, the Fog Sea mostly misty, the Deep mostly stormy. The day's weather shows beside the sea's name.
 - To see a weather on purpose, add ?weather=storm (or calm, breezy, mist, rain) to the address.

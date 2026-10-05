@@ -9,7 +9,9 @@ let recIt=null;
 const hasT=(S,k)=>S.traits.some(x=>x.k===k);
 function fighterHTML(S,k,c){return`<div class="fighter ${k} ${c||''}" id="${k}f" ${k==='e'?'role="button" tabindex="0"':''}><div class="who"><span class="name">${S.name}</span><span class="num" id="${k}hp"></span></div><div class="hpwrap"><div class="hpbar"><div class="lag" id="${k}lag"></div><div class="hp" id="${k}hpf"></div><div class="inc burnseg" id="${k}bs"></div><div class="inc poiseg" id="${k}ps"></div><div class="sh" id="${k}shf"></div></div><div class="chips" id="${k}st" aria-live="off"></div></div><p class="traits">${S.traits.map(t=>TRAITS[t.k].n).join(', ')}${k==='e'?' <span>Tap to read.</span>':''}</p></div>`}
 /* Builds the fight (B) without touching the screen. fight() uses it, and so does tools/sim.mjs, so the balance numbers match the game. */
-function setupFight(n,f,board){
+/* wx: the weather the fight is fought in (a key of WEATHER, or nothing). In a storm the fight's storm comes 12 seconds early
+   and the rain halves all burning (B.douse). */
+function setupFight(n,f,board,wx){
   const depth=f.depth,sh=SHIPS[G.ship];
   const pMax=shipHP(depth);
   B={dot:{p:{burn:0,poison:0,storm:0},e:{burn:0,poison:0,storm:0}},t:0,wait:.9,speed:window._spd||1,over:false,quiet:false,bt:0,pt:0,st:0,storm:0,node:n,bell:BELL+(hasC('calm')?6:0)-(hasF('stormsail')?5:0),ram:hasF('ram'),cr:craftRanks(),orders:ordersAboard(),
@@ -22,6 +24,7 @@ function setupFight(n,f,board){
   if(hasT(E,'rush'))E.items.forEach(it=>it.h=Math.max(it.h,4));
   if(hasT(E,'fire'))P.burn+=hasF('copper')?Math.ceil(TRAITS.fire.x(G.sea)/2):TRAITS.fire.x(G.sea);
   if(hasT(E,'whirl'))B.bell-=8;
+  B.wx=wx||null;if(wx==='storm'){B.bell=Math.max(6,B.bell-STORMEARLY);B.douse=true}
   // fittings at the start of a fight
   if(hasF('kraken')){E.max=E.hp=Math.round(E.max*1.1);E.items.forEach(it=>it.sl=Math.max(it.sl,3))}
   const pc=P.items.filter(it=>it.s.cd);
@@ -38,12 +41,12 @@ function fight(n){
   app.style.paddingBottom='';
   const f=enemyOf(n);
   A.met[n.enemy]=1;saveA();G.fightAt=n.id;save();
-  setupFight(n,f,G.board);const P=B.P,E=B.E;
-  app.innerHTML=`${barHTML()}<section class="battle">
+  setupFight(n,f,G.board,G.tut?null:weatherOf(G.sea,G.day));const P=B.P,E=B.E;
+  app.innerHTML=`${barHTML()}<section class="battle${B.wx?' wx-'+B.wx:''}">
     ${fighterHTML(E,'e','k-'+(n.type==='boss'||n.type==='elite'?n.type:'threat'))}${boardHTML(E.list,'e')}
     <div class="mid"><span class="clock" id="clock"></span><div class="speed">${[1,2,4].map(v=>`<button data-sp="${v}" aria-pressed="${B.speed===v}">${v}×</button>`).join('')}<button id="skip">Skip</button></div></div>
     ${boardHTML(P.list,'p',null,holdCap())}${fighterHTML(P,'p','ship-'+(SHIPDRAW[G.ship]?G.ship:'sloop'))}
-    <p class="tip">Tap any item to see what it does.</p></section>`;
+    ${B.douse?'<p class="wxnote">A storm at sea: the storm comes early, and the rain halves all burning.</p>':''}<p class="tip">Tap any item to see what it does.</p></section>`;
   bindBar();
   for(const[S,k]of[[P,'p'],[E,'e']]){
     const els=app.querySelectorAll(`.board[data-side="${k}"] .item`);
@@ -117,7 +120,7 @@ function applyFx(S,F,it,i,f,depth){
   if(f.grow)for(const k in f.grow)g[k]=(g[k]||0)+f.grow[k];
   recIt=prevRec;
 }
-function burnOn(S,F,n,it,depth){let b=n+(hasT(S,'kindle')?1:0);if(F===B.P){if(hasF('magazine'))b++;if(hasF('copper'))b=Math.ceil(b/2)}F.burn+=b;if(it&&it.rec)it.rec.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
+function burnOn(S,F,n,it,depth){let b=n+(hasT(S,'kindle')?1:0);if(F===B.P){if(hasF('magazine'))b++;if(hasF('copper'))b=Math.ceil(b/2)}if(B.douse)b=Math.ceil(b/2);F.burn+=b;if(it&&it.rec)it.rec.burn+=b;pop(it&&it.el||S.fel,'Burn '+b);emit(S,F,'burn',it,depth)}
 function poisonOn(S,F,n,it,depth){if(F===B.P&&hasF('copper'))n=Math.ceil(n/2);F.poison+=n;if(it&&it.rec)it.rec.poison+=n;pop(it&&it.el||S.fel,'Poison '+n);emit(S,F,'poison',it,depth)}
 /* reactions: items listening for things that happen on their own side */
 function emit(S,F,ev,src,depth){

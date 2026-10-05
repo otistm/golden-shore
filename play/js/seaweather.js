@@ -12,20 +12,20 @@ const WAVESETS=[
   [{d:.1,l:520,a:8},{d:.35,l:300,a:5},{d:-.2,l:170,a:3},{d:.5,l:100,a:1.8}]];              // the Deep: big seas rolling in from the west
 WAVESETS.forEach(set=>set.forEach((w,i)=>{w.k=2*Math.PI/w.l;w.dx=Math.cos(w.d);w.dy=Math.sin(w.d);w.w=Math.sqrt(75*w.k);w.p=i*1.9}));
 const curWaves=()=>WAVESETS[Math.min(2,G?G.sea:0)];
-/* kinds of weather. swell and chop scale the long and short waves; wind pushes the fog (world units a second); rain 0 to 1;
+/* kinds of weather. speed is how fast your ship can sail (and turn); drift is how hard the wind pushes her sideways; swell and chop scale the long and short waves; wind pushes the fog (world units a second); rain 0 to 1;
    dark tints the whole scene; caps are whitecaps; clouds are cloud shadows on the water; mist lies over sailed water. */
 const WEATHER={
-  calm:{n:'Calm',call:'Flat calm.',swell:.55,chop:.4,wind:3,rain:0,dark:0,caps:0,clouds:1,mist:0,flash:0},
-  breezy:{n:'Fair wind',call:'A fair wind!',swell:1,chop:1,wind:8,rain:0,dark:0,caps:.25,clouds:.6,mist:0,flash:0},
-  mist:{n:'Mist',call:'Mist rolling in.',swell:.8,chop:.5,wind:4,rain:.15,dark:.15,caps:0,clouds:0,mist:1,flash:0},
-  rain:{n:'Rain',call:'Rain coming in!',swell:1.25,chop:1.4,wind:12,rain:.6,dark:.35,caps:.4,clouds:0,mist:.25,flash:0},
-  storm:{n:'Storm',call:'Storm! Hold on!',swell:1.7,chop:2.1,wind:20,rain:1,dark:.65,caps:1,clouds:0,mist:.2,flash:1}};
+  calm:{n:'Calm',call:'Flat calm.',speed:1,drift:0,swell:.55,chop:.4,wind:3,rain:0,dark:0,caps:0,clouds:1,mist:0,flash:0},
+  breezy:{n:'Fair wind',call:'A fair wind!',speed:1,drift:0,swell:1,chop:1,wind:8,rain:0,dark:0,caps:.25,clouds:.6,mist:0,flash:0},
+  mist:{n:'Mist',call:'Mist rolling in.',speed:1,drift:0,swell:.8,chop:.5,wind:4,rain:.15,dark:.15,caps:0,clouds:0,mist:1,flash:0},
+  rain:{n:'Rain',call:'Rain coming in!',speed:.85,drift:.35,swell:1.25,chop:1.4,wind:12,rain:.6,dark:.35,caps:.4,clouds:0,mist:.25,flash:0},
+  storm:{n:'Storm',call:'Storm! Hold on!',speed:.6,drift:1,swell:1.7,chop:2.1,wind:20,rain:1,dark:.65,caps:1,clouds:0,mist:.2,flash:1}};
 /* how often each sea sees each weather */
 const SEASKY=[{calm:45,breezy:40,rain:15},{mist:55,breezy:15,rain:25,storm:5},{breezy:25,rain:35,storm:40}];
 const WXTRY=(location.search.match(/[?&]weather=([a-z]+)/)||[])[1];   // ?weather=storm (or calm, breezy, mist, rain) to try one out
 function weatherOf(sea,day){if(WEATHER[WXTRY])return WXTRY;const r=RNG(G.seed,'weather',sea,day)(),odds=SEASKY[Math.min(2,sea)],tot=Object.values(odds).reduce((a,b)=>a+b,0);
   let x=r*tot;for(const k in odds){x-=odds[k];if(x<0)return k}return Object.keys(odds)[0]}
-const WXKEYS=['swell','chop','wind','rain','dark','caps','clouds','mist','flash'];
+const WXKEYS=['speed','drift','swell','chop','wind','rain','dark','caps','clouds','mist','flash'];
 /* the weather now: cur eases from 'from' to the day's weather; wo is how far the wind has pushed things (fog, cloud shadows) */
 const WX={k:null,sea:-1,cur:null,from:null,t0:0,wo:[0,0],drops:[],rings:[],flashAt:0,bolt:null};
 function weatherTick(dt){if(!G)return;const k=weatherOf(G.sea,G.day),now=performance.now();

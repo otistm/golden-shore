@@ -1652,3 +1652,8 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .chartbtn.new::after{content:"";position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--brick);border:2px solid var(--line);animation:bump .6s var(--spring) infinite alternate}
 @media (prefers-reduced-motion:reduce){.ocean .o-fin,.ocean .o-sway,.ocean .o-hump,.ocean .o-spout,.ocean .o-glint,.ocean .o-spin,.ocean .o-rain,.ocean .o-bolt,.ocean .o-shoal,.ocean .o-smoke,.chartbtn.new::after{animation:none}}
 .ocean .o-keel{fill:#6E5A4A}
+/* fighting in a storm at sea: rain over the fight, and a note on what it changes */
+.battle.wx-storm::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;background:rgba(28,38,52,.12) repeating-linear-gradient(105deg,transparent 0 13px,rgba(31,42,60,.2) 13px 14px,transparent 14px 31px);background-size:100% 100%,62px 62px;animation:fightrain .35s linear infinite}
+@keyframes fightrain{to{background-position:0 0,-17px 62px}}
+.wxnote{font-size:13px;font-weight:800;text-align:center;color:var(--ink);background:var(--slate-p);border:2px solid var(--line);border-radius:12px;padding:6px 10px}
+@media (prefers-reduced-motion:reduce){.battle.wx-storm::before{animation:none}}

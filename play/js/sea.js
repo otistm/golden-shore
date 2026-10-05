@@ -185,11 +185,13 @@ function seaStep(dt){const p=G.pos;let want=0;
     else{
       // stuck against the edge of the sea or a shore with no way round: give up after a few seconds rather than push forever
       if(SEA.best==null||d<SEA.best-8){SEA.best=d;SEA.stall=0}else if(!SEA.hold&&(SEA.stall+=dt)>3.5){SEA.target=null;seaMark();return false}
-      const da=angD(Math.atan2(dy,dx)-p.a),t=TURN*dt,turn=clamp(da,-t,t);p.a=angD(p.a+turn);SEA.turn+=(turn/dt-SEA.turn)*Math.min(1,dt*4);
-      want=MAXV*Math.min(1,.25+d/160)*Math.max(.15,1-Math.abs(da)/2.2)}}
+      const wxs=WX.cur?WX.cur.speed:1,da=angD(Math.atan2(dy,dx)-p.a),t=TURN*(.55+.45*wxs)*dt,turn=clamp(da,-t,t);p.a=angD(p.a+turn);SEA.turn+=(turn/dt-SEA.turn)*Math.min(1,dt*4);
+      want=MAXV*wxs*Math.min(1,.25+d/160)*Math.max(.15,1-Math.abs(da)/2.2)}}
   SEA.v+=clamp(want-SEA.v,-ACC*1.5*dt,ACC*dt);
   if(SEA.v<1&&!want){SEA.v=0;return false}
   p.x+=Math.cos(p.a)*SEA.v*dt;p.y+=Math.sin(p.a)*SEA.v*dt;
+  // in rain and storms the wind pushes her off her course while she's under way
+  if(WX.cur&&WX.cur.drift){const wd=curWaves()[0],k=WX.cur.drift*18*dt*Math.min(1,SEA.v/60);p.x+=wd.dx*k;p.y+=wd.dy*k}
   // the edges of the sea, and land: she slides along a shore rather than sailing over it
   p.x=clamp(p.x,-220,SEA_W+220);p.y=clamp(p.y,-460,SEA_LEN+460);
   for(const n of G.map.nodes){if(n.type!=='port'&&n.type!=='isle')continue;const q=wpos(n),rr=isleR(n)+10,ex=(p.x-q.x)/1.12,dy=p.y-q.y,d=Math.hypot(ex,dy);
@@ -262,6 +264,7 @@ function seaSeen(n){const s=sightOf(n);
   return{head:nodeTitle(n),x:''}}
 /* what's here: the card when you sail into a stop, with the button that goes in */
 function seaArrive(n){const{head,x}=seaSeen(n);let{body}=nodeInfo(n);
+  if(n.enemy&&weatherOf(G.sea,G.day)==='storm')body+=`<p class="soft"><b>In this storm</b> the fight's storm comes ${STORMEARLY} seconds early, and the rain halves all burning.</p>`;
   if(n.type==='event')body='';if(n.type==='isle')body+='<p class="soft">From its peak you could see more of the sea.</p>';
   const verb={port:'Make port',threat:'Engage',elite:'Engage',boss:'Engage',event:'Take a look',isle:'Go ashore',npc:'Hail them',fish:'Cast your lines'}[n.type]||'Go';
   const ov=overlay(`<h2>${head}</h2>${x?`<p class="log">${x}</p>`:''}${body}<div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="go">${verb}</button></div>`);

@@ -227,6 +227,7 @@ const TAGN={W:'Weapon',C:'Cannon',F:'Food',X:'Fire',T:'Tool',A:'Armor',R:'Riggin
 const TIER=['Bronze','Silver','Gold','Diamond'];
 const M=[1,2,3,4];
 const BELL=30;
+const STORMEARLY=12;   // how much sooner the fight's storm hits when you fight in a storm at sea
 /* every hold in the game has 9 slots, yours and every enemy's. Nothing may ever add slots; Double Planking only takes one away. */
 const HOLD=9;
 const price=(k,t)=>({1:3,2:6,3:9})[DEFS[k].s]*[1,2,4,8][t];
