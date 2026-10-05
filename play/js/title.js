@@ -98,4 +98,5 @@ function startVoyage(seed,ship){
   ov.querySelector('button').onclick=()=>ov.remove();ov.querySelector('button').focus();
 }
 function resume(){unrollNext=true;if(G.fightAt!=null&&node(G.fightAt))return fight(node(G.fightAt));
+  if(G.site&&node(G.site.id))return siteScene(node(G.site.id));   // back up close where you were
   if(G.boarded!=null&&node(G.boarded))return bandits(node(G.boarded),()=>{if(G.hull<=0)return sink();save();chart()});const n=node(G.at);if(n.type==='port'&&G.inPort)port(n.id);else chart()}

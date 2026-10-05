@@ -5,11 +5,12 @@
 "use strict";
 /* what kind of place a stop is, or null if it isn't one you can claim */
 const CLAIMEV={wreck:'Wreck',shrine:'Shrine',cache:'Cairn',castaway:'Sandbar',whirl:'Whirlpool',mermaid:'Siren rock',gunsmith:'Forge islet',fishing:'Fishing grounds'};
-function placeKind(n){if(!n)return null;if(n.type==='port')return'Port';if(n.type==='isle')return'Isle';if(n.type==='fish')return'Fishing grounds';
+function placeKind(n){if(!n)return null;if(n.type==='port')return'Port';if(n.type==='isle')return isleVariant(n)==='lighthouse'?'Lighthouse':'Isle';if(n.type==='fish')return'Fishing grounds';
   if(n.type==='event'&&CLAIMEV[n.ev])return CLAIMEV[n.ev];return null}
 /* names, from the voyage seed: every captain on the same voyage code charts the same names */
 const PNAME={
   Isle:[['Gannet','Crow','Widow','Saint Ide\'s','Hollow','Kettle','Lantern','Mussel','Cutlass','Lonely','Puffin','Bishop\'s','Sorrow','Driftwood','Tern','Salt','Gull','Mother Carey\'s','Old Nan\'s','Thimble'],['Rock','Isle','Key','Cay','Holm','Skerry','Head','Tor']],
+  Lighthouse:[['Gannet','Widow\'s','North','Kettle','Tern','Lonely','Old Ide\'s','Candle','Saint Ebb\'s','Fisher\'s'],['Light','Lamp','Beacon']],
   'Fishing grounds':[['Silver','Teeming','Shimmering','Mackerel','Herring','Restless','Boiling','Glass','Gannet\'s','Old Marrow\'s'],['Shoals','Banks','Grounds','Run','Reach','Water']],
   Wreck:[['The Wreck of the'],['Mary Cole','Sweet Hannah','Pelican','Good Intent','Merry Widow','Albatross','Three Sisters','Constant','Lark','Fortitude','Hope of Brine','Black Swan','Patience','Saint Elmo','Gull\'s Luck','Cormorant']],
   Shrine:[['The'],['Green Idol','Weeping Saint','Drowned Altar','Coin Rock','Shell Mother','Quiet Idol','Salt Madonna','Tide Stone']],

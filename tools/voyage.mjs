@@ -35,6 +35,10 @@ for (let run = 0; run < runs; run++) {
       for (let g = 0; g < 4; g++) if (await click(`[data-g="${g}"]`)) { await page.waitForTimeout(20); await click('.talk .buy:not([aria-disabled])'); await page.waitForTimeout(20); }
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; } }
       if (!(await q('.overlay'))) await click('#leave');
+    } else if (await q('#siteleave')) {
+      // up close at an isle or a wreck: try each spot, take what's offered, then go back to sea
+      for (const sp of await page.$('.spot:not(.done)')) { await press(sp).catch(() => {}); await page.waitForTimeout(30); if (await q('.overlay')) break; if (await click('#loottake')) await page.waitForTimeout(30); }
+      if (!(await q('.overlay')) && !(await q('.spot:not(.done)'))) await click('#siteleave');
     } else if (await q('#ocean')) {
       // the open sea: sail (fast) to a place found and not yet done on the nearest rows, or toward the boss to find more
       await page.evaluate(() => {

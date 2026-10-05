@@ -63,8 +63,11 @@ function isleArt(n,live){const town=n.type==='port',r=RNG(G.seed,'isleart',n.id)
     // houses, back to front
     const spots=[];for(let t=0;t<40&&spots.length<5;t++){const x=(r()-.5)*Rd*1.1,y=(r()-.4)*Rd*.9;if(Math.hypot(x-lh[0],(y-lh[1])*1.6)<34)continue;if(spots.every(s=>Math.hypot(s[0]-x,(s[1]-y)*1.6)>34))spots.push([x,y])}
     spots.forEach(([x,y],i)=>{const b2=pr(x,y,zt);things.push({y,s:isoHouse(b2[0],b2[1],22+r()*8,13+r()*8,9+r()*5,i%3)})});
-  }else{
-    for(let i=0;i<3;i++){const x=(r()-.5)*Rd*.9,y=(r()-.5)*Rd*.6,b2=pr(x,y,zt);things.push({y,s:`<g transform="translate(${pt(b2)})">${palm(r)}</g>`})}
+  }else{const v=isleVariant(n);
+    if(v==='rock')for(let i=0;i<3;i++){const x=(i-1)*Rd*.38,y=(r()-.5)*Rd*.3,b2=pr(x,y,zt),h=24+r()*22;things.push({y,s:`<g transform="translate(${pt(b2)})"><path class="o-rock2" d="M-16 0L-10 ${f1(-h)}L4 ${f1(-h-8)}L16 0Z"/><path class="o-rock" d="M-10 ${f1(-h)}L4 ${f1(-h-8)}L2 ${f1(-h/2)}Z"/></g>`})}
+    else if(v==='volcanic'){const b2=pr(0,-Rd*.1,zt);things.push({y:0,s:`<g transform="translate(${pt(b2)})"><path class="o-ash" d="M-40 0L-10 -42H10L40 0Z"/><path class="o-ash2" d="M10 -42L40 0H14Z"/>${[0,1,2].map(i=>`<circle class="o-smoke" style="animation-delay:${-i*1.1}s" cx="${i*3}" cy="${-48-i*6}" r="${6+i*3}"/>`).join('')}</g>`})}
+    else{const k=v==='lighthouse'?1:3;for(let i=0;i<k;i++){const x=(r()-.5)*Rd*.9,y=(r()-.5)*Rd*.6,b2=pr(x,y,zt);things.push({y,s:`<g transform="translate(${pt(b2)})">${palm(r)}</g>`})}}
+    if(v==='lighthouse'){const lh=LIGHT(Rd),b2=pr(lh[0],lh[1],zt);things.push({y:lh[1],s:`<g transform="translate(${pt(b2)})"><path class="o-wall" d="M-7 0V-40H7V0z"/><path class="o-roof" d="M-7 -14h14v-7h-14zM-7 -30h14v-5h-14z"/><path class="o-win" d="M-5 -40h10v-8h-10z"/><path class="o-roof" d="M-8 -48h16l-8 -9z"/></g>`})}
     if(!live){const b2=pr(-Rd*.2,Rd*.2,zt);things.push({y:Rd*.2,s:`<g transform="translate(${pt(b2)})"><path d="M0 0v-30" stroke-width="2"/><path class="s-flag" d="M0 -30l16 5l-16 5z"/></g>`})}
   }
   things.sort((a,b)=>a.y-b.y).forEach(t=>g+=t.s);return g}
@@ -126,11 +129,14 @@ const ART={
   flotsam:()=>{const barrel=(x,y)=>`<g transform="translate(${x} ${y})"><path class="o-wood" d="M-7 -12v12a7 3.5 0 0 0 14 0v-12z"/><ellipse class="o-wood2" cx="0" cy="-12" rx="7" ry="3.5"/><path d="M-7 -5a7 3.5 0 0 0 14 0" fill="none" stroke-width="1.2"/></g>`;
     return lap(34)+bobs(`${barrel(-14,4)}${barrel(12,-2)}<g transform="translate(0 10) rotate(-8)"><path class="o-wood2" d="M-9 -6l9-4 9 4-9 4z"/><path class="o-wood" d="M-9 -6v6l9 4v-6zM9 -6v6l-9 4v-6z"/></g>`)},
   wreck:()=>lap(40)+bobs(`<path class="o-wood" d="M-26 4l20 -6 2 5 -20 6z"/><path class="o-wood" d="M4 -8l24 3 -1 5 -24 -3z"/><path class="o-wood2" d="M-6 10l18 -2 1 5 -18 2z"/><path d="M-2 0l10 -30" stroke-width="2.4"/><path class="s-sail2" d="M6 -24l12 4 -4 8z"/>`),
+  // a ship broken and listing, her mast snapped
+  wrecked:()=>lap(50)+bobs(`<g transform="rotate(-12)"><path class="o-keel" d="M-40 -2q6 -14 24 -16h44q10 8 8 18z"/><path class="o-wood2" d="M-36 -6q20 -6 68 -4" fill="none"/><path d="M-4 -18l-6 -30" stroke-width="2.4"/><path class="s-sail2" d="M-10 -46l-14 6 10 18z"/></g>`),
   calm:()=>''
 };
 /* what a place looks like out on the water: {art, and its settings} */
 function sightOf(n){
   if(n.enemy)return Object.assign({art:'ship',k:'t',pal:'foe-t'},FOESEEN[n.enemy]);
+  if(n.type==='event'&&n.ev==='wreck')return Object.assign({},EVSEEN.wreck,{art:wreckVariant(n)==='keel'?'keel':'wrecked',call:'A wreck!'});
   if(n.type==='event')return EVSEEN[n.ev]||{art:'flotsam'};
   if(n.type==='npc')return{art:'row'};
   if(n.type==='fish')return{art:'fish'};

@@ -169,6 +169,7 @@ function goNow(id,atSea){
   coach('sail');
   G.at=id;G.path.push(id);if(!atSea)G.day++;   // on the open sea, days pass as you sail insteadG.moving=false;G.sel=null;updateReveal();save();
   const n=node(id);
+  if(!G.tut&&SITEKIND(n))return siteScene(n);   // isles and wrecks open up close (site.js)
   if(n.type==='port')port(id);
   else if(n.enemy)fight(n);
   else if(n.type==='event')eventAt(n);

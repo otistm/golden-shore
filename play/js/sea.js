@@ -74,8 +74,8 @@ function seaFragment(src){const F=G.fog,r=RNG(G.seed,'frag',G.sea,src,F.m.length
 function seaBottle(i){G.fog.b.push(i);seaFlot();
   const note=NOTES[ri(RNG(G.seed,'note',G.sea,i),NOTES.length)],what=seaFragment('bottle'+i);
   logL(what?`Fished a bottle out of the sea. Inside, a scrap of chart showing ${what}.`:'Fished a bottle out of the sea. The scrap of chart inside shows water I already know.');save();
-  const ov=overlay(`<h2>A message in a bottle</h2><p class="log">${note}</p><p>${what?`It's a scrap of chart. It shows ${what}.`:"It's a scrap of chart, of water you've already sailed."}</p>
-    <div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="chart">Look at the chart</button></div>`);
+  const ov=bottleMoment(note,`<p class="bf-after">${what?`It's a scrap of chart. It shows ${what}.`:"It's a scrap of chart, of water you've already sailed."}</p>
+    <div class="sh-actions bf-after"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="chart">Look at the chart</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='chart')seaChart()})}
 function seaFlot(){const g=SEA.el&&SEA.el.querySelector('#seaflot');if(!g)return;
   g.innerHTML=seaBottles().map((b,i)=>G.fog.b.includes(i)?'':`<g data-wx="${f1(b.x)}" data-wy="${f1(b.y)}" transform="translate(${f1(b.x)} ${f1(b.y*SK)})">${ART.bottle()}</g>`).join('');seaFloats()}
@@ -294,7 +294,7 @@ function seaFog(v){const c=SEA.el.querySelector('#seafog'),x=c.getContext('2d'),
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';ring(1.3/Z);x.fill();x.globalCompositeOperation='source-over'}
 /* what you see, in words: the title and lines for a place's card */
 function seaSeen(n){const s=sightOf(n);
-  if(placeKind(n)&&n.type!=='port'&&claimed(n))return{head:placeName(n),x:n.type==='event'?s.x||'':n.type==='isle'?seenLine(SEEN.isle,n.id):seenLine(SEEN.fish,n.id)};
+  if(placeKind(n)&&n.type!=='port'&&claimed(n))return{head:placeName(n),x:SITEKIND(n)?seenLine(VARSEEN[n.type==='isle'?isleVariant(n):wreckVariant(n)],n.id):n.type==='event'?s.x||'':seenLine(SEEN.fish,n.id)};
   if(n.type==='port')return{head:n.name,x:seenLine(SEEN.port,n.id)};
   if(n.enemy)return{head:'The '+ENEMIES[n.enemy].n,x:seenLine(s.x,n.id)};
   if(n.type==='event')return{head:s.t||'Something in the water',x:s.x||''};
@@ -305,15 +305,13 @@ function seaSeen(n){const s=sightOf(n);
 /* what's here: the card when you sail into a stop, with the button that goes in */
 function seaArrive(n){const{head,x}=seaSeen(n);let{body}=nodeInfo(n);
   if(n.enemy&&weatherOf(G.sea,G.day)==='storm')body+=`<p class="soft"><b>In this storm</b> the fight's storm comes ${STORMEARLY} seconds early, and the rain halves all burning.</p>`;
-  if(n.type==='event')body='';if(n.type==='isle')body+='<p class="soft">From its peak you could see more of the sea.</p>';
+  if(n.type==='event')body='';if(n.type==='isle')body=`<p>Land no chart shows. Go ashore to look around.</p>`;
   const verb={port:'Make port',threat:'Engage',elite:'Engage',boss:'Engage',event:'Take a look',isle:'Go ashore',npc:'Hail them',fish:'Cast your lines'}[n.type]||'Go';
   const ov=overlay(`<h2>${head}</h2>${x?`<p class="log">${x}</p>`:''}${body}<div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="go">${verb}</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='go')seaVisit(n.id)});
   ov.querySelector('[data-a="go"]').focus()}
 function seaVisit(id){const n=node(id);G.pos.at=id;SEA.target=null;
   if(n.type==='port'&&G.at===id){coach('sail');return port(id)}   // back to the port you last left: no new day, no wages
-  // the view from an uncharted isle's peak goes on your chart
-  if(n.type==='isle'&&seaLive(n)){const w=seaFragment('isle'+id);if(w)logL(`From the isle's peak I could see ${w}. I drew it on my chart.`)}
   goNow(id,true)}   // the days passed on the way there
 
 /* ---------- the chart ---------- */
