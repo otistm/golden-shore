@@ -1657,3 +1657,11 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 @keyframes fightrain{to{background-position:0 0,-17px 62px}}
 .wxnote{font-size:13px;font-weight:800;text-align:center;color:var(--ink);background:var(--slate-p);border:2px solid var(--line);border-radius:12px;padding:6px 10px}
 @media (prefers-reduced-motion:reduce){.battle.wx-storm::before{animation:none}}
+/* weather in port (seaweather.js): rain and mist over the outdoor scenes, and the harbour's sky and water by the day's weather */
+.hscene .wxrain,.stall .wxrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.seahead .pwx{text-align:right;line-height:1.25}   /* the sea's name, and the day's weather under it */
+.hscene.wx-mist .h-sun,.hscene.wx-mist .hrays,.hscene.wx-rain .h-sun,.hscene.wx-rain .hrays,.hscene.wx-storm .h-sun,.hscene.wx-storm .hrays{display:none}
+.hscene.wx-mist{background:#EEEAE2}.hscene.wx-rain{background:#E3E1DB}.hscene.wx-storm{background:#C9CBCB}
+.hscene.wx-mist .hcloud .w{fill:#F4F1EB}.hscene.wx-rain .hcloud .w{fill:#C3C8CB}.hscene.wx-storm .hcloud .w{fill:#7F8992}
+.hscene.wx-mist .hworld{--sea:#C3CFD3}.hscene.wx-rain .hworld{--sea:#A3B3BA;--water:#71899A;--water2:#62798A}.hscene.wx-storm .hworld{--sea:#8E9FA7;--water:#5E7486;--water2:#4F6475}
+.stall .talk{z-index:6}   /* speech bubbles stay above the rain */

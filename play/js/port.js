@@ -39,14 +39,14 @@ function port(id,view){
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
       ${view==='market'?marketH:view==='tavern'?(tutOpen('tavern')?tavernHTML(S):'<p class="soft">The tavern is closed for the trial.</p>'):view==='wright'?(tutOpen('wright')?wrightHTML(S,id,anim):'<p class="soft">The shipwright is closed for the trial.</p>'):docksHTML(S,id,vis,anim)}`;
-  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><button class="scope" id="scope" aria-label="Look at the chart"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 9.5l13-5 1.6 4.2-13 5z"/><path d="M16.4 4l4.2-1.6 1.6 4.2-4.2 1.6"/><path d="M8 12.5l-2 3M10 11.7l2 3.8"/></svg>Chart</button><span>${SEAS[G.sea]}</span></div>
+  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><button class="scope" id="scope" aria-label="Look at the chart"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 9.5l13-5 1.6 4.2-13 5z"/><path d="M16.4 4l4.2-1.6 1.6 4.2-4.2 1.6"/><path d="M8 12.5l-2 3M10 11.7l2 3.8"/></svg>Chart</button><span class="pwx">${SEAS[G.sea]}${G.tut?'':`<br>${WEATHER[portWxKey()].n}`}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
   // the market's goods drag straight off the table into the hold or locker, paying as they land
   const buyInto=(i,tgt,dst)=>{const o=S.offers[i],p=buyP(o);if(G.gold<p){toast(`Need ${p-G.gold} more gold`);return null}
     let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{const b={k:o.k,t:o.t};tgt.list.splice(dst,0,b);seen(o.k);flash={ref:b,kind:'add'};at=dst}
     G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();setTimeout(()=>coach('bought'));return at};
-  bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();
+  bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();portWeather();
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
     if(hasC('route')&&G.freeRoll){G.freeRoll=false}
     else{if(G.gold<rr)return toast(`Need ${rr-G.gold} more gold`);G.gold-=rr;S.reroll++;bump='gold'}

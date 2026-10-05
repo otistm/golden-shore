@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.44.0
+- Weather in port. The harbour's sky and water follow the day's weather: the sun goes in when it rains, clouds turn grey, the water darkens. Rain falls over the town and splashes on the water, mist drifts through, and storms flash with lightning. The market, the shipwright's yard and the docks get the same rain and mist, lighter so the goods stay clear, with speech bubbles kept above the rain. The tavern is indoors and stays dry. The day's weather shows under the sea's name.
+
 ## 0.43.0
 - Storms slow you down. In a storm your ship sails at about 60% speed, turns more sluggishly and is pushed sideways by the wind; rain slows her a little and pushes her gently.
 - Storms change fights. Fighting in a storm at sea, the fight's storm hits 12 seconds early (at 18 seconds instead of 30), and the rain halves all burning, yours and theirs. Rain falls over the fight, and the card before the fight says so. Overall win rates barely move (50.8% clear, 50% in a storm), but fire-heavy holds suffer and fast ones shine.

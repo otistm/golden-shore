@@ -35,27 +35,53 @@ function weatherTick(dt){if(!G)return;const k=weatherOf(G.sea,G.day),now=perform
   const wd=curWaves()[0];WX.wo[0]+=wd.dx*WX.cur.wind*dt;WX.wo[1]+=wd.dy*WX.cur.wind*dt}
 /* the weather's name beside the sea's */
 function seaWxLabel(){const e=document.getElementById('seawx');if(e&&G)e.textContent=`Sea ${G.sea+1} of 3 · ${WEATHER[weatherOf(G.sea,G.day)].n}`}
-/* rain, the darkened sky and lightning, drawn over the whole sea (fog included) on their own canvas */
-function seaRain(dt){const c=SEA.el.querySelector('#searain');if(!c)return;const x=c.getContext('2d'),W=SEA.vw,H=SEA.vh,d=Math.min(2,devicePixelRatio||1),w=WX.cur;
+/* rain, the darkened sky, mist and lightning on a canvas over a scene, sized W by H. st keeps its drops, rings and lightning.
+   o: top and bot of the band where rings splash and lightning strikes, dark (how much of the weather's darkness to use),
+   slant (the rain's lean: drops move this far sideways for each unit they fall). */
+function drawWeather(c,W,H,w,st,dt,o){const x=c.getContext('2d'),d=Math.min(2,devicePixelRatio||1);
   if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=Math.round(W*d);c.height=Math.round(H*d)}
   x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,W,H);
-  if(w.dark>.01){x.fillStyle=`rgba(28,38,52,${(w.dark*.24).toFixed(3)})`;x.fillRect(0,0,W,H)}
-  const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  // drops fall slanted with the wind; on the water each leaves a ring that spreads and fades
-  const want=Math.round(w.rain*W*H/1400),wd=curWaves()[0],slant=wd.dx*(.15+w.wind*.025);
-  while(WX.drops.length<want)WX.drops.push({x:Math.random()*W,y:Math.random()*H,v:700+Math.random()*500,l:10+Math.random()*14});
-  if(WX.drops.length>want)WX.drops.length=want;
-  if(!still&&dt){x.strokeStyle='rgba(31,42,60,.32)';x.lineWidth=1.1;x.beginPath();
-    for(const p of WX.drops){p.y+=p.v*dt;p.x+=p.v*slant*dt;if(p.y>H||p.x<-30||p.x>W+30){p.y=-p.l-Math.random()*60;p.x=Math.random()*(W+60)-30}
+  const dark=w.dark*(o.dark==null?1:o.dark);if(dark>.01){x.fillStyle=`rgba(28,38,52,${(dark*.24).toFixed(3)})`;x.fillRect(0,0,W,H)}
+  const still=matchMedia('(prefers-reduced-motion:reduce)').matches,now=performance.now();
+  // mist: soft banks drifting slowly sideways
+  if(w.mist>.05&&o.mist){st.mt=(st.mt||0)+dt;for(let i=0;i<4;i++){const cx=((i*.31+st.mt*.012*(1+i*.3))%1.4-.2)*W,cy=H*(.35+.15*i),r=W*.45;
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,`rgba(240,236,228,${(.5*w.mist).toFixed(2)})`);g.addColorStop(1,'rgba(240,236,228,0)');
+    x.fillStyle=g;x.beginPath();x.ellipse(cx,cy,r,r*.35,0,0,Math.PI*2);x.fill()}}
+  // drops fall slanted with the wind; where they land each leaves a ring that spreads and fades
+  const want=Math.round(w.rain*W*H/1400),slant=o.slant;
+  while(st.drops.length<want)st.drops.push({x:Math.random()*W,y:Math.random()*H,v:700+Math.random()*500,l:10+Math.random()*14});
+  if(st.drops.length>want)st.drops.length=want;
+  if(!still&&want){x.strokeStyle='rgba(31,42,60,.32)';x.lineWidth=1.1;x.beginPath();
+    for(const p of st.drops){p.y+=p.v*dt;p.x+=p.v*slant*dt;if(p.y>H||p.x<-30||p.x>W+30){p.y=-p.l-Math.random()*60;p.x=Math.random()*(W+60)-30}
       x.moveTo(p.x,p.y);x.lineTo(p.x-p.l*slant,p.y-p.l)}
     x.stroke();
-    for(let i=0;i<Math.round(w.rain*W*H/9000*dt*60/8);i++)WX.rings.push({x:Math.random()*W,y:SEA.top+Math.random()*(SEA.bot-SEA.top),t:0});
+    for(let i=0;i<Math.round(w.rain*W*(o.bot-o.top)/9000*dt*60/8);i++)st.rings.push({x:Math.random()*W,y:o.top+Math.random()*(o.bot-o.top),t:0});
     x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=1;
-    WX.rings=WX.rings.filter(r=>(r.t+=dt)<.6);for(const r of WX.rings){const s=2+r.t*16;x.globalAlpha=1-r.t/.6;x.beginPath();x.ellipse(r.x,r.y,s,s*SK,0,0,Math.PI*2);x.stroke()}x.globalAlpha=1}
+    st.rings=st.rings.filter(r=>(r.t+=dt)<.6);for(const r of st.rings){const s=2+r.t*16;x.globalAlpha=1-r.t/.6;x.beginPath();x.ellipse(r.x,r.y,s,s*SK,0,0,Math.PI*2);x.stroke()}x.globalAlpha=1}
   // lightning in a storm: now and then a bolt in the distance and the whole sky goes pale for a moment
-  if(w.flash>.5&&!still&&dt){const now=performance.now();if(!WX.flashAt)WX.flashAt=now+4000+Math.random()*9000;
-    if(now>WX.flashAt){WX.flashAt=now+5000+Math.random()*10000;const bx=W*(.15+Math.random()*.7);let y=SEA.top,px=bx;const pts=[[px,y]];
-      while(y<SEA.top+(SEA.bot-SEA.top)*.45){y+=14+Math.random()*16;px+=(Math.random()-.5)*26;pts.push([px,y])}WX.bolt={pts,t:now}}
-    if(WX.bolt){const a=now-WX.bolt.t;if(a>260)WX.bolt=null;else{x.fillStyle=`rgba(251,245,232,${(.22*(1-a/260)).toFixed(3)})`;x.fillRect(0,0,W,H);
-      x.strokeStyle='#FBF5E8';x.lineWidth=3;x.beginPath();WX.bolt.pts.forEach(([px,py],i)=>i?x.lineTo(px,py):x.moveTo(px,py));x.stroke();
+  if(w.flash>.5&&!still&&dt){if(!st.flashAt)st.flashAt=now+4000+Math.random()*9000;
+    if(now>st.flashAt){st.flashAt=now+5000+Math.random()*10000;const bx=W*(.15+Math.random()*.7),y0=o.boltTop==null?o.top:o.boltTop;let y=y0,px=bx;const pts=[[px,y]];
+      while(y<y0+(o.bot-y0)*.45){y+=14+Math.random()*16;px+=(Math.random()-.5)*26;pts.push([px,y])}st.bolt={pts,t:now}}
+    if(st.bolt){const a=now-st.bolt.t;if(a>260)st.bolt=null;else{x.fillStyle=`rgba(251,245,232,${(.22*(1-a/260)).toFixed(3)})`;x.fillRect(0,0,W,H);
+      x.strokeStyle='#FBF5E8';x.lineWidth=3;x.beginPath();st.bolt.pts.forEach(([px,py],i)=>i?x.lineTo(px,py):x.moveTo(px,py));x.stroke();
       x.strokeStyle='#1F2A3C';x.lineWidth=1.2;x.stroke()}}}}
+/* the open sea's weather layer, over everything including the fog (the mist there is drawn by the fog shader) */
+function seaRain(dt){const c=SEA.el.querySelector('#searain');if(!c)return;const wd=curWaves()[0];
+  drawWeather(c,SEA.vw,SEA.vh,WX.cur,WX,dt,{top:SEA.top,bot:SEA.bot,slant:wd.dx*(.15+WX.cur.wind*.025)})}
+
+/* ---------- weather in port ---------- */
+/* the day's weather over a port's outdoor scenes: the harbour (whose sky and water change colour too, by its wx- class) and
+   the stalls of the market, the shipwright and the docks. The tavern is indoors and stays dry. */
+const PORTWX={raf:0,last:0,list:[]};
+const portWxKey=()=>G.tut?'breezy':weatherOf(G.sea,G.day);
+function portWeather(){const k=portWxKey(),w=WEATHER[k];
+  app.querySelectorAll('.hscene,.stall').forEach(el=>{el.classList.add('wx-'+k);if(!w.rain&&!w.dark&&!w.mist)return;
+    const c=document.createElement('canvas');c.className='wxrain';c.setAttribute('aria-hidden','true');el.appendChild(c);
+    PORTWX.list.push({c,w,st:{drops:[],rings:[]},scene:el.classList.contains('hscene')})});
+  if(!PORTWX.raf&&PORTWX.list.length){PORTWX.last=0;PORTWX.raf=requestAnimationFrame(portWxLoop)}}
+function portWxLoop(now){PORTWX.list=PORTWX.list.filter(p=>p.c.isConnected);if(!PORTWX.list.length){PORTWX.raf=0;return}
+  PORTWX.raf=requestAnimationFrame(portWxLoop);const dt=PAUSE.on?0:Math.min(.05,PORTWX.last?(now-PORTWX.last)/1000:0);PORTWX.last=now;
+  const slant=curWaves()[0].dx*.35;
+  for(const p of PORTWX.list){const W=p.c.clientWidth,H=p.c.clientHeight;if(!W||!H)continue;
+    // in the harbour, rings splash on the water along the bottom and lightning strikes the sky; on a stall, on the ground in front
+    drawWeather(p.c,W,H,p.w,p.st,dt,p.scene?{top:H*.86,bot:H,boltTop:0,dark:1,slant,mist:1}:{top:H*.62,bot:H,boltTop:0,dark:.45,slant,mist:1})}}
