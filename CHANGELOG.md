@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.51.0
+- The market, tavern and shipwright are redrawn inside to match the harbour. The market has a scalloped awning and two shelves of stock behind the seller: crates, sacks, jars, bolts of cloth, a string of onions, a lantern, candles, spice jars, a pair of scales and ledgers, over a planked counter. The tavern has a back bar of bottles, a ship in a bottle, tankards on hooks, casks with taps, lamps between the seats, a mounted fish and a chart, a panelled bar with a brass foot rail, and pewter tankards with a head of foam. The shipwright's yard has a roof beam, a board wall hung with saws, mallets, augers, chisels, an adze, a calendar with days crossed off and a builder's half-model of a hull, over a workbench with shavings.
+
 ## 0.50.0
 - The harbour is redrawn to the same detail as the isles and wrecks. The pier stands on braced piles with a net and floats on its rail, a lobster pot and a rod over the water. The market has a hoist over its loft door and a striped awning. The tavern has a vaulted roof, an iron-strapped door, a tankard sign and round windows where the hands looking for work sit in silhouette. A hull stands half-planked on the slipway with her ribs showing, and the workshop has tools on the wall. Goods, faces, fittings crates and your catch still show what each place has, and the weather still greys the sky and sea.
 

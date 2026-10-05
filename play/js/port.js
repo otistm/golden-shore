@@ -105,6 +105,9 @@ function port(id,view){
    out on the table below; tap one and it lifts while the seller tells you about it, with the Buy button. */
 /* the market just restocked (Show me more): the new goods thump down onto the table instead of popping in */
 let restock=false;
+/* the rooms' drawings (interiorart.js) are tiles that repeat to fill any screen */
+const iaPat=(id,t,y)=>`<pattern id="${id}" width="${t.w}" height="${t.h}" patternUnits="userSpaceOnUse"${y?` y="${y}"`:''}><g stroke="none">${t.s}</g></pattern>`;
+const iaBack=(id,t)=>`<svg class="tablewood" aria-hidden="true"><defs>${iaPat(id,t)}</defs><rect width="100%" height="100%" fill="url(#${id})"/></svg>`;
 function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(hasF('lion')?1:0);
   let sel=PV.msel;if(sel==null||!S.offers[sel])sel=PV.mbought?-1:S.offers.findIndex(Boolean);
   const o=sel>=0?S.offers[sel]:null;
@@ -119,22 +122,15 @@ function stallHTML(S,id,anim){const sk=sellerOf(id),P=SELLERS[sk],rr=S.reroll+(h
       <button class="buy${up?' up':''}" data-b="${sel}" ${poor?'aria-disabled="true"':''}>${up?'Upgrade':'Buy'} for ${p} gold</button></div>`}
   else if(PV.mbought&&S.offers.some(Boolean))talk=`<div class="talk" id="talk"><p class="say">“Pleasure doing business.”</p><p class="desc">Tap anything on the table to hear about it.</p></div>`;
   else talk=`<p class="talk quiet" id="talk">“${P.out}”</p>`;
-  // the back wall: two shelves of crates, sacks, jars and barrels, drawn as tiles so it fills any width
-  const shelf=`<pattern id="stock" width="132" height="58" patternUnits="userSpaceOnUse"><g fill="#FBF5E8" stroke="#000" stroke-width="2" stroke-linejoin="round">
-      <rect x="6" y="22" width="30" height="32" fill="#D7BA8E"/><path d="M6 32h30M6 44h30" fill="none"/>
-      <path d="M44 54q-6-14 2-26q6-6 12 0q8 12 2 26z" fill="#E9CF8E"/><path d="M47 30q5 3 10 0" fill="none"/>
-      <rect x="70" y="34" width="14" height="20" rx="3" fill="#B4C6CE"/><rect x="73" y="28" width="8" height="6" fill="#B98E64"/>
-      <path d="M92 54q-3-14 0-28h22q3 14 0 28z" fill="#B98E64"/><path d="M103 26h11q3 14 0 28h-11z" fill="#9A7350" stroke="none"/><path d="M92 54q-3-14 0-28h22q3 14 0 28z" fill="none"/><path d="M91 34h24M91 46h24" fill="none"/></g></pattern>`;
+  const IA=INTERIORART.market;
   return`<section class="stallsec">
     <div class="stall" id="stall">
-      <svg class="stallwall" aria-hidden="true"><defs>${shelf}<pattern id="awn" width="44" height="34" patternUnits="userSpaceOnUse"><path d="M0 0h22v22q-11 12-22 0z" fill="#B5533C" stroke="#000" stroke-width="2"/><path d="M22 0h22v22q-11 12-22 0z" fill="#FBF5E8" stroke="#000" stroke-width="2"/></pattern></defs>
-        <rect x="0" y="62" width="100%" height="58" fill="url(#stock)"/><path d="M0 120.5H4000" stroke="#000" stroke-width="3"/>
-        <rect x="0" y="138" width="100%" height="58" fill="url(#stock)" transform="translate(-60 0)"/><path d="M0 196.5H4000" stroke="#000" stroke-width="3"/>
-        <rect x="0" y="0" width="100%" height="34" fill="url(#awn)"/><path d="M0 1.5H4000" stroke="#000" stroke-width="3"/></svg>
+      <svg class="stallwall" aria-hidden="true"><defs>${iaPat('mwall',IA.wall,30)}${iaPat('mawn',IA.awn)}</defs>
+        <rect x="0" y="30" width="100%" height="100%" fill="url(#mwall)"/><rect x="0" y="0" width="100%" height="${IA.awn.h}" fill="url(#mawn)"/></svg>
       <h2 class="stallsign">${P.short}'s</h2>
       <button class="ghost more" id="reroll">Show me more<span class="cost">${hasC('route')&&G.freeRoll?'free':`${sicon('gold')}${rr}`}</span></button>
       <div class="stalltop"><div class="seller" aria-label="${P.n}, the seller">${peep(P.look,'40 22 172 150')}</div>${talk}</div>
-      <div class="table"><div class="goods" id="goods">${goods}</div></div>
+      <div class="table">${iaBack('mtable',IA.table)}<div class="goods" id="goods">${goods}</div></div>
     </div>
   </section>`}
 /* fit the stall to the room, down to the hold */
@@ -248,26 +244,21 @@ function tavernHTML(S){const full=(G.crew||[]).length>=berths(),n=S.tavern.lengt
   let sel=PV.tsel;if(sel==null||!S.tavern[sel])sel=S.tavern.findIndex(Boolean);
   // the hands sit in 0..PW; the room runs on far past them on every side, so the scene can fill any shape
   const PW=n*240+40,L=-1600,R=PW+1600,B=1600;
-  let wall='';for(let x=L+6;x<R-20;x+=34){const a=Math.abs(x),h=18+(a*7)%16,w=9+(a*3)%6;wall+=`<path class="${a%3?'t-glass':'t-glass2'}" d="M${x} 92v-${h-6}q0-6 ${w/2}-6t${w/2} 6v${h-6}z" stroke-width="1.6"/><path d="M${x+w/2} ${92-h-4}v-6" stroke-width="2"/>`}
-  for(let x=L+20;x<R-20;x+=46){const a=Math.abs(x);wall+=`<path class="t-box" d="M${x} 164v-24h${10+(a*5)%8}v24z" stroke-width="1.6"/><path class="t-jar" d="M${x+20} 164v-14q0-6 8-6t8 6v14z" stroke-width="1.6"/>`}
-  for(let x=L+120;x<R;x+=240)wall+=`<g class="hlamp" transform="translate(${x} 0)"><path d="M0 0v20" stroke-width="1.6"/><path class="w" d="M-8 20h16l-3 16h-10z" stroke-width="1.8"/></g>`;
-  let floor='';for(let y=400;y<B;y+=26)floor+=`<path d="M${L} ${y}H${R}" stroke-width="1" opacity="${Math.max(.15,.5-(y-400)/1400)}"/>`;
-  for(let x=L+60;x<R;x+=150)floor+=`<path d="M${x} 400v${B}" stroke-width="1" opacity=".18"/>`;
+  const IA=INTERIORART.tavern;
   const seats=S.tavern.map((k,i)=>{const x=20+i*240;
-    if(!k)return`<g transform="translate(${x} 0)"><text class="hchalk" x="120" y="228" text-anchor="middle">hired</text><g transform="translate(150 262) rotate(-80)"><rect class="w" x="-12" y="-26" width="24" height="26" rx="3"/><path d="M12 -20c8 0 8 12 0 12" stroke-width="2"/></g></g>`;
+    if(!k)return`<g transform="translate(${x} 0)"><text class="hchalk" x="120" y="228" text-anchor="middle">hired</text><g transform="translate(150 260)" stroke="none">${IA.tipped}</g></g>`;
     return`<g class="patron${i===sel?' sel':''}" data-sel="${i}" role="button" tabindex="0" aria-label="Talk to the ${CREW[k].n}${i===sel?', talking':''}"><rect class="hit" x="${x}" y="0" width="240" height="290"/>
       <g transform="translate(${x} ${i===sel?14:28})"><g class="bust">${peepLayers(CREW[k].look)}</g></g>
-      <g transform="translate(${x+168} 262)"><rect class="w" x="-12" y="-28" width="24" height="28" rx="3"/><path d="M12 -22c9 0 9 14 0 14M-12 -20h24" stroke-width="2"/></g></g>`}).join('');
+      <g transform="translate(${x+168} 262)" stroke="none">${IA.mug}</g></g>`}).join('');
   const k=sel>=0?S.tavern[sel]:null,C=k&&CREW[k];
   return`<section class="tavern"><div class="m-head"><h2 style="font-size:20px">Tavern <span class="soft">deck ${(G.crew||[]).length}/${berths()}</span></h2><button class="ghost" id="yourcrew">Your crew</button></div>
     <div class="barroom" id="barroom" data-pw="${PW}" data-sx="${sel>=0?20+sel*240+120:-1}">
     <svg class="barscene" aria-label="The bar" preserveAspectRatio="xMidYMin slice" viewBox="0 0 ${PW} 330"><defs><filter id="tfade" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".303 .179 .018 0 .492  .053 .429 .018 0 .48  .053 .179 .268 0 .455  0 0 0 1 0"/></filter></defs>
-      <path d="M${L} 92H${R}M${L} 164H${R}" stroke-width="3"/>${wall}
+      <defs>${iaPat('twall',IA.wall)}${iaPat('tbar',IA.bar,262)}${iaPat('tfloor',IA.floor,400)}</defs>
+      <rect x="${L}" y="0" width="${R-L}" height="262" fill="url(#twall)" stroke="none"/>
       ${seats}
-      <rect class="t-floor" x="${L}" y="400" width="${R-L}" height="${B-400}" stroke="none"/>
-      <rect class="t-top" x="${L}" y="262" width="${R-L}" height="16" stroke-width="3"/>
-      <path class="t-front" d="M${L} 278H${R}V400H${L}z" stroke-width="2.4"/>${Array.from({length:Math.floor((R-L)/40)},(_,i)=>`<path d="M${L+20+i*40} 284v104" stroke-width="1" opacity=".5"/>`).join('')}<path d="M${L} 314H${R}M${L} 388H${R}" stroke-width="2.4"/>
-      ${floor}
+      <rect x="${L}" y="400" width="${R-L}" height="${B-400}" fill="url(#tfloor)" stroke="none"/>
+      <rect x="${L}" y="262" width="${R-L}" height="138" fill="url(#tbar)" stroke="none"/>
     </svg>
     ${C?`<div class="talk" id="talk"><p class="say">“${C.say||'Looking for a berth, captain.'}”</p>
       <p class="who"><b>${C.n}</b> ${crewCrafts1(k)}</p>
@@ -343,22 +334,14 @@ function wrightHTML(S,id,anim){const wk=wrightOf(id),W=WRIGHTS[wk],all=repairabl
       <p class="who"><b>${f.n}</b><span class="chipc">${SPOTS[f.spot]}</span>${f.hp?`<span class="chipc">${f.hp>0?'+':'−'}${Math.abs(f.hp)} health</span>`:''}</p>
       <p class="desc">${f.d}${old?` <span class="soft">Replaces your ${FITTINGS[old].n}, which sells for ${Math.floor(FITTINGS[old].p/2)}.</span>`:''}</p>
       <button class="buy" data-fit="${sel}" ${poor||!ok?'aria-disabled="true"':''}>Fit for ${f.p} gold</button></div>`}
-  // the back wall: a pegboard of saws, mallets, coiled rope and planks, tiled so it fills any width
-  const tools=`<pattern id="tools" width="150" height="70" patternUnits="userSpaceOnUse"><g fill="#FBF5E8" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M10 10h6v46h-6z" fill="#B98E64"/><path d="M8 10h10M13 4v6" fill="none"/>
-      <path d="M30 12h26l-4 14H30z" fill="#7F98A7"/><path d="M34 26v6M42 26v6M50 26v4" fill="none"/><path d="M28 12h-6v8h6" fill="none"/>
-      <circle cx="80" cy="30" r="15" fill="#D8B05E"/><circle cx="80" cy="30" r="9" fill="#DDE3CC"/><path d="M80 15v-9" fill="none"/>
-      <path d="M108 8h14v10h-14z" fill="#5D6E7C"/><path d="M115 18v40" fill="none"/>
-      <path d="M134 10l6 50M140 10l6 50" fill="none"/></g></pattern>`;
+  const IA=INTERIORART.wright;
   return`<section class="stallsec yardsec">
     <div class="stall yard" id="stall">
-      <svg class="stallwall" aria-hidden="true"><defs>${tools}</defs>
-        <rect x="0" y="0" width="100%" height="30" fill="#000"/><path d="M0 9H4000M0 20H4000" stroke="#fff" stroke-width="1.4" stroke-dasharray="40 14"/>
-        <rect x="0" y="54" width="100%" height="70" fill="url(#tools)"/>
-        <rect x="0" y="136" width="100%" height="70" fill="url(#tools)" transform="translate(-74 0)"/></svg>
+      <svg class="stallwall" aria-hidden="true"><defs>${iaPat('ywall',IA.wall,26)}${iaPat('ybeam',IA.beam)}</defs>
+        <rect x="0" y="26" width="100%" height="100%" fill="url(#ywall)"/><rect x="0" y="0" width="100%" height="${IA.beam.h}" fill="url(#ybeam)"/></svg>
       <h2 class="stallsign">${W.short}'s yard</h2>
       <button class="ghost more" id="yourship">Your ship</button>
       <div class="stalltop"><div class="seller" aria-label="${W.n}, the shipwright">${peep(W.look,'40 22 172 150')}</div>${talk}</div>
-      <div class="table bench"><div class="goods" id="goods" style="--n:${S.fits.length+1}">${goods}</div></div>
+      <div class="table bench">${iaBack('ybench',IA.bench)}<div class="goods" id="goods" style="--n:${S.fits.length+1}">${goods}</div></div>
     </div>
   </section>`}

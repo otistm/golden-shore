@@ -868,7 +868,8 @@ button.stat:active{transform:scale(1.06,.9)}
 .portrait.ghost{border-style:dashed}
 /* the market stall: the seller behind the table with their bubble beside them, and the goods out on the table below */
 .stall{position:relative;border:2.5px solid var(--line);border-radius:18px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
-.stallwall{position:absolute;left:0;top:0;width:100%;height:200px;pointer-events:none}
+.stallwall{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.tablewood{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}.table .goods{position:relative;z-index:1}
 .stallsign{position:absolute;z-index:3;left:10px;top:7px;transform:rotate(-2deg);margin:0;background:var(--paper);border:2.5px solid var(--line);border-radius:8px;box-shadow:3px 3px 0 var(--ink);padding:2px 12px;font-size:17px;white-space:nowrap}
 .ghost.more{position:absolute;z-index:3;right:10px;top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12.5px;border-radius:12px;line-height:1.2}
 .ghost.more .cost{display:inline-flex;align-items:center;gap:2px}
@@ -1461,8 +1462,6 @@ b.now{font-weight:800}
 .stall.yard{background:#DCE3CB}
 .stall.pier{background:#F4DFCB}
 .barroom{background:#E7CF93}
-.barscene .t-glass{fill:#A9B68E}.barscene .t-glass2{fill:#7F98A7}.barscene .t-box{fill:#D7BA8E}.barscene .t-jar{fill:#C27866}
-.barscene .t-top{fill:#B98E64}.barscene .t-front{fill:#8E6A4B}.barscene .t-floor{fill:#B7A7A0}
 /* the ships, coloured by plane: a hull with a darker lower plane, sails (a second, darker set where they face away), a flag */
 .ship-sloop{--hull:#5E7487;--hull2:#4B5E70;--sail:#FBF5E8;--sail2:#E3D7C1;--flag:#B5533C}
 .ship-galleon{--hull:#8E6A4B;--hull2:#72543A;--sail:#F3E9D6;--sail2:#DCCBAE;--flag:#B5533C}
