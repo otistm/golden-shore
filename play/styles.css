@@ -1739,10 +1739,31 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .hscene.site{margin-bottom:10px}
 .hworld.site{width:100%;height:auto;max-height:calc(100vh - var(--dock,250px) - 230px);min-height:220px;display:block}
 .hworld.site .hcloud{animation:none}
-.hworld .s-sand{fill:#E8D6A8}.hworld .s-blacksand{fill:#5B5550}.hworld .s-land{fill:#A9B68E}.hworld .s-land2{fill:#909D76}
-.hworld .s-rock{fill:#B7ACA0}.hworld .s-rock2{fill:#8C8177}.hworld .s-guano{stroke:#FBF5E8}.hworld .s-ash{fill:#6E6763}.hworld .s-ash2{fill:#57514D}.hworld .s-lava{stroke:var(--brick)}
-.hworld .s-hull{fill:#8E6A4B}.hworld .s-hull2{fill:#72543A}.hworld .s-hullold{fill:#6E6A5E}.hworld .s-hullold2{fill:#58554B}.hworld .s-sail{fill:#F3E9D6}.hworld .s-sailold{fill:#CFC8B4}
-.hworld .s-weed{stroke:#5E7A4E}.hworld .s-x{stroke:var(--brick)}.hworld .h-flag{fill:var(--brick)}.hworld .h-door{fill:#5B4A3E}
+.hworld.site{stroke-width:2.2}
+/* places up close: the palette (house tokens only) */
+.hworld.site{--far:#D5DDD9;--sand:#E8D6A8;--sand2:#D6C08C;--bsand:#5B5550;--bsand2:#48433F;--hill:#A9B68E;--hill2:#909D76;--rock:#B7ACA0;--rock2:#9A8F84;--rock3:#7D7369;
+  --ash:#6E6763;--ash2:#57514D;--trunk:#9A7350;--leaf:#8FA06B;--leaf2:#73855A;--seal:#6B7480;--copper:#7FA394;--copper2:#678A7C;--oldhull:#6E6A5E;--oldhull2:#58554B;--hole:#3B342E}
+.hworld .s-far{fill:var(--far)}.hworld .s-sand{fill:var(--sand)}.hworld .s-sand2{fill:var(--sand2)}.hworld .s-bsand{fill:var(--bsand)}.hworld .s-bsand2{fill:var(--bsand2)}
+.hworld .s-land{fill:var(--hill)}.hworld .s-land2{fill:var(--hill2)}.hworld .s-rock{fill:var(--rock)}.hworld .s-rock2{fill:var(--rock2)}.hworld .s-rock3{fill:var(--rock3)}
+.hworld .s-guano{stroke:var(--paper)}.hworld .s-seal{fill:var(--seal)}.hworld .s-ash{fill:var(--ash)}.hworld .s-ash2{fill:var(--ash2)}.hworld .s-lava{stroke:var(--brick)}.hworld .s-lavapool{fill:var(--brick)}
+.hworld .s-smoke{fill:var(--stone)}.hworld .s-trunk{fill:var(--trunk)}.hworld .s-leaf{fill:var(--leaf)}.hworld .s-leaf2{fill:var(--leaf2)}.hworld .s-crab{fill:var(--brick)}
+.hworld .s-hole{fill:var(--hole)}.hworld .s-coin{fill:var(--mustard)}.hworld .s-iron{fill:var(--slate)}.hworld .s-band{fill:var(--brick)}.hworld .s-lamp{fill:var(--lamp)}.hworld .s-beam{fill:var(--lamp);fill-opacity:.55;stroke-dasharray:3 4}
+.hworld .s-copper{fill:var(--copper)}.hworld .s-copper2{fill:var(--copper2)}.hworld .s-weed{stroke:var(--sage)}.hworld .s-beak{fill:var(--mustard)}.hworld .s-breach{fill:var(--hole)}
+.hworld .s-deck{fill:var(--crate)}.hworld .s-hullold{fill:var(--oldhull)}.hworld .s-hullold2{fill:var(--oldhull2)}.hworld .s-sail{fill:var(--trim)}.hworld .s-sailold{fill:var(--stone)}
+.hworld .s-x{stroke:var(--brick)}.hworld .h-flag{fill:var(--brick)}
+.hworld text.s-name{font:800 7.5px var(--ui);letter-spacing:.14em;fill:var(--ink);stroke:none}
+/* motion up close, kept to a few things at once and stepped like hand-drawn frames */
+.hworld .st-drift{animation:sdrift 260s linear infinite}.hworld .st-drift.slow{animation-duration:340s}
+@keyframes sdrift{from{transform:translateX(-160px)}to{transform:translateX(420px)}}
+.hworld .st-foam{animation:sfoam 1.1s steps(1) infinite}@keyframes sfoam{0%{transform:none}50%{transform:translateX(4px)}}
+.hworld .st-sway{transform-box:fill-box;transform-origin:50% 100%;animation:ssway 2.4s steps(1) infinite}@keyframes ssway{0%{transform:rotate(-3deg)}33%{transform:rotate(0)}66%{transform:rotate(3deg)}}
+.hworld .st-crab{animation:scrab 3.2s steps(1) infinite}@keyframes scrab{0%,40%{transform:none}50%{transform:translateX(3px)}60%{transform:translateX(6px)}70%,85%{transform:translateX(9px)}90%{transform:translateX(6px)}95%{transform:translateX(3px)}}
+.hworld .st-smoke{animation:ssmoke 1.8s steps(1) infinite}@keyframes ssmoke{0%{transform:none}33%{transform:translate(2px,-3px)}66%{transform:translate(4px,-6px)}}
+.hworld .st-steam{animation:sfoam 1.4s steps(1) infinite}
+.hworld .st-beam{animation:sbeam 3.6s steps(12) infinite}@keyframes sbeam{to{transform:rotate(360deg)}}
+.hworld .st-flap{transform-box:fill-box;transform-origin:0 0;animation:sflap .9s steps(1) infinite}@keyframes sflap{0%{transform:none}50%{transform:skewY(4deg)}}
+.hworld .st-bob{animation:sbob 1.6s steps(1) infinite}@keyframes sbob{0%{transform:none}50%{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){.hworld .st-drift,.hworld .st-foam,.hworld .st-sway,.hworld .st-crab,.hworld .st-smoke,.hworld .st-steam,.hworld .st-beam,.hworld .st-flap,.hworld .st-bob{animation:none}}
 .hworld .o-smoke{fill:#C9C2B8;stroke-width:1.4;animation:smoke 3.3s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
 .hworld .spot{cursor:pointer}
 .hworld .spot .hit{fill:transparent;stroke:none}

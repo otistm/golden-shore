@@ -47,11 +47,14 @@ function siteScene(n){const kind=SITEKIND(n);if(!kind)return chart();
 /* the spots to tap, by kind and variant */
 function siteSpots(n,kind,v){const r=RNG(G.seed,'spots',n.id),S=[];
   if(kind==='isle'){
-    if(v==='lighthouse')S.push({k:'light',l:'Relight the lamp',x:262,y:62});else S.push({k:'peak',l:'Climb to the peak',x:v==='rock'?200:205,y:v==='rock'?70:v==='volcanic'?92:108});
-    S.push({k:'survey',l:'Survey the isle',x:112,y:186,ly:-26});
-    if(r()<.55)S.push({k:'dig',l:'Dig here',x:300,y:206,ly:-24})}
-  else{const h=v==='keel'?2:3;for(let i=0;i<h;i++)S.push({k:'hatch'+i,l:'Hatch',x:v==='keel'?170+i*70:150+i*52,y:v==='keel'?170:164-i*2,ly:-22});
-    S.push({k:'cabin',l:"Captain's cabin",x:v==='keel'?120:300,y:v==='keel'?186:168,ly:24})}
+    if(v==='lighthouse')S.push({k:'light',l:'Relight the lamp',x:262,y:66});
+    else S.push({k:'peak',l:'Climb to the peak',x:v==='rock'?192:v==='volcanic'?198:214,y:v==='rock'?50:v==='volcanic'?66:110});
+    S.push({k:'survey',l:'Survey the isle',x:108,y:186,ly:-28});
+    if(r()<.55)S.push({k:'dig',l:'Dig here',x:292,y:212,ly:-22})}
+  else if(v==='keel'){S.push({k:'hatch0',l:'Hatch',x:170,y:164,ly:-22},{k:'hatch1',l:'Hatch',x:250,y:160,ly:-22},{k:'cabin',l:"Captain's cabin",x:304,y:186,ly:26})}
+  else{const a=(v==='reef'?-8:-4)*Math.PI/180,rot=(x,y)=>{const dx=x-210,dy=y-SB;return[Math.round(210+dx*Math.cos(a)-dy*Math.sin(a)),Math.round(SB+dx*Math.sin(a)+dy*Math.cos(a))]};
+    [170,215,260].forEach((x,i)=>{const[px,py]=rot(x,146);S.push({k:'hatch'+i,l:'Hatch',x:px,y:py,ly:-22})});
+    const[cx,cy]=rot(316,138);S.push({k:'cabin',l:"Captain's cabin",x:cx,y:cy,ly:30})}
   return S}
 /* what happens at a spot */
 function siteDo(n,kind,v,s,el){const out=document.getElementById('siteout'),depth=depthOf(n),r=RNG(G.seed,'spot',n.id,s.k);
@@ -80,35 +83,156 @@ function siteDo(n,kind,v,s,el){const out=document.getElementById('siteout'),dept
     if(roll<wNone)return say('<p>Water, rats, and a smell you won\'t forget. Nothing worth taking.</p>');
     const h=v==='reef'?3:2;G.hull=Math.max(1,G.hull-h);logL(`${placeName(n)} rolled while I was in her hold. Lost ${h} hull.`);save();siteScene(n);
     setTimeout(()=>{const o=document.getElementById('siteout');if(o)o.innerHTML=`<p>The wreck groans and rolls. You get out, but your ship takes a beating: ${h} hull lost.</p>`},0)}}
-/* ---------- the art: one side-on scene per kind, made from shared parts ---------- */
-const sCloud=(x,y,s)=>`<g class="hcloud"><path class="w" transform="translate(${x} ${y}) scale(${s})" d="M0 0c-2-8 8-12 13-7 3-9 17-10 21-1 6-4 14 0 13 7 6 1 6 9-1 9H1c-6 0-7-6-1-8z" stroke-width="1.6"/></g>`;
-const sSea=()=>`<path class="h-sea" d="M0 150H400V250H0z" stroke="none"/><path d="M0 150H400" stroke-width="1.4"/>
-  ${[[30,170],[120,232],[330,178],[260,236],[60,214],[370,220]].map(([x,y])=>`<path d="M${x} ${y}q4-4 8 0t8 0t8 0" stroke-width="1.3" opacity=".5"/>`).join('')}`;
-const sSun=()=>`<g class="hrays"><path d="M60 30v-8M60 86v8M32 58h-8M88 58h8M40 38l-6-6M80 78l6 6M40 78l-6 6M80 38l6-6" stroke-width="1.8"/></g><circle class="h-sun" cx="60" cy="58" r="18" stroke-width="2.2"/>`;
-const sPalm=(x,y,s,r)=>`<g transform="translate(${x} ${y}) scale(${s})">${palm(r)}</g>`;
-function siteArt(n,kind,v){const r=RNG(G.seed,'siteart',n.id);let g=sSun()+sCloud(150,40,1.3)+sCloud(300,64,1)+sSea();
-  if(kind==='isle'){
-    const sand=v==='volcanic'?'s-blacksand':'s-sand';
-    g+=`<path class="${sand}" d="M40 200Q200 166 360 200L356 212Q200 232 44 212Z"/>`;
-    if(v==='rock')g+=`<path class="s-rock2" d="M108 202L132 130L152 120L170 84L196 62L222 92L246 86L270 132L298 202Z"/><path class="s-rock" d="M132 130L152 120L170 84L196 62L208 98L180 110L160 150Z"/><path d="M160 150l12 26M232 110l-10 30M200 120l4 20" stroke-width="1.4"/>
-      ${[[180,58],[214,52],[240,70],[160,74]].map(([x,y])=>`<path d="M${x} ${y}q3-4 6 0q3-4 6 0" stroke-width="1.6"/>`).join('')}<path class="s-guano" d="M178 66l6 14M200 64l-4 20M238 92l-6 16" stroke-width="3"/>`;
-    else if(v==='volcanic')g+=`<path class="s-ash" d="M96 202L178 98L222 98L306 202Z"/><path class="s-ash2" d="M200 98L222 98L306 202L240 202Z"/><path d="M178 98q22 8 44 0" stroke-width="1.6"/><path class="s-lava" d="M196 100l-8 30 10 20-6 30" stroke-width="3" fill="none"/>
-      ${[0,1,2].map(i=>`<circle class="o-smoke" style="animation-delay:${-i*1.1}s" cx="${200+i*4}" cy="${88-i*6}" r="${8+i*3}"/>`).join('')}`;
-    else{g+=`<path class="s-land2" d="M88 198Q140 118 210 112Q290 118 322 198Z"/><path class="s-land" d="M88 198Q140 118 210 112Q238 114 258 124Q200 140 170 198Z"/>`;
-      g+=sPalm(140,170,1.3,r)+sPalm(176,150,1.5,r)+(v==='palm'?sPalm(240,150,1.4,r)+sPalm(276,176,1.2,r):'')}
-    if(v==='lighthouse')g+=`<g transform="translate(262 128)"><path class="h-wall" d="M-12 0V-62H12V0z"/><path class="h-roof" d="M-12 -22h24v-8h-24zM-12 -46h24v-6h-24z"/><path class="h-win" d="M-8 -62h16v-12h-16z"/><path class="h-roof" d="M-13 -74h26l-13 -14z"/><path d="M-12 0a12 4 0 0 0 24 0" fill="none"/><path class="h-door" d="M-4 0v-10h8v10z"/></g>`;
-    g+=`<g transform="translate(112 196)"><path d="M0 0v-22" stroke-width="2"/><path class="h-flag" d="M0 -22l12 4-12 4z"/></g>`;   // where you'd survey from
-    if(G.site&&siteSpots(n,kind,v).some(s=>s.k==='dig'))g+=`<path d="M292 200l16 12M308 200l-16 12" stroke-width="3" class="s-x"/>`;
-  }else{
-    g+=`<path class="s-rock2" d="M60 214l20-26 24 8 18-14 16 32z"/><path class="s-rock2" d="M300 216l16-30 22 10 14 20z"/>`;
-    if(v==='keel')g+=`<path class="s-hull2" d="M70 200Q90 140 210 128Q330 140 350 200Z"/><path d="M90 168Q210 112 330 168" stroke-width="1.4" fill="none"/><path d="M110 186Q210 148 312 186" stroke-width="1.2" fill="none" opacity=".6"/><path d="M210 128v-10" stroke-width="5"/><path class="s-weed" d="M120 200q4 10-2 18M230 202q-3 9 2 16M300 200q4 8 0 14" fill="none" stroke-width="2.4"/>`;
-    else{const old=v==='old';
-      g+=`<g transform="rotate(${v==='reef'?-9:-5} 210 190)"><path class="${old?'s-hullold':'s-hull'}" d="M84 196Q96 150 140 146L320 146Q340 172 330 204Z"/><path class="${old?'s-hullold2':'s-hull2'}" d="M84 196Q96 174 130 172L330 172Q336 190 330 204Z"/>
-        <path d="M100 160H322M96 184H330" stroke-width="1.2" opacity=".6"/><path d="M180 146l-16-80M262 146l12-50" stroke-width="4"/><path class="${old?'s-sailold':'s-sail'}" d="M166 72l-30 6 22 50z"/>${old?'<path class="s-weed" d="M110 196q6 10 0 18M180 200q-4 10 2 16M280 202q5 9-1 14" fill="none" stroke-width="2.4"/>':''}
-        <path class="h-win" d="M292 156h16v10h-16z"/></g>`;
-      if(v==='reef')g+=`<path class="s-rock" d="M150 216l14-34 18 12 10 22z"/>`}
-    g+=`<g class="gulls">${[[260,96],[286,84]].map(([x,y])=>`<path d="M${x} ${y}q3-4 6 0q3-4 6 0" stroke-width="1.6"/>`).join('')}</g>`}
+/* ---------- the art: places up close ----------
+   Drawn to the house rules (CLAUDE.md, "Drawing places"): a flat side elevation on one baseline (the waterline), depth from
+   stacked bands and overlap only; two line weights (2.2 outlines, 1.2 detail); one flat tone per plane with the side plane a
+   step darker in the same hue and hard flat shadows; sparse ruled pattern near edges and focal points; one bright accent;
+   one telling detail per place; and the scene changes as you use it, with the camera held still.
+   Every scene shares the same frame: sky, a far shore, your ship at anchor offshore, the place, and the near water. */
+const SB=206;   // the baseline: where the place meets the sea
+const sDot=(x,y)=>`<circle cx="${x}" cy="${y}" r=".9" class="k"/>`;
+/* the frame every place shares: sun, slow clouds, a far shore, the sea in bands with wave marks thinning toward the horizon,
+   and your own ship riding at anchor offshore (she's how you got here) */
+function sFrame(n){const r=RNG(G.seed,'frame',n.id),k=SHIPDRAW[G.ship]?G.ship:'sloop';
+  const farL=60+r()*40,farR=300+r()*50;
+  let g=`<g class="hrays st-rays"><path d="M58 26v-8M58 66v8M38 46h-8M78 46h8M44 32l-6-6M72 60l6 6M44 60l-6 6M72 32l6-6" stroke-width="1.8"/></g><circle class="h-sun" cx="58" cy="46" r="15" stroke-width="2.2"/>
+    <g class="st-drift" style="animation-delay:-40s">${sCloudP(130,34,1.2)}</g><g class="st-drift slow" style="animation-delay:-130s">${sCloudP(250,58,.9)}</g>
+    <path class="s-far" d="M${farL-60} 118q30-16 60-6q24-10 50 0q14 4 20 6z" stroke="none"/><path class="s-far" d="M${farR-40} 118q26-18 56-4q20-8 44 4z" stroke="none"/>
+    <path class="h-sea" d="M0 118H400V250H0z" stroke="none"/><path d="M0 118H400" stroke-width="1.4"/>
+    <path class="h-water" d="M0 222H400V250H0z" stroke="none"/>`;
+  // wave marks: short ruled arcs in rows, smaller and closer near the horizon
+  const rows=[[126,6,.6],[136,8,.7],[150,10,.8],[168,12,.9],[234,16,1]];
+  rows.forEach(([y,w,o],i)=>{for(let x=(i*37)%60;x<400;x+=58+i*14){if(y>140&&y<214&&x>60&&x<350)continue;g+=`<path d="M${x} ${y}q${w/4} -${w/5} ${w/2} 0t${w/2} 0" stroke-width="1.2" opacity="${o*.6}"/>`}});
+  // your ship at anchor, with her chain going down
+  g+=`<g transform="translate(6 92) scale(.36)"><g class="shipdraw ship-${k} st-ride" stroke-width="2.6" fill="#fff">${SHIPDRAW[k]}</g></g><path d="M12 124l-4 10" stroke-width="1.2" stroke-dasharray="2 2"/>`;
   return g}
+const sCloudP=(x,y,s)=>`<g class="hcloud"><path class="w" transform="translate(${x} ${y}) scale(${s})" d="M0 0c-2-8 8-12 13-7 3-9 17-10 21-1 6-4 14 0 13 7 6 1 6 9-1 9H1c-6 0-7-6-1-8z" stroke-width="1.6"/></g>`;
+/* the near water in front of everything: a foam edge where sea meets shore, in stepped frames */
+const sFoam=(x0,x1,y)=>`<g class="st-foam"><path class="w" d="M${x0} ${y}${Array.from({length:Math.ceil((x1-x0)/14)},()=>'q3.5 -4 7 0t7 0').join('')}" stroke-width="1.2"/></g>`;
+/* a palm: a curved, ringed trunk and a crown of fronds with their ribs, the back fronds a shade darker; the crown sways */
+function sPalm(x,y,h,lean,s){s=s||1;const tx=lean,ty=-h;
+  let g=`<g transform="translate(${x} ${y}) scale(${s})"><path class="s-trunk" d="M-4 0Q${tx/2-3} ${ty/2} ${tx-2} ${ty}h5Q${tx/2+3} ${ty/2} 5 0z" stroke-width="1.8"/>`;
+  for(let i=1;i<5;i++){const t=i/5,px=tx*t*t*.6+tx*t*.4;g+=`<path d="M${f1(px-3.5)} ${f1(ty*t)}h7" stroke-width="1.2"/>`}
+  const fr=(a,len,cls)=>{const c=Math.cos(a),sn=Math.sin(a),ex=c*len,ey=sn*len*.7+Math.abs(c)*len*.25;
+    return`<path class="${cls}" d="M0 0Q${f1(ex*.5-sn*8)} ${f1(ey*.5-12)} ${f1(ex)} ${f1(ey)}Q${f1(ex*.5+sn*4)} ${f1(ey*.5-2)} 0 0z" stroke-width="1.6"/><path d="M0 0Q${f1(ex*.5-sn*5)} ${f1(ey*.5-8)} ${f1(ex)} ${f1(ey)}" stroke-width="1" fill="none"/>`};
+  g+=`<g transform="translate(${tx+.5} ${ty})"><g class="st-sway">${[-2.6,-.5].map(a=>fr(a,24,'s-leaf2')).join('')}${[-3.1,-1.9,-1.1,0].map(a=>fr(a,26,'s-leaf')).join('')}
+    <circle class="h-wood2" cx="-3" cy="3" r="2.6" stroke-width="1.2"/><circle class="h-wood2" cx="2.5" cy="4" r="2.6" stroke-width="1.2"/></g></g></g>`;
+  return g}
+/* your rowboat, pulled up on the shore (or tied alongside a wreck) */
+const sRowboat=(x,y,flip)=>`<g transform="translate(${x} ${y}) scale(${flip?-1:1} 1)"><path class="h-hull" d="M-22 -8h44l-6 10h-32z"/><path class="h-hull2" d="M-19 -3h38l-3 5h-32z" stroke="none"/><path d="M-22 -8h44l-6 10h-32z" fill="none"/><path d="M-10 -8v5M8 -8v5" stroke-width="1.2"/><path d="M14 -8l14 -10" stroke-width="1.6"/><path class="h-wood" d="M26 -19l6 -4 2 3-6 4z" stroke-width="1.2"/></g>`;
+/* a crab on the sand, scuttling in little stepped hops */
+const sCrab=(x,y)=>`<g transform="translate(${x} ${y})"><g class="st-crab"><path class="s-crab" d="M-6 0q6 -8 12 0z" stroke-width="1.4"/><path d="M-6 -1l-4 -4M6 -1l4 -4M-4 0l-3 3M4 0l3 3" stroke-width="1.2"/><circle class="k" cx="-2" cy="-5" r=".9"/><circle class="k" cx="2" cy="-5" r=".9"/></g></g>`;
+/* the Guild's pennant: where you surveyed from, and on a peak you've climbed */
+const sPennant=(x,y,h)=>`<g transform="translate(${x} ${y})"><path d="M0 0v-${h}" stroke-width="2"/><g class="st-flag"><path class="h-flag" d="M0 -${h}l14 4.5-14 4.5z" stroke-width="1.4"/></g></g>`;
+/* a surveyor's tripod, left after a survey */
+const sTripod=(x,y)=>`<g transform="translate(${x} ${y})"><path d="M0 -16l-7 16M0 -16l7 16M0 -16v16" stroke-width="1.4"/><path class="h-wood" d="M-6 -22h12v6h-12z" stroke-width="1.2"/><path d="M6 -19h5" stroke-width="1.6"/></g>`;
+/* sand: a few dots near the waterline, never a texture over the whole beach */
+const sSandDots=(x0,x1,y,n,r)=>{let g='';for(let i=0;i<n;i++)g+=sDot(f1(x0+r()*(x1-x0)),f1(y+r()*6));return`<g opacity=".45">${g}</g>`};
+/* a dug hole with its chest knocked open and the spade stuck in the sand */
+const sDug=(x,y)=>`<g transform="translate(${x} ${y})"><ellipse class="s-hole" rx="16" ry="4"/><path class="h-wood" d="M-9 -2h18v-8h-18z" stroke-width="1.6"/><path class="h-wood2" d="M-9 -10l3 -9h18l-3 9z" stroke-width="1.6"/><path d="M-9 -6h18" stroke-width="1.2"/><circle class="s-coin" cx="-2" cy="-11" r="2.4" stroke-width="1"/><circle class="s-coin" cx="3" cy="-12" r="2.4" stroke-width="1"/>
+  <path d="M18 2l6 -22" stroke-width="2"/><path class="s-iron" d="M14 0l4 -6 6 2-2 6z" stroke-width="1.2"/></g>`;
+/* rocks at the water's edge: a lit face and a shaded one */
+const sRock=(x,y,w,h)=>`<g transform="translate(${x} ${y})"><path class="s-rock" d="M${-w} 0L${-w*.6} ${-h}L${w*.3} ${-h*1.1}L${w} ${-h*.3}L${w} 0Z" stroke-width="1.8"/><path class="s-rock2" d="M${w*.3} ${-h*1.1}L${w} ${-h*.3}L${w} 0L${w*.1} 0Z" stroke="none"/><path d="M${-w} 0L${-w*.6} ${-h}L${w*.3} ${-h*1.1}L${w} ${-h*.3}L${w} 0" fill="none" stroke-width="1.8"/></g>`;
+function siteArt(n,kind,v){const r=RNG(G.seed,'siteart',n.id),done=k=>!!(G.site&&G.site.done.includes(k)),spots=siteSpots(n,kind,v);
+  let g=sFrame(n);
+  if(kind==='isle'){const black=v==='volcanic';
+    // the beach and the wet sand along the waterline
+    const beach=`<path class="${black?'s-bsand':'s-sand'}" d="M40 ${SB}Q200 ${SB-12} 360 ${SB}L352 ${SB+14}Q200 ${SB+24} 48 ${SB+14}Z" stroke-width="2"/><path class="${black?'s-bsand2':'s-sand2'}" d="M50 ${SB+10}Q200 ${SB+20} 350 ${SB+10}L352 ${SB+14}Q200 ${SB+24} 48 ${SB+14}Z" stroke="none"/>${sSandDots(80,320,SB+2,14,r)}`;
+    if(v==='rock'){
+      // a stack of rock in faces, white with gulls, a seal hauled out on the ledge
+      g+=beach+`<path class="s-rock" d="M104 ${SB}L126 138L150 126L166 86L192 58L214 64L232 96L254 92L274 138L300 ${SB}Z" stroke-width="2.2"/>
+        <path class="s-rock2" d="M214 64L232 96L254 92L274 138L300 ${SB}H244L236 150L222 110Z" stroke="none"/><path class="s-rock3" d="M166 86L192 58L200 92L178 118Z" stroke="none"/>
+        <path d="M104 ${SB}L126 138L150 126L166 86L192 58L214 64L232 96L254 92L274 138L300 ${SB}" fill="none" stroke-width="2.2"/>
+        <path d="M136 160l14 6M146 182l20 4M240 160l16 -4M250 184l18 2M196 120l12 4" stroke-width="1.2"/>
+        <path class="s-guano" d="M178 76l4 14M196 62l-2 18M226 92l-4 14M252 96l2 12" stroke-width="3"/>
+        ${[[172,82],[198,56],[230,90],[256,88]].map(([x,y])=>`<g transform="translate(${x} ${y})"><path class="w" d="M-4 0q4 -6 8 0z" stroke-width="1.2"/><circle class="w" cx="3" cy="-4" r="2" stroke-width="1.1"/></g>`).join('')}
+        <g transform="translate(276 ${SB-2})"><path class="s-seal" d="M-16 0q2 -10 14 -10q8 0 10 -6q6 2 4 8q-2 6 -8 8z" stroke-width="1.6"/><circle class="k" cx="9" cy="-12" r=".9"/><path d="M-16 0l-6 -3M-16 0l-6 3" stroke-width="1.4"/></g>`;
+    }else if(black){
+      // a cone in two planes, lava running down to hiss in the sea, smoke from the crater
+      // the lava is drawn as an ink channel with the hot colour inside it, pooling in the crater and steaming where it meets the sea
+      const lava=`M200 78l-5 30 9 22-7 30 5 ${SB-164}`;
+      g+=beach+`<path class="s-ash" d="M88 ${SB}L176 76Q198 66 222 76L316 ${SB}Z" stroke-width="2.2"/><path class="s-ash2" d="M208 70Q216 72 222 76L316 ${SB}H254Z" stroke="none"/>
+        <path d="M88 ${SB}L176 76Q198 66 222 76L316 ${SB}" fill="none" stroke-width="2.2"/>
+        <path d="M184 84l-30 70M170 110l-10 26M232 92l26 60M244 130l12 30" stroke-width="1.2"/>
+        <path d="M176 76q22 12 46 0" stroke-width="1.8"/><ellipse class="s-lavapool" cx="199" cy="76" rx="15" ry="3.2" stroke-width="1.4"/>
+        <path d="${lava}" stroke-width="7.5" fill="none"/><path class="s-lava" d="${lava}" stroke-width="4" fill="none"/>
+        ${sRock(150,SB-2,9,8)}${sRock(268,SB-2,8,7)}
+        <g class="st-steam">${[0,1,2].map(i=>`<circle class="w" cx="${200+i*6}" cy="${SB-2-i*7}" r="${4+i*1.5}" stroke-width="1.2"/>`).join('')}</g>
+        <g class="st-smoke">${[0,1,2].map(i=>`<circle class="s-smoke" cx="${200+i*5}" cy="${60-i*12}" r="${7+i*4}" stroke-width="1.4"/>`).join('')}</g>
+        <path d="M128 ${SB-4}l-2 -18M126 ${SB-14}l-6 -6M127 ${SB-18}l5 -5" stroke-width="1.6"/>`;
+    }else{
+      const lh=v==='lighthouse',top=lh?136:118;
+      // a green hill: the lit face and the shaded one, a grass edge along the crest
+      g+=beach+`<path class="s-land" d="M70 ${SB}C108 ${top+40} 168 ${top} 214 ${top}C266 ${top+2} 300 ${top+40} 330 ${SB}Z" stroke-width="2.2"/>
+        <path class="s-land2" d="M214 ${top}C266 ${top+2} 300 ${top+40} 330 ${SB}H268C268 ${top+50} 244 ${top+14} 214 ${top}Z" stroke="none"/>
+        <path d="M70 ${SB}C108 ${top+40} 168 ${top} 214 ${top}C266 ${top+2} 300 ${top+40} 330 ${SB}" fill="none" stroke-width="2.2"/>
+        <path d="${[...Array(9)].map((_,i)=>{const x=110+i*20,y=top+Math.pow((x-214)/110,2)*58;return`M${x} ${f1(y+1)}l-2 -5M${x+3} ${f1(y+1)}l1 -6`}).join('')}" stroke-width="1.2"/>
+        ${sRock(84,SB+2,14,10)}${sRock(318,SB+2,12,8)}`;
+      if(lh){
+        // the lighthouse on the rise, banded, its gallery and lamp room; the keeper's cottage at its foot, empty
+        const lit=done('light'),x=262,b=150;
+        g+=`<g transform="translate(${x} ${b})"><path class="h-wall" d="M-12 0L-9 -72H9L12 0Z" stroke-width="2.2"/><path class="h-wall2" d="M3 -72H9L12 0H5Z" stroke="none"/>
+          <path class="s-band" d="M-11.2 -18L-10.5 -30H10.5L11.2 -18ZM-10 -46L-9.5 -56H9.5L10 -46Z" stroke="none"/><path d="M-12 0L-9 -72H9L12 0Z" fill="none" stroke-width="2.2"/>
+          <path class="h-door" d="M-4 0v-11q4 -4 8 0v11z" stroke-width="1.4"/><path d="M-14 -72h28M-14 -72v-4M14 -72v-4M-14 -76h28M-6 -76v4M0 -76v4M6 -76v4" stroke-width="1.2"/>
+          <path class="${lit?'s-lamp':'h-win'}" d="M-7 -76v-12h14v12z" stroke-width="1.6"/><path d="M0 -88v12" stroke-width="1"/>
+          <path class="h-roof" d="M-9 -88h18l-9 -10z" stroke-width="1.8"/><path d="M0 -98v-8M-4 -104h8" stroke-width="1.2"/>
+          ${lit?`<g transform="translate(0 -82)"><g class="st-beam"><path class="s-beam" d="M0 0L-90 -14L-90 14Z" stroke-width="1.2"/><path class="s-beam" d="M0 0L90 -14L90 14Z" stroke-width="1.2"/></g></g>`:''}</g>
+          <g transform="translate(222 156)"><path class="h-wall" d="M-16 0v-18h32v18z" stroke-width="1.8"/><path class="h-roof" d="M-20 -18l20 -14 20 14z" stroke-width="1.8"/><path class="h-roof2" d="M0 -32l20 14H6z" stroke="none"/><path d="M-20 -18l20 -14 20 14" fill="none" stroke-width="1.8"/>
+          <path class="${lit?'h-winlit':'h-win'}" d="M-11 -12h8v7h-8z" stroke-width="1.2"/><path class="h-door" d="M4 0v-11h7v11z" stroke-width="1.2"/><path d="M10 -32v-6h5v4" stroke-width="1.6"/></g>
+          <path d="M240 ${SB-2}l6 -10l-2 -12l8 -10l-2 -10" stroke-width="1.2" stroke-dasharray="3 4"/>`;
+        g+=sPalm(140,170,40,-6,1);
+      }else g+=sPalm(146,168,44,-8,1)+sPalm(178,150,56,-4,1.05)+sPalm(250,152,48,8,1)+sPalm(292,180,30,10,.9);
+    }
+    // what you've done here stays done
+    if(done('peak')){const p=spots.find(s=>s.k==='peak');if(p)g+=sPennant(p.x+2,p.y+8,22)}
+    g+=sPennant(108,SB+4,26);
+    if(done('survey'))g+=sTripod(126,SB+6);
+    const dig=spots.find(s=>s.k==='dig');if(dig)g+=done('dig')?sDug(dig.x,dig.y+6):`<path class="s-x" d="M${dig.x-8} ${dig.y-6}l16 12M${dig.x+8} ${dig.y-6}l-16 12" stroke-width="3"/>`;
+    g+=sRowboat(338,SB+16)+(v!=='rock'?sCrab(204,SB+9):'');
+  }else{
+    const shipName=(placeName(n)||'').replace(/^The Wreck of the /,'').toUpperCase(),old=v==='old',hc=old?'s-hullold':'h-hull',hc2=old?'s-hullold2':'h-hull2';
+    g+=sRock(66,SB+4,16,12)+sRock(344,SB+6,14,10);
+    if(v==='keel'){
+      // turned turtle: the keel to the sky, copper sheathing gone green, a hole you could climb through, a gull on the keel
+      // the hull's bottom: copper plates in rows near the keel, the painted wood showing below them at the waterline
+      g+=`<path class="s-copper" d="M76 ${SB}Q90 156 210 142Q330 156 344 ${SB}Z" stroke-width="2.2"/><path class="s-copper2" d="M210 142Q330 156 344 ${SB}H276Q268 164 210 142Z" stroke="none"/>
+        <path class="h-hull" d="M84 ${SB-14}Q210 ${SB-34} 336 ${SB-14}L344 ${SB}H76Z" stroke-width="1.6"/><path class="h-hull2" d="M262 ${SB-24}Q300 ${SB-22} 336 ${SB-14}L344 ${SB}H262Z" stroke="none"/>
+        <path d="M76 ${SB}Q90 156 210 142Q330 156 344 ${SB}" fill="none" stroke-width="2.2"/>
+        <path d="M104 172q106 -34 212 0M96 186q114 -30 228 0" stroke-width="1.2" fill="none"/>
+        ${[136,162,188,214,240,266,292].map(x=>{const y=144+Math.pow((x-210)/134,2)*48;return`<path d="M${x} ${f1(y+4)}v9" stroke-width="1.2" opacity=".7"/>`}).join('')}
+        <path d="M80 ${SB-8}H340" stroke-width="1.2" opacity=".5"/>
+        <path d="M110 162Q150 144 210 142Q270 144 310 162" fill="none" stroke-width="6.5"/><path d="M110 162Q150 144 210 142Q270 144 310 162" fill="none" stroke-width="3.2" stroke="var(--wood2)"/>
+        <path class="h-wood2" d="M336 ${SB}l10 -34h7l-3 34z" stroke-width="1.8"/><path d="M340 ${SB-14}h10" stroke-width="1.2"/>
+        <path class="s-weed" d="M110 ${SB}q4 10 -2 18M200 ${SB+2}q-4 9 2 16M300 ${SB}q5 8 0 14" fill="none" stroke-width="2.4"/>
+        <g transform="translate(222 124)"><path class="w" d="M-6 2q6 -9 12 0z" stroke-width="1.2"/><circle class="w" cx="4" cy="-4" r="2.6" stroke-width="1.1"/><path class="s-beak" d="M6 -4l4 1-4 1z" stroke="none"/><path d="M-2 2v4M2 2v4" stroke-width="1"/></g>`;
+    }else{
+      // a hull on her side: planked, her wale and gunports, broken open amidships; the mast snapped, the sail over the side;
+      // the stern with her gallery windows and her name painted across it
+      g+=`<g transform="rotate(${v==='reef'?-8:-4} 210 ${SB})">
+        <path class="${hc}" d="M86 ${SB}L90 170Q94 156 108 154L292 150L300 130L336 126L342 ${SB}Z" stroke-width="2.2"/>
+        <path class="${hc2}" d="M89 182H339L342 ${SB}H86Z" stroke="none"/><path class="${hc2}" d="M318 128L336 126L342 ${SB}H322Z" stroke="none"/>
+        <path d="M86 ${SB}L90 170Q94 156 108 154L292 150L300 130L336 126L342 ${SB}Z" fill="none" stroke-width="2.2"/>
+        <path d="M100 166Q200 162 296 162L338 160M90 182H339" stroke-width="2.2" fill="none"/><path d="M96 194H340" stroke-width="1.2" opacity=".55"/>
+        ${[140,166,192,218].map(x=>`<g><path class="h-win" d="M${x} 168h9v8h-${9}z" stroke-width="1.2"/><path class="${hc}" d="M${x} 168l-2 -6h11l2 6z" stroke-width="1.1"/></g>`).join('')}
+        <path class="s-breach" d="M238 ${SB}l2 -16 8 -6 4 -10 9 6 7 -8 6 10 8 2 2 22z" stroke-width="1.8"/>
+        <path d="M248 ${SB-1}v-18M258 ${SB-1}v-24M268 ${SB-1}v-22M278 ${SB-1}v-14" stroke="var(--wood)" stroke-width="3.2"/><path d="M248 ${SB-19}v-1M258 ${SB-25}v-1" stroke-width="1.2"/>
+        <path class="s-deck" d="M108 154L122 146H288L292 150Z" stroke-width="1.8"/><path d="M300 130L304 122H334L336 126" fill="none" stroke-width="1.8"/>
+        ${[0,1,2].map(i=>`<path class="${done('cabin')&&i===1?'h-winlit':'h-win'}" d="M${308+i*8} 134h6v8h-6z" stroke-width="1"/>`).join('')}<path d="M304 146H336" stroke-width="1.2"/>
+        <rect class="h-trim" x="${248-shipName.length*2.6}" y="153" width="${shipName.length*5.2+12}" height="10" rx="1.5" stroke-width="1.2"/><text class="s-name" x="${254}" y="160.6" text-anchor="middle">${shipName}</text>
+        <path d="M108 154L74 144M84 147l-4 -6" stroke-width="2.4"/>
+        <path d="M200 150l-6 -44l3 -6l-6 -4" stroke-width="4"/><path d="M196 112l70 -10" stroke-width="2.4"/>
+        <g class="st-flap"><path class="${old?'s-sailold':'s-sail'}" d="M262 102l18 -2l4 40l-4 6l-5 -5l-4 7l-5 -6l-4 4z" stroke-width="1.8"/><path d="M270 112l9 -1M268 126l11 -1" stroke-width="1.2"/></g>
+        <path d="M194 104q30 30 72 0M194 104Q150 130 110 152M194 106Q240 120 300 130" stroke-width="1" fill="none"/>
+        ${old?'<path class="s-weed" d="M110 200q6 10 0 18M180 204q-4 10 2 16M280 204q5 9-1 14" fill="none" stroke-width="2.4"/>'+[[130,196],[160,198],[220,200],[300,198]].map(([x,y])=>sDot(x,y)).join(''):''}
+        </g>`;
+      if(v==='reef')g+=`${sRock(176,SB+6,22,16)}<g class="st-foam">${[0,1].map(i=>`<path class="w" d="M${150+i*40} ${SB+2}q6 -8 12 -2q4 -8 10 -2" stroke-width="1.2"/>`).join('')}</g>`;
+    }
+    // opened hatches stay open
+    spots.filter(s=>s.k.startsWith('hatch')&&done(s.k)).forEach(s=>{g+=`<g transform="translate(${s.x} ${s.y+2})"><path class="s-hole" d="M-7 -3h14v6h-14z" stroke-width="1.4"/><path class="h-wood" d="M-7 -3l-4 -9h14l4 9" stroke-width="1.4"/></g>`});
+    // a barrel from her hold, floating on its side
+    g+=`<g class="st-bob"><g transform="translate(126 ${SB+20})"><path class="h-wood" d="M-11 -7h22q5 7 0 14h-22q-5 -7 0 -14z" stroke-width="1.6"/><path class="h-wood2" d="M4 -7h7q5 7 0 14h-7z" stroke="none"/><path d="M-11 -7h22q5 7 0 14h-22q-5 -7 0 -14z" fill="none" stroke-width="1.6"/><path d="M-5 -7v14M5 -7v14" stroke-width="1.2"/></g></g>`+sRowboat(356,SB+20,1);
+  }
+  return g+sFoam(30,370,SB+(kind==='isle'?16:4))}
 
 /* ---------- the bottle moment ---------- */
 /* a bottle bobs, the cork pops, a rolled page slides out of the neck and unrolls, and the words write themselves in. Then

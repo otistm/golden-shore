@@ -259,6 +259,17 @@ Two captains on the same voyage code must meet the same map, enemies, events, NP
   - Mouse hover effects sit in `(hover:hover)` blocks. Keys: Esc closes the top pop-up or a tip, and 1, 2 and 4 set fight speed. Keep the hold one row of 9 so neighbours stay side by side.
 - Writing: sentence case, short and plain, numbers as digits, no em-dash asides.
 
+## Drawing places (house rules, from research into Chris Ware, ligne claire, UPA and flat game art)
+Every drawing of a place (harbour, isles, wrecks, landmarks to come) follows these. The harbour (harbour.js) and places up close (site.js) are the reference.
+- **Projection:** a flat side elevation on one baseline (the waterline). Verticals stay vertical, no vanishing points. Depth only from overlap and stacked bands: near water, the place, the far shore (one pale flat silhouette, no stroke), sky. Tops of decks and jetties may show as a parallelogram (mixed projection); cutaways only for special diagram moments.
+- **Line:** two weights. Outlines 2.2, detail 1.2 (planks, strata, mullions, rigging). Pure black for every stroke. No hatching. Ruled, square-ended lines for built things; round caps for rocks, foliage, water. Things must be buildable: hulls float on their waterline, masts are stayed.
+- **Colour:** one flat tone per surface plane; the side plane one step darker in the same hue (`-2` tokens); cast shadows are hard flat shapes, sparingly. Only palette tokens (the `.hworld` and `.hworld.site` variables), never one-off hex values in art. About 5 to 7 hues a scene, muted, with one bright accent (a flag, a lit lamp, the X, a crab). Far bands are lighter and paler. Paper does the work of foam, sail and highlights. Weather and time of day swap the palette by class (`wx-*`), never an overlay painted over the art.
+- **Pattern:** sparse: at most 3 to 5 courses of plank, strata or grass, clustered near an edge or the focal point; the rest of the surface stays flat. Sand gets a few dots near the waterline, not a texture. Leave 30 to 40% of the scene quiet (sky and water).
+- **Detail:** simple figures, detailed settings. Each place gets one telling detail that rewards a second look (a crab, a seal, the keeper's empty cottage, a gull on a keel, the ship's name painted on a board). Lettering in the world is drawn flat to the viewer and readable.
+- **The frame:** every place up close shares sun, slow clouds, far shore, banded sea with wave marks thinning toward the horizon, your ship at anchor offshore and your rowboat on the shore. Recurring things keep their place so changes read as time passing.
+- **The scene changes as you use it:** a pennant on a climbed peak, the lamp lit and its beam sweeping, the dug chest, opened hatches, a lit cabin window. The camera never moves.
+- **Motion:** limited: two or three things moving at once (foam, a palm crown, a crab, smoke, a torn sail), the rest held. Ambient loops are stepped (`steps()`, poses held 0.3 to 0.8s), like drawn frames, not smooth tweens; only very slow drifts (clouds) are smooth. Everything stops for reduced motion.
+
 ## Smoke test before sharing a preview
 - A fresh player sees The maiden voyage first. It runs start to finish (all six stops), and Continue voyage is untouched afterwards.
 - The front page animates and Play opens the game. The title shows the version.
