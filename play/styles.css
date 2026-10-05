@@ -772,7 +772,7 @@ g.coach-hi .ring{stroke-width:3;stroke-dasharray:4 3}
 .hworld .hit{fill:transparent;stroke:none}
 .hworld text{stroke:none;fill:var(--ink)}
 .hsign text{font:italic 900 14px var(--display)}
-.hboard text{font:800 9.5px var(--ui);fill:var(--paper)}
+.hboard text{font:800 8.5px var(--ui);fill:var(--paper)}
 .hchalk{font:italic 400 12px var(--display);fill:var(--soft)!important}
 .hstop{cursor:pointer;outline:none}
 .hstop:focus-visible .hit{stroke:var(--line);stroke-width:2;stroke-dasharray:6 6}
@@ -1661,6 +1661,13 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .hscene .wxrain,.stall.pier .wxrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .seahead .pwx{text-align:right;line-height:1.25}   /* the sea's name, and the day's weather under it */
 .hscene.wx-mist .h-sun,.hscene.wx-mist .hrays,.hscene.wx-rain .h-sun,.hscene.wx-rain .hrays,.hscene.wx-storm .h-sun,.hscene.wx-storm .hrays{display:none}
+/* the generated harbour's sky and sea (harbourart.js) take these; the weather swaps them */
+.hworld{--hk-sky1:#86a9b4;--hk-sky2:#b2c4be;--hk-sky3:#e8d6b0;--hk-sky4:#f0cf9c;--hk-grain:#f6e5c8;--hk-grain2:#62808c;--hk-sun:#f5dc9a;--hk-far:#b6c6c1;--hk-far2:#a3b6b3;--hk-sea1:#8eabaf;--hk-sea2:#4e6f79;--hk-dash:#b7cdcf;--hk-glint:#f2dcae;--hk-cloud:#f5ead4}
+.hworld .hk-cloud{fill:var(--hk-cloud);stroke:none}
+.hscene.wx-mist .hk-sun,.hscene.wx-rain .hk-sun,.hscene.wx-storm .hk-sun{display:none}
+.hscene.wx-mist .hworld{--hk-sky1:#c9cfcd;--hk-sky2:#d9dcd6;--hk-sky3:#e6e3da;--hk-sky4:#ebe6db;--hk-grain:#f4f1ea;--hk-grain2:#a9b3b5;--hk-far:#d3d8d4;--hk-far2:#c9d0cd;--hk-sea1:#b9c6c7;--hk-sea2:#8a9ea3;--hk-dash:#d0dad9;--hk-glint:#d0dad9;--hk-cloud:#f1eee7}
+.hscene.wx-rain .hworld{--hk-sky1:#8d999f;--hk-sky2:#a6b0b2;--hk-sky3:#c2c6c2;--hk-sky4:#cfd0c9;--hk-grain:#dfe2dd;--hk-grain2:#6c7a80;--hk-far:#a9b4b4;--hk-far2:#98a5a7;--hk-sea1:#8fa1a6;--hk-sea2:#566c74;--hk-dash:#b3c2c4;--hk-glint:#b3c2c4;--hk-cloud:#c3c8cb}
+.hscene.wx-storm .hworld{--hk-sky1:#4f5d66;--hk-sky2:#6c7a80;--hk-sky3:#8c9594;--hk-sky4:#a0a5a0;--hk-grain:#b9bfbb;--hk-grain2:#2f3a41;--hk-far:#7d8a8c;--hk-far2:#6d7b7e;--hk-sea1:#6f8288;--hk-sea2:#3b4e56;--hk-dash:#93a3a6;--hk-glint:#93a3a6;--hk-cloud:#7f8992}
 .hscene.wx-mist{background:#EEEAE2}.hscene.wx-rain{background:#E3E1DB}.hscene.wx-storm{background:#C9CBCB}
 .hscene.wx-mist .hcloud .w{fill:#F4F1EB}.hscene.wx-rain .hcloud .w{fill:#C3C8CB}.hscene.wx-storm .hcloud .w{fill:#7F8992}
 .hscene.wx-mist .hworld{--sea:#C3CFD3}.hscene.wx-rain .hworld{--sea:#A3B3BA;--water:#71899A;--water2:#62798A}.hscene.wx-storm .hworld{--sea:#8E9FA7;--water:#5E7486;--water2:#4F6475}

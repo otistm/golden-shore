@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.50.0
+- The harbour is redrawn to the same detail as the isles and wrecks. The pier stands on braced piles with a net and floats on its rail, a lobster pot and a rod over the water. The market has a hoist over its loft door and a striped awning. The tavern has a vaulted roof, an iron-strapped door, a tankard sign and round windows where the hands looking for work sit in silhouette. A hull stands half-planked on the slipway with her ribs showing, and the workshop has tools on the wall. Goods, faces, fittings crates and your catch still show what each place has, and the weather still greys the sky and sea.
+
 ## 0.49.1
 - Isles and wrecks up close redrawn at twice the detail with finer lines, after the drawing kit's Cora Lee example: planked hulls with wales, rust streaks, gunport lids hanging, rigging with ratlines, a torn and patched sail, an anchor at the bow, a stern gallery and a ship's wheel; leafy palms, a keeper's cottage with a washing line and a hanging shutter, basalt columns, nesting birds and a seal. Every place shares one sky and sea, wrecks cast a broken reflection, foam bubbles where things meet the water, and the ship's name is painted on her bow.
 
