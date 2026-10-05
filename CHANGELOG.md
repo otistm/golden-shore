@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.45.4
+- Ports and fights fill the screen on computers too, however wide, with no plain margins either side. The harbour also grows taller to fill the space above the hold.
+
 ## 0.45.3
 - On a computer the game now fills the whole window, with no more 16:9 frame and black bars. On the open sea the ocean runs edge to edge however wide the screen, with the captain's desk at the far right.
 
