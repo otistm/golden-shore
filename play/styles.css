@@ -1427,16 +1427,22 @@ b.now{font-weight:800}
 .stag.aura b{color:var(--ink)}
 .s-dmg{--sc:#B5533C}.s-heal{--sc:#4F8A44}.s-shield{--sc:#3F6A8F}.s-burn{--sc:#D9822B}.s-poison{--sc:#7A4A6E}
 .s-haste{--sc:#B8861F}.s-charge{--sc:#2F7F73}.s-slow{--sc:#5D6E7C}.s-crit{--sc:#1F1C1D}.s-gold{--sc:#B8861F}
-.item{justify-content:flex-start;padding-top:19px}
+.item{justify-content:center;padding:8px 2px 16px}
 .item .ico{width:min(26px,74%)}
 /* drawn pictures: wider items get wider pictures; on the dark Diamond tile the ink lines turn to paper */
 .item .ico:has(>.w64){width:min(50px,84%);aspect-ratio:64/40}.item .ico:has(>.w88){width:min(74px,86%);aspect-ratio:88/40}
 body.desk .item .ico:has(>.w64){width:min(92px,80%)}body.desk .item .ico:has(>.w88){width:min(140px,82%)}
 .t3 .ic.art [stroke="#1f1c1d"]{stroke:var(--paper)}
-body.desk .item{padding-top:20px;padding-bottom:26px;gap:2px;justify-content:center}
-.item .cdt{position:absolute;top:7px;right:3px;z-index:2;font:800 9px/1 var(--ui);background:var(--paper);border:1.2px solid var(--line);border-radius:999px;padding:1px 3px;margin:0}
-body.desk .item .cdt{font-size:11px;padding:2px 5px;top:8px;right:5px}
-body.desk .stag{font-size:15px;padding:2px 5px 2px 4px;bottom:5px;border-radius:7px}
+body.desk .item{padding:14px 4px 22px;justify-content:center}
+/* names show only in the item's card, not on the tile */
+.item .nm,body.desk .item .nm{display:none}
+.item .cdt{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);z-index:2;font:800 9px/1 var(--ui);background:var(--paper);border:1.2px solid var(--line);border-radius:999px;padding:1px 3px;margin:0}
+body.desk .item .cdt{font-size:11px;padding:2px 6px;bottom:5px}
+body.desk .stag{font-size:15px;padding:2px 5px 2px 4px;border-radius:7px}
+/* the stat tag sits in the tile's top corner, as on the market table */
+.item .stag{bottom:auto;top:8px;left:auto;right:2px;transform:none}
+@media (max-width:899px){.item .stag{font-size:10.5px;padding:1px 2px 1px 1px;letter-spacing:-.04em}.item .stag svg{width:8px;height:8px}.item[style*="span 1"] .stag.aura svg{display:none}.item[style*="span 1"] .stag.aura{font-size:9.5px;right:1px}}
+body.desk .item .stag{top:10px;right:5px}
 body.desk .stag svg{width:13px;height:13px}
 @media (min-width:900px) and (min-height:560px){.stag{font-size:14px}.stag svg{width:12px;height:12px}}
 .o-icon .stag{bottom:4px;font-size:13px}

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.54.2
+- Cargo tiles in the hold match the market table: the stat tag sits in the top corner, the cooldown at the bottom centre, and names show only in the item's card.
+
 ## 0.54.1
 - In the market, the stat tag sits in the top corner of each good so the price no longer covers it.
 
