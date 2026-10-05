@@ -70,12 +70,15 @@ function seaRain(dt){const c=SEA.el.querySelector('#searain');if(!c)return;const
   drawWeather(c,SEA.vw,SEA.vh,WX.cur,WX,dt,{top:SEA.top,bot:SEA.bot,slant:wd.dx*(.15+WX.cur.wind*.025)})}
 
 /* ---------- weather in port ---------- */
-/* the day's weather over a port's outdoor scenes: the harbour (whose sky and water change colour too, by its wx- class) and
-   the stalls of the market, the shipwright and the docks. The tavern is indoors and stays dry. */
+/* the day's weather over a port's outdoor scenes: the harbour (whose sky and water change colour too, by its wx- class) and the
+   docks. The market, the tavern and the shipwright are under cover: step inside and the weather is gone. */
 const PORTWX={raf:0,last:0,list:[]};
 const portWxKey=()=>G.tut?'breezy':weatherOf(G.sea,G.day);
+/* what someone out on the docks wears in this weather */
+const WEARS={rain:['hat'],storm:['collar','hat'],mist:['scarf']};
+const wearFor=look=>WEARS[portWxKey()]?Object.assign({},look,{wear:WEARS[portWxKey()]}):look;
 function portWeather(){const k=portWxKey(),w=WEATHER[k];
-  app.querySelectorAll('.hscene,.stall').forEach(el=>{el.classList.add('wx-'+k);if(!w.rain&&!w.dark&&!w.mist)return;
+  app.querySelectorAll('.hscene,.stall.pier').forEach(el=>{el.classList.add('wx-'+k);if(!w.rain&&!w.dark&&!w.mist)return;
     const c=document.createElement('canvas');c.className='wxrain';c.setAttribute('aria-hidden','true');el.appendChild(c);
     PORTWX.list.push({c,w,st:{drops:[],rings:[]},scene:el.classList.contains('hscene')})});
   if(!PORTWX.raf&&PORTWX.list.length){PORTWX.last=0;PORTWX.raf=requestAnimationFrame(portWxLoop)}}

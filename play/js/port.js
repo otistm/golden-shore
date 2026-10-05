@@ -162,8 +162,9 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
     talk=`<div class="talk" id="talk"><p class="say">“${dem?M.demand:M.say[F.rar]||M.say[0]}”</p><p class="who"><b>${F.n}</b><span class="chipc">${RAR[F.rar]}</span>${dem?'<span class="chipc">in demand</span>':''}</p>
       <div class="acts"><button class="buy" data-f="${sel}">Sell for ${pay(f)} gold</button>${G.creel.length>1?`<button class="linkbtn" id="sellall">Sell all ${G.creel.length} for ${tot}</button>`:''}</div></div>`}
   else talk=`<div class="talk" id="talk"><p class="say">“${PV.dsold?M.thanks:M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
-  const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(look,PEEP_HEAD,'peep')}</button>`;
-  const speaker=who?N.look:M.look;
+  // the docks are out in the weather, so everyone on them is dressed for it
+  const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(wearFor(look),PEEP_HEAD,'peep')}</button>`;
+  const speaker=wearFor(who?N.look:M.look);
   return`<section class="stallsec docksec">
     <div class="stall pier" id="stall">
       <svg class="stallwall" aria-hidden="true"><defs><pattern id="swell" width="60" height="16" patternUnits="userSpaceOnUse"><path d="M0 8q15-8 30 0t30 0" fill="none" stroke="#000" stroke-width="1.6"/></pattern></defs>

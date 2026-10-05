@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.45.0
+- Weather only where you're outside. The harbour and the docks show the day's weather; step into the market, the tavern or the shipwright's and you're under cover.
+- People on the docks dress for the weather: a yellow oilskin sou'wester in the rain, a sou'wester and turned-up oilskin collar in a storm, a knitted scarf in the mist.
+
 ## 0.44.0
 - Weather in port. The harbour's sky and water follow the day's weather: the sun goes in when it rains, clouds turn grey, the water darkens. Rain falls over the town and splashes on the water, mist drifts through, and storms flash with lightning. The market, the shipwright's yard and the docks get the same rain and mist, lighter so the goods stay clear, with speech bubbles kept above the rain. The tavern is indoors and stays dry. The day's weather shows under the sea's name.
 

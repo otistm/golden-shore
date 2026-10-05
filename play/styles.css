@@ -1658,7 +1658,7 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .wxnote{font-size:13px;font-weight:800;text-align:center;color:var(--ink);background:var(--slate-p);border:2px solid var(--line);border-radius:12px;padding:6px 10px}
 @media (prefers-reduced-motion:reduce){.battle.wx-storm::before{animation:none}}
 /* weather in port (seaweather.js): rain and mist over the outdoor scenes, and the harbour's sky and water by the day's weather */
-.hscene .wxrain,.stall .wxrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.hscene .wxrain,.stall.pier .wxrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .seahead .pwx{text-align:right;line-height:1.25}   /* the sea's name, and the day's weather under it */
 .hscene.wx-mist .h-sun,.hscene.wx-mist .hrays,.hscene.wx-rain .h-sun,.hscene.wx-rain .hrays,.hscene.wx-storm .h-sun,.hscene.wx-storm .hrays{display:none}
 .hscene.wx-mist{background:#EEEAE2}.hscene.wx-rain{background:#E3E1DB}.hscene.wx-storm{background:#C9CBCB}

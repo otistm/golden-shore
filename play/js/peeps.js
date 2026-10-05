@@ -20,9 +20,16 @@ function peepTone(L){let h=7;for(const c of JSON.stringify(L))h=(h*31+c.charCode
 function peepPart(s,name,p){const A=typeof PEEP_AREAS!=='undefined'&&PEEP_AREAS[s]&&PEEP_AREAS[s][name];if(!A)return p;
   const i=p.indexOf(' fill="#fff"');if(i<0)return p;const end=p.indexOf('</path>',i)+7;
   return p.slice(0,i)+` class="ar-${A.b}"`+p.slice(i,end)+A.a.map(([r,d])=>`<path class="ar-${r}" d="${d}"/>`).join('')+p.slice(end)}
-function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{});
+/* weather gear, drawn in the 240 by 324 bust over the Open Peeps parts (which have none): a yellow oilskin sou'wester, a
+   turned-up oilskin collar, a knitted scarf. look.wear lists what someone has on (wearFor in port.js picks it by weather). */
+const WEAR={
+  hat:'<path fill="#D9A93A" d="M70 74q6-10 22-14q-2-30 30-32q30 2 32 30q16 4 22 16q-4 8-20 6q-16-6-34-6q-18 0-34 6q-14 2-18-6z"/><path fill="none" d="M92 60q30-8 62 0"/>',
+  collar:'<path fill="#D9A93A" d="M96 140q28 12 58-2l4 16q-34 16-66 0z"/><path fill="none" stroke-width="2" d="M124 147v10"/>',
+  scarf:'<path fill="#B5533C" d="M98 142q26 12 54-2l3 13q-30 16-60 2z"/><path fill="#B5533C" d="M136 150l4 34 12-2-2-34z"/><path fill="none" stroke-width="2" d="M110 149l-2 8M124 151v8M139 162l12-2M140 172l11-2"/>'};
+const wearHTML=w=>w&&w.length?`<g class="wear" stroke="#000" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">${w.map(k=>WEAR[k]||'').join('')}</g>`:'';
+function peepLayers(look){const L=Object.assign({},PEEP_BASE,look||{}),wear=L.wear;delete L.wear;   // gear doesn't change who they are (their colours)
   return`<g class="peepart" style="${peepTone(L)}" transform="scale(${PEEP_SCALE.toFixed(5)})" fill="none" stroke="none" fill-rule="evenodd">${PEEP_ORDER.map(s=>{const p=L[s]&&PEEP_PARTS[s][L[s]];
-    return p?`<g class="pl-${s}" transform="translate(${PEEP_AT[s][0]} ${PEEP_AT[s][1]})">${peepPart(s,L[s],p)}</g>`:''}).join('')}</g>`}
+    return p?`<g class="pl-${s}" transform="translate(${PEEP_AT[s][0]} ${PEEP_AT[s][1]})">${peepPart(s,L[s],p)}</g>`:''}).join('')}</g>${wearHTML(wear)}`}
 function peep(look,view,cls){return`<svg class="${cls||'peep'}" viewBox="${view||PEEP_BUST}" aria-hidden="true">${peepLayers(look)}</svg>`}
 /* a crew member's face for the round portraits in the tavern, the crew strip, the ship card and the desk */
 const crewFace=k=>peep(CREW[k]&&CREW[k].look,PEEP_HEAD);
