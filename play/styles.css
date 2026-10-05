@@ -1740,18 +1740,7 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .hworld.site{height:clamp(270px,calc(100vh - var(--dock,250px) - 250px),560px);width:auto;max-width:none;display:block;margin:0 auto}
 .hscene.site .hscroll{background:transparent}
 .hworld.site .hcloud{animation:none}
-.hworld.site{stroke-width:2.2}
-/* places up close: the palette (house tokens only) */
-.hworld.site{--far:#D5DDD9;--sand:#E8D6A8;--sand2:#D6C08C;--bsand:#5B5550;--bsand2:#48433F;--hill:#A9B68E;--hill2:#909D76;--rock:#B7ACA0;--rock2:#9A8F84;--rock3:#7D7369;
-  --ash:#6E6763;--ash2:#57514D;--trunk:#9A7350;--leaf:#8FA06B;--leaf2:#73855A;--seal:#6B7480;--copper:#7FA394;--copper2:#678A7C;--oldhull:#6E6A5E;--oldhull2:#58554B;--hole:#3B342E}
-.hworld .s-far{fill:var(--far)}.hworld .s-sand{fill:var(--sand)}.hworld .s-sand2{fill:var(--sand2)}.hworld .s-bsand{fill:var(--bsand)}.hworld .s-bsand2{fill:var(--bsand2)}
-.hworld .s-land{fill:var(--hill)}.hworld .s-land2{fill:var(--hill2)}.hworld .s-rock{fill:var(--rock)}.hworld .s-rock2{fill:var(--rock2)}.hworld .s-rock3{fill:var(--rock3)}
-.hworld .s-guano{stroke:var(--paper)}.hworld .s-seal{fill:var(--seal)}.hworld .s-ash{fill:var(--ash)}.hworld .s-ash2{fill:var(--ash2)}.hworld .s-lava{stroke:var(--brick)}.hworld .s-lavapool{fill:var(--brick)}
-.hworld .s-smoke{fill:var(--stone)}.hworld .s-trunk{fill:var(--trunk)}.hworld .s-leaf{fill:var(--leaf)}.hworld .s-leaf2{fill:var(--leaf2)}.hworld .s-crab{fill:var(--brick)}
-.hworld .s-hole{fill:var(--hole)}.hworld .s-coin{fill:var(--mustard)}.hworld .s-iron{fill:var(--slate)}.hworld .s-band{fill:var(--brick)}.hworld .s-lamp{fill:var(--lamp)}.hworld .s-beam{fill:var(--lamp);fill-opacity:.55;stroke-dasharray:3 4}
-.hworld .s-copper{fill:var(--copper)}.hworld .s-copper2{fill:var(--copper2)}.hworld .s-weed{stroke:var(--sage)}.hworld .s-beak{fill:var(--mustard)}.hworld .s-breach{fill:var(--hole)}
-.hworld .s-deck{fill:var(--crate)}.hworld .s-hullold{fill:var(--oldhull)}.hworld .s-hullold2{fill:var(--oldhull2)}.hworld .s-sail{fill:var(--trim)}.hworld .s-sailold{fill:var(--stone)}
-.hworld .s-x{stroke:var(--brick)}.hworld .h-flag{fill:var(--brick)}
+.hworld .h-flag{fill:var(--brick)}
 .hworld text.s-name{font:800 7.5px var(--ui);letter-spacing:.14em;fill:var(--ink);stroke:none}
 /* motion up close, kept to a few things at once and stepped like hand-drawn frames */
 .hworld .st-drift{animation:sdrift 260s linear infinite}.hworld .st-drift.slow{animation-duration:340s}

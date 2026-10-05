@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.49.0
+- Isles and wrecks up close are redrawn by a new drawing kit in the Chris Ware manner: a grained sky with a pale sun and flat clouds, sea marks that grow toward you, foam, reflections, and small signs of life (crabs, gulls, a rowboat). What you've done at a place shows in the picture: the lamp lit, the tripod set up, hatches open, the hole you dug.
+
 ## 0.48.2
 - Places up close are drawn bigger on phones and scroll sideways like the harbour. They open centred and remember where you'd scrolled to.
 
