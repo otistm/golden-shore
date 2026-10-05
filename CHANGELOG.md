@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.45.3
+- On a computer the game now fills the whole window, with no more 16:9 frame and black bars. On the open sea the ocean runs edge to edge however wide the screen, with the captain's desk at the far right.
+
 ## 0.45.2
 - A faint shimmer of light runs along the edge of the sea, and the water past it looks a little hazy, as if not quite there.
 

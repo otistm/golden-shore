@@ -2,34 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#000000">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Golden Shore</title>
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
-<!-- On a computer the game plays in a 16:9 frame: the window around it fills with black as you resize, and inside it the
-     game sees a 16:9 window, so every layout keeps working. Phones and tablets play /play/ itself. -->
-<style>
-html,body{margin:0;height:100%;background:#000;overflow:hidden}
-#game{position:absolute;display:block;border:0;background:#fff}
-</style>
+<!-- The game used to play inside a 16:9 frame on computers. It now fills the window, so old links land on the game itself. -->
+<script>location.replace('./'+location.search.replace(/([?&])framed=1&?/,'$1').replace(/[?&]$/,'')+location.hash)</script>
 </head>
-<body>
-<iframe id="game" title="Golden Shore" src="./?framed=1" allow="fullscreen; clipboard-write"></iframe>
-<script>
-"use strict";
-if(!matchMedia('(hover:hover) and (pointer:fine)').matches)location.replace('./'+location.search+location.hash);
-const game=document.getElementById('game');
-// settings in the address (like ?fog=soft) pass through to the game
-if(location.search)game.src='./?framed=1&'+location.search.slice(1);
-function fit(){const W=innerWidth,H=innerHeight,w=Math.floor(Math.min(W,H*16/9)),h=Math.floor(w*9/16);
-  game.style.width=w+'px';game.style.height=h+'px';game.style.left=Math.floor((W-w)/2)+'px';game.style.top=Math.floor((H-h)/2)+'px'}
-addEventListener('resize',fit);fit();
-// keys (Esc, P, 1, 2, 4) go to the game, so keep it focused
-const focus=()=>{try{game.contentWindow.focus()}catch(e){}};
-game.addEventListener('load',focus);addEventListener('focus',focus);addEventListener('pointerdown',focus);
-// a key pressed while the frame itself has focus (after a click on the bars) goes on to the game
-addEventListener('keydown',e=>{try{game.contentDocument.dispatchEvent(new KeyboardEvent('keydown',{key:e.key,code:e.code,bubbles:true,cancelable:true}));focus()}catch(x){}});
-</script>
-</body>
+<body></body>
 </html>

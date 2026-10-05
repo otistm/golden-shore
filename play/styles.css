@@ -1675,3 +1675,5 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .seaedge.out{opacity:0;transition:opacity .45s}
 @media (prefers-reduced-motion:reduce){.seaedge .needle{animation:none}}
 .ocean .seaedge svg{position:static;inset:auto;width:44px;height:44px}
+/* on the open sea the ocean runs edge to edge however wide the window, with the desk at the far right */
+@media (min-width:1180px) and (min-height:640px){body.desk.atsea{--fx:0px}body.desk.atsea #app{max-width:none}}
