@@ -1428,7 +1428,11 @@ b.now{font-weight:800}
 .s-haste{--sc:#B8861F}.s-charge{--sc:#2F7F73}.s-slow{--sc:#5D6E7C}.s-crit{--sc:#1F1C1D}.s-gold{--sc:#B8861F}
 .item{justify-content:flex-start;padding-top:19px}
 .item .ico{width:min(26px,74%)}
-body.desk .item{padding-top:22px;gap:3px}
+/* drawn pictures: wider items get wider pictures; on the dark Diamond tile the ink lines turn to paper */
+.item .ico:has(>.w64){width:min(50px,84%);aspect-ratio:64/40}.item .ico:has(>.w88){width:min(74px,86%);aspect-ratio:88/40}
+body.desk .item .ico:has(>.w64){width:min(92px,80%)}body.desk .item .ico:has(>.w88){width:min(140px,82%)}
+.t3 .ic.art [stroke="#1f1c1d"]{stroke:var(--paper)}
+body.desk .item{padding-top:20px;padding-bottom:26px;gap:2px;justify-content:center}
 .item .cdt{position:absolute;top:7px;right:3px;z-index:2;font:800 9px/1 var(--ui);background:var(--paper);border:1.2px solid var(--line);border-radius:999px;padding:1px 3px;margin:0}
 body.desk .item .cdt{font-size:11px;padding:2px 5px;top:8px;right:5px}
 body.desk .stag{font-size:15px;padding:2px 5px 2px 4px;bottom:5px;border-radius:7px}

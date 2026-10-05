@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.54.0
+- Every item is redrawn as the real thing, after research into what each one looked like at sea between about 1690 and 1820 (and in Qing China for the Lotus): an 1804 figure-of-eight cutlass, a two-flued whaling iron, a boxed compass with a 32-point card, an Admiralty anchor with its oak stock, a carronade on its slide, a Congreve rocket with its stick clamped to the side, a linstock holding its slow match, a Yixing teapot, a suanpan with two beads over five, a tengpai shield painted with a tiger, and so on. Bigger items get wider pictures so long things keep their shape. Where a name had no real object behind it, the picture is the nearest period thing (the Crow's Nest is a fighting top, the Spinnaker studding sails, the Signal Kite a hoist of signal flags, Greek Fire a carcass shell, the Moon Gate a garden wall's round gate).
+
 ## 0.53.0
 - Every cargo tile now shows what it does at a glance: a big tag with an icon and the number, coloured by kind (red damage, green heal, blue shield, orange burn, purple poison, gold haste, teal charge, grey slow). The number is the real one for that item's tier and its spot in your hold. Items that boost the rest of your hold show a dashed tag. Item types are colour coded with a solid band across the top of the tile: weapons red, cannons iron, fire orange, venom purple, food gold, armor blue, rigging green, tools brown. The cooldown moves to the top corner.
 

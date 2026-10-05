@@ -1,0 +1,1290 @@
+{
+ "dagger": {
+  "kind": "W",
+  "size": 1,
+  "n": "Boarding Knife",
+  "retired": 0,
+  "ship": "any"
+ },
+ "pins": {
+  "kind": "W",
+  "size": 1,
+  "n": "Belaying Pins",
+  "retired": 0,
+  "ship": "any"
+ },
+ "cutlass": {
+  "kind": "W",
+  "size": 2,
+  "n": "Cutlass",
+  "retired": 0,
+  "ship": "any"
+ },
+ "harpoon": {
+  "kind": "W",
+  "size": 2,
+  "n": "Harpoon",
+  "retired": 0,
+  "ship": "any"
+ },
+ "fenders": {
+  "kind": "A",
+  "size": 1,
+  "n": "Fenders",
+  "retired": 0,
+  "ship": "any"
+ },
+ "pork": {
+  "kind": "F",
+  "size": 1,
+  "n": "Salt Pork",
+  "retired": 0,
+  "ship": "any"
+ },
+ "tar": {
+  "kind": "T",
+  "size": 2,
+  "n": "Tar Bucket",
+  "retired": 0,
+  "ship": "any"
+ },
+ "hook": {
+  "kind": "T",
+  "size": 1,
+  "n": "Grappling Hook",
+  "retired": 0,
+  "ship": "any"
+ },
+ "net": {
+  "kind": "T",
+  "size": 2,
+  "n": "Fishing Net",
+  "retired": 0,
+  "ship": "any"
+ },
+ "compass": {
+  "kind": "T",
+  "size": 1,
+  "n": "Brass Compass",
+  "retired": 0,
+  "ship": "any"
+ },
+ "chest": {
+  "kind": "T",
+  "size": 1,
+  "n": "Treasure Chest",
+  "retired": 0,
+  "ship": "any"
+ },
+ "spyglass": {
+  "kind": "T",
+  "size": 1,
+  "n": "Spyglass",
+  "retired": 0,
+  "ship": "any"
+ },
+ "sail": {
+  "kind": "R",
+  "size": 1,
+  "n": "Spare Sail",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "rum": {
+  "kind": "F",
+  "size": 2,
+  "n": "Rum Barrel",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "crows": {
+  "kind": "R",
+  "size": 2,
+  "n": "Crow's Nest",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "eel": {
+  "kind": "W",
+  "size": 1,
+  "n": "Electric Eel",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "jib": {
+  "kind": "R",
+  "size": 1,
+  "n": "Jib Sail",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "mainsail": {
+  "kind": "R",
+  "size": 3,
+  "n": "Mainsail",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "topsail": {
+  "kind": "R",
+  "size": 2,
+  "n": "Topsail",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "flyingjib": {
+  "kind": "R",
+  "size": 1,
+  "n": "Flying Jib",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "spinnaker": {
+  "kind": "R",
+  "size": 3,
+  "n": "Spinnaker",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "rapier": {
+  "kind": "W",
+  "size": 1,
+  "n": "Rapier",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "stiletto": {
+  "kind": "W",
+  "size": 1,
+  "n": "Stiletto",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "twinblades": {
+  "kind": "W",
+  "size": 2,
+  "n": "Twin Blades",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "swordcane": {
+  "kind": "W",
+  "size": 1,
+  "n": "Sword Cane",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "sabre": {
+  "kind": "W",
+  "size": 2,
+  "n": "Sabre",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "riposte": {
+  "kind": "W",
+  "size": 1,
+  "n": "Riposte Blade",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "cutlass2": {
+  "kind": "W",
+  "size": 2,
+  "n": "Boarding Sabre",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "boathook": {
+  "kind": "W",
+  "size": 1,
+  "n": "Boathook",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "monkeyfist": {
+  "kind": "W",
+  "size": 1,
+  "n": "Monkey Fist",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "marlinspike": {
+  "kind": "W",
+  "size": 1,
+  "n": "Marlinspike",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "quickdraw": {
+  "kind": "W",
+  "size": 1,
+  "n": "Quickdraw Pistol",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "flintlock": {
+  "kind": "W",
+  "size": 2,
+  "n": "Flintlock",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "pistols": {
+  "kind": "W",
+  "size": 2,
+  "n": "Brace of Pistols",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "lastword": {
+  "kind": "W",
+  "size": 1,
+  "n": "Last Word",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "jollyboat": {
+  "kind": "T",
+  "size": 3,
+  "n": "Jolly Boat",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "windlass": {
+  "kind": "T",
+  "size": 2,
+  "n": "Windlass",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "tackle": {
+  "kind": "T",
+  "size": 2,
+  "n": "Block and Tackle",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "bell": {
+  "kind": "T",
+  "size": 1,
+  "n": "Ship's Bell",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "sandglass": {
+  "kind": "T",
+  "size": 1,
+  "n": "Sandglass",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "gale": {
+  "kind": "T",
+  "size": 2,
+  "n": "Gale Horn",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "kite": {
+  "kind": "R",
+  "size": 2,
+  "n": "Signal Kite",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "slipstream": {
+  "kind": "R",
+  "size": 1,
+  "n": "Slipstream",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "grog": {
+  "kind": "F",
+  "size": 2,
+  "n": "Grog Keg",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "oar": {
+  "kind": "T",
+  "size": 2,
+  "n": "Sprint Oar",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "duelglove": {
+  "kind": "T",
+  "size": 1,
+  "n": "Duelist's Glove",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "logline": {
+  "kind": "R",
+  "size": 1,
+  "n": "Log Line",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "figure8": {
+  "kind": "R",
+  "size": 1,
+  "n": "Figure-Eight Knot",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "tailwind": {
+  "kind": "T",
+  "size": 1,
+  "n": "Tailwind Charm",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "windvane": {
+  "kind": "R",
+  "size": 1,
+  "n": "Wind Vane",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "lightrig": {
+  "kind": "R",
+  "size": 1,
+  "n": "Light Rigging",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "bowsprit": {
+  "kind": "R",
+  "size": 2,
+  "n": "Bowsprit",
+  "retired": 0,
+  "ship": "sloop"
+ },
+ "pennant": {
+  "kind": "T",
+  "size": 1,
+  "n": "Racing Pennant",
+  "retired": 1,
+  "ship": "sloop"
+ },
+ "plating": {
+  "kind": "A",
+  "size": 2,
+  "n": "Iron Plating",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "ballast": {
+  "kind": "A",
+  "size": 2,
+  "n": "Ballast",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "anchor": {
+  "kind": "W",
+  "size": 3,
+  "n": "Anchor",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "figure": {
+  "kind": "T",
+  "size": 1,
+  "n": "Figurehead",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "chain": {
+  "kind": "C",
+  "size": 2,
+  "n": "Chain Shot",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "bulkhead": {
+  "kind": "A",
+  "size": 2,
+  "n": "Bulkhead",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "ironclad": {
+  "kind": "A",
+  "size": 1,
+  "n": "Iron Cladding",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "breastplate": {
+  "kind": "A",
+  "size": 1,
+  "n": "Breastplate",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "pavise": {
+  "kind": "A",
+  "size": 2,
+  "n": "Pavise",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "chainmail": {
+  "kind": "A",
+  "size": 1,
+  "n": "Chain Mail",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "bastion": {
+  "kind": "A",
+  "size": 3,
+  "n": "Bastion",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "tortoise": {
+  "kind": "A",
+  "size": 2,
+  "n": "Tortoise Formation",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "watertight": {
+  "kind": "A",
+  "size": 2,
+  "n": "Watertight Doors",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "fortress": {
+  "kind": "A",
+  "size": 3,
+  "n": "Floating Fortress",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "sandbags": {
+  "kind": "A",
+  "size": 1,
+  "n": "Sandbags",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "ram": {
+  "kind": "W",
+  "size": 3,
+  "n": "Iron Ram",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "shieldbash": {
+  "kind": "W",
+  "size": 2,
+  "n": "Shield Bash",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "gauntlet": {
+  "kind": "W",
+  "size": 1,
+  "n": "Plate Gauntlet",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "crusher": {
+  "kind": "W",
+  "size": 3,
+  "n": "Hull Crusher",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "carronade": {
+  "kind": "C",
+  "size": 3,
+  "n": "Carronade",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "broadaxe": {
+  "kind": "W",
+  "size": 2,
+  "n": "Boarding Axe",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "halberd": {
+  "kind": "W",
+  "size": 3,
+  "n": "Halberd",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "maul": {
+  "kind": "W",
+  "size": 3,
+  "n": "Maul",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "anchorchain": {
+  "kind": "W",
+  "size": 2,
+  "n": "Anchor Chain",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "grapeshot": {
+  "kind": "C",
+  "size": 2,
+  "n": "Grapeshot",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "heavyshot": {
+  "kind": "W",
+  "size": 1,
+  "n": "Heavy Shot",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "ballista": {
+  "kind": "W",
+  "size": 3,
+  "n": "Ballista",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "capstan": {
+  "kind": "T",
+  "size": 2,
+  "n": "Capstan",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "mooring": {
+  "kind": "T",
+  "size": 1,
+  "n": "Mooring Line",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "hullpatch": {
+  "kind": "T",
+  "size": 1,
+  "n": "Hull Patch",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "drydock": {
+  "kind": "T",
+  "size": 2,
+  "n": "Dry Dock",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "resolve": {
+  "kind": "T",
+  "size": 1,
+  "n": "Oaken Resolve",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "beacon": {
+  "kind": "T",
+  "size": 1,
+  "n": "Beacon",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "oak": {
+  "kind": "T",
+  "size": 2,
+  "n": "Oak Timbers",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "ironbound": {
+  "kind": "A",
+  "size": 3,
+  "n": "Ironbound Hull",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "keel": {
+  "kind": "T",
+  "size": 2,
+  "n": "Reinforced Keel",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "lastline": {
+  "kind": "A",
+  "size": 2,
+  "n": "Last Line",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "barnacles": {
+  "kind": "T",
+  "size": 2,
+  "n": "Barnacled Hull",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "buttress": {
+  "kind": "A",
+  "size": 1,
+  "n": "Buttress",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "counterweight": {
+  "kind": "T",
+  "size": 1,
+  "n": "Counterweight",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "standard": {
+  "kind": "T",
+  "size": 1,
+  "n": "Ship's Standard",
+  "retired": 0,
+  "ship": "galleon"
+ },
+ "bulwarkwall": {
+  "kind": "A",
+  "size": 2,
+  "n": "Bulwark Wall",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "dropanchor": {
+  "kind": "T",
+  "size": 2,
+  "n": "Drop Anchor",
+  "retired": 1,
+  "ship": "galleon"
+ },
+ "cannon": {
+  "kind": "X",
+  "size": 3,
+  "n": "Deck Cannon",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "mortar": {
+  "kind": "X",
+  "size": 3,
+  "n": "Mortar",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "swivel": {
+  "kind": "C",
+  "size": 1,
+  "n": "Swivel Gun",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "keg": {
+  "kind": "X",
+  "size": 1,
+  "n": "Powder Keg",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "flare": {
+  "kind": "X",
+  "size": 1,
+  "n": "Signal Flare",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "firepot": {
+  "kind": "X",
+  "size": 2,
+  "n": "Fire Pot",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "blunderbuss": {
+  "kind": "W",
+  "size": 2,
+  "n": "Blunderbuss",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "grenado": {
+  "kind": "X",
+  "size": 1,
+  "n": "Grenado",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "hotshot": {
+  "kind": "X",
+  "size": 2,
+  "n": "Heated Shot",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "incendiary": {
+  "kind": "X",
+  "size": 1,
+  "n": "Incendiary Round",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "broadside": {
+  "kind": "C",
+  "size": 3,
+  "n": "Broadside Battery",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "bombard": {
+  "kind": "C",
+  "size": 3,
+  "n": "Bombard",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "twinswivel": {
+  "kind": "C",
+  "size": 2,
+  "n": "Twin Swivels",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "barshot": {
+  "kind": "C",
+  "size": 2,
+  "n": "Bar Shot",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "crossfire": {
+  "kind": "C",
+  "size": 2,
+  "n": "Crossfire",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "rocket": {
+  "kind": "X",
+  "size": 1,
+  "n": "Congreve Rocket",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "burstkeg": {
+  "kind": "X",
+  "size": 2,
+  "n": "Bursting Keg",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "petard": {
+  "kind": "X",
+  "size": 1,
+  "n": "Petard",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "pepperbox": {
+  "kind": "W",
+  "size": 1,
+  "n": "Pepperbox",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "brand": {
+  "kind": "X",
+  "size": 1,
+  "n": "Branding Iron",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "scorch": {
+  "kind": "W",
+  "size": 2,
+  "n": "Scorched Planks",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "firearrows": {
+  "kind": "X",
+  "size": 2,
+  "n": "Fire Arrows",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "fireworks": {
+  "kind": "X",
+  "size": 1,
+  "n": "Fireworks",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "fuse": {
+  "kind": "X",
+  "size": 1,
+  "n": "Slow Fuse",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "greekfire": {
+  "kind": "X",
+  "size": 2,
+  "n": "Greek Fire",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "fireship": {
+  "kind": "X",
+  "size": 3,
+  "n": "Fire Ship",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "hellburner": {
+  "kind": "X",
+  "size": 3,
+  "n": "Hellburner",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "coalpan": {
+  "kind": "X",
+  "size": 2,
+  "n": "Coal Brazier",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "sparks": {
+  "kind": "X",
+  "size": 1,
+  "n": "Flint and Steel",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "smokepot": {
+  "kind": "T",
+  "size": 1,
+  "n": "Smoke Pot",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "linstock": {
+  "kind": "T",
+  "size": 1,
+  "n": "Linstock",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "cartridges": {
+  "kind": "T",
+  "size": 1,
+  "n": "Paper Cartridges",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "powderhorn": {
+  "kind": "T",
+  "size": 1,
+  "n": "Powder Horn",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "ramrod": {
+  "kind": "T",
+  "size": 1,
+  "n": "Ramrod",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "tinderbox": {
+  "kind": "X",
+  "size": 1,
+  "n": "Tinderbox",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "furnace": {
+  "kind": "X",
+  "size": 2,
+  "n": "Shot Furnace",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "kindling": {
+  "kind": "X",
+  "size": 1,
+  "n": "Kindling",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "gunwale": {
+  "kind": "T",
+  "size": 2,
+  "n": "Gunwale Rack",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "magazine": {
+  "kind": "X",
+  "size": 2,
+  "n": "Powder Magazine",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "slowmatch": {
+  "kind": "X",
+  "size": 1,
+  "n": "Slow Match",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "wildfire": {
+  "kind": "X",
+  "size": 2,
+  "n": "Wildfire",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "blackflag": {
+  "kind": "T",
+  "size": 1,
+  "n": "Black Flag",
+  "retired": 1,
+  "ship": "privateer"
+ },
+ "phoenix": {
+  "kind": "X",
+  "size": 2,
+  "n": "Phoenix Figurehead",
+  "retired": 0,
+  "ship": "privateer"
+ },
+ "lime": {
+  "kind": "F",
+  "size": 1,
+  "n": "Lime Crate",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "pump": {
+  "kind": "T",
+  "size": 2,
+  "n": "Bilge Pump",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "puffer": {
+  "kind": "V",
+  "size": 1,
+  "n": "Pufferfish",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "galley": {
+  "kind": "X",
+  "size": 2,
+  "n": "Galley Stove",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "teapot": {
+  "kind": "F",
+  "size": 1,
+  "n": "Teapot",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "jasmine": {
+  "kind": "F",
+  "size": 1,
+  "n": "Jasmine Tea",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "ginseng": {
+  "kind": "F",
+  "size": 1,
+  "n": "Ginseng Root",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "kelp": {
+  "kind": "F",
+  "size": 1,
+  "n": "Kelp Wrap",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "ricebowl": {
+  "kind": "F",
+  "size": 1,
+  "n": "Rice Bowl",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "noodles": {
+  "kind": "F",
+  "size": 2,
+  "n": "Noodle Pot",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "dumplings": {
+  "kind": "F",
+  "size": 1,
+  "n": "Dumplings",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "serpentwine": {
+  "kind": "V",
+  "size": 1,
+  "n": "Serpent Wine",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "scorpion": {
+  "kind": "V",
+  "size": 1,
+  "n": "Pickled Scorpion",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "fugu": {
+  "kind": "W",
+  "size": 1,
+  "n": "Fugu Knife",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "darts": {
+  "kind": "W",
+  "size": 1,
+  "n": "Venom Darts",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "blowpipe": {
+  "kind": "W",
+  "size": 2,
+  "n": "Blowpipe",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "moray": {
+  "kind": "W",
+  "size": 1,
+  "n": "Moray Eel",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "seasnake": {
+  "kind": "V",
+  "size": 1,
+  "n": "Sea Snake",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "jellyfish": {
+  "kind": "V",
+  "size": 2,
+  "n": "Jellyfish Jar",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "glowcap": {
+  "kind": "V",
+  "size": 1,
+  "n": "Glowcap",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "miasma": {
+  "kind": "V",
+  "size": 2,
+  "n": "Miasma Censer",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "toxinsac": {
+  "kind": "V",
+  "size": 1,
+  "n": "Toxin Sac",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "whisper": {
+  "kind": "T",
+  "size": 1,
+  "n": "Whispering Reed",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "bamboo": {
+  "kind": "W",
+  "size": 2,
+  "n": "Bamboo Staff",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "guandao": {
+  "kind": "W",
+  "size": 3,
+  "n": "Guandao",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "chakram": {
+  "kind": "W",
+  "size": 1,
+  "n": "Chakram",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "fan": {
+  "kind": "T",
+  "size": 1,
+  "n": "Paper Fan",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "dragonkite": {
+  "kind": "T",
+  "size": 2,
+  "n": "Dragon Kite",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "stillwater": {
+  "kind": "T",
+  "size": 2,
+  "n": "Still Water",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "pearlpowder": {
+  "kind": "T",
+  "size": 1,
+  "n": "Pearl Powder",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "antidote": {
+  "kind": "T",
+  "size": 1,
+  "n": "Antidote",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "acupuncture": {
+  "kind": "T",
+  "size": 1,
+  "n": "Acupuncture",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "tidebell": {
+  "kind": "T",
+  "size": 1,
+  "n": "Tidecaller Bell",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "lacquer": {
+  "kind": "A",
+  "size": 2,
+  "n": "Lacquer Shield",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "clam": {
+  "kind": "A",
+  "size": 2,
+  "n": "Giant Clam",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "tortoiseshell": {
+  "kind": "A",
+  "size": 1,
+  "n": "Tortoiseshell",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "lotuslamp": {
+  "kind": "T",
+  "size": 1,
+  "n": "Lotus Lantern",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "abacus": {
+  "kind": "T",
+  "size": 1,
+  "n": "Abacus",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "incense": {
+  "kind": "T",
+  "size": 1,
+  "n": "Incense",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "koi": {
+  "kind": "T",
+  "size": 2,
+  "n": "Koi Pond",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "lanternrow": {
+  "kind": "T",
+  "size": 2,
+  "n": "Lantern String",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "jade": {
+  "kind": "T",
+  "size": 1,
+  "n": "Jade Talisman",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "nettle": {
+  "kind": "T",
+  "size": 1,
+  "n": "Nettle Poultice",
+  "retired": 0,
+  "ship": "junk"
+ },
+ "lotusflower": {
+  "kind": "T",
+  "size": 1,
+  "n": "Lotus Blossom",
+  "retired": 1,
+  "ship": "junk"
+ },
+ "moongate": {
+  "kind": "T",
+  "size": 2,
+  "n": "Moon Gate",
+  "retired": 0,
+  "ship": "junk"
+ }
+}

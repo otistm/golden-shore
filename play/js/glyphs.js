@@ -110,6 +110,9 @@ const ICONS={
 };
 
 const EMB={sloop:'<path d="M5.1 1h.9v8.4h-.9zM6.6 1.6c3 1.3 4.3 4.3 3.7 7.4H6.6z"/><path d="M1.3 9.6h9.4l-1.4 1.9H2.7z"/>',galleon:'<path d="M2 2h8v4c0 3-2 4-4 5-2-1-4-2-4-5z"/>',privateer:'<path d="M6 11C3.5 11 2.5 9.5 2.5 8 2.5 5.5 5 5 5 1.5c2 1 3 2.5 2.7 4.3.8-.4 1.1-1.2 1.1-1.8 1.5 1.2 1.9 2.6 1.9 3.8C10.7 9.6 9 11 6 11z"/>',junk:'<path d="M6 1.3C7.5 3.4 7.5 6.6 6 9.2 4.5 6.6 4.5 3.4 6 1.3zM5.3 9.7C2.9 9.4 1.2 7.4 1.1 4.9c1.8.2 3.4 1.7 4.2 4.8zM6.7 9.7c2.4-.3 4.1-2.3 4.2-4.8-1.8.2-3.4 1.7-4.2 4.8zM2.8 10.2h6.4v1.3H2.8z"/>'};
-function icon(k){const d=DEFS[k];if(d&&d.look)return peep(CREW[k]&&CREW[k].look,PEEP_HEAD,'ic crew');return`<svg class="ic" viewBox="0 0 40 40" aria-hidden="true">${ICONS[d&&d.i||k]||ICONS.crate}</svg>`}
+function icon(k){const d=DEFS[k];if(d&&d.look)return peep(CREW[k]&&CREW[k].look,PEEP_HEAD,'ic crew');
+  // the drawn picture (itemart.js) when there is one: square for size 1, wider for size 2 and 3
+  const A=typeof ITEMART!=='undefined'&&ITEMART[k];if(A)return`<svg class="ic art w${A.w}" viewBox="0 0 ${A.w} 40" aria-hidden="true"><g stroke="none">${A.s}</g></svg>`;
+  return`<svg class="ic" viewBox="0 0 40 40" aria-hidden="true">${ICONS[d&&d.i||k]||ICONS.crate}</svg>`}
 const emb=k=>{const sh=DEFS[k].ship;return sh&&sh!=='any'?`<svg class="emb" viewBox="0 0 12 12" aria-hidden="true">${EMB[sh]}</svg>`:''};
 const CHEV=`<span class="chev" aria-hidden="true"><svg viewBox="0 0 20 32">${[11,20,29].map(y=>`<g><path class="h" d="M4 ${y}l6-6 6 6"/><path d="M4 ${y}l6-6 6 6"/></g>`).join('')}</svg></span>`;

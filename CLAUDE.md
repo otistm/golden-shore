@@ -70,7 +70,8 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Tags: W weapon, C cannon, F food, X fire, T tool, A armor, R rigging, V venom, K crew.
 - Tiles show one big stat tag (`mainStat()` in items.js, drawn by `statTag()` in ui.js): the item's main number in context, coloured by kind (`.s-dmg` etc.); passives that boost others show a dashed tag. Types are colour coded by `--ty`/`--typ` on `.c-X` classes (a top band `.tyb` and a wash). A new effect field needs a line in `mainStat()` if it should show.
 - The field language (effects, `start`, `on` reactions, auras) is documented at the top of items.js.
-- New glyphs go in glyphs.js. They're 40×40, with class `w` for paper fill and `k` for ink fill.
+- Item pictures are drawn with the ware-style-assets kit: `tools/ware/item-notes.md` (research: what each item really looked like, parts, colours, what to avoid), the drawings in `tools/ware/items_draw.py` (shared) and `items_wren.py`, `items_bulwark.py`, `items_ember.py`, `items_lotus.py`, built by `py tools/ware/itemart.py` into `play/js/itemart.js` (`ITEMART`, generated, don't edit) with a review sheet `tools/ware/out/items.svg`. Size 1 pictures are 40×40, size 2 are 64×40 and size 3 are 88×40. `icon(k)` uses the picture when there is one. A new item needs a note and a drawing; `node tools/ware/meta.mjs` refreshes `tools/ware/items_meta.json` for the sheet. Retired items keep their old glyph.
+- Old glyphs (retired items, fallbacks) go in glyphs.js. They're 40×40, with class `w` for paper fill and `k` for ink fill.
 
 ## Every change
 1. Work on a new branch, never directly on `main`.
