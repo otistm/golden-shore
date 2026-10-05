@@ -889,6 +889,7 @@ button.stat:active{transform:scale(1.06,.9)}
 .good.dragging{opacity:.35}
 .good .o-icon{width:100%;height:auto;aspect-ratio:1;padding:16%;border-radius:14px;background:var(--paper);transition:transform .35s var(--spring),translate .35s var(--spring)}
 .good .ptag{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;border:1.5px solid var(--line);border-radius:999px;background:var(--paper);padding:0 8px 0 5px;font-weight:800;font-size:13px;line-height:22px;transition:translate .35s var(--spring)}
+.good .o-icon .stag{bottom:auto;top:10px;left:auto;right:6px;transform:none}
 .good .ptag .sic{width:13px;height:13px}
 .good.sel .o-icon,.good.sel .ptag{translate:0 -8px}
 .good.sel .ptag{background:var(--ink);color:var(--paper)}.good.sel .ptag .sic{stroke:var(--paper)}.good.sel .ptag .sic .w{fill:var(--ink)}

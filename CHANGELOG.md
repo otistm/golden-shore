@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.54.1
+- In the market, the stat tag sits in the top corner of each good so the price no longer covers it.
+
 ## 0.54.0
 - Every item is redrawn as the real thing, after research into what each one looked like at sea between about 1690 and 1820 (and in Qing China for the Lotus): an 1804 figure-of-eight cutlass, a two-flued whaling iron, a boxed compass with a 32-point card, an Admiralty anchor with its oak stock, a carronade on its slide, a Congreve rocket with its stick clamped to the side, a linstock holding its slow match, a Yixing teapot, a suanpan with two beads over five, a tengpai shield painted with a tiger, and so on. Bigger items get wider pictures so long things keep their shape. Where a name had no real object behind it, the picture is the nearest period thing (the Crow's Nest is a fighting top, the Spinnaker studding sails, the Signal Kite a hoist of signal flags, Greek Fire a carcass shell, the Moon Gate a garden wall's round gate).
 
