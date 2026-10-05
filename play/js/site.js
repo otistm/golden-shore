@@ -35,11 +35,14 @@ function siteScene(n){const kind=SITEKIND(n);if(!kind)return chart();
   const v=kind==='isle'?isleVariant(n):wreckVariant(n),spots=siteSpots(n,kind,v),head=placeName(n)||'A wreck',r=RNG(G.seed,'seen',n.id,'site');
   const said=VARSEEN[v][ri(r,VARSEEN[v].length)];
   app.innerHTML=`${barHTML()}<div class="seahead"><h2>${head}</h2><span class="pwx">${placeKind(n)||''}<br>${WEATHER[portWxKey()].n}</span></div>
-    <div class="hscene site" id="sitescene"><svg class="hworld site" viewBox="0 0 400 250" role="img" aria-label="${head}">${siteArt(n,kind,v)}
-      ${spots.map(s=>`<g class="spot${G.site.done.includes(s.k)?' done':''}" data-s="${s.k}" role="button" tabindex="0" aria-label="${s.l}" transform="translate(${s.x} ${s.y})"><circle class="hit" r="24"/><circle class="ring" r="13"/><g class="lbl" transform="translate(0 ${s.ly||-24})"><rect x="${-s.l.length*3.4-8}" y="-11" width="${s.l.length*6.8+16}" height="18" rx="7"/><text y="2.5" text-anchor="middle">${s.l}</text></g></g>`).join('')}</svg></div>
+    <div class="hscene site" id="sitescene"><div class="hscroll" id="sitescroll"><svg class="hworld site" viewBox="0 0 400 250" role="img" aria-label="${head}">${siteArt(n,kind,v)}
+      ${spots.map(s=>`<g class="spot${G.site.done.includes(s.k)?' done':''}" data-s="${s.k}" role="button" tabindex="0" aria-label="${s.l}" transform="translate(${s.x} ${s.y})"><circle class="hit" r="24"/><circle class="ring" r="13"/><g class="lbl" transform="translate(0 ${s.ly||-24})"><rect x="${-s.l.length*3.4-8}" y="-11" width="${s.l.length*6.8+16}" height="18" rx="7"/><text y="2.5" text-anchor="middle">${s.l}</text></g></g>`).join('')}</svg></div></div>
     <div class="sitepanel" id="siteout"><p class="log">${said}</p><p class="soft">Tap a spot to look closer.</p></div>
     ${holdDock(`<button class="primary" id="siteleave">Back to the sea</button>`)}`;
   bindBar();bindHold('hold',()=>siteScene(n));fitDock();portWeather();
+  // on a phone the scene is wider than the screen and scrolls sideways like the harbour; it opens centred, or where you were
+  const sc=document.getElementById('sitescroll');if(sc){const k=(G.site.sx!=null)?G.site.sx:.5;sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*k;
+    sc.addEventListener('scroll',()=>{const w=sc.scrollWidth-sc.clientWidth;if(w>0)G.site.sx=sc.scrollLeft/w},{passive:true})}
   app.querySelectorAll('.spot').forEach(el=>{const go=()=>{const s=spots.find(x=>x.k===el.dataset.s);if(!s)return;if(G.site.done.includes(s.k)){el.classList.add('done');return}siteDo(n,kind,v,s,el)};
     el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
   document.getElementById('siteleave').onclick=()=>{G.site=null;save();chart()};

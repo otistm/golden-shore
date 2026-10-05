@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.48.2
+- Places up close are drawn bigger on phones and scroll sideways like the harbour. They open centred and remember where you'd scrolled to.
+
 ## 0.48.1
 - Places up close redrawn to the harbour's standard, after research into Chris Ware's drawing and colour. Every isle and wreck now shares one frame: sun and slow clouds, a pale far shore, the sea in bands, your own ship at anchor offshore and your rowboat on the shore. Surfaces have a lit side and a shaded side, with sparse detail where it counts: grass along the crest, strata in the rock, planks and gunports on hulls, copper plates on a keel-up wreck.
 - Each place has a telling detail: a crab on the beach, a seal on the rock stack, the lighthouse keeper's empty cottage, a gull on the keel, the ship's name painted on a board.

@@ -1737,7 +1737,8 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 @media (prefers-reduced-motion:reduce){.claimcard,.claimcard .cn,.claimcard .cs{animation:none;opacity:1}.claimcard .sk [pathLength]{animation:none;stroke-dashoffset:0;fill-opacity:1}.ocean .o-pname{transition:none}}
 /* places up close (site.js): a side-on scene with spots to tap, a panel for what you find, and the bottle moment */
 .hscene.site{margin-bottom:10px}
-.hworld.site{width:100%;height:auto;max-height:calc(100vh - var(--dock,250px) - 230px);min-height:220px;display:block}
+.hworld.site{height:clamp(270px,calc(100vh - var(--dock,250px) - 250px),560px);width:auto;max-width:none;display:block;margin:0 auto}
+.hscene.site .hscroll{background:transparent}
 .hworld.site .hcloud{animation:none}
 .hworld.site{stroke-width:2.2}
 /* places up close: the palette (house tokens only) */
