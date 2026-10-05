@@ -160,7 +160,7 @@ function shipSheet(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait];
   const ov=overlay(`<div class="sh-top shipsheet-top">${shipArt(G.ship)}<div><h2>${sh.n}</h2><p class="soft" style="margin-top:4px">${sh.type}. ${G.hull} hull. Hold of ${holdCap()} slots.</p></div></div>
     <p class="gloss" style="font-size:14px;color:var(--ink)"><span><b>${tr.n}.</b> ${tr.d()}</span></p>
     <h3 class="shead">Crew <span class="soft">${(G.crew||[]).length}/${berths()} berths</span></h3>
-    <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map')))}</div>
+    <div class="crewlist">${crewRows(!!(app.querySelector('#leave')||app.querySelector('.map,.ocean')))}</div>
     ${renownHTML()}
     <h3 class="shead">Fittings</h3>
     <div class="fitlist">${fitRows()}</div>
@@ -173,7 +173,7 @@ const SHIPWIDE='(min-width:900px) and (min-height:620px)';
 // where each fitting spot sits on each ship's drawing (in its 120 by 110 frame)
 const SHIPSPOTS={sloop:{sails:[62,36],guns:[72,89],hull:[44,95],head:[12,77]},galleon:{sails:[60,40],guns:[46,88],hull:[66,98],head:[10,76]},
   privateer:{sails:[34,40],guns:[46,89],hull:[64,96],head:[6,71]},junk:{sails:[64,40],guns:[76,88],hull:[44,99],head:[8,72]}};
-function shipCard(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait],cs=G.crew||[],edit=!!(app.querySelector('#leave')||app.querySelector('.map'));
+function shipCard(){const sh=SHIPS[G.ship],tr=TRAITS[sh.trait],cs=G.crew||[],edit=!!(app.querySelector('#leave')||app.querySelector('.map,.ocean'));
   const n=G.renown||0,lv=renownLvl(),nx=renownNext(),prev=lv?RENOWN[lv-1]:0,pc=nx?Math.round((n-prev)/(nx-prev)*100):100;
   const bar=p=>`<span class="sc-bar" aria-hidden="true"><i style="width:${p}%"></i></span>`;
   const stat=(lbl,big,small,extra)=>`<div class="sc-stat"><span class="sc-lbl">${lbl}</span><b>${big}</b>${small?`<span class="soft">${small}</span>`:''}${extra||''}</div>`;
@@ -302,7 +302,9 @@ function dragHold(mode,rerender,ext){
 }
 /* the size of an item tile in the docked hold, for an item of size s */
 function tileSize(s){const b=app.querySelector('.dock .board[data-side="p"]');if(!b)return{w:40*s,h:66};
-  const cs=getComputedStyle(b),gap=parseFloat(cs.columnGap)||4,cell=(b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-(HOLD-1)*gap)/HOLD,c=b.firstElementChild;
+  // the columns' real widths (on big screens they stop growing and the gaps widen instead)
+  const cs=getComputedStyle(b),tr=cs.gridTemplateColumns.split(' ').map(parseFloat),inner=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),
+    cell=tr.length===HOLD&&tr[0]>0?tr[0]:(inner-(HOLD-1)*(parseFloat(cs.columnGap)||4))/HOLD,gap=(inner-cell*HOLD)/(HOLD-1),c=b.firstElementChild;
   return{w:cell*s+gap*(s-1),h:c?c.getBoundingClientRect().height:66}}
 function holdDock(extra,ups,lups,hint){
   hint=G.moving?'Tap an item to put it there, or an empty slot to send it to the end.':hint||`Drag to ${G.locker?'move between hold and locker':'rearrange'}${G.inPort?', or onto Set sail to sell':''}. Tap to inspect.`;

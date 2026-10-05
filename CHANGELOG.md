@@ -1,5 +1,67 @@
 # Changelog
 
+## 0.46.0
+- A ship's wheel to steer. Drag the wheel round and it turns like the real thing; the further you turn it the harder she turns, she needs some speed to answer the helm, and when you let go the wheel eases back to the middle. Grabbing the wheel hoists the sails. A sail button beside it hoists and furls them. Arriving somewhere, picking up a bottle or reaching the edge of the sea furls them for you.
+- Tapping the water no longer steers. Tapping a place you can see still sails you there, and the wheel takes back over when you grab it.
+- A small compass in the corner points the way you're heading, and spins wildly at the edge of the sea.
+- On a computer: the arrow keys or A and D turn the wheel, W hoists and S furls.
+- The camera sits further back again, so you see more of the sea.
+
+## 0.45.6
+- The open sea's camera sits a little further back, so you see more water round your ship.
+
+## 0.45.5
+- On big screens, cargo cards keep a sensible size however wide the window, and the space between them grows instead. Market and spoils cards stop growing too.
+- Victory, defeat and every other pop-up centre over the battle or the sea, beside the captain's desk, instead of over the whole screen.
+
+## 0.45.4
+- Ports and fights fill the screen on computers too, however wide, with no plain margins either side. The harbour also grows taller to fill the space above the hold.
+
+## 0.45.3
+- On a computer the game now fills the whole window, with no more 16:9 frame and black bars. On the open sea the ocean runs edge to edge however wide the screen, with the captain's desk at the far right.
+
+## 0.45.2
+- A faint shimmer of light runs along the edge of the sea, and the water past it looks a little hazy, as if not quite there.
+
+## 0.45.1
+- Sailing into the edge of the sea stops the ship, and a card appears with a compass needle spinning wildly: "Your compass goes haywire. Something is keeping you out. Perhaps you should turn back for now..."
+
+## 0.45.0
+- Weather only where you're outside. The harbour and the docks show the day's weather; step into the market, the tavern or the shipwright's and you're under cover.
+- People on the docks dress for the weather: a yellow oilskin sou'wester in the rain, a sou'wester and turned-up oilskin collar in a storm, a knitted scarf in the mist.
+
+## 0.44.0
+- Weather in port. The harbour's sky and water follow the day's weather: the sun goes in when it rains, clouds turn grey, the water darkens. Rain falls over the town and splashes on the water, mist drifts through, and storms flash with lightning. The market, the shipwright's yard and the docks get the same rain and mist, lighter so the goods stay clear, with speech bubbles kept above the rain. The tavern is indoors and stays dry. The day's weather shows under the sea's name.
+
+## 0.43.0
+- Storms slow you down. In a storm your ship sails at about 60% speed, turns more sluggishly and is pushed sideways by the wind; rain slows her a little and pushes her gently.
+- Storms change fights. Fighting in a storm at sea, the fight's storm hits 12 seconds early (at 18 seconds instead of 30), and the rain halves all burning, yours and theirs. Rain falls over the fight, and the card before the fight says so. Overall win rates barely move (50.8% clear, 50% in a storm), but fire-heavy holds suffer and fast ones shine.
+
+## 0.42.0
+- Weather. Each sea has its own swell: a short one in the Shallows, a long heavy one in the Fog Sea, big seas in the Deep. The weather changes day by day as you sail, and the lookout calls it out. It eases from calm with cloud shadows drifting over the water, to a fair wind, to mist lying low on the sea with drizzle, to rain, to storms with whitecaps, driving rain, a dark sky and lightning. Rougher weather raises the swell, so ships pitch and roll harder. The wind pushes the fog along. The Shallows are mostly fair, the Fog Sea mostly misty, the Deep mostly stormy. The day's weather shows beside the sea's name.
+- To see a weather on purpose, add ?weather=storm (or calm, breezy, mist, rain) to the address.
+
+## 0.41.0
+- The sea has real swells. A few long waves roll in from the north-west, and you can see them pass across the water. Every ship, rowboat, bottle and barrel rides the water where it is, rising, falling and rocking as a swell goes under it, so no two move alike. Big ships rock less, and your ship leans into her turns.
+- The dotted rings round ships are gone. Pale foam hugs each hull where it meets the water, and soft rings of foam lap round rocks and creatures.
+
+## 0.40.1
+- The fog is soft smoke now. Add ?fog=ink to the address to see the outlined ink version.
+
+## 0.40.0
+- Real fog. The flat dotted fog is replaced by banks of cloud drawn on the graphics card: three layers at different heights that slide past each other as you sail, with billowing edges, shadows under the billows and an ink outline, drifting slowly with the wind. Add ?fog=soft to the address to try soft, smoky fog instead. Phones without WebGL keep the old fog.
+- The lighthouse beams, sails and storms that floated over the fog are gone.
+
+## 0.39.0
+- The sea is drawn as what's there, with no icons. Shark fins circle, a serpent's coils rise and sink, the Kraken's arms sway, sirens sing on their rocks, fish swim under wheeling birds, a bottle glints, a wreck floats keel-up, a forge smokes on an islet. Strangers' ships come in their own colours: navy grey, ghostly, iron-hulled, fire-scorched.
+- The world draws you on: tall and loud things show over the fog from far off (a lighthouse beam, the tops of sails, smoke, birds, a song, a lantern, a peak), and the boss's storm, the nearest ports' lights and anything a scrap of chart has shown you stand on the horizon at the edge of the screen.
+- Days pass as you sail.
+- Scraps of chart: bottles drift on every sea, and the peak of each uncharted isle shows more coast. Each scrap is pasted into your chart, showing places before you reach them.
+- Every place you sail up to opens with a few lines of what you see, before the fight or trade details.
+
+## 0.38.0
+- The open sea: instead of picking stops on a chart, you now steer your ship across an ink ocean seen from above. Tap or drag on the water to sail, or tap a place to sail straight to it. Ports, isles, other ships, flotsam, strangers in rowboats and fishing grounds wait in the fog until you sail close, and sailing into one shows what it is. The chart is now a button you carry: it inks in the water you have sailed, marks what you have found and crosses off what you have done. The maiden voyage still uses the old chart for now.
+
 ## 0.37.0
 - Golden Shore begins: a copy of Ink Crossing 0.36.0, renamed, with its own saved progress, offline cache and feedback table, so the two games never mix.
 

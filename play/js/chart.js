@@ -74,6 +74,7 @@ function fogLift(){const f=app.querySelector('.map .fog'),m=app.querySelector('.
   if(m)fogSeen={sea:G.sea,seed:G.seed,bot:bot<0?1e9:bot}}
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
+  if(!G.tut)return openSea();   // real voyages sail the open sea (sea.js); the maiden voyage still uses this chart
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   // the bar and the sea's name stay pinned to the top while the chart scrolls under them
@@ -163,10 +164,10 @@ function go(id){
   const from=G.at;
   if(G.map.edges.some(([a,b])=>a===from&&b===id))return sailAnim(from,id,()=>goNow(id));
   goNow(id)}
-function goNow(id){
+function goNow(id,atSea){
   if(G.at===id)return;   // already there: a second tap on Sail here must never sail the same leg twice
   coach('sail');
-  G.at=id;G.path.push(id);G.day++;G.moving=false;G.sel=null;updateReveal();save();
+  G.at=id;G.path.push(id);if(!atSea)G.day++;   // on the open sea, days pass as you sail insteadG.moving=false;G.sel=null;updateReveal();save();
   const n=node(id);
   if(n.type==='port')port(id);
   else if(n.enemy)fight(n);

@@ -39,14 +39,14 @@ function port(id,view){
   const page=view==='harbour'?`${harbourScene(info)}<p class="tapnote">Tap a place to go in. Swipe or use the arrows to walk along the quay.</p>`
     :`<nav class="bldnav" aria-label="Port">${Object.entries(BLD).map(([k,t])=>`<button class="bldtab${k===view?' on':''}" data-bld="${k}"${k===view?' aria-current="page"':''}>${t}${info[k].badge?`<span class="bdg">${info[k].badge}</span>`:''}</button>`).join('')}<button class="bldtab home" data-bld="harbour"><svg class="hic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Harbour</button></nav>
       ${view==='market'?marketH:view==='tavern'?(tutOpen('tavern')?tavernHTML(S):'<p class="soft">The tavern is closed for the trial.</p>'):view==='wright'?(tutOpen('wright')?wrightHTML(S,id,anim):'<p class="soft">The shipwright is closed for the trial.</p>'):docksHTML(S,id,vis,anim)}`;
-  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><button class="scope" id="scope" aria-label="Look at the chart"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 9.5l13-5 1.6 4.2-13 5z"/><path d="M16.4 4l4.2-1.6 1.6 4.2-4.2 1.6"/><path d="M8 12.5l-2 3M10 11.7l2 3.8"/></svg>Chart</button><span>${SEAS[G.sea]}</span></div>
+  app.innerHTML=`${barHTML()}<div class="seahead"><h2>${n.name}</h2><button class="scope" id="scope" aria-label="Look at the chart"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M2 9.5l13-5 1.6 4.2-13 5z"/><path d="M16.4 4l4.2-1.6 1.6 4.2-4.2 1.6"/><path d="M8 12.5l-2 3M10 11.7l2 3.8"/></svg>Chart</button><span class="pwx">${SEAS[G.sea]}${G.tut?'':`<br>${WEATHER[portWxKey()].n}`}</span></div>
   ${page}
   ${holdDock(`<button class="primary" id="leave">Set sail</button>`,ups,lockerUps(S.offers),view==='market'?'Drag goods off the table into your hold to buy.':undefined)}`;
   // the market's goods drag straight off the table into the hold or locker, paying as they land
   const buyInto=(i,tgt,dst)=>{const o=S.offers[i],p=buyP(o);if(G.gold<p){toast(`Need ${p-G.gold} more gold`);return null}
     let at=null;if(findMatch(o)){const m=findMatch(o);addItem(o);toast(`${DEFS[o.k].n} upgraded to ${TIER[m.list[m.i].t]}`)}else{const b={k:o.k,t:o.t};tgt.list.splice(dst,0,b);seen(o.k);flash={ref:b,kind:'add'};at=dst}
     G.gold-=p;S.offers[i]=null;PV.msel=null;PV.mbought=true;bump='gold';save();setTimeout(()=>coach('bought'));return at};
-  bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();
+  bindBar();bindHold('port',()=>port(id,view),view==='market'?{from:[...app.querySelectorAll('.good[data-g]')].map(el=>({el,it:S.offers[+el.dataset.g],drop:(tgt,dst)=>buyInto(+el.dataset.g,tgt,dst)}))}:null);fitDock();portWeather();
   const rb=document.getElementById('reroll');if(rb)rb.onclick=()=>{
     if(hasC('route')&&G.freeRoll){G.freeRoll=false}
     else{if(G.gold<rr)return toast(`Need ${rr-G.gold} more gold`);G.gold-=rr;S.reroll++;bump='gold'}
@@ -162,8 +162,9 @@ function docksHTML(S,id,vis,anim){const mk=mongerOf(id),M=MONGERS[mk],pay=f=>fis
     talk=`<div class="talk" id="talk"><p class="say">“${dem?M.demand:M.say[F.rar]||M.say[0]}”</p><p class="who"><b>${F.n}</b><span class="chipc">${RAR[F.rar]}</span>${dem?'<span class="chipc">in demand</span>':''}</p>
       <div class="acts"><button class="buy" data-f="${sel}">Sell for ${pay(f)} gold</button>${G.creel.length>1?`<button class="linkbtn" id="sellall">Sell all ${G.creel.length} for ${tot}</button>`:''}</div></div>`}
   else talk=`<div class="talk" id="talk"><p class="say">“${PV.dsold?M.thanks:M.empty}”</p>${S.demand?`<p class="desc">Paying double for ${FISH[S.demand].n} today.</p>`:''}</div>`;
-  const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(look,PEEP_HEAD,'peep')}</button>`;
-  const speaker=who?N.look:M.look;
+  // the docks are out in the weather, so everyone on them is dressed for it
+  const face=(k,look,lbl,on)=>`<button class="pchip${on?' on':''}" data-ds="${k}" aria-label="${lbl}">${peep(wearFor(look),PEEP_HEAD,'peep')}</button>`;
+  const speaker=wearFor(who?N.look:M.look);
   return`<section class="stallsec docksec">
     <div class="stall pier" id="stall">
       <svg class="stallwall" aria-hidden="true"><defs><pattern id="swell" width="60" height="16" patternUnits="userSpaceOnUse"><path d="M0 8q15-8 30 0t30 0" fill="none" stroke="#000" stroke-width="1.6"/></pattern></defs>
@@ -312,7 +313,7 @@ function restoreFocusMarks(){const S=G&&PV.id!=null&&G.shops[PV.id];if(!S||PV.vi
   const i=PV.msel!=null&&S.offers[PV.msel]?PV.msel:PV.mbought?-1:S.offers.findIndex(Boolean),o=i>=0?S.offers[i]:null;if(!o)return clearMarks();
   markHold(affectsFrom(o,G.board),null)}
 /* the telescope: the chart from the quay, to look ahead while you shop. Nothing on it can be tapped. */
-function chartPeek(){const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
+function chartPeek(){if(!G.tut)return seaChart(true);const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});
   const cur=ov.querySelector('.boatbob'),sh=ov.querySelector('#peekwrap');if(cur&&sh){const r=cur.getBoundingClientRect(),s=sh.getBoundingClientRect();sh.scrollTop=Math.max(0,r.top-s.top-s.height*.45)}}
 function harbourInfo(S,vis){const n=S.offers.filter(Boolean).length,h=(S.tavern||[]).filter(Boolean).length,f=(S.fits||[]).filter(Boolean).length,hurt=G.hull<HULL_MAX,

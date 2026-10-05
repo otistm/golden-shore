@@ -16,7 +16,7 @@ for (let run = 0; run < runs; run++) {
   await click('.shipcard:not([disabled])'); await page.waitForTimeout(150);
   let result = 'timeout', steps = 0;
   const trail = [];   // the last few screens, printed if the bot gets stuck
-  for (; steps < 2000; steps++) {
+  for (; steps < 3500; steps++) {
     const sig = await page.evaluate(() => G ? `${(document.querySelector('.overlay h2') || document.querySelector('.seahead h2') || {}).textContent || (document.querySelector('.battle') ? 'fight' : '?')} @${node(G.at).row}${node(G.at).type}` : 'title').catch(() => '');
     if (trail[trail.length - 1] !== sig) { trail.push(sig); if (trail.length > 14) trail.shift(); }
     if (await q('#coach .cnext')) await click('#coach .cnext');
@@ -35,6 +35,14 @@ for (let run = 0; run < runs; run++) {
       for (let g = 0; g < 4; g++) if (await click(`[data-g="${g}"]`)) { await page.waitForTimeout(20); await click('.talk .buy:not([aria-disabled])'); await page.waitForTimeout(20); }
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; } }
       if (!(await q('.overlay'))) await click('#leave');
+    } else if (await q('#ocean')) {
+      // the open sea: sail (fast) to a place found and not yet done on the nearest rows, or toward the boss to find more
+      await page.evaluate(() => {
+        SEA.fast = 12; if (SEA.target) return;
+        const cur = node(G.at), ns = G.map.nodes.filter(n => seaFound(n) && seaLive(n) && n.id !== G.at && !(n.type === 'port' && cur.type === 'port') && (n.side || cur.side || n.row >= cur.row));
+        if (ns.length) { const lo = Math.min(...ns.map(n => n.row)), c = ns.filter(n => n.row <= lo + 1); seaAim(0, 0, c[Math.floor(Math.random() * c.length)].id); }
+        else { const b = wpos(node(G.map.boss)); seaAim(G.pos.x + (b.x - G.pos.x) * .4 + (Math.random() - .5) * 500, Math.max(b.y, G.pos.y - 600)); }
+      });
     } else {
       const nodes = await page.$$('.node.reach');
       if (nodes.length) await press(nodes[Math.floor(Math.random() * nodes.length)]).catch(() => {});
@@ -42,6 +50,7 @@ for (let run = 0; run < runs; run++) {
     await page.waitForTimeout(40);
   }
   if (result === 'timeout') result += ` on ${await page.evaluate(() => (document.querySelector('.seahead h2') || document.querySelector('h2') || {}).textContent + ' / ' + (G ? `sea ${G.sea + 1}, row ${node(G.at).row}, path ${G.path.slice(-3).map(i => node(i).row + node(i).type).join('>')}, hull ${G.hull}, overlays ${document.querySelectorAll('.overlay,.seacross,.chestfx,.fitfx').length}, reach ${document.querySelectorAll('.node.reach').length}, buttons ${[...document.querySelectorAll('button')].map(b => b.id || b.textContent.trim().slice(0, 12)).slice(0, 12).join('|')}` : 'title'))}`;
+  if (result.startsWith('timeout')) console.log('  at sea: ' + await page.evaluate(() => typeof SEA === 'undefined' || !G || !G.pos ? '' : JSON.stringify({ pos: [Math.round(G.pos.x), Math.round(G.pos.y)], v: Math.round(SEA.v), target: SEA.target && [Math.round(SEA.target.x), Math.round(SEA.target.y)], boss: [wpos(node(G.map.boss)).x, wpos(node(G.map.boss)).y], bossFound: seaFound(node(G.map.boss)), wx: WX.k, live: G.map.nodes.filter(n => seaFound(n) && seaLive(n)).map(n => n.type + n.row) })));
   console.log(`voyage ${run + 1}: ${result} (${steps} steps)`);
   if (result.startsWith('timeout')) console.log('  last screens: ' + trail.join(' -> '));
 }

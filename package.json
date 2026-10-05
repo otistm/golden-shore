@@ -9,7 +9,8 @@
     "sim:fits": "node tools/sim.mjs 12 fits",
     "sim:perks": "node tools/sim.mjs 20 perks",
     "peeps": "node tools/peeps.mjs",
-    "peeps:color": "node tools/peepcolor.mjs"
+    "peeps:color": "node tools/peepcolor.mjs",
+    "sim:weather": "node tools/sim.mjs 12 weather"
   },
   "devDependencies": {
     "playwright": "^1.47.0"
