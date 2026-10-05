@@ -40,7 +40,8 @@ Otis is the designer. He doesn't read code. He judges changes by playing them on
 | online.js | Supabase connection and the feedback screen |
 | ui.js | Boards, item sheets, the hold and locker dock, drag and drop |
 | title.js | Title screen, ship selection, starting a voyage |
-| chart.js | The voyage chart, previews, sailing to a stop |
+| chart.js | The old voyage chart (the maiden voyage still uses it), stop info cards (`nodeInfo`), `goNow()` |
+| sea.js | The open sea: steering, places on the water, fog, the carried chart |
 | harbour.js | The harbour scene: a side-on ink panorama of the port you scroll along |
 | port.js | The port's places: market, tavern, shipwright, docks (visitors and the fish market) |
 | rewards.js | Events, the spoils screen (drag spoils into the hold, sell onto Sail on), landmark picks |
@@ -111,6 +112,17 @@ Every item is one `I(key, name, size, cooldown, tags, ship, glyph|crewLook, fiel
 - Renown per win: threat 1, elite 2, boss 3 (`end()` in battle.js), levels at `RENOWN` in state.js. `perkPick()` runs before spoils or the next sea while `perksOwed()` is above 0. Offers are seeded by voyage and level.
 - `migrateVoyage()` clears picks that no longer exist, so those players re-pick. Keep that.
 - After changing an order, run `npm run sim:perks`. Orders are measured on every ship; differences under about 5 points are noise.
+
+## The open sea (sea.js)
+- Real voyages get around on the open sea: `chart()` calls `openSea()` unless `G.tut` (the maiden voyage still draws the old chart). Every screen that ends with `chart()` returns to the sea.
+- The sea is the current map's nodes placed in the world by `wpos(n)` (seeded; rows run north, `SEA_LEN` long, `SEA_W` wide; side stops sit beside their port). Depth and difficulty still come from `n.row` through `depthOf()`, so sailing north is sailing deeper.
+- The camera looks down at an angle: world (x,y,z) draws at (x, y×`SK` − z). Ships are drawn from their shape at their heading by `isoShip(a,kind)` (`SHIPISO` lists masts per ship and for foes; cached per 64 headings, coloured by `ship-<key>` or `foe-t/e/b/n` plus `s-deck`). Islands, towns (`isoHouse`), flotsam, wrecks and fishing grounds have their own art functions; colours are `.ocean .o-*` classes.
+- Steering: tap or drag on the water sets `SEA.target`; tapping a place sails to `dockAt(n)` (a port's jetty, an isle's near beach, or the thing itself). Arriving within `arriveR(n)` of a place you've found that's still live (`seaLive`: ports always, everything else once) stops the ship and opens `seaArrive()`; its button runs `seaVisit()`, which calls `goNow()` (or `port()` for the port you last left). Islands block the ship; a target it can't reach is dropped after a few seconds.
+- Saved: `G.pos` {x,y,a,at,sea} and `G.fog` {sea, p: a point every 70 units sailed with the fog lifted round each, f: ids found, s: where the chart's track starts}. When `G.at` changes without sailing (new sea, falling back after a boss) the ship starts beside that stop. Old saves lift the fog round the stops in `G.path`.
+- The fog is a canvas over the sea (`seaFog()`), cut away round `G.fog.p`. The arrow at the screen edge (`seaPoint()`) points to the boss while it's out of sight. Finding things plays `seaCall()` (Land ho!).
+- The chart is a button (`#chartbtn`) that opens `seaChart()`, a top-down sketch of what you've found. The port's Chart button opens it too (`chartPeek()`).
+- Anything on the sea runs on `seaLoop()` and stands still while `seaBusy()` (pause, any pop-up). The bot sails with `SEA.fast` and `seaAim()`.
+- Not decided yet: whether open water should cost time or supplies, and whether every place on a sea should stay visitable (today a sea's places can all be done in any order).
 
 ## The market stall
 - The market is a seller's stall (`stallHTML()` and `layStall()` in port.js): the top half is the seller with their speech bubble (`.talk`) beside them, the bottom half is the table with the 4 offers as large goods (`.good`, `data-g`). The bubble has their pitch and the Buy button for the chosen good (`PV.msel`); tapping the chosen good again does nothing. Goods also drag into the hold or locker through `bindHold`'s `ext.from` (like spoils), paying on drop (`buyInto` in `port()`). On big screens `layStall()` sizes the seller to the space the table leaves.

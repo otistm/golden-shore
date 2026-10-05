@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.38.0
+- The open sea: instead of picking stops on a chart, you now steer your ship across an ink ocean seen from above. Tap or drag on the water to sail, or tap a place to sail straight to it. Ports, isles, other ships, flotsam, strangers in rowboats and fishing grounds wait in the fog until you sail close, and sailing into one shows what it is. The chart is now a button you carry: it inks in the water you have sailed, marks what you have found and crosses off what you have done. The maiden voyage still uses the old chart for now.
+
 ## 0.37.0
 - Golden Shore begins: a copy of Ink Crossing 0.36.0, renamed, with its own saved progress, offline cache and feedback table, so the two games never mix.
 

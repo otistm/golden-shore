@@ -74,6 +74,7 @@ function fogLift(){const f=app.querySelector('.map .fog'),m=app.querySelector('.
   if(m)fogSeen={sea:G.sea,seed:G.seed,bot:bot<0?1e9:bot}}
 function nodeTitle(n){if(n.type==='port')return n.name;if(n.type==='npc')return NPCS[n.npc].n;if(n.type==='fish')return'Fishing grounds';if(n.type==='event')return'Unknown waters';if(n.type==='isle')return'An uncharted isle';return'the '+ENEMIES[n.enemy].n}
 function chart(){
+  if(!G.tut)return openSea();   // real voyages sail the open sea (sea.js); the maiden voyage still uses this chart
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   // the bar and the sea's name stay pinned to the top while the chart scrolls under them

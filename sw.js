@@ -1,7 +1,7 @@
 // Golden Shore service worker: lets the game open from the home screen and on a weak signal.
 // Network first, so players always get the newest version when online; the cache is only a fallback.
 // Bump CACHE whenever the list of files below changes.
-const CACHE = 'goldenshore-v1';
+const CACHE = 'goldenshore-v2';
 const CORE = [
   '/', '/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png',
   '/play/', '/play/index.html', '/play/frame.html', '/play/styles.css',
@@ -18,6 +18,7 @@ const CORE = [
   '/play/js/ui.js',
   '/play/js/title.js',
   '/play/js/chart.js',
+  '/play/js/sea.js',
   '/play/js/peep-parts.js', '/play/js/peep-color.js', '/play/js/peeps.js',
   '/play/js/harbour.js',
   '/play/js/port.js',

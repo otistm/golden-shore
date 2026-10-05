@@ -35,6 +35,14 @@ for (let run = 0; run < runs; run++) {
       for (let g = 0; g < 4; g++) if (await click(`[data-g="${g}"]`)) { await page.waitForTimeout(20); await click('.talk .buy:not([aria-disabled])'); await page.waitForTimeout(20); }
       for (const b of await page.$$('.buy:not([aria-disabled])')) { await press(b).catch(() => {}); await page.waitForTimeout(20); if (await q('.overlay')) break; } }
       if (!(await q('.overlay'))) await click('#leave');
+    } else if (await q('#ocean')) {
+      // the open sea: sail (fast) to a place found and not yet done on the nearest rows, or toward the boss to find more
+      await page.evaluate(() => {
+        SEA.fast = 12; if (SEA.target) return;
+        const cur = node(G.at), ns = G.map.nodes.filter(n => seaFound(n) && seaLive(n) && n.id !== G.at && !(n.type === 'port' && cur.type === 'port') && (n.side || cur.side || n.row >= cur.row));
+        if (ns.length) { const lo = Math.min(...ns.map(n => n.row)), c = ns.filter(n => n.row <= lo + 1); seaAim(0, 0, c[Math.floor(Math.random() * c.length)].id); }
+        else { const b = wpos(node(G.map.boss)); seaAim(G.pos.x + (b.x - G.pos.x) * .4 + (Math.random() - .5) * 500, Math.max(b.y, G.pos.y - 600)); }
+      });
     } else {
       const nodes = await page.$$('.node.reach');
       if (nodes.length) await press(nodes[Math.floor(Math.random() * nodes.length)]).catch(() => {});

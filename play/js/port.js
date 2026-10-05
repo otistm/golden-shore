@@ -312,7 +312,7 @@ function restoreFocusMarks(){const S=G&&PV.id!=null&&G.shops[PV.id];if(!S||PV.vi
   const i=PV.msel!=null&&S.offers[PV.msel]?PV.msel:PV.mbought?-1:S.offers.findIndex(Boolean),o=i>=0?S.offers[i]:null;if(!o)return clearMarks();
   markHold(affectsFrom(o,G.board),null)}
 /* the telescope: the chart from the quay, to look ahead while you shop. Nothing on it can be tapped. */
-function chartPeek(){const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
+function chartPeek(){if(!G.tut)return seaChart(true);const ov=overlay(`<div class="peekhead"><h2>${G.tut?'The maiden voyage':SEAS[G.sea]}</h2><span class="soft">From ${node(G.at).name}</span></div><div class="peekwrap" id="peekwrap"><div class="map peek">${mapSVG()}</div></div><button class="primary" data-a="close">Back to port</button>`,false,'peekov');
   ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()});
   const cur=ov.querySelector('.boatbob'),sh=ov.querySelector('#peekwrap');if(cur&&sh){const r=cur.getBoundingClientRect(),s=sh.getBoundingClientRect();sh.scrollTop=Math.max(0,r.top-s.top-s.height*.45)}}
 function harbourInfo(S,vis){const n=S.offers.filter(Boolean).length,h=(S.tavern||[]).filter(Boolean).length,f=(S.fits||[]).filter(Boolean).length,hurt=G.hull<HULL_MAX,
