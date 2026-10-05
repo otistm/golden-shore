@@ -1675,3 +1675,14 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .seaedge.out{opacity:0;transition:opacity .45s}
 @media (prefers-reduced-motion:reduce){.seaedge .needle{animation:none}}
 .ocean .seaedge svg{position:static;inset:auto;width:44px;height:44px}
+/* big screens: cargo cards keep a sensible size however wide the screen, and the space between them grows instead; pop-ups
+   (victory, defeat, item cards, the chest, the hull card, the fight's call) centre over the stage, beside the desk */
+@media (min-width:1180px) and (min-height:640px){
+  body.desk .board{--cellmax:132px;grid-template-columns:repeat(9,minmax(0,var(--cellmax)));column-gap:max(4px,calc((100% - 9 * var(--cellmax)) / 8))}
+  body.desk .battle .board{--cellmax:160px}
+  body.desk .offers{grid-template-columns:repeat(4,minmax(0,300px));justify-content:center}
+  body.desk .offers.spoils{grid-template-columns:repeat(3,minmax(0,320px))}
+  body.desk .overlay,body.desk .chestfx{padding-right:calc(var(--dw) + 24px)}
+  body.desk .hullcard{right:calc(var(--dw) + 16px)}
+  body.desk .fightcall{left:calc((100vw - var(--dw)) / 2)}
+}

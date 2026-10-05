@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.45.5
+- On big screens, cargo cards keep a sensible size however wide the window, and the space between them grows instead. Market and spoils cards stop growing too.
+- Victory, defeat and every other pop-up centre over the battle or the sea, beside the captain's desk, instead of over the whole screen.
+
 ## 0.45.4
 - Ports and fights fill the screen on computers too, however wide, with no plain margins either side. The harbour also grows taller to fill the space above the hold.
 
