@@ -20,7 +20,8 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D uN,uM;uniform vec2 uRes,uCam;   // uRes: the canvas in its own pixels
+uniform sampler2D uN,uM;uniform vec2 uWO;uniform float uMist;   // the wind's push so far (seaweather.js), and how misty it is
+uniform vec2 uRes,uCam;   // uRes: the canvas in its own pixels
 uniform float uZ,uSK,uT,uRS,uSoft;uniform vec4 uB;
 float fbm(vec2 p,vec4 c){return(.57*dot(texture2D(uN,p),c)+.29*dot(texture2D(uN,p*2.03+.17),c)+.14*dot(texture2D(uN,p*4.07+.31),c));}
 // round domes of fog, one per cell, each a little different in size and place: the cauliflower billows of a cartoon cloud
@@ -31,7 +32,7 @@ float puff(vec2 p){vec2 i=floor(p),f=fract(p);float v=0.;
 // how thick the fog is at a point of the sea, for the bank at height h: solid fog, thinned away where you've sailed, its edge
 // and its shadows made of billows that drift slowly with the wind and slowly change shape
 float dens(vec2 w,float h){
-  vec2 wind=vec2(uT*6.,-uT*2.5)*(1.+h*.006);
+  vec2 wind=-uWO*(1.+h*.006);
   vec2 wob=(texture2D(uN,w/5000.+vec2(uT*.002,uT*.0013)).rg-.5)*90.;
   vec2 p=(w+wind+wob+vec2(h*3.1,-h*1.7))/170.;
   float b=.68*puff(p)+.32*puff(p*2.3+vec2(4.1,7.3));
@@ -57,6 +58,9 @@ void main(){
       float al=smoothstep(th-.12,th+.14,d);if(al<.002)continue;
       float lit=smoothstep(.06,-.04,dens(w+lt,h)-d);
       vec3 c=mix(L*sh,L,.25+.75*lit);col+=(1.-a)*al*c;a+=(1.-a)*al;}
+    // mist: thin drifting patches lying low over the open water
+    float mn=texture2D(uN,(w2-uWO*1.5)/900.).r*.6+texture2D(uN,(w2+uWO*.7)/380.).g*.4,ma=uMist*smoothstep(.42,.72,mn)*.55;
+    col+=(1.-a)*ma*vec3(.93,.925,.91);a+=(1.-a)*ma;
     gl_FragColor=vec4(col,a);return;}
   // ink style: the nearest bank that's thick enough here, in one flat tone, outlined, with stipple in its shadow
   for(int i=0;i<3;i++){float d=i==0?d0:i==1?d1:d2;
@@ -88,7 +92,7 @@ function fogInitGL(cv){FOG.cv=cv;FOG.gl=null;FOG.mn=0;FOG.mkey='';
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,wrap);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,wrap);return t};
   tex(0,gl.REPEAT);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,128,128,0,gl.RGBA,gl.UNSIGNED_BYTE,fogNoise());
   FOG.mtex=tex(1,gl.CLAMP_TO_EDGE);
-  const u={};['uN','uM','uRes','uCam','uZ','uSK','uT','uRS','uSoft','uB'].forEach(k=>u[k]=gl.getUniformLocation(p,k));
+  const u={};['uN','uM','uRes','uCam','uZ','uSK','uT','uRS','uSoft','uB','uWO','uMist'].forEach(k=>u[k]=gl.getUniformLocation(p,k));
   gl.uniform1i(u.uN,0);gl.uniform1i(u.uM,1);gl.uniform1f(u.uSK,SK);gl.uniform1f(u.uSoft,FOG.soft?1:0);gl.uniform4f(u.uB,FOGB.x,FOGB.y,FOGB.w,FOGB.h);
   FOG.gl=gl;FOG.u=u;return true}
 /* the mask of where you've sailed: a soft white circle per point, added as new points come in */
@@ -109,5 +113,6 @@ function fogGL(){const cv=SEA.el.querySelector('#seafog');
   if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
   fogMask();const u=FOG.u;gl.viewport(0,0,w,h);
   gl.uniform2f(u.uRes,w,h);gl.uniform2f(u.uCam,SEA.tx,SEA.ty);gl.uniform1f(u.uZ,SEA.Z);gl.uniform1f(u.uRS,rs);
+  gl.uniform2f(u.uWO,WX.wo[0],WX.wo[1]);gl.uniform1f(u.uMist,WX.cur?WX.cur.mist:0);
   gl.uniform1f(u.uT,matchMedia('(prefers-reduced-motion:reduce)').matches?0:performance.now()/1000);
   gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);return true}

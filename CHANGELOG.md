@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.42.0
+- Weather. Each sea has its own swell: a short one in the Shallows, a long heavy one in the Fog Sea, big seas in the Deep. The weather changes day by day as you sail, and the lookout calls it out. It eases from calm with cloud shadows drifting over the water, to a fair wind, to mist lying low on the sea with drizzle, to rain, to storms with whitecaps, driving rain, a dark sky and lightning. Rougher weather raises the swell, so ships pitch and roll harder. The wind pushes the fog along. The Shallows are mostly fair, the Fog Sea mostly misty, the Deep mostly stormy. The day's weather shows beside the sea's name.
+- To see a weather on purpose, add ?weather=storm (or calm, breezy, mist, rain) to the address.
+
 ## 0.41.0
 - The sea has real swells. A few long waves roll in from the north-west, and you can see them pass across the water. Every ship, rowboat, bottle and barrel rides the water where it is, rising, falling and rocking as a swell goes under it, so no two move alike. Big ships rock less, and your ship leans into her turns.
 - The dotted rings round ships are gone. Pale foam hugs each hull where it meets the water, and soft rings of foam lap round rocks and creatures.

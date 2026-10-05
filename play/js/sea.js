@@ -125,9 +125,9 @@ function openSea(){
   cancelAnimationFrame(raf);B=null;G.inPort=false;PV.id=null;
   if(G.sel==null)G.moving=false;
   fogInit();const p=seaShip();
-  app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span>Sea ${G.sea+1} of 3</span></div></div>
+  app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span id="seawx">Sea ${G.sea+1} of 3 · ${WEATHER[weatherOf(G.sea,G.day)].n}</span></div></div>
     <div class="ocean" id="ocean"><canvas id="seawater" aria-hidden="true"></canvas><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
-      <canvas id="seafog" aria-hidden="true"></canvas></div>
+      <canvas id="seafog" aria-hidden="true"></canvas><canvas id="searain" aria-hidden="true"></canvas></div>
     <button class="chartbtn${SEA.chartNew?' new':''}" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
     ${holdDock('')}`;
   document.body.classList.add('atsea');
@@ -176,7 +176,8 @@ function seaLoop(now){
   if(!seaBusy()&&real){const n=Math.ceil(SEA.fast);for(let i=0;i<n;i++)if(seaStep(real*SEA.fast/n))break}
   if(SEA.dirty&&now-SEA.saved>3000){SEA.saved=now;SEA.dirty=false;save()}
   if(++SEA.frame%30===0)seaLayout();
-  seaDraw(real)}
+  const wdt=PAUSE.on?0:real;weatherTick(wdt);
+  seaDraw(real);seaRain(wdt)}
 /* one tick of sailing. Returns true when she arrived somewhere (and the sea stops for the card). */
 function seaStep(dt){const p=G.pos;let want=0;
   if(SEA.target){const dx=SEA.target.x-p.x,dy=SEA.target.y-p.y,d=Math.hypot(dx,dy);
@@ -214,6 +215,9 @@ function seaWake(){const w=SEA.el.querySelector('#seawake');if(!w||matchMedia('(
 /* "Land ho!": the lookout calls out the most striking thing just found */
 function seaCall(ns){const rank=n=>n.type==='boss'?0:n.type==='port'?1:n.type==='elite'?2:n.type==='isle'?3:n.enemy?4:5,n=ns.slice().sort((a,b)=>rank(a)-rank(b))[0],s=sightOf(n);
   const t=n.type==='boss'?'Something huge, dead ahead!':s.call||SEECALL[n.type]||'Something in the water!';
+  seaSay(t)}
+/* the lookout's words, over the ship for a moment */
+function seaSay(t){if(!SEA.el||!SEA.el.isConnected)return;
   if(SEA.call)SEA.call.remove();const c=document.createElement('div');c.className='seacall';c.setAttribute('role','status');c.textContent=t;SEA.el.appendChild(c);SEA.call=c;
   setTimeout(()=>{if(c===SEA.call){c.classList.add('out');setTimeout(()=>c.remove(),400)}},1700)}
 function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
