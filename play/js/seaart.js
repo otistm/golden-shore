@@ -21,7 +21,7 @@ function isoShip(a,kind){const q=Math.round(a/(Math.PI/32))&63,key=kind+q;let s=
       g+=`<path class="${wx<-.25?c2:c1}" d="${poly([top[i],top[j],bot[j],bot[i]])}"/>`});
     return{g,top}};
   const H=9,hull=sides(HULL,0,H,[.88,.72],'s-hull','s-hull2'),cab=sides(CABIN,H,H+7,[1,1],'s-hull','s-hull2');
-  let g=`<path class="o-lap" d="${curve(HULL.map(([x,y])=>P(x*1.16-2,y*1.6,0)))}"/>`+hull.g+`<path class="s-deck" d="${poly(hull.top)}"/>`;
+  let g=hull.g+`<path class="s-deck" d="${poly(hull.top)}"/>`;
   if(!o.fig)g+=`<path d="M${pt(P(24,0,H))}L${pt(P(-14,0,H))}" stroke-width="1" opacity=".5"/>`+cab.g+`<path class="s-deck" d="${poly(cab.top)}"/>`;
   // masts, sails, the jib and the flag, sorted by how near they are to the viewer
   const parts=[],front=sn>0,sc=o.dark?['s-dsail','s-dsail2']:['s-sail','s-sail2'],tall=o.m.reduce((b,m)=>m[1]>b[1]?m:b,[0,0]);
@@ -38,6 +38,11 @@ function isoShip(a,kind){const q=Math.round(a/(Math.PI/32))&63,key=kind+q;let s=
   if(o.fig){const hd=P(0,0,H+15);parts.push({d:0,s:`<path class="s-flag" d="M${pt(P(-4,0,H))}Q${pt(P(0,0,H+14))} ${pt(P(4,0,H))}Z"/><circle class="o-skin" cx="${f1(hd[0])}" cy="${f1(hd[1])}" r="${f1(3.6*L)}"/>`})}
   parts.sort((a,b)=>a.d-b.d).forEach(p=>g+=p.s);
   isoCache.set(key,g);return g}
+/* the water round a hull: a band of pale foam where she meets the sea. It stays on the water while the ship rides the swell. */
+const isoFoam=new Map();
+function isoWater(a,kind){const q=Math.round(a/(Math.PI/32))&63,key=kind+q;let s=isoFoam.get(key);if(s)return s;
+  const A=q*Math.PI/32,c=Math.cos(A),sn=Math.sin(A),o=SHIPISO[kind]||SHIPISO.sloop,L=(o.L||1)*1.2,P=(x,y)=>[(x*c-y*sn)*L,(x*sn+y*c)*SK*L];
+  s=`<path class="o-foam" d="${curve(HULL.map(([x,y])=>P(x*1.12+(x>0?4:-2),y*1.55)))}"/>`;isoFoam.set(key,s);return s}
 const shipKind=()=>SHIPISO[G.ship]?G.ship:'sloop';
 
 /* ---------- islands ---------- */
@@ -78,8 +83,9 @@ function isoHouse(x,y,w,h,rh,v){const dx=w/2,dy=dx*.5,F=[x,y],Lf=[x-dx,y-dy],Rt=
     <path class="o-roof" d="${poly([ov(up(Lf,h)),ov(up(F,h)),ap])}"/><path class="o-roof2" d="${poly([ov(up(F,h)),ov(up(Rt,h)),ap])}"/></g>`}
 
 /* ---------- small pieces ---------- */
-const lap=r=>`<ellipse class="o-lap" rx="${r}" ry="${f1(r*SK)}"/>`;
-const bobs=(s,cls)=>`<g class="boatbob${cls?' '+cls:''}">${s}</g>`;
+/* foam where something meets the water, and a group that rides the swell (moved every frame by seawater.js) */
+const lap=r=>`<ellipse class="o-lapr" rx="${r}" ry="${f1(r*SK*.8)}"/>`;
+const bobs=s=>`<g class="o-float">${s}</g>`;
 /* a rock standing out of the water: a dark side and a lighter top */
 const rock=(x,y,w,h)=>`<g transform="translate(${x} ${y})"><path class="o-rock2" d="M${-w} 0L${-w*.7} ${-h}L${w*.35} ${-h*1.15}L${w} ${-h*.4}L${w} 0Z"/><path class="o-rock" d="M${-w*.7} ${-h}L${w*.35} ${-h*1.15}L${w} ${-h*.4}L${w*.2} ${-h*.55}Z"/><path class="o-lap" d="M${-w-8} 2q${w+8} 8 ${w*2+16} 0"/></g>`;
 /* a figure with a fish's tail, sitting on a rock */
@@ -96,7 +102,7 @@ const cloud=(y,s,bolt)=>`<g transform="translate(0 ${y}) scale(${s})"><path clas
 /* ---------- creatures and strangers ---------- */
 /* each stranger's ship faces somewhere of its own until you're near; then it turns to watch you (seaDraw) */
 const foeAng=n=>RNG(G.seed,'face',n.id)()*Math.PI*2;
-const shipAt=(n,k,pal)=>`<g class="shipdraw ${pal}">${bobs(`<g class="o-ship" data-k="${k}">${isoShip(foeAng(n),k)}</g>`)}</g>`;
+const shipAt=(n,k,pal)=>`<g class="shipdraw ${pal}"><g class="o-wl">${isoWater(foeAng(n),k)}</g><g class="o-float" data-l="${(SHIPISO[k].L||1)}"><g class="o-ship" data-k="${k}">${isoShip(foeAng(n),k)}</g></g></g>`;
 const ART={
   fins:()=>lap(50)+[[-30,6],[10,-10],[34,8]].map(([x,y],i)=>`<g transform="translate(${x} ${y})"><g class="o-fin" style="animation-delay:${-i*1.3}s"><path class="o-shark" d="M-8 0q6 -4 9 -16q2 10 7 16z"/><path class="o-lap" d="M-16 2q10 4 28 0"/></g></g>`).join(''),
   flock:(n,s)=>lap(30)+birds(s.dark,-64,12),
@@ -123,7 +129,7 @@ const ART={
   flotsam:()=>{const barrel=(x,y)=>`<g transform="translate(${x} ${y})"><path class="o-wood" d="M-7 -12v12a7 3.5 0 0 0 14 0v-12z"/><ellipse class="o-wood2" cx="0" cy="-12" rx="7" ry="3.5"/><path d="M-7 -5a7 3.5 0 0 0 14 0" fill="none" stroke-width="1.2"/></g>`;
     return lap(34)+bobs(`${barrel(-14,4)}${barrel(12,-2)}<g transform="translate(0 10) rotate(-8)"><path class="o-wood2" d="M-9 -6l9-4 9 4-9 4z"/><path class="o-wood" d="M-9 -6v6l9 4v-6zM9 -6v6l-9 4v-6z"/></g>`)},
   wreck:()=>lap(40)+bobs(`<path class="o-wood" d="M-26 4l20 -6 2 5 -20 6z"/><path class="o-wood" d="M4 -8l24 3 -1 5 -24 -3z"/><path class="o-wood2" d="M-6 10l18 -2 1 5 -18 2z"/><path d="M-2 0l10 -30" stroke-width="2.4"/><path class="s-sail2" d="M6 -24l12 4 -4 8z"/>`),
-  calm:()=>lap(26)
+  calm:()=>''
 };
 /* what a place looks like out on the water: {art, and its settings} */
 function sightOf(n){

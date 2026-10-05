@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.0
+- The sea has real swells. A few long waves roll in from the north-west, and you can see them pass across the water. Every ship, rowboat, bottle and barrel rides the water where it is, rising, falling and rocking as a swell goes under it, so no two move alike. Big ships rock less, and your ship leans into her turns.
+- The dotted rings round ships are gone. Pale foam hugs each hull where it meets the water, and soft rings of foam lap round rocks and creatures.
+
 ## 0.40.1
 - The fog is soft smoke now. Add ?fog=ink to the address to see the outlined ink version.
 

@@ -10,7 +10,7 @@ const DAYLEN=700;                   // world units of sailing to a day
 const BOTTLES=4;                    // bottles adrift on each sea, each with a scrap of chart
 const MAXV=190,ACC=230,TURN=2.3;    // top speed (units a second), how fast she picks up speed, and how fast she turns
 const SEA={el:null,raf:0,last:0,v:0,target:null,hold:false,down:null,inside:new Set(),newly:new Set(),fast:1,cx:null,cy:null,Z:1,
-  trav:0,saved:0,dirty:false,wkey:'',lkey:'',q:-1,frame:0,foes:[],call:null};
+  trav:0,saved:0,dirty:false,wkey:'',floats:[],wvs:[],turn:0,lkey:'',q:-1,frame:0,foes:[],call:null};
 /* lookouts see farther with a crow's-nest landmark, studding sails and the like: the same things that used to show more rows */
 const sight=()=>SIGHT+60*Math.min(3,(G.extra||0)+(G.far||0)+(hasC('buoy')?1:0)+(hasF('studding')?1:0));
 const angD=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -77,7 +77,7 @@ function seaBottle(i){G.fog.b.push(i);seaFlot();
     <div class="sh-actions"><button class="ghost" data-a="close">Sail on</button><button class="primary" data-a="chart">Look at the chart</button></div>`);
   ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return}const a=e.target.closest('[data-a]');if(!a)return;ov.remove();if(a.dataset.a==='chart')seaChart()})}
 function seaFlot(){const g=SEA.el&&SEA.el.querySelector('#seaflot');if(!g)return;
-  g.innerHTML=seaBottles().map((b,i)=>G.fog.b.includes(i)?'':`<g transform="translate(${f1(b.x)} ${f1(b.y*SK)})">${ART.bottle()}</g>`).join('')}
+  g.innerHTML=seaBottles().map((b,i)=>G.fog.b.includes(i)?'':`<g data-wx="${f1(b.x)}" data-wy="${f1(b.y)}" transform="translate(${f1(b.x)} ${f1(b.y*SK)})">${ART.bottle()}</g>`).join('');seaFloats()}
 
 /* ---------- days ---------- */
 /* a day passes for every stretch of sea you sail */
@@ -100,14 +100,15 @@ function curve(ps){const n=ps.length;let d='';
   for(let i=0;i<n;i++){const a=ps[i],b=ps[(i+1)%n];if(!i){const z=ps[n-1];d+=`M${f1((z[0]+a[0])/2)} ${f1((z[1]+a[1])/2)}`}
     d+=`Q${pt(a)} ${f1((a[0]+b[0])/2)} ${f1((a[1]+b[1])/2)}`}return d+'Z'}
 function destHTML(n){const q=wpos(n),live=seaLive(n),pop=SEA.newly.has(n.id);
-  return`<g class="dest d-${n.type}${live?' live':' spent'}" data-id="${n.id}" data-y="${q.y}" transform="translate(${f1(q.x)} ${f1(q.y*SK)})"${live?` tabindex="0" role="button" aria-label="${seaSeen(n).head}"`:''}>
+  return`<g class="dest d-${n.type}${live?' live':' spent'}" data-id="${n.id}" data-y="${q.y}" data-wx="${f1(q.x)}" data-wy="${f1(q.y)}" transform="translate(${f1(q.x)} ${f1(q.y*SK)})"${live?` tabindex="0" role="button" aria-label="${seaSeen(n).head}"`:''}>
     <ellipse class="o-hit" rx="${f1(destR(n)*.85)}" ry="${f1(destR(n)*.85*SK+30)}" cy="-20"/><g class="dbody${pop?' pop':''}">${destArt(n,live)}</g></g>`}
 /* draw every stop you've found, back to front, and put your ship back among them */
 function seaThings(){const L=SEA.el&&SEA.el.querySelector('#seathings');if(!L)return;
   const ns=G.map.nodes.filter(seaFound).sort((a,b)=>wpos(a).y-wpos(b).y);
   L.innerHTML=ns.map(destHTML).join('');
   SEA.newly.clear();SEA.ship=null;SEA.q=-1;
-  SEA.foes=[...L.querySelectorAll('.dest.live .o-ship[data-k]')].map(el=>{const n=node(+el.closest('.dest').dataset.id);return{el,n,q:wpos(n),k:el.dataset.k,a:-1}});
+  SEA.foes=[...L.querySelectorAll('.dest.live .o-ship[data-k]')].map(el=>{const n=node(+el.closest('.dest').dataset.id);return{el,wl:el.closest('.shipdraw').querySelector('.o-wl'),n,q:wpos(n),k:el.dataset.k,a:-1}});
+  seaFloats();
   L.querySelectorAll('.dest.live').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();seaTapDest(+el.dataset.id)}})}
 /* wave marks on the open water, from seeded tiles, so the sea goes on as far as you sail */
 function seaWaves(v){const T=300,x0=Math.floor(v.x0/T),x1=Math.floor(v.x1/T),y0=Math.floor(v.y0/T),y1=Math.floor(v.y1/T),key=[x0,x1,y0,y1].join();
@@ -115,8 +116,8 @@ function seaWaves(v){const T=300,x0=Math.floor(v.x0/T),x1=Math.floor(v.x1/T),y0=
   const land=G.map.nodes.filter(n=>n.type==='port'||n.type==='isle').map(n=>[wpos(n),isleR(n)*1.5]);let g='';
   for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){const r=RNG(G.seed,'wv',G.sea,tx,ty);
     for(let k=0;k<4;k++){const x=(tx+r())*T,y=(ty+r())*T,w=7+r()*7,dl=-r()*6;if(land.some(([q,rr])=>Math.hypot(q.x-x,q.y-y)<rr))continue;
-      g+=`<path class="wv" style="animation-delay:${dl.toFixed(2)}s" d="M${f1(x-w)} ${f1(y*SK)}q${f1(w/4)} -4 ${f1(w/2)} 0t${f1(w/2)} 0t${f1(w/2)} 0t${f1(w/2)} 0"/>`}}
-  SEA.el.querySelector('#seawaves').innerHTML=g}
+      g+=`<path class="wv" data-x="${f1(x)}" data-y="${f1(y)}" d="M${f1(x-w)} ${f1(y*SK)}q${f1(w/4)} -4 ${f1(w/2)} 0t${f1(w/2)} 0t${f1(w/2)} 0t${f1(w/2)} 0"/>`}}
+  const W=SEA.el.querySelector('#seawaves');W.innerHTML=g;SEA.wvs=[...W.children].map(el=>({el,x:+el.dataset.x,y:+el.dataset.y}))}
 
 /* ---------- the screen ---------- */
 const CHARTICON='<svg viewBox="0 0 32 32" aria-hidden="true"><path class="w" d="M7 7h18v18H7z"/><path d="M11 21c2-4 6-2 8-6s2-4 3-5" fill="none" stroke-dasharray="1.5 3"/><path d="M19 9l3 3M22 9l-3 3"/><rect class="w" x="4" y="4" width="24" height="5" rx="2.5"/><rect class="w" x="4" y="23" width="24" height="5" rx="2.5"/></svg>';
@@ -125,7 +126,7 @@ function openSea(){
   if(G.sel==null)G.moving=false;
   fogInit();const p=seaShip();
   app.innerHTML=`<div class="charthead">${barHTML()}<div class="seahead"><h2>${SEAS[G.sea]}</h2><span>Sea ${G.sea+1} of 3</span></div></div>
-    <div class="ocean" id="ocean"><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
+    <div class="ocean" id="ocean"><canvas id="seawater" aria-hidden="true"></canvas><svg id="seasvg" role="application" aria-label="The open sea. Tap the water to sail there, or tap a place to sail to it."><g id="seacam"><g id="seawaves"></g><g id="seawake"></g><g id="seatgt"></g><g id="seaflot"></g><g id="seathings"></g></g></svg>
       <canvas id="seafog" aria-hidden="true"></canvas></div>
     <button class="chartbtn${SEA.chartNew?' new':''}" id="chartbtn" type="button" aria-label="Open your chart">${CHARTICON}<span>Chart</span></button>
     ${holdDock('')}`;
@@ -183,7 +184,7 @@ function seaStep(dt){const p=G.pos;let want=0;
     else{
       // stuck against the edge of the sea or a shore with no way round: give up after a few seconds rather than push forever
       if(SEA.best==null||d<SEA.best-8){SEA.best=d;SEA.stall=0}else if(!SEA.hold&&(SEA.stall+=dt)>3.5){SEA.target=null;seaMark();return false}
-      const da=angD(Math.atan2(dy,dx)-p.a),t=TURN*dt;p.a=angD(p.a+clamp(da,-t,t));
+      const da=angD(Math.atan2(dy,dx)-p.a),t=TURN*dt,turn=clamp(da,-t,t);p.a=angD(p.a+turn);SEA.turn+=(turn/dt-SEA.turn)*Math.min(1,dt*4);
       want=MAXV*Math.min(1,.25+d/160)*Math.max(.15,1-Math.abs(da)/2.2)}}
   SEA.v+=clamp(want-SEA.v,-ACC*1.5*dt,ACC*dt);
   if(SEA.v<1&&!want){SEA.v=0;return false}
@@ -221,16 +222,18 @@ function seaDraw(dt){const p=G.pos,Z=SEA.Z,el=SEA.el;
   el.querySelector('#seacam').setAttribute('transform',`translate(${f1(tx)} ${f1(ty)}) scale(${Z.toFixed(3)})`);
   // your ship, among the stops so nearer things cover farther ones
   const L=el.querySelector('#seathings');
-  if(!SEA.ship||!SEA.ship.isConnected){SEA.ship=document.createElementNS('http://www.w3.org/2000/svg','g');SEA.ship.id='seaship';SEA.ship.setAttribute('class',`shipdraw ship-${shipKind()}`);SEA.ship.innerHTML='<g class="boatbob"><g class="o-ship"></g></g>';SEA.q=-1}
-  const q=Math.round(p.a/(Math.PI/32))&63;if(q!==SEA.q){SEA.q=q;SEA.ship.querySelector('.o-ship').innerHTML=isoShip(p.a,shipKind())}
+  if(!SEA.ship||!SEA.ship.isConnected){SEA.ship=document.createElementNS('http://www.w3.org/2000/svg','g');SEA.ship.id='seaship';SEA.ship.setAttribute('class',`shipdraw ship-${shipKind()}`);SEA.ship.innerHTML='<g class="o-wl"></g><g class="o-float"><g class="o-ship"></g></g>';SEA.q=-1}
+  const q=Math.round(p.a/(Math.PI/32))&63;if(q!==SEA.q){SEA.q=q;SEA.ship.querySelector('.o-ship').innerHTML=isoShip(p.a,shipKind());SEA.ship.querySelector('.o-wl').innerHTML=isoWater(p.a,shipKind())}
+  // she rides the swell like everything else, and leans into her turns (the lean shows most when she's sailing up or down the screen)
+  if(!SEA.v)SEA.turn*=.9;rideSwell(SEA.ship.querySelector('.o-float'),p.x,p.y,seaTime(),SHIPISO[shipKind()].L||1,clamp(SEA.turn*SEA.v/MAXV*-9,-9,9)*-Math.sin(p.a));
   SEA.ship.setAttribute('transform',`translate(${f1(p.x)} ${f1(p.y*SK)})`);
   let next=null;for(const c of L.children){if(c!==SEA.ship&&+c.dataset.y>p.y){next=c;break}}
   if(SEA.ship.parentNode!==L||SEA.ship.nextSibling!==next)L.insertBefore(SEA.ship,next);
   // strangers turn to watch you as you come near
   SEA.foes.forEach(f=>{if(!f.el||Math.hypot(f.q.x-p.x,f.q.y-p.y)>520)return;const a=Math.atan2(p.y-f.q.y,p.x-f.q.x)+(f.k==='row'?0:Math.PI/2),qq=Math.round(a/(Math.PI/32))&63;
-    if(qq!==f.a){f.a=qq;f.el.innerHTML=isoShip(a,f.k)}});
+    if(qq!==f.a){f.a=qq;f.el.innerHTML=isoShip(a,f.k);if(f.wl)f.wl.innerHTML=isoWater(a,f.k)}});
   const v={x0:-tx/Z,x1:(SEA.vw-tx)/Z,y0:-ty/Z/SK,y1:(SEA.vh-ty)/Z/SK};
-  seaWaves(v);if(!fogGL())seaFog(v);
+  seaWaves(v);seaRide(v);if(!fogGL())seaFog(v);
   if(SEA.call){const sx=tx+p.x*Z,sy=ty+p.y*SK*Z;SEA.call.style.transform=`translate(${f1(sx)}px,${f1(sy-110*Z)}px) translate(-50%,-100%)`}}
 /* the fog where WebGL isn't available: flat paper fog with stipple, cut away round everywhere you've sailed, with an ink line along its edge */
 let fogPat=null;

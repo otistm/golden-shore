@@ -1545,12 +1545,14 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .ocean{position:fixed;inset:0;z-index:0;background:var(--sea);touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;cursor:crosshair}
 .ocean svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ocean canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.ocean .wv{fill:none;stroke:var(--line);stroke-width:1.5;stroke-linecap:round;opacity:.38;animation:wvbob 5s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+.ocean .wv{fill:none;stroke:var(--line);stroke-width:1.5;stroke-linecap:round;opacity:.3}
 .ocean #seathings,.ocean #seaflot{stroke:var(--line);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .ocean .dest.live{cursor:pointer}
 .ocean .dest:focus{outline:none}.ocean .dest:focus-visible .o-hit{stroke:var(--line);stroke-width:2;stroke-dasharray:3 5}
 .ocean .o-hit{fill:transparent;stroke:none}
-.ocean .o-lap{fill:none;stroke-width:1.3;opacity:.5;stroke-dasharray:6 5}
+.ocean .o-lap{fill:none;stroke:#EEF4F2;stroke-width:2.6}
+.ocean .o-foam{fill:#E6EFEE;stroke:none;opacity:.85}
+.ocean .o-lapr{fill:none;stroke:#E6EFEE;stroke-width:2.6;opacity:.75}
 .ocean .o-shore{fill:none;stroke-width:1.4;stroke-dasharray:2 6;opacity:.6}
 .ocean .o-cliff{fill:#A3AC7C}.ocean .o-land{fill:var(--land)}.ocean .o-hatch{fill:none;stroke-width:1.2;opacity:.45}
 .ocean .o-wall{fill:var(--paper)}.ocean .o-wall2{fill:#E3D2B6}.ocean .o-win{fill:var(--ink)}
