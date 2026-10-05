@@ -1,9 +1,20 @@
 # Changelog
+
 ## 0.48.1
 - Places up close redrawn to the harbour's standard, after research into Chris Ware's drawing and colour. Every isle and wreck now shares one frame: sun and slow clouds, a pale far shore, the sea in bands, your own ship at anchor offshore and your rowboat on the shore. Surfaces have a lit side and a shaded side, with sparse detail where it counts: grass along the crest, strata in the rock, planks and gunports on hulls, copper plates on a keel-up wreck.
 - Each place has a telling detail: a crab on the beach, a seal on the rock stack, the lighthouse keeper's empty cottage, a gull on the keel, the ship's name painted on a board.
 - The scene changes as you use it: a pennant on the peak you climbed, a surveyor's tripod, the lamp lit and its beam sweeping, the chest in the hole you dug, hatches left open, the cabin window lit.
 - Little things move, in stepped frames like hand drawing: foam at the shore, palm crowns, the crab, smoke and steam, a torn sail, a floating barrel.
+
+## 0.48.0
+- Places up close. Going ashore on an isle or boarding a wreck opens its own scene, like the harbour, with spots to tap.
+- Isles come as palm isles, rock stacks, volcanic cones and lighthouse isles, and look like themselves out on the water too. Climb to the peak to chart what you can see, relight a dark lighthouse to chart more, survey the isle for a landmark, and dig where an X is marked.
+- Wrecks come fresh, old, broken on a reef, or keel-up. Open the hatches one by one (cargo better than any port's, gold, nothing, or the wreck rolls and costs hull), and read the captain's last words in the cabin.
+- The message in a bottle has its moment: the cork pops, the page slides out and unrolls, and the words write themselves in.
+
+## 0.47.0
+- Claim what you find. Ports, isles, fishing grounds, wrecks, shrines, cairns, sandbars, whirlpools, siren rocks and forges each have a name, hidden until you sail alongside, when it inks in on the water. The first time, a claim card plays: a sketch draws itself, the name is written, the Guild's stamp lands, and the card flies into your chart.
+- The chart names only the places you've claimed. The Atlas has a Places claimed section that counts across voyages.
 
 ## 0.46.0
 - A ship's wheel to steer. Drag the wheel round and it turns like the real thing; the further you turn it the harder she turns, she needs some speed to answer the helm, and when you let go the wheel eases back to the middle. Grabbing the wheel hoists the sails. A sail button beside it hoists and furls them. Arriving somewhere, picking up a bottle or reaching the edge of the sea furls them for you.
