@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.55.0
+- Cargo now has a rarity as well as a tier: common, uncommon, rare and legendary. Ports sell only the basics: common and uncommon pieces, bronze in the Shallows and at most silver after. The rare pieces (each ship's big build-makers, like the Mainsail, the Anchor, the Broadside Battery and the Moon Gate) are out in the world: in wreck holds, dug-up chests, contraband and enemy spoils, more often from elites and bosses. Eight new legendary pieces, one of a kind and usable by any ship: Long Tom, the Admiral's Sword, the Sea Clock, the Surgeon's Chest, Kraken's Ink, the Mariner's Astrolabe, Live Oak Planking and the Infernal Machine. Every sea's boss leaves one among its spoils, and now and then a wreck's captain kept one under his bunk. Rarity shows as a word in the item's card and a small blue (rare) or gold (legendary) diamond on its tile.
+
 ## 0.54.2
 - Cargo tiles in the hold match the market table: the stat tag sits in the top corner, the cooldown at the bottom centre, and names show only in the item's card.
 

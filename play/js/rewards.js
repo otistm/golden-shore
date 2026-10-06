@@ -27,7 +27,7 @@ function chartPick(r,lead,done,fk){
     G.charts.push({k,sea:G.sea,at:G.at});A.charts[k]=1;saveA();
     if(k==='harbour')G.hull+=5;if(k==='pearl')G.gold+=10;if(k==='buoy')updateReveal();
     let msg=`Charted ${CHARTS[k].n}.`;
-    if(k==='wreck')msg+=' '+addOrGold(randItem(r,depthOf(node(G.at))+4),'Salvaged');
+    if(k==='wreck')msg+=' '+addOrGold(randItem(r,depthOf(node(G.at))+4,null,'salvage'),'Salvaged');
     logL(msg);toast(msg);save();coach('landmark');done()});
   ov.querySelector('.pick').focus();coach('landmarkOpen');
 }
@@ -81,7 +81,10 @@ function chestReveal(cards,done){
   fx.addEventListener('click',()=>{if(!opened){timers.forEach(clearTimeout);timers=[];open()}else finish()});
 }
 function lootPick(n,done){
-  const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,opts=[randItem(r,depth),randItem(r,depth),randItem(r,depth)],gold=4+G.sea*2;if(hasP('prize'))opts.push(randItem(r,depth));
+  const r=RNG(G.seed,'loot',n.id),depth=depthOf(n)+2,where=n.type==='boss'?'boss':n.type==='elite'?'elite':'spoils',
+    opts=[randItem(r,depth,null,where),randItem(r,depth,null,where),randItem(r,depth,null,where)],gold=4+G.sea*2;if(hasP('prize'))opts.push(randItem(r,depth,null,where));
+  // a sea's boss always leaves one legendary piece among its spoils
+  if(n.type==='boss'){const L=legendFor(r);if(L)opts[0]=L}
   cancelAnimationFrame(raf);B=null;G.inPort=false;G.moving=false;G.sel=null;
   let taken=null,ref=null,kind=null,first=true;   // which spoil, the item object it became, and 'add', 'locker' or 'up'
   const aboard=()=>ref&&(G.board.includes(ref)||(G.locker||[]).includes(ref));
@@ -97,7 +100,7 @@ function lootPick(n,done){
     if(taken==null){opts.forEach(o=>{const j=matchIdx(o);if(j>=0)ups.add(j)});lups=lockerUps(opts)}
     app.innerHTML=`${barHTML()}<div class="seahead"><h2>Spoils</h2><span>${taken==null?'Take one piece of their cargo':'One piece taken'}</span></div>
       <div class="offers spoils">${opts.map((o,i)=>{const d=DEFS[o.k],up=!!findMatch(o),can=fits(o);
-        const top=`<button class="o-top" data-v="${i}" style="background:none;border:0;padding:0;text-align:left"><span class="o-icon t${o.t} c-${kindOf(o.k)}"><span class="tyb"></span>${emb(o.k)}${icon(o.k)}${statTag(mainStatOf(o.k,o.t))}${up&&taken==null?CHEV:''}</span><div><h3>${d.n}</h3><p class="o-meta"><span class="tierword">${TIER[o.t]}</span>, size ${d.s}${d.cd?`, ${d.cd}s`:''}</p></div></button>`;
+        const top=`<button class="o-top" data-v="${i}" style="background:none;border:0;padding:0;text-align:left"><span class="o-icon t${o.t} c-${kindOf(o.k)}"><span class="tyb"></span>${emb(o.k)}${icon(o.k)}${statTag(mainStatOf(o.k,o.t))}${rarPip(o.k)}${up&&taken==null?CHEV:''}</span><div><h3>${d.n}</h3><p class="o-meta">${rarWord(o.k)} <span class="tierword">${TIER[o.t]}</span>, size ${d.s}${d.cd?`, ${d.cd}s`:''}</p></div></button>`;
         if(taken===i)return`<div class="offer spoil taken" data-sp="${i}">${top}<p class="o-desc">${kind==='up'?'Upgraded yours.':canBack()?'In your hold. Drag it back here to change your mind.':'Taken.'}</p>${canBack()?`<button class="buy up" data-back>Put back</button>`:''}</div>`;
         if(taken!=null)return`<div class="offer spoil left" data-sp="${i}">${top}<p class="o-desc">You can only take one.</p></div>`;
         return`<div class="offer spoil${first?' in':''}" data-sp="${i}" style="animation-delay:${i*70}ms">${top}${up&&upgradeHTML(o)?`<div class="o-desc">${upgradeHTML(o)}</div>`:`<p class="o-desc">${describe([o],0).L.join(' ')}</p>`}<button class="buy${up?' up':''}" data-take="${i}" ${can?'':'aria-disabled="true"'}>${up?'Take and upgrade':'Take'}</button></div>`}).join('')}</div>

@@ -192,5 +192,5 @@ def _():
     return s
 
 if __name__ == "__main__":
-    import items_wren, items_bulwark, items_ember, items_lotus  # noqa: F401  (each ship's set registers itself)
+    import items_wren, items_bulwark, items_ember, items_lotus, items_legend  # noqa: F401  (each ship's set registers itself)
     build()

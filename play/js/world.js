@@ -171,11 +171,11 @@ const EVENTS={
     {l:'Read the chart',d:'Clear the fog from this whole sea.',f:()=>{G.full=true;updateReveal();return'Found a scrap of chart in a bottle. The whole sea is clear now.'}},
     {l:'Sell the bottle',d:'+6 gold.',f:()=>{G.gold+=6;return'Sold a message in a bottle for 6 gold.'}}]},
   wreck:{t:'Drifting wreck',x:'A hull floats keel-up. Something knocks inside.',o:[
-    {l:'Search it',d:'Maybe cargo. Maybe trouble.',f:r=>{if(r()<.6)return addOrGold(randItem(r,D()+3),'Salvaged');G.hull-=3;return'Searched a wreck and it rolled on us. Lost 3 hull.'}},
+    {l:'Search it',d:'Maybe cargo. Maybe trouble.',f:r=>{if(r()<.6)return addOrGold(randItem(r,D()+3,null,'salvage'),'Salvaged');G.hull-=3;return'Searched a wreck and it rolled on us. Lost 3 hull.'}},
     {l:'Leave it',d:'Nothing happens.',f:()=>'Left a drifting wreck alone.'}]},
   trader:{t:'Passing trader',x:'A merchant ship signals to trade.',o:[
     {l:'Upgrade your first item',d:'10 gold. Raises the leftmost item in your hold one tier.',need:()=>G.gold>=10&&G.board.length&&G.board[0].t<3,f:()=>{G.gold-=10;G.board[0].t++;return`Paid a trader to upgrade the ${DEFS[G.board[0].k].n}.`}},
-    {l:'Buy a mystery crate',d:'7 gold for a random item.',need:()=>G.gold>=7,f:r=>{G.gold-=7;return addOrGold(randItem(r,D()+2),'Opened a mystery crate and found')}},
+    {l:'Buy a mystery crate',d:'7 gold for a random item.',need:()=>G.gold>=7,f:r=>{G.gold-=7;return addOrGold(randItem(r,D()+2,null,'crate'),'Opened a mystery crate and found')}},
     {l:'Wave them off',d:'Nothing happens.',f:()=>'Waved off a passing trader.'}]},
   shrine:{t:'Sea shrine',x:'A stone idol stands on a rock with coins at its feet.',o:[
     {l:'Leave an offering',d:'6 gold. Repair 4 hull.',need:()=>G.gold>=6,f:()=>{G.gold-=6;G.hull+=4;return'Left an offering at a sea shrine. Repaired 4 hull.'}},

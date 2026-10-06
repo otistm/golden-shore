@@ -197,7 +197,8 @@ function enemyOf(n){
   list.enemy=true;   // enemy cargo needs no crew
   return{e,list,hp,depth};
 }
-const randItem=(r,depth,ship)=>{let k;do{k=drawKey(r,ship)}while(k==='chest'&&r()<.5);return{k,t:rollTier(depth,r)}};
+/* a piece of cargo: from where (a RARW key: shop, spoils, salvage...) sets how likely each rarity is; without it, any but legendary */
+const randItem=(r,depth,ship,where)=>{const rar=where?pickRar(r,RARW[where]):null;let k;do{k=drawKey(r,ship,rar)}while(k==='chest'&&r()<.5);return{k,t:rollTier(depth,r)}};
 /* an item upgrades yours if it's the same item, at the same tier or higher */
 const LOCK=6;
 function matchIdx(it){let j=-1;G.board.forEach((b,i)=>{if(b.k===it.k&&b.t<3&&it.t>=b.t&&(j<0||b.t>G.board[j].t))j=i});return j}

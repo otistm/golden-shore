@@ -1821,3 +1821,12 @@ body.atsea{overflow:hidden;overscroll-behavior:none}
 .bottlefx.still *,.bottlecard:has(.still) .bf-text,.bottlecard:has(.still) .bf-after{animation:none!important;opacity:1;transform:none}
 .bottlefx.still .bf-bottle{display:none}
 @media (prefers-reduced-motion:reduce){.hworld .spot .ring{animation:none}}
+
+/* rarity (separate from tier, shown quietly): a word in cards, a pip on the tile for rare and legendary */
+.rarword{font-weight:800}.rarword.r0{color:var(--soft)}.rarword.r1{color:#4F7A44}.rarword.r2{color:#3F6A8F}.rarword.r3{color:#A9822A}
+.chipc.rarchip.r1{background:#D9E6CF}.chipc.rarchip.r2{background:#CCDCEA}.chipc.rarchip.r3{background:#F3E2A9}
+.rarpip{position:absolute;left:4px;bottom:5px;width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--line);z-index:2;pointer-events:none}
+.rarpip.r2{background:#5B85AD}.rarpip.r3{background:#E2B04A;width:11px;height:11px}
+body.desk .rarpip{left:7px;bottom:8px;width:11px;height:11px}body.desk .rarpip.r3{width:13px;height:13px}
+.o-icon .rarpip{left:7px;bottom:7px}
+.siteloot .rarword{display:block;font-size:13px}

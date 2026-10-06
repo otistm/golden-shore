@@ -64,7 +64,7 @@ function fight(n){
     setTimeout(end,1650);bt.addEventListener('pointerdown',end,true)}
   E.fel.onclick=()=>{const ov=overlay(`<h2>${E.name}</h2>${traitsHTML(f.e,G.sea)}<button class="primary" data-a="c">Close</button>`);ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-a]'))ov.remove()})};
   app.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{B.speed=window._spd=+b.dataset.sp;app.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
-  document.getElementById('skip').onclick=()=>{if(B.over)return;B.intro=false;B.quiet=true;let k=0;while(!B.over&&k++<30000)step(.05);draw()};
+  document.getElementById('skip').onclick=()=>{if(!B||B.over)return;B.intro=false;B.quiet=true;let k=0;while(!B.over&&k++<30000)step(.05);draw()};
   draw();last=performance.now();raf=requestAnimationFrame(loop);scrollTo(0,0);coach('fight');
 }
 /* "when a fight starts" effects, both sides */

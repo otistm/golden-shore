@@ -17,7 +17,7 @@ const NPCS={
     {l:'Pay the crew extra',d:'5 gold. Repair 2 hull.',need:()=>G.gold>=5,f:()=>{G.gold-=5;G.hull+=2;return'Paid the crew extra. +2 hull.'}},
     {l:'Tell him to wait',d:'Nothing happens.',f:()=>'Told Tobin to wait for port.'}]},
   quill:{n:'Quill',role:'Smuggler',look:{body:'Turtleneck',head:'hat-hip',face:'Suspicious',acc:'Sunglasses'},sea:-1,x:"Psst. Contraband. No questions, no receipts.",o:[
-    {l:'Buy contraband',d:'12 gold for an item a tier above normal.',need:()=>G.gold>=12,f:r=>{G.gold-=12;return addOrGold(randItem(r,D()+5),'Bought contraband:')}},
+    {l:'Buy contraband',d:'12 gold for an item a tier above normal.',need:()=>G.gold>=12,f:r=>{G.gold-=12;return addOrGold(randItem(r,D()+5,null,'contraband'),'Bought contraband:')}},
     {l:'Sell him your route',d:'+8 gold.',f:()=>{G.gold+=8;return'Sold Quill a copy of my route. +8 gold.'}}]},
   tide:{n:'Brother Tide',role:'Sea priest',look:{body:'Shirt and Coat',head:'No Hair 2',face:'Solemn',beard:'Full 2'},sea:-1,x:"The sea keeps a ledger, captain. Shall we balance yours?",o:[
     {l:'Make an offering',d:'5 gold. Repair 3 hull.',need:()=>G.gold>=5,f:()=>{G.gold-=5;G.hull+=3;return'Brother Tide blessed the hull. +3 hull.'}},
@@ -110,8 +110,10 @@ function sellerOf(id){const S=G.shops[id];if(S&&S.seller)return S.seller;
 function pitch(sk,o){const P=SELLERS[sk],t=DEFS[o.k].tags,order=P.lean.concat(['C','X','V','F','A','R','T','W']);
   const tag=order.find(x=>t.includes(x));return P.say[tag]||P.say['*']}
 /* stock for a stall: half of it leans to what the seller deals in */
-function stallItem(r,depth,sk,i){if(i<2){for(let n=0;n<14;n++){const it=randItem(r,depth);if(DEFS[it.k].tags.some(x=>SELLERS[sk].lean.includes(x)))return it}}
-  return randItem(r,depth)}
+/* ports sell the basics: common and uncommon pieces, bronze in the Shallows and at most silver after */
+function stallItem(r,depth,sk,i){const cap=it=>(it.t=Math.min(it.t,G&&G.sea>0?1:0),it);
+  if(i<2){for(let n=0;n<14;n++){const it=randItem(r,depth,null,'shop');if(DEFS[it.k].tags.some(x=>SELLERS[sk].lean.includes(x)))return cap(it)}}
+  return cap(randItem(r,depth,null,'shop'))}
 /* ---------- the shipwrights ----------
    Like the sellers: Hock keeps the yard at Gullhaven, and three more travel, one per port, picked by voyage and port. spot is the
    part of the ship they're best at (the first fitting on their bench is one for it, when there is one). say has a line per

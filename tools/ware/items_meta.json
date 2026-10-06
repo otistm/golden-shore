@@ -1286,5 +1286,61 @@
   "n": "Moon Gate",
   "retired": 0,
   "ship": "junk"
+ },
+ "longtom": {
+  "kind": "C",
+  "size": 3,
+  "n": "Long Tom",
+  "retired": 0,
+  "ship": "any"
+ },
+ "admsword": {
+  "kind": "W",
+  "size": 2,
+  "n": "Admiral's Sword",
+  "retired": 0,
+  "ship": "any"
+ },
+ "seaclock": {
+  "kind": "T",
+  "size": 1,
+  "n": "Sea Clock",
+  "retired": 0,
+  "ship": "any"
+ },
+ "surgeon": {
+  "kind": "T",
+  "size": 2,
+  "n": "Surgeon's Chest",
+  "retired": 0,
+  "ship": "any"
+ },
+ "krakenink": {
+  "kind": "V",
+  "size": 1,
+  "n": "Kraken's Ink",
+  "retired": 0,
+  "ship": "any"
+ },
+ "astrolabe": {
+  "kind": "T",
+  "size": 1,
+  "n": "Mariner's Astrolabe",
+  "retired": 0,
+  "ship": "any"
+ },
+ "liveoak": {
+  "kind": "A",
+  "size": 2,
+  "n": "Live Oak Planking",
+  "retired": 0,
+  "ship": "any"
+ },
+ "infernal": {
+  "kind": "X",
+  "size": 2,
+  "n": "Infernal Machine",
+  "retired": 0,
+  "ship": "any"
  }
 }

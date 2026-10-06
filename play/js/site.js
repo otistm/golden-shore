@@ -55,7 +55,7 @@ function siteDo(n,kind,v,s,el){const out=document.getElementById('siteout'),dept
   const done=()=>{G.site.done.push(s.k);el.classList.add('done');save()};
   const say=(h,cls)=>{out.innerHTML=h;if(cls)out.className='sitepanel '+cls;else out.className='sitepanel';out.classList.add('pop')};
   const offer=(it,lead)=>{const d=DEFS[it.k];
-    say(`<p>${lead}</p><div class="siteloot"><span class="o-icon t${it.t} c-${kindOf(it.k)}">${icon(it.k)}</span><div><b>${TIER[it.t]} ${d.n}</b><span class="soft">${d.tags.map(x=>TAGN[x]).join(', ')}</span></div><button class="ghost" id="lootview">Look</button><button class="primary" id="loottake">Take it</button></div>`);
+    say(`<p>${lead}</p><div class="siteloot"><span class="o-icon t${it.t} c-${kindOf(it.k)}"><span class="tyb"></span>${icon(it.k)}${rarPip(it.k)}</span><div><b>${TIER[it.t]} ${d.n}</b>${rarWord(it.k)} <span class="soft">${d.tags.map(x=>TAGN[x]).join(', ')}</span></div><button class="ghost" id="lootview">Look</button><button class="primary" id="loottake">Take it</button></div>`);
     document.getElementById('lootview').onclick=()=>itemSheet([it],0,'view',()=>{});
     document.getElementById('loottake').onclick=()=>{const m=addOrGold(it,'Took');logL(`${m.replace(/^Took/,'From '+(placeName(n)||'the wreck')+', took')}`);save();siteScene(n);setTimeout(()=>{const o=document.getElementById('siteout');if(o)o.innerHTML=`<p>${m}</p>`},0)}};
   if(s.k==='survey'){done();return chartPick(RNG(G.seed,'isle',n.id),'You walk the isle with your instruments.',()=>siteScene(n))}
@@ -65,13 +65,15 @@ function siteDo(n,kind,v,s,el){const out=document.getElementById('siteout'),dept
     logL(`Relit the lamp on ${placeName(n)}. By its light I charted ${w.length?w.join(' and '):'nothing new'}.`);save();
     return say(`<p>You climb the stairs and get the old lamp burning. Its beam sweeps the sea${w.length?`, and you chart what it shows: ${w.join(', and ')}`:''}.</p>`,'good')}
   if(s.k==='dig'){done();const g=8+ri(r,13);G.gold+=g;bump='gold';
-    if(r()<.4){const it=randItem(r,depth+3);logL(`Dug up ${g} gold on ${placeName(n)}.`);return offer(it,`The spade hits wood: a little chest with ${g} gold in it, and something wrapped in oilcloth.`)}
+    if(r()<.4){const it=randItem(r,depth+3,null,'salvage');logL(`Dug up ${g} gold on ${placeName(n)}.`);return offer(it,`The spade hits wood: a little chest with ${g} gold in it, and something wrapped in oilcloth.`)}
     logL(`Dug up ${g} gold on ${placeName(n)}.`);save();siteScene(n);return}
   if(s.k==='cabin'){done();const line=WRECKLOG[ri(r,WRECKLOG.length)];let extra='';
+    // now and then the captain kept something one of a kind under the bunk
+    if(r()<.1){const L=legendFor(r);if(L){logL(`In the captain's cabin of ${placeName(n)}, under the bunk, a locked box.`);return offer(L,`<span class="log">${line}</span> Under the bunk is a locked box. Inside, wrapped in sailcloth, something one of a kind.`)}}
     if(r()<.4){const w=seaFragment('log'+n.id);if(w)extra=` Tucked in the back of the log is a chart: ${w}.`}
     logL(`Read the log of ${placeName(n)}.${extra?' It held a chart.':''}`);save();return say(`<p class="log">${line}</p>${extra?`<p>${extra.trim()}</p>`:''}`)}
   if(s.k.startsWith('hatch')){done();const roll=r(),wItem=v==='fresh'?.55:v==='old'?.3:.42,wGold=wItem+(v==='old'?.35:.2),wNone=wGold+(v==='reef'?.08:.15);
-    if(roll<wItem)return offer(randItem(r,depth+(v==='fresh'?4:3)),'The hatch creaks open on dry cargo.');
+    if(roll<wItem)return offer(randItem(r,depth+(v==='fresh'?4:3),null,'salvage'),'The hatch creaks open on dry cargo.');
     if(roll<wGold){const g=4+ri(r,8)+(v==='old'?6:0);G.gold+=g;bump='gold';logL(`Found ${g} gold in ${placeName(n)}.`);save();siteScene(n);
       setTimeout(()=>{const o=document.getElementById('siteout');if(o)o.innerHTML=`<p>A purse in the dark: ${g} gold.</p>`},0);return}
     if(roll<wNone)return say('<p>Water, rats, and a smell you won\'t forget. Nothing worth taking.</p>');

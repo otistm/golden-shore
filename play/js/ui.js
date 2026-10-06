@@ -23,6 +23,9 @@ const STI={dmg:'<path d="M2.5 9.5L9 3h1.5v1.5L4 11z" fill="currentColor"/><path 
   slow:'<path d="M3 1.5h6M3 10.5h6M3.6 1.5c0 2.6 4.8 2.4 4.8 4.5S3.6 7.9 3.6 10.5M8.4 1.5c0 2.6-4.8 2.4-4.8 4.5s4.8 1.9 4.8 4.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>',
   crit:'<path d="M6 1v2.4M6 8.6V11M1 6h2.4M8.6 6H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="6" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/>',
   gold:'<circle cx="6" cy="6" r="4.6" fill="currentColor"/><circle cx="6" cy="6" r="2.2" fill="none" stroke="var(--ink)" stroke-width="1"/>'};
+/* rarity: a word in the cards, a small pip on the tile for rare and legendary */
+const rarWord=k=>`<span class="rarword r${rarOf(k)}">${RARN[rarOf(k)]}</span>`;
+const rarPip=k=>rarOf(k)>=2?`<span class="rarpip r${rarOf(k)}" title="${RARN[rarOf(k)]}"></span>`:'';
 const STN={dmg:'damage',heal:'heal',shield:'shield',burn:'burn',poison:'poison',haste:'haste',charge:'charge',slow:'slow',crit:'crit chance',gold:'gold'};
 const statTag=m=>m?`<span class="stag s-${m.k}${m.aura?' aura':''}" title="${m.aura?'Boosts other cargo: ':''}${m.when==='start'?'At the start of a fight: ':m.when==='on'?'When triggered: ':''}${STN[m.k]} ${m.v}"><svg viewBox="0 0 12 12" aria-hidden="true">${STI[m.k]}</svg><b>${m.v}</b></span>`:'';
 const sicon=(k,inner)=>`<svg class="sic" viewBox="0 0 ${inner?12:16} ${inner?12:16}" aria-hidden="true">${inner||SI[k]}</svg>`;
@@ -40,7 +43,7 @@ const kindOf=k=>{const t=DEFS[k].tags;for(const c of'XCWVFARTK')if(t.includes(c)
 function boardHTML(list,side,ups,cap){cap=cap||(side==='p'&&list===G.board?holdCap():HOLD);const cr=list.enemy||side==='e'?null:crewCrafts();
   let h=`<div class="board${side==='l'?' locker':''}" data-side="${side}">`;
   list.forEach((it,i)=>{const d=DEFS[it.k],s=statsOf(list,i,cr),use=itemUse(it.k,cr),sel=side==='p'&&!B&&G.moving&&G.sel===i,up=ups&&ups.has(i);
-    h+=`<button class="item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span><span class="tyb"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':+s.cd.toFixed(1)+'s'}</span>${statTag(mainStat(list,i,cr))}</button>`});
+    h+=`<button class="item t${it.t} c-${kindOf(it.k)}${isPassive(it.k)?' passive':''}${sel?' sel':''}${use==='all'?'':' use-'+use}" style="grid-column:span ${d.s}" data-i="${i}" aria-label="${TIER[it.t]} ${d.n}${up?', can be upgraded here':''}${use==='none'?', needs crew':use==='some'?', partly needs crew':''}"><span class="fill"></span><span class="tyb"></span>${emb(it.k)}<span class="ico">${icon(it.k)}</span><span class="nm">${d.n}</span>${up?CHEV:''}<span class="cdt">${isPassive(it.k)?'···':+s.cd.toFixed(1)+'s'}</span>${statTag(mainStat(list,i,cr))}${rarPip(it.k)}</button>`});
   for(let k=used(list);k<cap;k++)h+=`<button class="slot" aria-label="Empty slot"></button>`;
   if(side==='p'&&cap<HOLD)for(let k=cap;k<HOLD;k++)h+=`<span class="slot boarded" title="Boarded up by Double Planking" aria-hidden="true"></span>`;
   return h+'</div>';
@@ -84,7 +87,7 @@ function showItemTip(el){hideItemTip();tipSrc=el;if(!G||document.querySelector('
   const it=list[i],d=DEFS[it.k],{s,L,tags}=describe(list,i),tiles=[...el.parentNode.querySelectorAll('.item')],aff=affectMap(list,i);
   clearMarks();el.classList.add('src');aff.forEach((l,j)=>{const t=tiles[j];if(!t)return;t.classList.add('aff');affTag(t,l)});
   tipEl=document.createElement('div');tipEl.className='itip';tipEl.setAttribute('role','tooltip');
-  tipEl.innerHTML=`<b>${d.n}</b><p class="soft"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}</p><ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>${aff.size?`<p class="itip-aff">Works on ${aff.size} of your other items.</p>`:''}`;
+  tipEl.innerHTML=`<b>${d.n}</b><p class="soft">${rarWord(it.k)} <span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}</p><ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>${aff.size?`<p class="itip-aff">Works on ${aff.size} of your other items.</p>`:''}`;
   document.body.appendChild(tipEl);const r=el.getBoundingClientRect(),t=tipEl.getBoundingClientRect();
   let x=Math.min(innerWidth-t.width-8,Math.max(8,r.left+r.width/2-t.width/2)),y=r.top-t.height-10;if(y<8)y=r.bottom+10;
   tipEl.style.left=x+'px';tipEl.style.top=y+'px'}
@@ -109,7 +112,7 @@ document.addEventListener('focusin',e=>{if(hoverTalk()&&e.target.closest&&e.targ
 function itemSheet(list,i,mode,after){
   const it=list[i],d=DEFS[it.k],{s,L,g,tags}=describe(list,i),inL=list===G.locker,other=inL?G.board:G.locker,ocap=inL?holdCap():LOCK;
   const canSwap=G.locker&&mode!=='view'&&(G.locker===list||G.board===list),swapOk=canSwap&&used(other)+d.s<=ocap;
-  const ov=overlay(`<div class="sh-top"><span class="big t${it.t}">${icon(it.k)}</span><div><h2>${d.n}</h2><p class="soft" style="margin-top:4px"><span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s cooldown`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}${d.ship!=='any'?`. ${SHIPS[d.ship].n}'s cargo`:''}</p></div></div>
+  const ov=overlay(`<div class="sh-top"><span class="big t${it.t}">${icon(it.k)}</span><div><h2>${d.n}</h2><p class="soft" style="margin-top:4px">${rarWord(it.k)} <span class="tierword">${TIER[it.t]}</span>, size ${d.s}${s.cd?`, ${s.cd}s cooldown`:', passive'}${tags.length?`. ${tags.join(', ')}`:''}${d.ship!=='any'?`. ${SHIPS[d.ship].n}'s cargo`:''}</p></div></div>
     ${inL?'<p class="gloss">In your locker. Locker cargo stays out of fights.</p>':''}
     <ul>${L.map(l=>`<li>${l}</li>`).join('')}</ul>
     ${g.length?`<div class="gloss">${g.map(x=>`<span>${x}</span>`).join('')}</div>`:''}

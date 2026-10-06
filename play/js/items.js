@@ -220,6 +220,15 @@ I('witch','Sea Witch',1,0,'K','any',{hat:'hood',hair:1},{});
 I('apothecary','Apothecary',1,0,'K','any',{hat:'hood'},{});
 I('chemist','Powder Chemist',1,0,'K','any',{hat:'bandana',patch:1},{});
 
+/* LEGENDARY: one of a kind, for any ship. Never sold, never in an enemy's hold: found in a boss's spoils and, rarely, in a wreck's cabin */
+I('longtom','Long Tom',3,9,'W,C','any','longtom',{dmg:55,pierce:1});
+I('admsword',"Admiral's Sword",2,5,'W','any','admsword',{dmg:24,crit:.35,on:[{ev:'crit',haste:['all',1]}]});
+I('seaclock','Sea Clock',1,0,'T','any','seaclock',{start:{charge:['all',2.5]}});
+I('surgeon',"Surgeon's Chest",2,8,'T','any','surgeon',{heal:38,cleanse:1});
+I('krakenink',"Kraken's Ink",1,7,'V','any','krakenink',{poison:10,slow:[2,2]});
+I('astrolabe',"Mariner's Astrolabe",1,0,'T','any','astrolabe',{tagPre:['W',.5]});
+I('liveoak','Live Oak Planking',2,7,'A','any','liveoak',{shield:45,heal:12});
+I('infernal','Infernal Machine',2,9,'X,C','any','infernal',{dmg:40,burn:10,selfDmg:3});
 const DEFS={};CI.forEach(([k,n,s,cd,tags,ship,g,f])=>{DEFS[k]=Object.assign({n,s,cd,tags:tags?tags.split(','):[],ship},f,typeof g==='string'?{i:g}:{look:g})});
 const KEYS=Object.keys(DEFS);
 const SHIPKEYS=['sloop','galleon','privateer','junk'];
@@ -249,9 +258,29 @@ const RETIRED=new Set([
   // the Lotus: small snacks, doubled cures and calm pieces, and passives that doubled up
   'jasmine','dumplings','serpentwine','bamboo','whisper','fan','pearlpowder','antidote','acupuncture','tidebell','tortoiseshell','lotuslamp','incense','lanternrow','lotusflower'
 ]);
-function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship&&!isCrewKey(k)&&!RETIRED.has(k))}
-const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any'&&!isCrewKey(k)&&!RETIRED.has(k));
-function drawKey(r,ship){ship=ship||(G&&G.ship)||pick(r,SHIPKEYS);return r()<.2?pick(r,NEUTRAL):pick(r,poolFor(ship))}
+/* ---------- rarity, separate from tier: ports sell common and uncommon; the world holds the rare; legendary pieces are one of a kind ---------- */
+const RARN=['Common','Uncommon','Rare','Legendary'];
+const UNCOMMON=new Set(['cutlass','harpoon','net','compass','spyglass','chest',
+  'rum','topsail','twinblades','sabre','cutlass2','quickdraw','pistols','windlass','sandglass','kite','slipstream','duelglove',
+  'plating','pavise','tortoise','shieldbash','grapeshot','capstan','drydock','keel','standard','figure','ram',
+  'blunderbuss','hotshot','twinswivel','crossfire','rocket','burstkeg','petard','greekfire','coalpan','powderhorn','gunwale','magazine',
+  'pump','noodles','blowpipe','moray','seasnake','glowcap','toxinsac','lacquer','clam','abacus','galley']);
+const RARE=new Set(['mainsail','spinnaker','crows','flintlock','lastword','jollyboat','tailwind','bowsprit',
+  'anchor','bastion','fortress','crusher','carronade','halberd','maul','ironbound','lastline',
+  'cannon','mortar','broadside','bombard','fireship','hellburner','furnace','phoenix',
+  'jellyfish','miasma','guandao','dragonkite','stillwater','koi','jade','moongate']);
+const LEGEND=new Set(['longtom','admsword','seaclock','surgeon','krakenink','astrolabe','liveoak','infernal']);
+const rarOf=k=>LEGEND.has(k)?3:RARE.has(k)?2:UNCOMMON.has(k)?1:0;
+/* how often each rarity turns up, by where you find it: [common, uncommon, rare] */
+const RARW={shop:[70,30,0],spoils:[45,38,17],elite:[28,46,26],boss:[10,42,48],salvage:[0,55,45],contraband:[0,45,55],crate:[40,45,15]};
+const pickRar=(r,w)=>{let x=r()*(w[0]+w[1]+w[2]);for(let i=0;i<3;i++){if((x-=w[i])<0)return i}return 0};
+function poolFor(ship){return KEYS.filter(k=>DEFS[k].ship===ship&&!isCrewKey(k)&&!RETIRED.has(k)&&!LEGEND.has(k))}
+const NEUTRAL=KEYS.filter(k=>DEFS[k].ship==='any'&&!isCrewKey(k)&&!RETIRED.has(k)&&!LEGEND.has(k));
+/* a key from your ship's set (or now and then the shared set); rar keeps it to one rarity when the pool has any */
+function drawKey(r,ship,rar){ship=ship||(G&&G.ship)||pick(r,SHIPKEYS);const pool=r()<.2?NEUTRAL:poolFor(ship);
+  if(rar==null)return pick(r,pool);const p=pool.filter(k=>rarOf(k)===rar);return pick(r,p.length?p:poolFor(ship).filter(k=>rarOf(k)===rar).length?poolFor(ship).filter(k=>rarOf(k)===rar):pool)}
+/* a legendary piece you don't already carry, or null when you have them all */
+function legendFor(r){const have=new Set([...(G.board||[]),...(G.locker||[])].map(o=>o.k)),p=[...LEGEND].filter(k=>!have.has(k));return p.length?{k:pick(r,p),t:0}:null}
 
 /* ---------- crafts: every ability belongs to one. On your ship an ability only works if someone on deck has its craft. Enemies need no crew. ---------- */
 const CRAFTS={steel:'Steel',gun:'Gunnery',fire:'Fire',alch:'Alchemy',med:'Medicine',carp:'Carpentry',sea:'Seamanship'};
